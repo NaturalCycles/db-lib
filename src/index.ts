@@ -17,6 +17,7 @@ import {
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
 import {
+  assignIdCreatedUpdated,
   createdUpdatedFields,
   createdUpdatedIdFields,
   deserializeJsonField,
@@ -47,6 +48,7 @@ export {
   createdUpdatedFields,
   createdUpdatedIdFields,
   idField,
+  assignIdCreatedUpdated,
   InMemoryDB,
   serializeJsonField,
   deserializeJsonField,

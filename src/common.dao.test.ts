@@ -1,4 +1,4 @@
-import { deepFreeze, mockTime } from '@naturalcycles/test-lib'
+import { mockTime } from '@naturalcycles/test-lib'
 import { CommonDao } from './common.dao'
 import { InMemoryDB } from './inMemory.db'
 import { mockTestData, TEST_KIND, TestKindBM, testKindBMSchema } from './test/testData.mock'
@@ -39,20 +39,4 @@ test('full test', async () => {
   expect(await dao.getById('id1')).toMatchSnapshot()
   expect(await dao.getByIds(['id1', 'id2', 'idX'])).toMatchSnapshot()
   expect(await dao.getBy('c', true)).toMatchSnapshot()
-})
-
-test('assignIdCreatedUpdated', () => {
-  const o = {
-    id: '123',
-    updated: 123,
-    created: 123,
-  }
-
-  deepFreeze(o)
-
-  const dao = createDao()
-
-  // Should preserve
-  expect(dao.assignIdCreatedUpdated(o, true)).toEqual(o)
-  expect(dao.assignIdCreatedUpdated(o)).toMatchSnapshot()
 })

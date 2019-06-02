@@ -2,7 +2,6 @@ import {
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
-  stringId,
 } from '@naturalcycles/nodejs-lib'
 import { Observable } from 'rxjs'
 import { map, mergeMap } from 'rxjs/operators'
@@ -15,7 +14,7 @@ import {
   ObjectWithId,
 } from './db.model'
 import { DBQuery } from './dbQuery'
-import { createdUpdatedFields } from './model.util'
+import { assignIdCreatedUpdated, createdUpdatedFields } from './model.util'
 
 export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
   db: DB
@@ -238,7 +237,7 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     if (bm === undefined) return undefined as any
 
     // Does not mutate
-    bm = this.assignIdCreatedUpdated(bm, opts.preserveUpdatedCreated)
+    bm = assignIdCreatedUpdated(bm, opts.preserveUpdatedCreated)
 
     // Validate/convert BM
     // bm gets assigned to the new reference
@@ -305,16 +304,5 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     }
 
     return value // converted value
-  }
-
-  assignIdCreatedUpdated<T> (obj: T, preserveUpdatedCreated = false): T & BaseDBEntity {
-    const now = Math.floor(Date.now() / 1000)
-
-    return {
-      ...(obj as any),
-      id: (obj as any).id || stringId(),
-      created: (obj as any).created || (obj as any).updated || now,
-      updated: preserveUpdatedCreated && (obj as any).updated ? (obj as any).updated : now,
-    }
   }
 }

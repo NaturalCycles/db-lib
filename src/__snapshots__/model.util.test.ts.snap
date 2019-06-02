@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assignIdCreatedUpdated 1`] = `
+Object {
+  "created": 123,
+  "id": "123",
+  "updated": 1529539200,
+}
+`;
