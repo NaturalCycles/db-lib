@@ -1,0 +1,35 @@
+{
+  "name": "@naturalcycles/db-lib",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@naturalcycles/dev-lib": "^7.12.0",
+    "@naturalcycles/semantic-release": "^1.0.0",
+    "@types/node": "^12.0.4",
+    "jest": "^24.8.0"
+  },
+  "files": [
+    "dist",
+    "src",
+    "!src/test",
+    "!src/**/*.test.ts",
+    "!src/**/__snapshots__",
+    "!src/**/__exclude"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NaturalCycles/db-lib"
+  },
+  "engines": {
+    "node": ">=10.13"
+  },
+  "version": "0.0.0",
+  "description": "",
+  "author": "Natural Cycles Team",
+  "license": "MIT"
+}
