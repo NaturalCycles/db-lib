@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/NaturalCycles/db-lib/compare/v1.1.0...v1.2.0) (2019-06-02)
+
+
+### Features
+
+* extract assignIdCreatedUpdated ([016aa54](https://github.com/NaturalCycles/db-lib/commit/016aa54))
+
 # [1.1.0](https://github.com/NaturalCycles/db-lib/compare/v1.0.0...v1.1.0) (2019-06-02)
 
 
