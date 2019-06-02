@@ -11,8 +11,18 @@ import {
   CreatedUpdatedId,
   CreatedUpdatedVer,
   DBModelType,
+  DBRelation,
+  ObjectWithId,
 } from './db.model'
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
+import { InMemoryDB } from './inMemory.db'
+import {
+  createdUpdatedFields,
+  createdUpdatedIdFields,
+  deserializeJsonField,
+  idField,
+  serializeJsonField,
+} from './model.util'
 
 export {
   DBQuery,
@@ -24,12 +34,20 @@ export {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDB,
+  DBRelation,
   DBModelType,
   CreatedUpdated,
   CreatedUpdatedId,
   CreatedUpdatedVer,
+  ObjectWithId,
   BaseDBEntity,
   baseDBEntitySchema,
   CommonDaoCfg,
   CommonDao,
+  createdUpdatedFields,
+  createdUpdatedIdFields,
+  idField,
+  InMemoryDB,
+  serializeJsonField,
+  deserializeJsonField,
 }

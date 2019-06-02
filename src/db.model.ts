@@ -34,16 +34,33 @@ export interface CommonDB {
 
   // QUERY
   runQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
+  runQueryCount<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
   streamQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
 
   // SAVE
-  saveBatch<DBM = any> (table: string, dbms: DBM[], opts?: CommonDBSaveOptions): Promise<DBM[]>
+  saveBatch<DBM extends BaseDBEntity = any> (
+    table: string,
+    dbms: DBM[],
+    opts?: CommonDBSaveOptions,
+  ): Promise<DBM[]>
 
   // DELETE
   /**
    * @returns array of deleted items' ids
    */
-  deleteByIds (table: string, ids: string[]): Promise<string[]>
+  deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]>
+  deleteBy (
+    table: string,
+    by: string,
+    value: any,
+    limit?: number,
+    opts?: CommonDBOptions,
+  ): Promise<string[]>
+}
+
+export enum DBRelation {
+  ONE_TO_ONE = 'ONE_TO_ONE',
+  ONE_TO_MANY = 'ONE_TO_MANY',
 }
 
 export enum DBModelType {
@@ -64,6 +81,10 @@ export interface CreatedUpdatedVer {
   created: number
   updated: number
   _ver?: number
+}
+
+export interface ObjectWithId {
+  id: string
 }
 
 export interface BaseDBEntity {

@@ -12,14 +12,16 @@ import {
   CommonDaoSaveOptions,
   CommonDB,
   DBModelType,
+  ObjectWithId,
 } from './db.model'
 import { DBQuery } from './dbQuery'
+import { createdUpdatedFields } from './model.util'
 
-export interface CommonDaoCfg<BM, DBM> {
-  db: CommonDB
+export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
+  db: DB
   table: string
-  dbmSchema?: ObjectSchemaTyped<DBM, DBM>
-  bmSchema?: ObjectSchemaTyped<BM, BM>
+  dbmSchema?: ObjectSchemaTyped<DBM>
+  bmSchema?: ObjectSchemaTyped<BM>
 
   /**
    * @default false
@@ -40,8 +42,8 @@ export interface CommonDaoCfg<BM, DBM> {
  * DBM = Database model (how it's stored in DB)
  * BM = Backend model (optimized for API access)
  */
-export class CommonDao<BM = any, DBM = BM> {
-  constructor (private cfg: CommonDaoCfg<BM, DBM>) {}
+export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity = BM> {
+  constructor (protected cfg: CommonDaoCfg<BM, DBM>) {}
 
   // to be extended
   beforeCreate (bm: Partial<BM>): BM {
@@ -63,11 +65,38 @@ export class CommonDao<BM = any, DBM = BM> {
     return bm as any
   }
 
+  // CREATE
+  create (input: BM, opts: CommonDaoOptions = {}): BM {
+    if (opts.throwOnError === undefined) {
+      opts.throwOnError = this.cfg.throwOnDaoCreateObject
+    }
+
+    let bm = Object.assign({}, this.beforeCreate(input))
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+
+    // If no SCHEMA - return as is
+    return Object.assign({}, bm)
+  }
+
   // GET
   async getById (id?: string, opts?: CommonDaoOptions): Promise<BM | undefined> {
     if (!id) return
     const [dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
     return this.dbmToBM(dbm, opts)
+  }
+
+  async getByIdOrCreate (id: string, bmToCreate: BM, opts?: CommonDaoOptions): Promise<BM> {
+    const bm = await this.getById(id, opts)
+    if (bm) return bm
+
+    return this.create(bmToCreate, opts)
+  }
+
+  async getByIdOrEmpty (id: string, opts?: CommonDaoOptions): Promise<BM> {
+    const bm = await this.getById(id, opts)
+    if (bm) return bm
+
+    return this.create({ id, ...createdUpdatedFields() } as any, opts)
   }
 
   async getByIdAsDBM (id?: string, opts?: CommonDaoOptions): Promise<DBM | undefined> {
@@ -87,7 +116,26 @@ export class CommonDao<BM = any, DBM = BM> {
     return r
   }
 
+  async getBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<BM[]> {
+    const q = this.createQuery(this.cfg.table)
+      .filter(by, '=', value)
+      .limit(limit)
+    return this.runQuery(q, opts)
+  }
+
+  async getOneBy (by: string, value: any, opts?: CommonDaoOptions): Promise<BM | undefined> {
+    const q = this.createQuery(this.cfg.table)
+      .filter(by, '=', value)
+      .limit(1)
+    const [bm] = await this.runQuery(q, opts)
+    return bm
+  }
+
   // QUERY
+  createQuery (table: string): DBQuery<DBM> {
+    return new DBQuery<DBM>(table)
+  }
+
   async runQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
     const dbms = await this.cfg.db.runQuery(q, opts)
     return this.dbmsToBM(dbms, opts)
@@ -98,12 +146,25 @@ export class CommonDao<BM = any, DBM = BM> {
     return this.anyToDBMs(entities, opts)
   }
 
+  async runQueryCount (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
+    return this.cfg.db.runQueryCount(q, opts)
+  }
+
   streamQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<BM> {
     return this.cfg.db.streamQuery(q).pipe(mergeMap(dbm => this.dbmToBM(dbm, opts)))
   }
 
   streamQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
     return this.cfg.db.streamQuery(q).pipe(map(entity => this.anyToDBM(entity, opts)))
+  }
+
+  async queryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
+    const rows = await this.cfg.db.runQuery<ObjectWithId>(q.select(['id']), opts)
+    return rows.map(row => row.id)
+  }
+
+  streamQueryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<string> {
+    return this.cfg.db.streamQuery<ObjectWithId>(q.select(['id']), opts).pipe(map(row => row.id))
   }
 
   // SAVE
@@ -142,6 +203,13 @@ export class CommonDao<BM = any, DBM = BM> {
 
   async deleteByIds (ids: string[]): Promise<string[]> {
     return this.cfg.db.deleteByIds(this.cfg.table, ids)
+  }
+
+  async deleteBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<string[]> {
+    // const q = this.createQuery(this.cfg.table).filter(by, '=', value).limit(limit).select(['id'])
+    // const ids = await this.cfg.db.runQuery<string>(q, opts)
+    // return this.cfg.db.deleteByIds(this.cfg.table, ids)
+    return this.cfg.db.deleteBy(this.cfg.table, by, value, limit, opts)
   }
 
   // CONVERSIONS
@@ -206,7 +274,7 @@ export class CommonDao<BM = any, DBM = BM> {
    */
   validateAndConvert<T = any> (
     obj: T,
-    schema?: ObjectSchemaTyped<T, T>,
+    schema?: ObjectSchemaTyped<T>,
     modelType?: DBModelType,
     opts: CommonDaoOptions = {},
   ): T {

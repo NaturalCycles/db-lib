@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`assignIdCreatedUpdated 1`] = `
+Object {
+  "created": 123,
+  "id": "123",
+  "updated": 1529539200,
+}
+`;
+
+exports[`full test 1`] = `
+Object {
+  "a": "a1",
+  "b": "b1",
+  "c": false,
+  "created": 1529539200,
+  "id": "id1",
+  "updated": 1529539200,
+}
+`;
+
+exports[`full test 2`] = `
+Array [
+  Object {
+    "a": "a1",
+    "b": "b1",
+    "c": false,
+    "created": 1529539200,
+    "id": "id1",
+    "updated": 1529539200,
+  },
+  Object {
+    "a": "a2",
+    "b": "b2",
+    "c": true,
+    "created": 1529539200,
+    "id": "id2",
+    "updated": 1529539200,
+  },
+]
+`;
+
+exports[`full test 3`] = `
+Array [
+  Object {
+    "a": "a2",
+    "b": "b2",
+    "c": true,
+    "created": 1529539200,
+    "id": "id2",
+    "updated": 1529539200,
+  },
+  Object {
+    "a": "a4",
+    "b": "b4",
+    "c": true,
+    "created": 1529539200,
+    "id": "id4",
+    "updated": 1529539200,
+  },
+]
+`;
