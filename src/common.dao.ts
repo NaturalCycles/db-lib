@@ -116,14 +116,14 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   }
 
   async getBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<BM[]> {
-    const q = this.createQuery(this.cfg.table)
+    const q = this.createQuery()
       .filter(by, '=', value)
       .limit(limit)
     return this.runQuery(q, opts)
   }
 
   async getOneBy (by: string, value: any, opts?: CommonDaoOptions): Promise<BM | undefined> {
-    const q = this.createQuery(this.cfg.table)
+    const q = this.createQuery()
       .filter(by, '=', value)
       .limit(1)
     const [bm] = await this.runQuery(q, opts)
@@ -131,8 +131,8 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   }
 
   // QUERY
-  createQuery (table: string): DBQuery<DBM> {
-    return new DBQuery<DBM>(table)
+  createQuery (): DBQuery<DBM> {
+    return new DBQuery<DBM>(this.cfg.table)
   }
 
   async runQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
