@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/NaturalCycles/db-lib/compare/v1.2.0...v1.2.1) (2019-06-03)
+
+
+### Bug Fixes
+
+* createQuery() ([18be3a7](https://github.com/NaturalCycles/db-lib/commit/18be3a7))
+
 # [1.2.0](https://github.com/NaturalCycles/db-lib/compare/v1.1.0...v1.2.0) (2019-06-02)
 
 
