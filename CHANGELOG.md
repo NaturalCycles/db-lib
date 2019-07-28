@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/NaturalCycles/db-lib/compare/v1.2.1...v1.3.0) (2019-07-28)
+
+
+### Features
+
+* use db-dev-lib, fix in-mem .select([]) ([d79ec6c](https://github.com/NaturalCycles/db-lib/commit/d79ec6c))
+
 ## [1.2.1](https://github.com/NaturalCycles/db-lib/compare/v1.2.0...v1.2.1) (2019-06-03)
 
 
