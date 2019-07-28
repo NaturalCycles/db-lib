@@ -1,4 +1,4 @@
-import { pick, StringMap } from '@naturalcycles/js-lib'
+import { _pick, StringMap } from '@naturalcycles/js-lib'
 import { Observable, Subject } from 'rxjs'
 import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -90,7 +90,9 @@ export class InMemoryDB implements CommonDB {
 
     // .select(fieldNames)
     if (q._selectedFieldNames) {
-      rows = rows.map(row => pick(row, q._selectedFieldNames))
+      rows = rows.map(row =>
+        _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : ['id']),
+      )
     }
 
     // todo: only one order is supported (first)

@@ -1,4 +1,4 @@
-import { arrayRange } from '@naturalcycles/js-lib'
+import { _range } from '@naturalcycles/js-lib'
 import { booleanSchema, objectSchema, stringSchema } from '@naturalcycles/nodejs-lib'
 import { BaseDBEntity, baseDBEntitySchema } from '../db.model'
 import { createdUpdatedFields } from '../model.util'
@@ -18,7 +18,7 @@ export const testKindBMSchema = objectSchema<TestKindBM>({
 }).concat(baseDBEntitySchema)
 
 export function mockTestData (): TestKindBM[] {
-  return arrayRange(1, 5).map(num => ({
+  return _range(1, 5).map(num => ({
     id: `id${num}`,
     a: `a${num}`,
     b: `b${num}`,

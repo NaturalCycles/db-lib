@@ -2,13 +2,14 @@
   "name": "@naturalcycles/db-lib",
   "scripts": {},
   "dependencies": {
-    "@naturalcycles/js-lib": "^7.1.0",
+    "@naturalcycles/js-lib": "^8.2.1",
     "@naturalcycles/nodejs-lib": "^6.5.0"
   },
   "peerDependencies": {
     "rxjs": "^6.5.2"
   },
   "devDependencies": {
+    "@naturalcycles/db-dev-lib": "^1.0.0",
     "@naturalcycles/dev-lib": "^7.12.0",
     "@naturalcycles/semantic-release": "^1.0.0",
     "@naturalcycles/test-lib": "^1.0.3",
