@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/NaturalCycles/db-lib/compare/v1.4.1...v1.4.2) (2019-08-10)
+
+
+### Bug Fixes
+
+* better log formatting ([aaaeb66](https://github.com/NaturalCycles/db-lib/commit/aaaeb66))
+
 ## [1.4.1](https://github.com/NaturalCycles/db-lib/compare/v1.4.0...v1.4.1) (2019-08-10)
 
 
