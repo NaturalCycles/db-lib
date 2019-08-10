@@ -82,12 +82,12 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     if (Array.isArray(res)) {
       logRes = `${res.length} row(s)`
       if (res.length && this.cfg.logLevel >= CommonDaoLogLevel.DATA_FULL) {
-        args.push(res.slice(0, 10)) // max 10 items
+        args.push('\n', res.slice(0, 10)) // max 10 items
       }
     } else if (res) {
       logRes = `1 row`
       if (this.cfg.logLevel >= CommonDaoLogLevel.DATA_SINGLE) {
-        args.push(res)
+        args.push('\n', res)
       }
     } else {
       logRes = `undefined`
@@ -113,7 +113,7 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
       const args: any[] = [`>> ${this.cfg.table}.${op}`]
       if (Array.isArray(items)) {
         if (items.length && this.cfg.logLevel! >= CommonDaoLogLevel.DATA_FULL) {
-          args.push(...items.slice(0, 10))
+          args.push('\n', ...items.slice(0, 10))
         } else {
           args.push(`${items.length} rows`)
         }
