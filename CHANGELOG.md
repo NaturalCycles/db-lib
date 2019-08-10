@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/NaturalCycles/db-lib/compare/v1.3.0...v1.4.0) (2019-08-10)
+
+
+### Features
+
+* logging! ([f48eda7](https://github.com/NaturalCycles/db-lib/commit/f48eda7))
+
 # [1.3.0](https://github.com/NaturalCycles/db-lib/compare/v1.2.1...v1.3.0) (2019-07-28)
 
 
