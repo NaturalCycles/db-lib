@@ -8,9 +8,10 @@
 
 # Supported databases
 
-- [x] GCP Datastore (Firestore in Datastore mode) (datastore-lib)
-- [ ] GCP Firestore (Firestore in Native mode) (firestore-lib)
-- [ ] MySQL (mysql-lib)
+- [x] [datastore-lib](https://github.com/NaturalCycles/datastore-lib) (GCP Datastore, or Firestore
+      in Datastore mode)
+- [x] [firestore-lib](https://github.com/NaturalCycles/firestore-lib) (Firestore in Native mode)
+- [x] [mysql-lib](https://github.com/NaturalCycles/mysql-lib) (MySQL)
 
 # Features
 
@@ -26,19 +27,26 @@
 
 # Concept
 
-CommonDB is a low-level API (no high-level sugar-syntax).
-CommonDao is the opposite - a high-level API (with convenience methods), built on top of CommonDB.
+CommonDB is a low-level API (no high-level sugar-syntax). CommonDao is the opposite - a high-level
+API (with convenience methods), built on top of CommonDB.
 
 Concerns of CommonDB:
+
 - Access to DB (all tables): CRUD (create, read, update, delete)
 - Batch methods (cause they can be more optimal if implemented "natively")
 - Querying
 - Streaming
 
 Concerns of CommonDao:
+
 - Access to one DB Table ("kind")
 - Transformation between DBM and BM, validation/conversion
 - Auto-generating `id`, `created`, `updated` fields
+
+# DEBUG namespaces
+
+- `db-lib:commondao`
+- `db-lib:inmemorydb`
 
 # Packaging
 

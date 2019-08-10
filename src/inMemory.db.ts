@@ -1,4 +1,5 @@
 import { _pick, StringMap } from '@naturalcycles/js-lib'
+import { Debug } from '@naturalcycles/nodejs-lib'
 import { Observable, Subject } from 'rxjs'
 import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -12,6 +13,8 @@ const FILTER_FNS: StringMap<FilterFn> = {
   '>=': (v, val) => v >= val,
 }
 
+const log = Debug('db-lib:inmemorydb')
+
 export class InMemoryDB implements CommonDB {
   // Table > id > row
   data: StringMap<StringMap<any>> = {}
@@ -20,6 +23,7 @@ export class InMemoryDB implements CommonDB {
    * Resets InMemory DB data
    */
   reset (): void {
+    log('reset')
     this.data = {}
   }
 

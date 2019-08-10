@@ -1,10 +1,12 @@
 import {
+  Debug,
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
 } from '@naturalcycles/nodejs-lib'
+import { since } from '@naturalcycles/time-lib'
 import { Observable } from 'rxjs'
-import { map, mergeMap } from 'rxjs/operators'
+import { count, map, mergeMap } from 'rxjs/operators'
 import {
   BaseDBEntity,
   CommonDaoOptions,
@@ -16,11 +18,31 @@ import {
 import { DBQuery } from './dbQuery'
 import { assignIdCreatedUpdated, createdUpdatedFields } from './model.util'
 
+export enum CommonDaoLogLevel {
+  /**
+   * Same as undefined
+   */
+  NONE = 0,
+  OPERATIONS = 10,
+  DATA_SINGLE = 20,
+  DATA_FULL = 30,
+}
+
 export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
   db: DB
   table: string
   dbmSchema?: ObjectSchemaTyped<DBM>
   bmSchema?: ObjectSchemaTyped<BM>
+
+  /**
+   * @default OPERATIONS
+   */
+  logLevel?: CommonDaoLogLevel
+
+  /**
+   * @default false
+   */
+  logStarted?: boolean
 
   /**
    * @default false
@@ -35,6 +57,8 @@ export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
   onValidationError?: (err: JoiValidationError) => any
 }
 
+const log = Debug('db-lib:commondao')
+
 /**
  * Lowest common denominator API between supported Databases.
  *
@@ -42,7 +66,68 @@ export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
  * BM = Backend model (optimized for API access)
  */
 export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity = BM> {
-  constructor (protected cfg: CommonDaoCfg<BM, DBM>) {}
+  constructor (protected cfg: CommonDaoCfg<BM, DBM>) {
+    this.cfg = {
+      logLevel: CommonDaoLogLevel.OPERATIONS,
+      ...cfg,
+    }
+  }
+
+  protected logResult (started: number, op: string, res: any): void {
+    if (!this.cfg.logLevel) return
+
+    let logRes: any
+    const args: any[] = []
+
+    if (Array.isArray(res)) {
+      logRes = `${res.length} row(s)`
+      if (res.length && this.cfg.logLevel >= CommonDaoLogLevel.DATA_FULL) {
+        args.push(res.slice(0, 10)) // max 10 items
+      }
+    } else if (res) {
+      logRes = `1 row`
+      if (this.cfg.logLevel >= CommonDaoLogLevel.DATA_SINGLE) {
+        args.push(res)
+      }
+    } else {
+      logRes = `undefined`
+    }
+
+    log(...[` << ${this.cfg.table}.${op}: ${logRes} in ${since(started)}`].concat(args))
+  }
+
+  protected logSaveResult (started: number, op: string): void {
+    if (!this.cfg.logLevel) return
+    log(` << ${this.cfg.table}.${op} in ${since(started)}`)
+  }
+
+  protected logStarted (op: string, force = false): number {
+    if (this.cfg.logStarted || force) {
+      log(` >> ${this.cfg.table}.${op}`)
+    }
+    return Date.now()
+  }
+
+  protected logSaveStarted (op: string, items: any): number {
+    if (this.cfg.logStarted) {
+      const args: any[] = [` >> ${this.cfg.table}.${op}`]
+      if (Array.isArray(items)) {
+        if (items.length && this.cfg.logLevel! >= CommonDaoLogLevel.DATA_FULL) {
+          args.push(...items.slice(0, 10))
+        } else {
+          args.push(`${items.length} rows`)
+        }
+      } else {
+        if (this.cfg.logLevel! >= CommonDaoLogLevel.DATA_SINGLE) {
+          args.push(items)
+        }
+      }
+
+      log(...args)
+    }
+
+    return Date.now()
+  }
 
   // to be extended
   beforeCreate (bm: Partial<BM>): BM {
@@ -80,8 +165,12 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   // GET
   async getById (id?: string, opts?: CommonDaoOptions): Promise<BM | undefined> {
     if (!id) return
+    const op = `getById(${id})`
+    const started = this.logStarted(op)
     const [dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
-    return this.dbmToBM(dbm, opts)
+    const bm = await this.dbmToBM(dbm, opts)
+    this.logResult(started, op, bm)
+    return bm
   }
 
   async getByIdOrCreate (id: string, bmToCreate: BM, opts?: CommonDaoOptions): Promise<BM> {
@@ -100,13 +189,21 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
 
   async getByIdAsDBM (id?: string, opts?: CommonDaoOptions): Promise<DBM | undefined> {
     if (!id) return
+    const op = `getByIdAsDBM(${id})`
+    const started = this.logStarted(op)
     const [entity] = await this.cfg.db.getByIds(this.cfg.table, [id])
-    return this.anyToDBM(entity, opts)
+    const dbm = this.anyToDBM(entity, opts)
+    this.logResult(started, op, dbm)
+    return dbm
   }
 
   async getByIds (ids: string[], opts?: CommonDaoOptions): Promise<BM[]> {
+    const op = `getByIds(${ids.join(', ')})`
+    const started = this.logStarted(op)
     const dbms = await this.cfg.db.getByIds(this.cfg.table, ids)
-    return this.dbmsToBM(dbms, opts)
+    const bms = await this.dbmsToBM(dbms, opts)
+    this.logResult(started, op, bms)
+    return bms
   }
 
   async requireById (id: string, opts?: CommonDaoOptions): Promise<BM> {
@@ -136,25 +233,61 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   }
 
   async runQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
+    const op = `runQuery(${q.pretty()})`
+    const started = this.logStarted(op)
     const dbms = await this.cfg.db.runQuery(q, opts)
-    return this.dbmsToBM(dbms, opts)
+    const bms = await this.dbmsToBM(dbms, opts)
+    this.logResult(started, op, bms)
+    return bms
   }
 
   async runQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<DBM[]> {
+    const op = `runQueryAsDBM(${q.pretty()})`
+    const started = this.logStarted(op)
     const entities = await this.cfg.db.runQuery(q, opts)
-    return this.anyToDBMs(entities, opts)
+    const dbms = this.anyToDBMs(entities, opts)
+    this.logResult(started, op, dbms)
+    return dbms
   }
 
   async runQueryCount (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
-    return this.cfg.db.runQueryCount(q, opts)
+    const op = `runQueryCount(${q.pretty()})`
+    const started = this.logStarted(op)
+    const count = await this.cfg.db.runQueryCount(q, opts)
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      log(` << ${this.cfg.table}.${op}: ${count} rows in ${since(started)}`)
+    }
+    return count
   }
 
   streamQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<BM> {
-    return this.cfg.db.streamQuery(q).pipe(mergeMap(dbm => this.dbmToBM(dbm, opts)))
+    const op = `streamQuery(${q.pretty()})`
+    const started = this.logStarted(op, true)
+    const obs = this.cfg.db.streamQuery(q).pipe(mergeMap(dbm => this.dbmToBM(dbm, opts)))
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      void obs
+        .pipe(count())
+        .toPromise()
+        .then(num => {
+          log(` << ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+        })
+    }
+    return obs
   }
 
   streamQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
-    return this.cfg.db.streamQuery(q).pipe(map(entity => this.anyToDBM(entity, opts)))
+    const op = `streamQueryAsDBM(${q.pretty()})`
+    const started = this.logStarted(op, true)
+    const obs = this.cfg.db.streamQuery(q).pipe(map(entity => this.anyToDBM(entity, opts)))
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      void obs
+        .pipe(count())
+        .toPromise()
+        .then(num => {
+          log(` << ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+        })
+    }
+    return obs
   }
 
   async queryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
@@ -168,27 +301,41 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
 
   // SAVE
   async save (bm: BM, opts?: CommonDaoSaveOptions): Promise<BM> {
-    const [savedBM] = await this.saveBatch([bm], opts)
+    const op = `save(${bm.id})`
+    const started = this.logSaveStarted(op, bm)
+    const dbm = await this.bmToDBM(bm, opts)
+    const [savedDBM] = await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    const savedBM = await this.dbmToBM(savedDBM, opts)
+    this.logSaveResult(started, op)
     return savedBM
   }
 
   async saveAsDBM (dbm: DBM, opts?: CommonDaoSaveOptions): Promise<DBM> {
-    const [savedDBM] = await this.saveBatchAsDBM([dbm], opts)
+    const op = `saveAsDBM(${dbm.id})`
+    const started = this.logSaveStarted(op, dbm)
+    const [savedDBM] = await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    this.logSaveResult(started, op)
     return savedDBM
   }
 
   async saveBatch (bms: BM[], opts?: CommonDaoSaveOptions): Promise<BM[]> {
+    const op = `saveBatch(${bms.map(bm => bm.id).join(', ')})`
+    const started = this.logSaveStarted(op, bms)
     const dbms = await this.bmsToDBM(bms, opts)
     const savedDBMs = await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
-    return this.dbmsToBM(savedDBMs, opts)
+    const savedBMs = await this.dbmsToBM(savedDBMs, opts)
+    this.logSaveResult(started, op)
+    return savedBMs
   }
 
   async saveBatchAsDBM (_dbms: DBM[], opts?: CommonDaoSaveOptions): Promise<DBM[]> {
-    // anyToDBMs
+    const op = `saveBatch(${_dbms.map(dbm => dbm.id).join(', ')})`
+    const started = this.logSaveStarted(op, _dbms)
     const dbms = this.anyToDBMs(_dbms, opts)
-
-    const savedDBMs = await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
-    return this.anyToDBMs(savedDBMs, opts)
+    const savedResults = await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
+    const savedDBMs = this.anyToDBMs(savedResults, opts)
+    this.logSaveResult(started, op)
+    return savedDBMs
   }
 
   // DELETE
@@ -197,18 +344,27 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
    */
   async deleteById (id?: string): Promise<string[]> {
     if (!id) return []
-    return this.cfg.db.deleteByIds(this.cfg.table, [id])
+    const op = `deleteById(${id})`
+    const started = this.logStarted(op)
+    const ids = await this.cfg.db.deleteByIds(this.cfg.table, [id])
+    this.logSaveResult(started, op)
+    return ids
   }
 
   async deleteByIds (ids: string[]): Promise<string[]> {
-    return this.cfg.db.deleteByIds(this.cfg.table, ids)
+    const op = `deleteByIds(${ids.join(', ')})`
+    const started = this.logStarted(op)
+    const deletedIds = await this.cfg.db.deleteByIds(this.cfg.table, ids)
+    this.logSaveResult(started, op)
+    return deletedIds
   }
 
   async deleteBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<string[]> {
-    // const q = this.createQuery(this.cfg.table).filter(by, '=', value).limit(limit).select(['id'])
-    // const ids = await this.cfg.db.runQuery<string>(q, opts)
-    // return this.cfg.db.deleteByIds(this.cfg.table, ids)
-    return this.cfg.db.deleteBy(this.cfg.table, by, value, limit, opts)
+    const op = `deleteBy(${by} = ${value})`
+    const started = this.logStarted(op)
+    const ids = await this.cfg.db.deleteBy(this.cfg.table, by, value, limit, opts)
+    this.logSaveResult(started, op)
+    return ids
   }
 
   // CONVERSIONS

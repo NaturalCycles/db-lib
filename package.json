@@ -3,9 +3,8 @@
   "scripts": {},
   "dependencies": {
     "@naturalcycles/js-lib": "^8.2.1",
-    "@naturalcycles/nodejs-lib": "^6.5.0"
-  },
-  "peerDependencies": {
+    "@naturalcycles/nodejs-lib": "^6.5.0",
+    "@naturalcycles/time-lib": "^1.4.3",
     "rxjs": "^6.5.2"
   },
   "devDependencies": {
@@ -14,8 +13,7 @@
     "@naturalcycles/semantic-release": "^1.0.0",
     "@naturalcycles/test-lib": "^1.0.3",
     "@types/node": "^12.0.4",
-    "jest": "^24.8.0",
-    "rxjs": "^6.5.2"
+    "jest": "^24.8.0"
   },
   "files": [
     "dist",

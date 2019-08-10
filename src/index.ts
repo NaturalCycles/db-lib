@@ -1,4 +1,4 @@
-import { CommonDao, CommonDaoCfg } from './common.dao'
+import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import {
   BaseDBEntity,
   baseDBEntitySchema,
@@ -30,6 +30,7 @@ export {
   DBQueryFilterOperator,
   DBQueryFilter,
   DBQueryOrder,
+  CommonDaoLogLevel,
   CommonDaoOptions,
   CommonDaoSaveOptions,
   CommonDBOptions,

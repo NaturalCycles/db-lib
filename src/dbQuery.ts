@@ -80,4 +80,29 @@ export class DBQuery<DBM = any> {
       _selectedFieldNames: this._selectedFieldNames && [...this._selectedFieldNames],
     })
   }
+
+  pretty (): string {
+    return this.prettyConditions().join(', ')
+  }
+
+  prettyConditions (): string[] {
+    const tokens = []
+
+    if (this.name) {
+      tokens.push(`"${this.name}"`)
+    }
+
+    if (this._selectedFieldNames) {
+      tokens.push(`select(${this._selectedFieldNames.join(',')})`)
+    }
+
+    tokens.push(...this._filters.map(f => `${f.name}${f.op}${f.val}`))
+
+    tokens.push(...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`))
+
+    if (this._limitValue) {
+      tokens.push(`limit ${this._limitValue}`)
+    }
+    return tokens
+  }
 }
