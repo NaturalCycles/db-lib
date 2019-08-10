@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/NaturalCycles/db-lib/compare/v1.4.0...v1.4.1) (2019-08-10)
+
+
+### Bug Fixes
+
+* log spacing ([e103132](https://github.com/NaturalCycles/db-lib/commit/e103132))
+
 # [1.4.0](https://github.com/NaturalCycles/db-lib/compare/v1.3.0...v1.4.0) (2019-08-10)
 
 
