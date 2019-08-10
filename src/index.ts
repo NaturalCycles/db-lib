@@ -13,11 +13,13 @@ import {
   DBModelType,
   DBRelation,
   ObjectWithId,
+  Unsaved,
+  UnsavedDBEntity,
+  unsavedDBEntitySchema,
 } from './db.model'
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
 import {
-  assignIdCreatedUpdated,
   createdUpdatedFields,
   createdUpdatedIdFields,
   deserializeJsonField,
@@ -44,12 +46,14 @@ export {
   ObjectWithId,
   BaseDBEntity,
   baseDBEntitySchema,
+  unsavedDBEntitySchema,
+  UnsavedDBEntity,
+  Unsaved,
   CommonDaoCfg,
   CommonDao,
   createdUpdatedFields,
   createdUpdatedIdFields,
   idField,
-  assignIdCreatedUpdated,
   InMemoryDB,
   serializeJsonField,
   deserializeJsonField,

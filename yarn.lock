@@ -485,17 +485,19 @@
     "@naturalcycles/test-lib" "^1.0.3"
 
 "@naturalcycles/db-lib@^1.2.1":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.3.0.tgz#c617eed7c1c5bdffb22ddfddd913ba275e29ae61"
-  integrity sha512-vsIcli0jeMo1DjWetI62WJQKrjcsqsoiED/1O1CrYJTEZoz4M1pVYqoKk4aqn4E1r4vsk2pRcl8hRuTWBjHwXg==
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.4.2.tgz#e8ab2b3b281f5893ee477244ef33c680dc56b476"
+  integrity sha512-c/DZta3pWNODOuJ2vJ5xgdAgovnzv4kHGuQh8Gjv8bk6X3Qg/Vi5GCxYcz+6CGwV3rt6B1njhJB0p+rBl+/E6w==
   dependencies:
     "@naturalcycles/js-lib" "^8.2.1"
     "@naturalcycles/nodejs-lib" "^6.5.0"
+    "@naturalcycles/time-lib" "^1.4.3"
+    rxjs "^6.5.2"
 
 "@naturalcycles/dev-lib@^7.12.0":
-  version "7.15.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-7.15.1.tgz#4a957838884a2d6a792fe39e19edcfbfbd2f94cd"
-  integrity sha512-vIiGe3Nw+RqEmyarfoJopwXXayFOvN1cPiqztosnkJFh8lxvm5VQWUidv+e20OZIYoDhdYlO7hvjyVMjyarmvg==
+  version "7.16.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-7.16.0.tgz#13a86965e6129703d81d8018cce1a0d424874360"
+  integrity sha512-X9LxGpfEONXE5DjEMrY8soKX6pKIBxqoy/QwvtzkgMhRi7DSNm0a47yrVoGQgjfF4j4EesZ3FfWuXoKOmzN65w==
   dependencies:
     "@commitlint/cli" "^8.0.0"
     "@commitlint/config-conventional" "^8.0.0"
@@ -7420,6 +7422,11 @@ type-fest@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.6.0.tgz#8d2a2370d3df886eb5c90ada1c5bf6188acf838b"
   integrity sha512-q+MB8nYR1KDLrgr4G5yemftpMC7/QLqVndBmEEdqzmNj5dcFOO4Oo8qlwZE3ULT3+Zim1F8Kq4cBnikNhlCMlg==
+
+type-fest@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.7.1.tgz#8dda65feaf03ed78f0a3f9678f1869147f7c5c48"
+  integrity sha512-Ne2YiiGN8bmrmJJEuTWTLJR32nh/JdL1+PSicowtNb0WFpn59GK8/lfD61bVtzguz7b3PBt74nxpv/Pw5po5Rg==
 
 typedarray@^0.0.6:
   version "0.0.6"

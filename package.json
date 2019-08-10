@@ -5,7 +5,8 @@
     "@naturalcycles/js-lib": "^8.2.1",
     "@naturalcycles/nodejs-lib": "^6.5.0",
     "@naturalcycles/time-lib": "^1.4.3",
-    "rxjs": "^6.5.2"
+    "rxjs": "^6.5.2",
+    "type-fest": "^0.7.1"
   },
   "devDependencies": {
     "@naturalcycles/db-dev-lib": "^1.0.0",

@@ -1,29 +1,28 @@
 import { mockTime } from '@naturalcycles/test-lib'
 import { CommonDao } from './common.dao'
 import { InMemoryDB } from './inMemory.db'
-import { mockTestData, TEST_KIND, TestKindBM, testKindBMSchema } from './test/testData.mock'
+import { mockTestData, TEST_KIND, TestKindBM, testKindUnsavedBMSchema } from './test/testData.mock'
 
 const ID = 'randomDatastoreService1'
 
 const db = new InMemoryDB()
 
 const createDao = () => {
-  return new CommonDao<TestKindBM>({
+  const dao = new CommonDao<TestKindBM>({
     table: TEST_KIND,
     db,
-    dbmSchema: testKindBMSchema,
-    bmSchema: testKindBMSchema,
+    dbmUnsavedSchema: testKindUnsavedBMSchema,
+    bmUnsavedSchema: testKindUnsavedBMSchema,
   })
+  dao.createId = () => ID
+  return dao
 }
 
 beforeEach(() => {
   jest.restoreAllMocks()
   mockTime()
-  jest.spyOn(require('@naturalcycles/nodejs-lib'), 'stringId').mockImplementation(() => ID)
   db.reset()
 })
-
-// todo: mock data set, test all methods one by one
 
 test('full test', async () => {
   const dao = createDao()

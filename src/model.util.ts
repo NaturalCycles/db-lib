@@ -1,5 +1,5 @@
 import { stringId } from '@naturalcycles/nodejs-lib'
-import { BaseDBEntity, CreatedUpdated, CreatedUpdatedId, ObjectWithId } from './db.model'
+import { CreatedUpdated, CreatedUpdatedId, ObjectWithId } from './db.model'
 
 export function createdUpdatedFields (existingObject?: CreatedUpdated): CreatedUpdated {
   const now = Math.floor(Date.now() / 1000)
@@ -21,20 +21,6 @@ export function createdUpdatedIdFields (existingObject?: CreatedUpdatedId): Crea
 export function idField (existingObject?: CreatedUpdatedId): ObjectWithId {
   return {
     id: (existingObject && existingObject.id) || stringId(),
-  }
-}
-
-export function assignIdCreatedUpdated<T> (
-  obj: T,
-  preserveUpdatedCreated = false,
-): T & BaseDBEntity {
-  const now = Math.floor(Date.now() / 1000)
-
-  return {
-    ...(obj as any),
-    id: (obj as any).id || stringId(),
-    created: (obj as any).created || (obj as any).updated || now,
-    updated: preserveUpdatedCreated && (obj as any).updated ? (obj as any).updated : now,
   }
 }
 

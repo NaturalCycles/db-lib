@@ -1,5 +1,6 @@
 import { idSchema, objectSchema, unixTimestampSchema, verSchema } from '@naturalcycles/nodejs-lib'
 import { Observable } from 'rxjs'
+import { Merge } from 'type-fest'
 import { DBQuery } from './dbQuery'
 
 /**
@@ -94,9 +95,25 @@ export interface BaseDBEntity {
   _ver?: number
 }
 
+export interface UnsavedDBEntity {
+  id?: string
+  created?: number
+  updated?: number
+  _ver?: number
+}
+
+export type Unsaved<E> = Merge<E, UnsavedDBEntity>
+
 export const baseDBEntitySchema = objectSchema<BaseDBEntity>({
   id: idSchema,
   created: unixTimestampSchema,
   updated: unixTimestampSchema,
+  _ver: verSchema.optional(),
+})
+
+export const unsavedDBEntitySchema = objectSchema<UnsavedDBEntity>({
+  id: idSchema.optional(),
+  created: unixTimestampSchema.optional(),
+  updated: unixTimestampSchema.optional(),
   _ver: verSchema.optional(),
 })
