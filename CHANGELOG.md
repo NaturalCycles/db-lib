@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/NaturalCycles/db-lib/compare/v1.4.2...v1.5.0) (2019-08-10)
+
+
+### Features
+
+* Unsaved ([2c477be](https://github.com/NaturalCycles/db-lib/commit/2c477be))
+
 ## [1.4.2](https://github.com/NaturalCycles/db-lib/compare/v1.4.1...v1.4.2) (2019-08-10)
 
 
