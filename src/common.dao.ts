@@ -93,24 +93,24 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
       logRes = `undefined`
     }
 
-    log(...[` << ${this.cfg.table}.${op}: ${logRes} in ${since(started)}`].concat(args))
+    log(...[`<< ${this.cfg.table}.${op}: ${logRes} in ${since(started)}`].concat(args))
   }
 
   protected logSaveResult (started: number, op: string): void {
     if (!this.cfg.logLevel) return
-    log(` << ${this.cfg.table}.${op} in ${since(started)}`)
+    log(`<< ${this.cfg.table}.${op} in ${since(started)}`)
   }
 
   protected logStarted (op: string, force = false): number {
     if (this.cfg.logStarted || force) {
-      log(` >> ${this.cfg.table}.${op}`)
+      log(`>> ${this.cfg.table}.${op}`)
     }
     return Date.now()
   }
 
   protected logSaveStarted (op: string, items: any): number {
     if (this.cfg.logStarted) {
-      const args: any[] = [` >> ${this.cfg.table}.${op}`]
+      const args: any[] = [`>> ${this.cfg.table}.${op}`]
       if (Array.isArray(items)) {
         if (items.length && this.cfg.logLevel! >= CommonDaoLogLevel.DATA_FULL) {
           args.push(...items.slice(0, 10))
@@ -255,7 +255,7 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     const started = this.logStarted(op)
     const count = await this.cfg.db.runQueryCount(q, opts)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(` << ${this.cfg.table}.${op}: ${count} rows in ${since(started)}`)
+      log(`<< ${this.cfg.table}.${op}: ${count} rows in ${since(started)}`)
     }
     return count
   }
@@ -269,7 +269,7 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
         .pipe(count())
         .toPromise()
         .then(num => {
-          log(` << ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+          log(`<< ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
         })
     }
     return obs
@@ -284,7 +284,7 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
         .pipe(count())
         .toPromise()
         .then(num => {
-          log(` << ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+          log(`<< ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
         })
     }
     return obs
