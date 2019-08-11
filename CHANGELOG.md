@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/NaturalCycles/db-lib/compare/v1.5.0...v1.5.1) (2019-08-11)
+
+
+### Bug Fixes
+
+* fixes ([46c8f12](https://github.com/NaturalCycles/db-lib/commit/46c8f12))
+
 # [1.5.0](https://github.com/NaturalCycles/db-lib/compare/v1.4.2...v1.5.0) (2019-08-10)
 
 
