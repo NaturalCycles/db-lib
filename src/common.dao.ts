@@ -1,23 +1,27 @@
 import {
-  anyObjectSchema,
+  AnySchemaTyped,
   Debug,
   getValidationResult,
+  idSchema,
   JoiValidationError,
+  objectSchema,
   ObjectSchemaTyped,
   stringId,
+  unixTimestampSchema,
+  verSchema,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
 import { Observable } from 'rxjs'
 import { count, map, mergeMap } from 'rxjs/operators'
 import {
   BaseDBEntity,
-  baseDBEntitySchema,
   CommonDaoOptions,
   CommonDaoSaveOptions,
   CommonDB,
   DBModelType,
   ObjectWithId,
   Unsaved,
+  unsavedDBEntitySchema,
 } from './db.model'
 import { DBQuery } from './dbQuery'
 
@@ -36,6 +40,7 @@ export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
   table: string
   dbmUnsavedSchema?: ObjectSchemaTyped<Unsaved<DBM>>
   bmUnsavedSchema?: ObjectSchemaTyped<Unsaved<BM>>
+  idSchema?: AnySchemaTyped<string>
 
   /**
    * @default OPERATIONS
@@ -75,12 +80,33 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
       ...cfg,
     }
 
-    this.bmSavedSchema = baseDBEntitySchema.concat(cfg.bmUnsavedSchema || anyObjectSchema)
-    this.dbmSavedSchema = baseDBEntitySchema.concat(cfg.dbmUnsavedSchema || anyObjectSchema)
+    if (this.cfg.dbmUnsavedSchema) {
+      this.dbmSavedSchema = this.cfg.dbmUnsavedSchema.concat(
+        objectSchema({
+          id: cfg.idSchema || idSchema,
+          created: unixTimestampSchema,
+          updated: unixTimestampSchema,
+          _ver: verSchema.optional(),
+        }),
+      )
+      this.cfg.dbmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.dbmUnsavedSchema)
+    }
+
+    if (this.cfg.bmUnsavedSchema) {
+      this.bmSavedSchema = this.cfg.bmUnsavedSchema.concat(
+        objectSchema({
+          id: cfg.idSchema || idSchema,
+          created: unixTimestampSchema,
+          updated: unixTimestampSchema,
+          _ver: verSchema.optional(),
+        }),
+      )
+      this.cfg.bmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.bmUnsavedSchema)
+    }
   }
 
-  bmSavedSchema!: ObjectSchemaTyped<BM>
-  dbmSavedSchema!: ObjectSchemaTyped<DBM>
+  bmSavedSchema?: ObjectSchemaTyped<BM>
+  dbmSavedSchema?: ObjectSchemaTyped<DBM>
 
   /**
    * To be extended
@@ -215,7 +241,8 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op)
     const dbms = await this.cfg.db.runQuery(q, opts)
-    const bms = await this.dbmsToBM(dbms, opts)
+    const partialQuery = !!q._selectedFieldNames
+    const bms = partialQuery ? (dbms as any[]) : await this.dbmsToBM(dbms, opts)
     this.logResult(started, op, bms)
     return bms
   }
@@ -224,7 +251,8 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op)
     const entities = await this.cfg.db.runQuery(q, opts)
-    const dbms = this.anyToDBMs(entities, opts)
+    const partialQuery = !!q._selectedFieldNames
+    const dbms = partialQuery ? entities : this.anyToDBMs(entities, opts)
     this.logResult(started, op, dbms)
     return dbms
   }
@@ -242,7 +270,13 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   streamQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<BM> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
-    const obs = this.cfg.db.streamQuery(q).pipe(mergeMap(dbm => this.dbmToBM(dbm, opts)))
+    const partialQuery = !!q._selectedFieldNames
+    const obs = this.cfg.db.streamQuery(q).pipe(
+      mergeMap(async dbm => {
+        if (partialQuery) return (dbm as any) as BM
+        return this.dbmToBM(dbm, opts)
+      }),
+    )
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       void obs
         .pipe(count())
@@ -257,7 +291,13 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   streamQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
-    const obs = this.cfg.db.streamQuery(q).pipe(map(entity => this.anyToDBM(entity, opts)))
+    const partialQuery = !!q._selectedFieldNames
+    const obs = this.cfg.db.streamQuery(q).pipe(
+      map(entity => {
+        if (partialQuery) return entity
+        return this.anyToDBM(entity, opts)
+      }),
+    )
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       void obs
         .pipe(count())
