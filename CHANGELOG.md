@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/NaturalCycles/db-lib/compare/v1.5.2...v1.5.3) (2019-08-11)
+
+
+### Bug Fixes
+
+* idSchema ([57606cb](https://github.com/NaturalCycles/db-lib/commit/57606cb))
+
 ## [1.5.2](https://github.com/NaturalCycles/db-lib/compare/v1.5.1...v1.5.2) (2019-08-11)
 
 
