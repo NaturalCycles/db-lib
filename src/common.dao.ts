@@ -4,7 +4,6 @@ import {
   getValidationResult,
   idSchema,
   JoiValidationError,
-  objectSchema,
   ObjectSchemaTyped,
   stringId,
   unixTimestampSchema,
@@ -21,7 +20,6 @@ import {
   DBModelType,
   ObjectWithId,
   Unsaved,
-  unsavedDBEntitySchema,
 } from './db.model'
 import { DBQuery } from './dbQuery'
 
@@ -81,27 +79,23 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     }
 
     if (this.cfg.dbmUnsavedSchema) {
-      this.dbmSavedSchema = this.cfg.dbmUnsavedSchema.concat(
-        objectSchema({
-          id: cfg.idSchema || idSchema,
-          created: unixTimestampSchema,
-          updated: unixTimestampSchema,
-          _ver: verSchema.optional(),
-        }),
-      )
-      this.cfg.dbmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.dbmUnsavedSchema)
+      this.dbmSavedSchema = this.cfg.dbmUnsavedSchema.keys({
+        id: cfg.idSchema || idSchema,
+        created: unixTimestampSchema,
+        updated: unixTimestampSchema,
+        _ver: verSchema.optional(),
+      })
+      // this.cfg.dbmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.dbmUnsavedSchema)
     }
 
     if (this.cfg.bmUnsavedSchema) {
-      this.bmSavedSchema = this.cfg.bmUnsavedSchema.concat(
-        objectSchema({
-          id: cfg.idSchema || idSchema,
-          created: unixTimestampSchema,
-          updated: unixTimestampSchema,
-          _ver: verSchema.optional(),
-        }),
-      )
-      this.cfg.bmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.bmUnsavedSchema)
+      this.bmSavedSchema = this.cfg.bmUnsavedSchema.keys({
+        id: cfg.idSchema || idSchema,
+        created: unixTimestampSchema,
+        updated: unixTimestampSchema,
+        _ver: verSchema.optional(),
+      })
+      // this.cfg.bmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.bmUnsavedSchema)
     }
   }
 
