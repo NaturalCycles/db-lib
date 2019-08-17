@@ -1,3 +1,3 @@
 import { Debug } from '@naturalcycles/nodejs-lib'
 
-Debug.enable('db-lib:*')
+Debug.enable('nc:*')

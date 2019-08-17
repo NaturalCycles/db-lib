@@ -13,7 +13,7 @@ const FILTER_FNS: StringMap<FilterFn> = {
   '>=': (v, val) => v >= val,
 }
 
-const log = Debug('db-lib:inmemorydb')
+const log = Debug('nc:db-lib:inmemorydb')
 
 export class InMemoryDB implements CommonDB {
   // Table > id > row

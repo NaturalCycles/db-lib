@@ -45,8 +45,8 @@ Concerns of CommonDao:
 
 # DEBUG namespaces
 
-- `db-lib:commondao`
-- `db-lib:inmemorydb`
+- `nc:db-lib:commondao`
+- `nc:db-lib:inmemorydb`
 
 # Packaging
 

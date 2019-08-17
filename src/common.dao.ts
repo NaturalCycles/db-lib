@@ -63,7 +63,7 @@ export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
   onValidationError?: (err: JoiValidationError) => any
 }
 
-const log = Debug('db-lib:commondao')
+const log = Debug('nc:db-lib:commondao')
 
 /**
  * Lowest common denominator API between supported Databases.
