@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/NaturalCycles/db-lib/compare/v1.5.3...v1.5.4) (2019-08-17)
+
+
+### Bug Fixes
+
+* change debug namespace to nc:* ([ff801d5](https://github.com/NaturalCycles/db-lib/commit/ff801d5))
+
 ## [1.5.3](https://github.com/NaturalCycles/db-lib/compare/v1.5.2...v1.5.3) (2019-08-11)
 
 
