@@ -94,6 +94,7 @@ export class InMemoryCacheDB implements CommonDB {
   ): Promise<DBM[]> {
     const resultMap: StringMap<DBM> = {}
     const missingIds: string[] = []
+    this.cache[table] = this.cache[table] || {}
 
     if (!opts.skipCache && !this.cfg.skipCache) {
       ids.forEach(id => {
@@ -136,6 +137,7 @@ export class InMemoryCacheDB implements CommonDB {
     opts: CacheCommonDBOptions = {},
   ): Promise<string[]> {
     const deletedIds: string[] = []
+    this.cache[table] = this.cache[table] || {}
 
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       deletedIds.push(...(await this.cfg.downstreamDB.deleteByIds(table, ids, opts)))
@@ -172,6 +174,7 @@ export class InMemoryCacheDB implements CommonDB {
     dbms: DBM[],
     opts: CacheCommonDBSaveOptions = {},
   ): Promise<DBM[]> {
+    this.cache[table] = this.cache[table] || {}
     let savedDBMs = dbms
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       savedDBMs = await this.cfg.downstreamDB.saveBatch(table, dbms, opts)
@@ -186,8 +189,6 @@ export class InMemoryCacheDB implements CommonDB {
     }
 
     if (!opts.skipCache && !this.cfg.skipCache) {
-      this.cache[table] = this.cache[table] || {}
-
       dbms.forEach(dbm => {
         this.cache[table][dbm.id] = dbm
       })
@@ -201,6 +202,8 @@ export class InMemoryCacheDB implements CommonDB {
   }
 
   async runQuery<DBM = any> (q: DBQuery<DBM>, opts: CacheCommonDBOptions = {}): Promise<DBM[]> {
+    this.cache[q.table] = this.cache[q.table] || {}
+
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const dbms = await this.cfg.downstreamDB.runQuery(q, opts)
 
@@ -245,6 +248,8 @@ export class InMemoryCacheDB implements CommonDB {
   }
 
   streamQuery<DBM = any> (q: DBQuery<DBM>, opts: CacheCommonDBSaveOptions = {}): Observable<DBM> {
+    this.cache[q.table] = this.cache[q.table] || {}
+
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       return this.cfg.downstreamDB.streamQuery(q, opts).pipe(
         tap((dbm: any) => {
@@ -273,6 +278,8 @@ export class InMemoryCacheDB implements CommonDB {
     limit?: number,
     opts: CacheCommonDBOptions = {},
   ): Promise<string[]> {
+    this.cache[table] = this.cache[table] || {}
+
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteBy(table, by, value, limit, opts)
 
