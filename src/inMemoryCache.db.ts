@@ -14,6 +14,28 @@ import { queryInMemory } from './inMemory.db'
 
 export interface InMemoryCacheDBCfg {
   downstreamDB: CommonDB
+
+  /**
+   * Global default.
+   * @default false
+   */
+  skipCache?: boolean
+
+  /**
+   * Global default.
+   * @default false
+   */
+  onlyCache?: boolean
+
+  /**
+   * @default false
+   */
+  logCached?: boolean
+
+  /**
+   * @default false
+   */
+  logDownstream?: boolean
 }
 
 export interface CacheCommonDBOptions extends CommonDBOptions {
@@ -73,7 +95,7 @@ export class InMemoryCacheDB implements CommonDB {
     const resultMap: StringMap<DBM> = {}
     const missingIds: string[] = []
 
-    if (!opts.skipCache) {
+    if (!opts.skipCache && !this.cfg.skipCache) {
       ids.forEach(id => {
         const r = (this.cache[table] || {})[id]
         if (r) {
@@ -82,9 +104,13 @@ export class InMemoryCacheDB implements CommonDB {
           missingIds.push(id)
         }
       })
+
+      if (this.cfg.logCached) {
+        log(`getByIds ${ids.length} rows from cache: [${ids.join(', ')}]`)
+      }
     }
 
-    if (missingIds.length && !opts.onlyCache) {
+    if (missingIds.length && !opts.onlyCache && !this.cfg.onlyCache) {
       const results = await this.cfg.downstreamDB.getByIds<ObjectWithId>(table, ids, opts)
       results.forEach(r => {
         resultMap[r.id] = r as any
@@ -92,6 +118,12 @@ export class InMemoryCacheDB implements CommonDB {
           this.cache[table][r.id] = r
         }
       })
+
+      if (this.cfg.logDownstream) {
+        log(
+          `getByIds ${results.length} rows from downstream: [${results.map(r => r.id).join(', ')}]`,
+        )
+      }
     }
 
     // return in right order
@@ -105,17 +137,31 @@ export class InMemoryCacheDB implements CommonDB {
   ): Promise<string[]> {
     const deletedIds: string[] = []
 
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       deletedIds.push(...(await this.cfg.downstreamDB.deleteByIds(table, ids, opts)))
+
+      if (this.cfg.logDownstream) {
+        log(`deleteByIds ${deletedIds.length} rows from downstream: [${deletedIds.join(', ')}]`)
+      }
     }
 
-    if (!opts.skipCache) {
+    if (!opts.skipCache && !this.cfg.skipCache) {
+      const deletedFromCache: string[] = []
       ids.forEach(id => {
         if (this.cache[table][id]) {
           deletedIds.push(id)
+          deletedFromCache.push(id)
+          delete this.cache[table][id]
         }
-        delete this.cache[table][id]
       })
+
+      if (this.cfg.logCached) {
+        log(
+          `deleteByIds ${deletedFromCache.length} rows from cache: [${deletedFromCache.join(
+            ', ',
+          )}]`,
+        )
+      }
     }
 
     return deletedIds
@@ -127,26 +173,42 @@ export class InMemoryCacheDB implements CommonDB {
     opts: CacheCommonDBSaveOptions = {},
   ): Promise<DBM[]> {
     let savedDBMs = dbms
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       savedDBMs = await this.cfg.downstreamDB.saveBatch(table, dbms, opts)
+
+      if (this.cfg.logDownstream) {
+        log(
+          `saveBatch ${savedDBMs.length} rows to downstream: [${savedDBMs
+            .map(r => r.id)
+            .join(', ')}]`,
+        )
+      }
     }
 
-    if (!opts.skipCache) {
+    if (!opts.skipCache && !this.cfg.skipCache) {
       this.cache[table] = this.cache[table] || {}
 
       dbms.forEach(dbm => {
         this.cache[table][dbm.id] = dbm
       })
+
+      if (this.cfg.logCached) {
+        log(`saveBatch ${savedDBMs.length} rows to cache: [${savedDBMs.map(r => r.id).join(', ')}]`)
+      }
     }
 
     return savedDBMs
   }
 
   async runQuery<DBM = any> (q: DBQuery<DBM>, opts: CacheCommonDBOptions = {}): Promise<DBM[]> {
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       const dbms = await this.cfg.downstreamDB.runQuery(q, opts)
 
-      if (!opts.skipCache) {
+      if (this.cfg.logDownstream) {
+        log(`runQuery ${dbms.length} rows from downstream`)
+      }
+
+      if (!opts.skipCache && !opts.skipCache) {
         dbms.forEach((dbm: any) => {
           this.cache[q.table][dbm.id] = dbm
         })
@@ -154,37 +216,54 @@ export class InMemoryCacheDB implements CommonDB {
       return dbms
     }
 
-    if (opts.skipCache) return []
+    if (opts.skipCache || this.cfg.skipCache) return []
 
-    return queryInMemory(q, this.cache[q.table])
+    const dbms = queryInMemory(q, this.cache[q.table])
+
+    if (this.cfg.logCached) {
+      log(`runQuery ${dbms.length} rows from cache`)
+    }
+
+    return dbms
   }
 
   async runQueryCount<DBM = any> (
     q: DBQuery<DBM>,
     opts: CacheCommonDBOptions = {},
   ): Promise<number> {
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       return this.cfg.downstreamDB.runQueryCount(q, opts)
     }
 
     const rows = await this.runQuery(q, opts)
+
+    if (this.cfg.logCached) {
+      log(`runQueryCount ${rows.length} rows from cache`)
+    }
+
     return rows.length
   }
 
   streamQuery<DBM = any> (q: DBQuery<DBM>, opts: CacheCommonDBSaveOptions = {}): Observable<DBM> {
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       return this.cfg.downstreamDB.streamQuery(q, opts).pipe(
         tap((dbm: any) => {
-          if (!opts.skipCache) {
+          if (!opts.skipCache && !this.cfg.skipCache) {
             this.cache[q.table][dbm.id] = dbm
           }
         }),
       )
     }
 
-    if (opts.skipCache) return EMPTY
+    if (opts.skipCache || this.cfg.skipCache) return EMPTY
 
-    return of(...queryInMemory(q, this.cache[q.table]))
+    const rows = queryInMemory(q, this.cache[q.table])
+
+    if (this.cfg.logCached) {
+      log(`runQueryCount ${rows.length} rows from cache`)
+    }
+
+    return of(...rows)
   }
 
   async deleteBy (
@@ -194,10 +273,18 @@ export class InMemoryCacheDB implements CommonDB {
     limit?: number,
     opts: CacheCommonDBOptions = {},
   ): Promise<string[]> {
-    if (!opts.onlyCache) {
+    if (!opts.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteBy(table, by, value, limit, opts)
 
-      if (!opts.skipCache) {
+      if (this.cfg.logDownstream) {
+        log(
+          `deleteBy ${deletedIds.length} rows from downstream and cache: [${deletedIds.join(
+            ', ',
+          )}]`,
+        )
+      }
+
+      if (!opts.skipCache && !this.cfg.skipCache) {
         deletedIds.forEach(id => {
           delete this.cache[table][id]
         })
@@ -206,11 +293,15 @@ export class InMemoryCacheDB implements CommonDB {
       return deletedIds
     }
 
-    if (opts.skipCache) return []
+    if (opts.skipCache || this.cfg.skipCache) return []
 
     const deletedIds = (await this.runQuery(new DBQuery(table).filter(by, '=', value), opts)).map(
       row => row.id,
     )
+
+    if (this.cfg.logCached) {
+      log(`deleteBy ${deletedIds.length} rows from cache: [${deletedIds.join(', ')}]`)
+    }
 
     if (this.cache[table]) {
       deletedIds.forEach(id => {

@@ -13,6 +13,8 @@ import { InMemoryCacheDB } from './inMemoryCache.db'
 const downstreamDB = new InMemoryDB()
 const db = new InMemoryCacheDB({
   downstreamDB,
+  logCached: true,
+  logDownstream: true,
 })
 
 const dao = new CommonDao<TestItem>({
