@@ -98,7 +98,7 @@ export class InMemoryCacheDB implements CommonDB {
 
     if (!opts.skipCache && !this.cfg.skipCache) {
       ids.forEach(id => {
-        const r = (this.cache[table] || {})[id]
+        const r = this.cache[table][id]
         if (r) {
           resultMap[id] = r
         } else {
@@ -107,12 +107,16 @@ export class InMemoryCacheDB implements CommonDB {
       })
 
       if (this.cfg.logCached) {
-        log(`getByIds ${ids.length} rows from cache: [${ids.join(', ')}]`)
+        log(
+          `getByIds ${Object.keys(resultMap).length} rows from cache: [${Object.keys(
+            resultMap,
+          ).join(', ')}]`,
+        )
       }
     }
 
     if (missingIds.length && !opts.onlyCache && !this.cfg.onlyCache) {
-      const results = await this.cfg.downstreamDB.getByIds<ObjectWithId>(table, ids, opts)
+      const results = await this.cfg.downstreamDB.getByIds<ObjectWithId>(table, missingIds, opts)
       results.forEach(r => {
         resultMap[r.id] = r as any
         if (!opts.skipCache) {

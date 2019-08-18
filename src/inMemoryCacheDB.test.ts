@@ -33,3 +33,8 @@ test('testDB', async () => {
 test('testDao', async () => {
   await testDao(dao as any, DBQuery)
 })
+
+test('simple', async () => {
+  const _r = await db.getByIds(TEST_TABLE, ['id1'])
+  // console.log(r)
+})
