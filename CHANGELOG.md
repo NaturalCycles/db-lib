@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/NaturalCycles/db-lib/compare/v1.7.1...v1.7.2) (2019-08-18)
+
+
+### Bug Fixes
+
+* logging issue, caching issue ([649aa3a](https://github.com/NaturalCycles/db-lib/commit/649aa3a))
+
 ## [1.7.1](https://github.com/NaturalCycles/db-lib/compare/v1.7.0...v1.7.1) (2019-08-18)
 
 
