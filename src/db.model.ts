@@ -20,7 +20,17 @@ export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOpti
 /**
  * All properties default to undefined.
  */
-export interface CommonDBOptions {}
+export interface CommonDBOptions {
+  /**
+   * @default false
+   */
+  skipCache?: boolean
+
+  /**
+   * @default false
+   */
+  onlyCache?: boolean
+}
 
 /**
  * All properties default to undefined.
@@ -29,34 +39,26 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
 }
 
-export interface CommonDB {
+export interface CommonDB<DBM extends BaseDBEntity> {
+  resetCache (): Promise<void>
+
   // GET
-  getByIds<DBM = any> (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]>
+  getByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]>
 
   // QUERY
-  runQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
-  runQueryCount<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
-  streamQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
+  runQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
+  runQueryCount (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+  streamQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
 
   // SAVE
-  saveBatch<DBM extends BaseDBEntity = any> (
-    table: string,
-    dbms: DBM[],
-    opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]>
+  saveBatch (table: string, dbms: DBM[], opts?: CommonDBSaveOptions): Promise<DBM[]>
 
   // DELETE
   /**
    * @returns array of deleted items' ids
    */
   deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]>
-  deleteBy (
-    table: string,
-    by: string,
-    value: any,
-    limit?: number,
-    opts?: CommonDBOptions,
-  ): Promise<string[]>
+  deleteByQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<string[]>
 }
 
 export enum DBRelation {

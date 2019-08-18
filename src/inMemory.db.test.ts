@@ -13,14 +13,14 @@ interface TestKind extends BaseDBEntity {
 
 const ID = 'randomDatastoreService1'
 const KIND = 'TestKind'
-const db = new InMemoryDB()
+const db = new InMemoryDB<TestKind>()
 
-beforeEach(() => {
+beforeEach(async () => {
   // mocks
   jest.restoreAllMocks()
   mockTime()
   jest.spyOn(require('@naturalcycles/nodejs-lib'), 'stringId').mockImplementation(() => ID)
-  db.reset()
+  await db.resetCache()
 })
 
 test('should throw on empty id', async () => {
@@ -98,7 +98,7 @@ test('saveBatch, runQueryCount, deleteBy', async () => {
   expect(count).toBe(2)
 
   expect(await db.getByIds(KIND, ['id3'])).toEqual([obj3])
-  await db.deleteBy(KIND, 'b', 'b3')
+  await db.deleteByQuery(new DBQuery<TestKind>(KIND).filter('b', '=', 'b3'))
   expect(await db.getByIds(KIND, ['id3'])).toEqual([])
 })
 

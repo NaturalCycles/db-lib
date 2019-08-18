@@ -5,7 +5,7 @@ import { mockTestData, TEST_KIND, TestKindBM, testKindUnsavedBMSchema } from './
 
 const ID = 'randomDatastoreService1'
 
-const db = new InMemoryDB()
+const db = new InMemoryDB<TestKindBM>()
 
 const createDao = () => {
   const dao = new CommonDao<TestKindBM>({
@@ -18,10 +18,10 @@ const createDao = () => {
   return dao
 }
 
-beforeEach(() => {
+beforeEach(async () => {
   jest.restoreAllMocks()
   mockTime()
-  db.reset()
+  await db.resetCache()
 })
 
 test('full test', async () => {

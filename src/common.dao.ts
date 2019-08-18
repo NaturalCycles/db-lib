@@ -18,7 +18,6 @@ import {
   CommonDaoSaveOptions,
   CommonDB,
   DBModelType,
-  ObjectWithId,
   Unsaved,
 } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -33,8 +32,8 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<BM, DBM, DB extends CommonDB = CommonDB> {
-  db: DB
+export interface CommonDaoCfg<BM, DBM extends BaseDBEntity> {
+  db: CommonDB<DBM>
   table: string
   dbmUnsavedSchema?: ObjectSchemaTyped<Unsaved<DBM>>
   bmUnsavedSchema?: ObjectSchemaTyped<Unsaved<BM>>
@@ -71,7 +70,7 @@ const log = Debug('nc:db-lib:commondao')
  * DBM = Database model (how it's stored in DB)
  * BM = Backend model (optimized for API access)
  */
-export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity = BM> {
+export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   constructor (protected cfg: CommonDaoCfg<BM, DBM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
@@ -304,12 +303,12 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
   }
 
   async queryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
-    const rows = await this.cfg.db.runQuery<ObjectWithId>(q.select(['id']), opts)
+    const rows = await this.cfg.db.runQuery(q.select(['id']), opts)
     return rows.map(row => row.id)
   }
 
   streamQueryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<string> {
-    return this.cfg.db.streamQuery<ObjectWithId>(q.select(['id']), opts).pipe(map(row => row.id))
+    return this.cfg.db.streamQuery(q.select(['id']), opts).pipe(map(row => row.id))
   }
 
   assignIdCreatedUpdated (dbm: Unsaved<DBM>, opts: CommonDaoOptions = {}): DBM {
@@ -385,10 +384,10 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     return deletedIds
   }
 
-  async deleteBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<string[]> {
-    const op = `deleteBy(${by} = ${value})`
+  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
+    const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op)
-    const ids = await this.cfg.db.deleteBy(this.cfg.table, by, value, limit, opts)
+    const ids = await this.cfg.db.deleteByQuery(q, opts)
     this.logSaveResult(started, op)
     return ids
   }

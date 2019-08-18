@@ -5,13 +5,16 @@ import {
   TestItem,
   testItemUnsavedSchema,
 } from '@naturalcycles/db-dev-lib'
+import { CacheDB } from './cache.db'
 import { CommonDao, CommonDaoLogLevel } from './common.dao'
 import { DBQuery } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
-import { InMemoryCacheDB } from './inMemoryCache.db'
 
-const downstreamDB = new InMemoryDB()
-const db = new InMemoryCacheDB({
+const downstreamDB = new InMemoryDB<TestItem>()
+const cacheDB = new InMemoryDB<TestItem>()
+const db = new CacheDB({
+  name: 'cache-db',
+  cacheDB,
   downstreamDB,
   logCached: true,
   logDownstream: true,
@@ -27,7 +30,7 @@ const dao = new CommonDao<TestItem>({
 })
 
 test('testDB', async () => {
-  await testDB(db, DBQuery)
+  await testDB(db as any, DBQuery)
 })
 
 test('testDao', async () => {

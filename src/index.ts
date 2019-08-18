@@ -1,3 +1,4 @@
+import { CacheDB, CacheDBCfg } from './cache.db'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import {
   BaseDBEntity,
@@ -19,12 +20,6 @@ import {
 } from './db.model'
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
-import {
-  CacheCommonDBOptions,
-  CacheCommonDBSaveOptions,
-  InMemoryCacheDB,
-  InMemoryCacheDBCfg,
-} from './inMemoryCache.db'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -63,8 +58,6 @@ export {
   InMemoryDB,
   serializeJsonField,
   deserializeJsonField,
-  InMemoryCacheDBCfg,
-  CacheCommonDBOptions,
-  CacheCommonDBSaveOptions,
-  InMemoryCacheDB,
+  CacheDBCfg,
+  CacheDB,
 }

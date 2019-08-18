@@ -15,32 +15,29 @@ const FILTER_FNS: StringMap<FilterFn> = {
 
 const log = Debug('nc:db-lib:inmemorydb')
 
-export class InMemoryDB implements CommonDB {
+export class InMemoryDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
   // Table > id > row
   data: StringMap<StringMap<any>> = {}
 
   /**
    * Resets InMemory DB data
    */
-  reset (): void {
+  async resetCache (): Promise<void> {
     log('reset')
     this.data = {}
   }
 
-  async getByIds<DBM = any> (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]> {
-    return ids.map<DBM>(id => (this.data[table] || {})[id]).filter(Boolean)
+  async getByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]> {
+    this.data[table] = this.data[table] || {}
+    return ids.map(id => this.data[table][id]).filter(Boolean)
   }
 
-  async saveBatch<DBM extends BaseDBEntity> (
-    table: string,
-    dbms: DBM[],
-    opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]> {
+  async saveBatch (table: string, dbms: DBM[], opts?: CommonDBSaveOptions): Promise<DBM[]> {
     this.data[table] = this.data[table] || {}
 
     return dbms.map(dbm => {
       if (!dbm.id) {
-        console.warn({ dbms })
+        log.warn({ dbms })
         throw new Error(`InMemoryDB: id doesn't exist for record`)
       }
       this.data[table][dbm.id] = dbm
@@ -60,33 +57,21 @@ export class InMemoryDB implements CommonDB {
       .filter(Boolean) as string[]
   }
 
-  async deleteBy (
-    table: string,
-    by: string,
-    value: any,
-    limit?: number,
-    opts?: CommonDBOptions,
-  ): Promise<string[]> {
-    this.data[table] = this.data[table] || {}
-
-    const ids = Object.entries(this.data[table])
-      .map(([id, row]) => {
-        if (row[by] === value) return id
-      })
-      .filter(Boolean) as string[]
-
-    return this.deleteByIds(table, ids)
+  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<string[]> {
+    const rows = queryInMemory(q, this.data[q.table])
+    const ids = rows.map(r => r.id)
+    return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]> {
+  async runQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]> {
     return queryInMemory(q, this.data[q.table])
   }
 
-  async runQueryCount<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number> {
+  async runQueryCount (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number> {
     return queryInMemory(q, this.data[q.table]).length
   }
 
-  streamQuery<DBM = any> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     return of(...queryInMemory(q, this.data[q.table]))
   }
 }
