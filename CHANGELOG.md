@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/NaturalCycles/db-lib/compare/v1.8.0...v1.8.1) (2019-08-18)
+
+
+### Bug Fixes
+
+* test passing ([e232db5](https://github.com/NaturalCycles/db-lib/commit/e232db5))
+
 # [1.8.0](https://github.com/NaturalCycles/db-lib/compare/v1.7.2...v1.8.0) (2019-08-18)
 
 
