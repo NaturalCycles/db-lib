@@ -1,3 +1,16 @@
+# [1.8.0](https://github.com/NaturalCycles/db-lib/compare/v1.7.2...v1.8.0) (2019-08-18)
+
+
+### Bug Fixes
+
+* log table ([270151c](https://github.com/NaturalCycles/db-lib/commit/270151c))
+
+
+### Features
+
+* CacheDB; deleteBy > deleteByQuery ([7e75aa8](https://github.com/NaturalCycles/db-lib/commit/7e75aa8))
+* SimpleFileDB, NoOpDB ([cdd6d53](https://github.com/NaturalCycles/db-lib/commit/cdd6d53))
+
 ## [1.7.2](https://github.com/NaturalCycles/db-lib/compare/v1.7.1...v1.7.2) (2019-08-18)
 
 
