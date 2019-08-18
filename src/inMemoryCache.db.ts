@@ -108,7 +108,7 @@ export class InMemoryCacheDB implements CommonDB {
 
       if (this.cfg.logCached) {
         log(
-          `getByIds ${Object.keys(resultMap).length} rows from cache: [${Object.keys(
+          `${table}.getByIds ${Object.keys(resultMap).length} rows from cache: [${Object.keys(
             resultMap,
           ).join(', ')}]`,
         )
@@ -126,7 +126,9 @@ export class InMemoryCacheDB implements CommonDB {
 
       if (this.cfg.logDownstream) {
         log(
-          `getByIds ${results.length} rows from downstream: [${results.map(r => r.id).join(', ')}]`,
+          `${table}.getByIds ${results.length} rows from downstream: [${results
+            .map(r => r.id)
+            .join(', ')}]`,
         )
       }
     }
@@ -147,7 +149,11 @@ export class InMemoryCacheDB implements CommonDB {
       deletedIds.push(...(await this.cfg.downstreamDB.deleteByIds(table, ids, opts)))
 
       if (this.cfg.logDownstream) {
-        log(`deleteByIds ${deletedIds.length} rows from downstream: [${deletedIds.join(', ')}]`)
+        log(
+          `${table}.deleteByIds ${deletedIds.length} rows from downstream: [${deletedIds.join(
+            ', ',
+          )}]`,
+        )
       }
     }
 
@@ -163,9 +169,9 @@ export class InMemoryCacheDB implements CommonDB {
 
       if (this.cfg.logCached) {
         log(
-          `deleteByIds ${deletedFromCache.length} rows from cache: [${deletedFromCache.join(
-            ', ',
-          )}]`,
+          `${table}.deleteByIds ${
+            deletedFromCache.length
+          } rows from cache: [${deletedFromCache.join(', ')}]`,
         )
       }
     }
@@ -185,7 +191,7 @@ export class InMemoryCacheDB implements CommonDB {
 
       if (this.cfg.logDownstream) {
         log(
-          `saveBatch ${savedDBMs.length} rows to downstream: [${savedDBMs
+          `${table}.saveBatch ${savedDBMs.length} rows to downstream: [${savedDBMs
             .map(r => r.id)
             .join(', ')}]`,
         )
@@ -198,7 +204,11 @@ export class InMemoryCacheDB implements CommonDB {
       })
 
       if (this.cfg.logCached) {
-        log(`saveBatch ${savedDBMs.length} rows to cache: [${savedDBMs.map(r => r.id).join(', ')}]`)
+        log(
+          `${table}.saveBatch ${savedDBMs.length} rows to cache: [${savedDBMs
+            .map(r => r.id)
+            .join(', ')}]`,
+        )
       }
     }
 
@@ -212,7 +222,7 @@ export class InMemoryCacheDB implements CommonDB {
       const dbms = await this.cfg.downstreamDB.runQuery(q, opts)
 
       if (this.cfg.logDownstream) {
-        log(`runQuery ${dbms.length} rows from downstream`)
+        log(`${q.table}.runQuery ${dbms.length} rows from downstream`)
       }
 
       if (!opts.skipCache && !opts.skipCache) {
@@ -228,7 +238,7 @@ export class InMemoryCacheDB implements CommonDB {
     const dbms = queryInMemory(q, this.cache[q.table])
 
     if (this.cfg.logCached) {
-      log(`runQuery ${dbms.length} rows from cache`)
+      log(`${q.table}.runQuery ${dbms.length} rows from cache`)
     }
 
     return dbms
@@ -245,7 +255,7 @@ export class InMemoryCacheDB implements CommonDB {
     const rows = await this.runQuery(q, opts)
 
     if (this.cfg.logCached) {
-      log(`runQueryCount ${rows.length} rows from cache`)
+      log(`${q.table}.runQueryCount ${rows.length} rows from cache`)
     }
 
     return rows.length
@@ -269,7 +279,7 @@ export class InMemoryCacheDB implements CommonDB {
     const rows = queryInMemory(q, this.cache[q.table])
 
     if (this.cfg.logCached) {
-      log(`runQueryCount ${rows.length} rows from cache`)
+      log(`${q.table}.streamQuery ${rows.length} rows from cache`)
     }
 
     return of(...rows)
@@ -289,9 +299,9 @@ export class InMemoryCacheDB implements CommonDB {
 
       if (this.cfg.logDownstream) {
         log(
-          `deleteBy ${deletedIds.length} rows from downstream and cache: [${deletedIds.join(
-            ', ',
-          )}]`,
+          `${table}.deleteBy ${
+            deletedIds.length
+          } rows from downstream and cache: [${deletedIds.join(', ')}]`,
         )
       }
 
@@ -311,7 +321,7 @@ export class InMemoryCacheDB implements CommonDB {
     )
 
     if (this.cfg.logCached) {
-      log(`deleteBy ${deletedIds.length} rows from cache: [${deletedIds.join(', ')}]`)
+      log(`${table}.deleteBy ${deletedIds.length} rows from cache: [${deletedIds.join(', ')}]`)
     }
 
     if (this.cache[table]) {
