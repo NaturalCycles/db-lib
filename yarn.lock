@@ -466,22 +466,24 @@
     rimraf "^2.5.2"
 
 "@naturalcycles/db-dev-lib@^1.0.0":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-dev-lib/-/db-dev-lib-1.1.4.tgz#3e98bc3433d8a9318bd9df6ca177b96852c2bdc0"
-  integrity sha512-hDV7bQixdp7x76dc38SpIEHPua6yT2PqPt5fZudMm0UGxsO9Pns29qzcmA0VJGHZLijh0FoPceCpmYcqqC6A2A==
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/db-dev-lib/-/db-dev-lib-1.1.5.tgz#977265d5b34ca9989fa8725f07800e02be44fd97"
+  integrity sha512-gvVIIErr5DhwftSC9eYih1nZ/KWcvMtLwXZjG2kYoHf0lP0/rIsP8KPD6Sy3gBIPs+pK31K9s1MsvFRLjPOLiQ==
   dependencies:
     "@naturalcycles/db-lib" "^1.2.1"
     "@naturalcycles/test-lib" "^1.0.3"
+    rxjs "^6.5.2"
     type-fest "^0.7.1"
 
 "@naturalcycles/db-lib@^1.2.1":
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.5.4.tgz#973e931089914def549277b69e8406ded6b4d671"
-  integrity sha512-6H6v5gSdq4YnIRgEzYSM3xpjkFRwWb+nit0IBG3JH8fjLKI2lk/OcDjmNrhJTSeNDTjQsgog9lejDCFLXUAIdA==
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.8.0.tgz#2f9811f521093eaf7c6f84a62b8733b2804d2ff7"
+  integrity sha512-/tiXj02b52V/p+UGcDRLplJT1JsuevJaqQ447vhT3910/u4eePxdax/7AZgNxLWKSbMC5H+OtIL+lmhXbbXfhw==
   dependencies:
     "@naturalcycles/js-lib" "^8.2.1"
     "@naturalcycles/nodejs-lib" "^6.5.0"
     "@naturalcycles/time-lib" "^1.4.3"
+    fs-extra "^8.1.0"
     rxjs "^6.5.2"
     type-fest "^0.7.1"
 
@@ -3874,9 +3876,9 @@ p-limit@^1.1.0:
     p-try "^1.0.0"
 
 p-limit@^2.0.0, p-limit@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-2.2.0.tgz#417c9941e6027a9abcba5092dd2904e255b5fbc2"
-  integrity sha512-pZbTJpoUsCzV48Mc9Nh51VbwO0X9cuPFE8gYwx9BTCt9SF8/b7Zljd2fVgOxhIF/HDTKgpVzs+GPhyKfjLLFRQ==
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-2.2.1.tgz#aa07a788cc3151c939b5131f63570f0dd2009537"
+  integrity sha512-85Tk+90UCVWvbDavCLKPOLC9vvY8OwEX/RtKF+/1OADJMVlFfEHOiMTPVyxg7mk/dKa+ipdHm0OUkTvCpMTuwg==
   dependencies:
     p-try "^2.0.0"
 

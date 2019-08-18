@@ -17,10 +17,10 @@ const dao = new CommonDao({
   logLevel: CommonDaoLogLevel.DATA_FULL,
 })
 
-test.skip('testDB', async () => {
+test('testDB', async () => {
   await testDB(db as any, DBQuery)
 })
 
-test.skip('testDao', async () => {
+test('testDao', async () => {
   await testDao(dao as any, DBQuery)
 })
