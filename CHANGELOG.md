@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/NaturalCycles/db-lib/compare/v1.6.0...v1.7.0) (2019-08-18)
+
+
+### Features
+
+* InMemoryCacheDB log, global settings ([995802f](https://github.com/NaturalCycles/db-lib/commit/995802f))
+
 # [1.6.0](https://github.com/NaturalCycles/db-lib/compare/v1.5.4...v1.6.0) (2019-08-18)
 
 
