@@ -20,6 +20,12 @@ import {
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
 import {
+  CacheCommonDBOptions,
+  CacheCommonDBSaveOptions,
+  InMemoryCacheDB,
+  InMemoryCacheDBCfg,
+} from './inMemoryCache.db'
+import {
   createdUpdatedFields,
   createdUpdatedIdFields,
   deserializeJsonField,
@@ -57,4 +63,8 @@ export {
   InMemoryDB,
   serializeJsonField,
   deserializeJsonField,
+  InMemoryCacheDBCfg,
+  CacheCommonDBOptions,
+  CacheCommonDBSaveOptions,
+  InMemoryCacheDB,
 }
