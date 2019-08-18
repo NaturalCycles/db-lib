@@ -5,7 +5,7 @@ import { mockTestData, TEST_KIND, TestKindBM, testKindUnsavedBMSchema } from './
 
 const ID = 'randomDatastoreService1'
 
-const db = new InMemoryDB<TestKindBM>()
+const db = new InMemoryDB()
 
 const createDao = () => {
   const dao = new CommonDao<TestKindBM>({

@@ -27,6 +27,8 @@ import {
   idField,
   serializeJsonField,
 } from './model.util'
+import { NoOpDB } from './noop.db'
+import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
 
 export {
   DBQuery,
@@ -60,4 +62,7 @@ export {
   deserializeJsonField,
   CacheDBCfg,
   CacheDB,
+  NoOpDB,
+  SimpleFileDB,
+  SimpleFileDBCfg,
 }

@@ -15,7 +15,7 @@ const FILTER_FNS: StringMap<FilterFn> = {
 
 const log = Debug('nc:db-lib:inmemorydb')
 
-export class InMemoryDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
+export class InMemoryDB implements CommonDB {
   // Table > id > row
   data: StringMap<StringMap<any>> = {}
 
@@ -27,12 +27,20 @@ export class InMemoryDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     this.data = {}
   }
 
-  async getByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]> {
+  async getByIds<DBM extends BaseDBEntity> (
+    table: string,
+    ids: string[],
+    opts?: CommonDBOptions,
+  ): Promise<DBM[]> {
     this.data[table] = this.data[table] || {}
     return ids.map(id => this.data[table][id]).filter(Boolean)
   }
 
-  async saveBatch (table: string, dbms: DBM[], opts?: CommonDBSaveOptions): Promise<DBM[]> {
+  async saveBatch<DBM extends BaseDBEntity> (
+    table: string,
+    dbms: DBM[],
+    opts?: CommonDBSaveOptions,
+  ): Promise<DBM[]> {
     this.data[table] = this.data[table] || {}
 
     return dbms.map(dbm => {
@@ -57,27 +65,36 @@ export class InMemoryDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
       .filter(Boolean) as string[]
   }
 
-  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<string[]> {
+  async deleteByQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Promise<string[]> {
     const rows = queryInMemory(q, this.data[q.table])
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]> {
+  async runQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Promise<DBM[]> {
     return queryInMemory(q, this.data[q.table])
   }
 
-  async runQueryCount (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number> {
+  async runQueryCount<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Promise<number> {
     return queryInMemory(q, this.data[q.table]).length
   }
 
-  streamQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     return of(...queryInMemory(q, this.data[q.table]))
   }
 }
 
 export function queryInMemory<DBM> (q: DBQuery<DBM>, tableCache?: StringMap<DBM>): DBM[] {
-  let rows: any[] = Object.values(tableCache || [])
+  let rows: DBM[] = Object.values(tableCache || [])
 
   // .filter
   rows = q._filters.reduce((rows, filter) => {
@@ -91,7 +108,7 @@ export function queryInMemory<DBM> (q: DBQuery<DBM>, tableCache?: StringMap<DBM>
   // .select(fieldNames)
   if (q._selectedFieldNames) {
     rows = rows.map(row =>
-      _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : ['id']),
+      _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : (['id'] as any)),
     )
   }
 

@@ -39,26 +39,37 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
 }
 
-export interface CommonDB<DBM extends BaseDBEntity> {
+export interface CommonDB {
   resetCache (): Promise<void>
 
   // GET
-  getByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<DBM[]>
+  getByIds<DBM extends BaseDBEntity> (
+    table: string,
+    ids: string[],
+    opts?: CommonDBOptions,
+  ): Promise<DBM[]>
 
   // QUERY
-  runQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
-  runQueryCount (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
-  streamQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
+  runQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
+  runQueryCount<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+  streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
 
   // SAVE
-  saveBatch (table: string, dbms: DBM[], opts?: CommonDBSaveOptions): Promise<DBM[]>
+  saveBatch<DBM extends BaseDBEntity> (
+    table: string,
+    dbms: DBM[],
+    opts?: CommonDBSaveOptions,
+  ): Promise<DBM[]>
 
   // DELETE
   /**
    * @returns array of deleted items' ids
    */
   deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]>
-  deleteByQuery (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<string[]>
+  deleteByQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Promise<string[]>
 }
 
 export enum DBRelation {

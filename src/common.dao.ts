@@ -33,7 +33,7 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<BM, DBM extends BaseDBEntity> {
-  db: CommonDB<DBM>
+  db: CommonDB
   table: string
   dbmUnsavedSchema?: ObjectSchemaTyped<Unsaved<DBM>>
   bmUnsavedSchema?: ObjectSchemaTyped<Unsaved<BM>>
@@ -198,7 +198,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async getByIds (ids: string[], opts?: CommonDaoOptions): Promise<BM[]> {
     const op = `getByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
-    const dbms = await this.cfg.db.getByIds(this.cfg.table, ids)
+    const dbms = await this.cfg.db.getByIds<DBM>(this.cfg.table, ids)
     const bms = await this.dbmsToBM(dbms, opts)
     this.logResult(started, op, bms)
     return bms

@@ -5,10 +5,10 @@ import { toArray } from 'rxjs/operators'
 import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
 
-export interface CacheDBCfg<DBM extends BaseDBEntity> {
+export interface CacheDBCfg {
   name: string
-  cacheDB: CommonDB<DBM>
-  downstreamDB: CommonDB<DBM>
+  cacheDB: CommonDB
+  downstreamDB: CommonDB
 
   /**
    * If true - cache SAVING operations will await to be completed,
@@ -47,8 +47,8 @@ export interface CacheDBCfg<DBM extends BaseDBEntity> {
  *
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
-export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
-  constructor (public cfg: CacheDBCfg<DBM>) {
+export class CacheDB implements CommonDB {
+  constructor (public cfg: CacheDBCfg) {
     this.log = Debug(`nc:db-lib:${cfg.name}`)
   }
 
@@ -62,12 +62,16 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     await this.cfg.cacheDB.resetCache()
   }
 
-  async getByIds (table: string, ids: string[], opts: CommonDBOptions = {}): Promise<DBM[]> {
+  async getByIds<DBM extends BaseDBEntity> (
+    table: string,
+    ids: string[],
+    opts: CommonDBOptions = {},
+  ): Promise<DBM[]> {
     const resultMap: StringMap<DBM> = {}
     const missingIds: string[] = []
 
     if (!opts.skipCache && !this.cfg.skipCache) {
-      const results = await this.cfg.cacheDB.getByIds(table, ids, opts)
+      const results = await this.cfg.cacheDB.getByIds<DBM>(table, ids, opts)
 
       results.forEach(r => (resultMap[r.id] = r))
 
@@ -83,7 +87,7 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     }
 
     if (missingIds.length && !opts.onlyCache && !this.cfg.onlyCache) {
-      const results = await this.cfg.downstreamDB.getByIds(table, missingIds, opts)
+      const results = await this.cfg.downstreamDB.getByIds<DBM>(table, missingIds, opts)
       results.forEach(r => (resultMap[r.id] = r))
 
       if (this.cfg.logDownstream) {
@@ -135,7 +139,11 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     return deletedIds
   }
 
-  async saveBatch (table: string, dbms: DBM[], opts: CommonDBSaveOptions = {}): Promise<DBM[]> {
+  async saveBatch<DBM extends BaseDBEntity> (
+    table: string,
+    dbms: DBM[],
+    opts: CommonDBSaveOptions = {},
+  ): Promise<DBM[]> {
     let savedDBMs = dbms
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       savedDBMs = await this.cfg.downstreamDB.saveBatch(table, dbms, opts)
@@ -165,7 +173,10 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     return savedDBMs
   }
 
-  async runQuery (q: DBQuery<DBM>, opts: CommonDBOptions = {}): Promise<DBM[]> {
+  async runQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts: CommonDBOptions = {},
+  ): Promise<DBM[]> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const dbms = await this.cfg.downstreamDB.runQuery(q, opts)
 
@@ -191,7 +202,10 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     return dbms
   }
 
-  async runQueryCount (q: DBQuery<DBM>, opts: CommonDBOptions = {}): Promise<number> {
+  async runQueryCount<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts: CommonDBOptions = {},
+  ): Promise<number> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       return this.cfg.downstreamDB.runQueryCount(q, opts)
     }
@@ -205,7 +219,10 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     return count
   }
 
-  streamQuery (q: DBQuery<DBM>, opts: CommonDBSaveOptions = {}): Observable<DBM> {
+  streamQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts: CommonDBSaveOptions = {},
+  ): Observable<DBM> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const obs = this.cfg.downstreamDB.streamQuery(q, opts)
 
@@ -237,7 +254,10 @@ export class CacheDB<DBM extends BaseDBEntity> implements CommonDB<DBM> {
     return obs
   }
 
-  async deleteByQuery (q: DBQuery<DBM>, opts: CommonDBOptions = {}): Promise<string[]> {
+  async deleteByQuery<DBM extends BaseDBEntity> (
+    q: DBQuery<DBM>,
+    opts: CommonDBOptions = {},
+  ): Promise<string[]> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteByQuery(q, opts)
 

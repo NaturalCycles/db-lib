@@ -10,8 +10,8 @@ import { CommonDao, CommonDaoLogLevel } from './common.dao'
 import { DBQuery } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
 
-const downstreamDB = new InMemoryDB<TestItem>()
-const cacheDB = new InMemoryDB<TestItem>()
+const downstreamDB = new InMemoryDB()
+const cacheDB = new InMemoryDB()
 const db = new CacheDB({
   name: 'cache-db',
   cacheDB,

@@ -13,7 +13,7 @@ interface TestKind extends BaseDBEntity {
 
 const ID = 'randomDatastoreService1'
 const KIND = 'TestKind'
-const db = new InMemoryDB<TestKind>()
+const db = new InMemoryDB()
 
 beforeEach(async () => {
   // mocks
