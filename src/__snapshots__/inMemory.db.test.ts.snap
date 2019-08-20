@@ -22,17 +22,6 @@ Object {
 }
 `;
 
-exports[`save, load 2`] = `
-Object {
-  "a": "aa",
-  "b": "bb",
-  "c": 1,
-  "created": 1529539200,
-  "id": "randomDatastoreService1",
-  "updated": 1529539200,
-}
-`;
-
 exports[`streamQuery 1`] = `
 Array [
   Object {
