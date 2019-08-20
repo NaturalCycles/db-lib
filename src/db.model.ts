@@ -59,7 +59,7 @@ export interface CommonDB {
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]>
+  ): Promise<void>
 
   // DELETE
   /**

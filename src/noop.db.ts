@@ -42,9 +42,7 @@ export class NoOpDB implements CommonDB {
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]> {
-    return dbms
-  }
+  ): Promise<void> {}
 
   streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     return EMPTY

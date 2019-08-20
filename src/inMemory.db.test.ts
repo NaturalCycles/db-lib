@@ -36,10 +36,9 @@ test('save, load', async () => {
   }
   deepFreeze(obj)
 
-  const [savedObj] = await db.saveBatch(KIND, [obj])
-  expect(savedObj).toMatchSnapshot()
+  await db.saveBatch(KIND, [obj])
 
-  const [loaded] = await db.getByIds(KIND, [savedObj.id])
+  const [loaded] = await db.getByIds(KIND, [obj.id])
   expect(loaded).toMatchObject(obj)
   expect(loaded).toMatchSnapshot()
 })
@@ -54,16 +53,14 @@ test('save with id, load, delete', async () => {
   }
   deepFreeze(obj)
 
-  const [savedObj] = await db.saveBatch(KIND, [obj])
-  expect(savedObj.id).toBe(obj.id)
-  expect(savedObj).toMatchObject(obj)
+  await db.saveBatch(KIND, [obj])
 
-  const [loaded] = await db.getByIds(KIND, [savedObj.id])
+  const [loaded] = await db.getByIds(KIND, [obj.id])
   expect(loaded).toMatchSnapshot()
 
-  const deletedIds = await db.deleteByIds(KIND, [savedObj.id])
+  const deletedIds = await db.deleteByIds(KIND, [obj.id])
   expect(deletedIds).toEqual([obj.id])
-  const [loaded2] = await db.getByIds(KIND, [savedObj.id])
+  const [loaded2] = await db.getByIds(KIND, [obj.id])
   expect(loaded2).toBeUndefined()
 })
 

@@ -143,14 +143,13 @@ export class CacheDB implements CommonDB {
     table: string,
     dbms: DBM[],
     opts: CommonDBSaveOptions = {},
-  ): Promise<DBM[]> {
-    let savedDBMs = dbms
+  ): Promise<void> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
-      savedDBMs = await this.cfg.downstreamDB.saveBatch(table, dbms, opts)
+      await this.cfg.downstreamDB.saveBatch(table, dbms, opts)
 
       if (this.cfg.logDownstream) {
         this.log(
-          `${table}.saveBatch ${savedDBMs.length} rows to downstream: [${savedDBMs
+          `${table}.saveBatch ${dbms.length} rows to downstream: [${dbms
             .map(r => r.id)
             .join(', ')}]`,
         )
@@ -161,16 +160,12 @@ export class CacheDB implements CommonDB {
       const cacheResult = this.cfg.cacheDB.saveBatch(table, dbms, opts).then(() => {
         if (this.cfg.logCached) {
           this.log(
-            `${table}.saveBatch ${savedDBMs.length} rows to cache: [${savedDBMs
-              .map(r => r.id)
-              .join(', ')}]`,
+            `${table}.saveBatch ${dbms.length} rows to cache: [${dbms.map(r => r.id).join(', ')}]`,
           )
         }
       })
       if (this.cfg.awaitCache) await cacheResult
     }
-
-    return savedDBMs
   }
 
   async runQuery<DBM extends BaseDBEntity> (

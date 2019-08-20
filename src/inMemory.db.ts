@@ -40,16 +40,15 @@ export class InMemoryDB implements CommonDB {
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]> {
+  ): Promise<void> {
     this.data[table] = this.data[table] || {}
 
-    return dbms.map(dbm => {
+    dbms.forEach(dbm => {
       if (!dbm.id) {
         log.warn({ dbms })
         throw new Error(`InMemoryDB: id doesn't exist for record`)
       }
       this.data[table][dbm.id] = dbm
-      return dbm
     })
   }
 
@@ -93,7 +92,10 @@ export class InMemoryDB implements CommonDB {
   }
 }
 
-export function queryInMemory<DBM> (q: DBQuery<DBM>, tableCache?: StringMap<DBM>): DBM[] {
+export function queryInMemory<DBM extends BaseDBEntity> (
+  q: DBQuery<DBM>,
+  tableCache?: StringMap<DBM>,
+): DBM[] {
   let rows: DBM[] = Object.values(tableCache || [])
 
   // .filter
@@ -107,8 +109,9 @@ export function queryInMemory<DBM> (q: DBQuery<DBM>, tableCache?: StringMap<DBM>
 
   // .select(fieldNames)
   if (q._selectedFieldNames) {
-    rows = rows.map(row =>
-      _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : (['id'] as any)),
+    rows = rows.map(
+      row =>
+        _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : (['id'] as any)) as DBM,
     )
   }
 

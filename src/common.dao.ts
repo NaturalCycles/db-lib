@@ -327,8 +327,8 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const dbm = await this.bmToDBM(bm, opts)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm)
-    const [savedDBM] = await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
-    const savedBM = await this.dbmToBM(savedDBM, opts)
+    await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    const savedBM = await this.dbmToBM(dbm, opts)
     this.logSaveResult(started, op)
     return savedBM
   }
@@ -337,17 +337,17 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const dbm = this.anyToDBM(_dbm, opts)
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm)
-    const [savedDBM] = await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
     this.logSaveResult(started, op)
-    return savedDBM
+    return dbm
   }
 
   async saveBatch (bms: Unsaved<BM>[], opts: CommonDaoSaveOptions = {}): Promise<BM[]> {
     const dbms = await this.bmsToDBM(bms, opts)
     const op = `saveBatch(${dbms.map(bm => bm.id).join(', ')})`
     const started = this.logSaveStarted(op, bms)
-    const savedDBMs = await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
-    const savedBMs = await this.dbmsToBM(savedDBMs, opts)
+    await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
+    const savedBMs = await this.dbmsToBM(dbms, opts)
     this.logSaveResult(started, op)
     return savedBMs
   }
@@ -357,8 +357,8 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const op = `saveBatch(${dbms.map(dbm => dbm.id).join(', ')})`
     const started = this.logSaveStarted(op, dbms)
     const dbms2 = this.anyToDBMs(dbms, opts)
-    const savedResults = await this.cfg.db.saveBatch(this.cfg.table, dbms2, opts)
-    const savedDBMs = this.anyToDBMs(savedResults, opts)
+    await this.cfg.db.saveBatch(this.cfg.table, dbms2, opts)
+    const savedDBMs = this.anyToDBMs(dbms2, opts)
     this.logSaveResult(started, op)
     return savedDBMs
   }

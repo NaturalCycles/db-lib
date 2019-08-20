@@ -84,13 +84,12 @@ export class SimpleFileDB implements CommonDB {
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
-  ): Promise<DBM[]> {
+  ): Promise<void> {
     const data = await this.getTable(table)
     dbms.forEach(dbm => {
       data[dbm.id] = dbm
     })
     await this.saveTable(table, data)
-    return [...dbms]
   }
 
   async runQuery<DBM extends BaseDBEntity> (
