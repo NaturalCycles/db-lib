@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/NaturalCycles/db-lib/compare/v1.8.1...v1.9.0) (2019-08-20)
+
+
+### Features
+
+* CommonDB.saveBatch returns void ([a3ce3d4](https://github.com/NaturalCycles/db-lib/commit/a3ce3d4))
+
 ## [1.8.1](https://github.com/NaturalCycles/db-lib/compare/v1.8.0...v1.8.1) (2019-08-18)
 
 
