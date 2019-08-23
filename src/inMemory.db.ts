@@ -74,7 +74,7 @@ export class InMemoryDB implements CommonDB {
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
-    const rows = queryInMemory(q, Object.values(this.data[q.table]))
+    const rows = queryInMemory(q, Object.values(this.data[q.table] || {}))
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
@@ -83,18 +83,18 @@ export class InMemoryDB implements CommonDB {
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<DBM[]> {
-    return queryInMemory(q, Object.values(this.data[q.table]))
+    return queryInMemory(q, Object.values(this.data[q.table] || {}))
   }
 
   async runQueryCount<DBM extends BaseDBEntity> (
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
-    return queryInMemory(q, Object.values(this.data[q.table])).length
+    return queryInMemory(q, Object.values(this.data[q.table] || {})).length
   }
 
   streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
-    return of(...queryInMemory(q, Object.values(this.data[q.table])))
+    return of(...queryInMemory(q, Object.values(this.data[q.table] || {})))
   }
 }
 
