@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/NaturalCycles/db-lib/compare/v1.9.1...v1.10.0) (2019-08-23)
+
+
+### Features
+
+* deleteByIds returns number; 'in' query operator ([15e114a](https://github.com/NaturalCycles/db-lib/commit/15e114a))
+
 ## [1.9.1](https://github.com/NaturalCycles/db-lib/compare/v1.9.0...v1.9.1) (2019-08-20)
 
 
