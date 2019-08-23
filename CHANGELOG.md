@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/NaturalCycles/db-lib/compare/v1.10.0...v1.10.1) (2019-08-23)
+
+
+### Bug Fixes
+
+* inMemoryDB ([9023c84](https://github.com/NaturalCycles/db-lib/commit/9023c84))
+
 # [1.10.0](https://github.com/NaturalCycles/db-lib/compare/v1.9.1...v1.10.0) (2019-08-23)
 
 
