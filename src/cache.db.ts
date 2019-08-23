@@ -1,7 +1,6 @@
-import { StringMap } from '@naturalcycles/js-lib'
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { EMPTY, Observable } from 'rxjs'
-import { toArray } from 'rxjs/operators'
+import { count, toArray } from 'rxjs/operators'
 import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
 
@@ -57,9 +56,9 @@ export class CacheDB implements CommonDB {
   /**
    * Resets InMemory DB data
    */
-  async resetCache (): Promise<void> {
-    this.log('resetCache')
-    await this.cfg.cacheDB.resetCache()
+  async resetCache (table?: string): Promise<void> {
+    this.log(`resetCache ${table || 'all'}`)
+    await this.cfg.cacheDB.resetCache(table)
   }
 
   async getByIds<DBM extends BaseDBEntity> (
@@ -67,7 +66,7 @@ export class CacheDB implements CommonDB {
     ids: string[],
     opts: CommonDBOptions = {},
   ): Promise<DBM[]> {
-    const resultMap: StringMap<DBM> = {}
+    const resultMap: Record<string, DBM> = {}
     const missingIds: string[] = []
 
     if (!opts.skipCache && !this.cfg.skipCache) {
@@ -108,29 +107,21 @@ export class CacheDB implements CommonDB {
     return ids.map(id => resultMap[id]).filter(Boolean)
   }
 
-  async deleteByIds (table: string, ids: string[], opts: CommonDBOptions = {}): Promise<string[]> {
-    const deletedIds: string[] = []
+  async deleteByIds (table: string, ids: string[], opts: CommonDBOptions = {}): Promise<number> {
+    let deletedIds = 0
 
     if (!opts.onlyCache && !this.cfg.onlyCache) {
-      deletedIds.push(...(await this.cfg.downstreamDB.deleteByIds(table, ids, opts)))
+      deletedIds = await this.cfg.downstreamDB.deleteByIds(table, ids, opts)
 
       if (this.cfg.logDownstream) {
-        this.log(
-          `${table}.deleteByIds ${deletedIds.length} rows from downstream: [${deletedIds.join(
-            ', ',
-          )}]`,
-        )
+        this.log(`${table}.deleteByIds ${deletedIds} rows from downstream`)
       }
     }
 
     if (!opts.skipCache && !this.cfg.skipCache) {
       const cacheResult = this.cfg.cacheDB.deleteByIds(table, ids, opts).then(deletedFromCache => {
         if (this.cfg.logCached) {
-          this.log(
-            `${table}.deleteByIds ${
-              deletedFromCache.length
-            } rows from cache: [${deletedFromCache.join(', ')}]`,
-          )
+          this.log(`${table}.deleteByIds ${deletedFromCache} rows from cache`)
         }
       })
       if (this.cfg.awaitCache) await cacheResult
@@ -239,10 +230,10 @@ export class CacheDB implements CommonDB {
 
     if (this.cfg.logCached) {
       void obs
-        .pipe(toArray())
+        .pipe(count())
         .toPromise()
-        .then(dbms => {
-          this.log(`${q.table}.streamQuery ${dbms.length} rows from cache`)
+        .then(length => {
+          this.log(`${q.table}.streamQuery ${length} rows from cache`)
         })
     }
 
@@ -252,16 +243,12 @@ export class CacheDB implements CommonDB {
   async deleteByQuery<DBM extends BaseDBEntity> (
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
-  ): Promise<string[]> {
+  ): Promise<number> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteByQuery(q, opts)
 
       if (this.cfg.logDownstream) {
-        this.log(
-          `${q.table}.deleteByQuery ${
-            deletedIds.length
-          } rows from downstream and cache: [${deletedIds.join(', ')}]`,
-        )
+        this.log(`${q.table}.deleteByQuery ${deletedIds} rows from downstream and cache`)
       }
 
       if (!opts.skipCache && !this.cfg.skipCache) {
@@ -272,14 +259,12 @@ export class CacheDB implements CommonDB {
       return deletedIds
     }
 
-    if (opts.skipCache || this.cfg.skipCache) return []
+    if (opts.skipCache || this.cfg.skipCache) return 0
 
     const deletedIds = await this.cfg.cacheDB.deleteByQuery(q, opts)
 
     if (this.cfg.logCached) {
-      this.log(
-        `${q.table}.deleteByQuery ${deletedIds.length} rows from cache: [${deletedIds.join(', ')}]`,
-      )
+      this.log(`${q.table}.deleteByQuery ${deletedIds} rows from cache`)
     }
 
     return deletedIds

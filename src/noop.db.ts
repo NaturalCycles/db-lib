@@ -3,15 +3,15 @@ import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './
 import { DBQuery } from './dbQuery'
 
 export class NoOpDB implements CommonDB {
-  async deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]> {
-    return []
+  async deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
+    return 0
   }
 
   async deleteByQuery<DBM extends BaseDBEntity> (
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<string[]> {
-    return []
+  ): Promise<number> {
+    return 0
   }
 
   async getByIds<DBM extends BaseDBEntity> (

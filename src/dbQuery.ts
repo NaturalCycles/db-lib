@@ -1,4 +1,4 @@
-export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>'
+export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
 export interface DBQueryFilter {
   name: string

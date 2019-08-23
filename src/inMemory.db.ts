@@ -1,30 +1,36 @@
-import { _pick, StringMap } from '@naturalcycles/js-lib'
+import { _pick } from '@naturalcycles/js-lib'
 import { Debug } from '@naturalcycles/nodejs-lib'
 import { Observable, of } from 'rxjs'
 import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
-import { DBQuery } from './dbQuery'
+import { DBQuery, DBQueryFilterOperator } from './dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
-const FILTER_FNS: StringMap<FilterFn> = {
+const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
   '=': (v, val) => v === val,
   '<': (v, val) => v < val,
   '<=': (v, val) => v <= val,
   '>': (v, val) => v > val,
   '>=': (v, val) => v >= val,
+  in: (v, val) => ((val as any[]) || []).includes(v),
 }
 
 const log = Debug('nc:db-lib:inmemorydb')
 
 export class InMemoryDB implements CommonDB {
   // Table > id > row
-  data: StringMap<StringMap<any>> = {}
+  data: Record<string, Record<string, any>> = {}
 
   /**
    * Resets InMemory DB data
    */
-  async resetCache (): Promise<void> {
-    log('reset')
-    this.data = {}
+  async resetCache (table?: string): Promise<void> {
+    if (table) {
+      log(`reset ${table}`)
+      this.data[table] = {}
+    } else {
+      log('reset')
+      this.data = {}
+    }
   }
 
   async getByIds<DBM extends BaseDBEntity> (
@@ -52,7 +58,7 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]> {
+  async deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
     this.data[table] = this.data[table] || {}
 
     return ids
@@ -61,14 +67,14 @@ export class InMemoryDB implements CommonDB {
         delete this.data[table][id]
         if (exists) return id
       })
-      .filter(Boolean) as string[]
+      .filter(Boolean).length
   }
 
   async deleteByQuery<DBM extends BaseDBEntity> (
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<string[]> {
-    const rows = queryInMemory(q, this.data[q.table])
+  ): Promise<number> {
+    const rows = queryInMemory(q, Object.values(this.data[q.table]))
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
@@ -77,27 +83,22 @@ export class InMemoryDB implements CommonDB {
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<DBM[]> {
-    return queryInMemory(q, this.data[q.table])
+    return queryInMemory(q, Object.values(this.data[q.table]))
   }
 
   async runQueryCount<DBM extends BaseDBEntity> (
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
-    return queryInMemory(q, this.data[q.table]).length
+    return queryInMemory(q, Object.values(this.data[q.table])).length
   }
 
   streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
-    return of(...queryInMemory(q, this.data[q.table]))
+    return of(...queryInMemory(q, Object.values(this.data[q.table])))
   }
 }
 
-export function queryInMemory<DBM extends BaseDBEntity> (
-  q: DBQuery<DBM>,
-  tableCache?: StringMap<DBM>,
-): DBM[] {
-  let rows: DBM[] = Object.values(tableCache || [])
-
+export function queryInMemory<DBM extends BaseDBEntity> (q: DBQuery<DBM>, rows: DBM[] = []): DBM[] {
   // .filter
   rows = q._filters.reduce((rows, filter) => {
     return rows.filter(row => {

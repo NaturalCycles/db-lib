@@ -365,10 +365,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
   // DELETE
   /**
-   * @returns array of deleted items' ids
+   * @returns number of deleted items
    */
-  async deleteById (id?: string): Promise<string[]> {
-    if (!id) return []
+  async deleteById (id?: string): Promise<number> {
+    if (!id) return 0
     const op = `deleteById(${id})`
     const started = this.logStarted(op)
     const ids = await this.cfg.db.deleteByIds(this.cfg.table, [id])
@@ -376,7 +376,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     return ids
   }
 
-  async deleteByIds (ids: string[]): Promise<string[]> {
+  async deleteByIds (ids: string[]): Promise<number> {
     const op = `deleteByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
     const deletedIds = await this.cfg.db.deleteByIds(this.cfg.table, ids)
@@ -384,7 +384,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     return deletedIds
   }
 
-  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
+  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op)
     const ids = await this.cfg.db.deleteByQuery(q, opts)

@@ -40,7 +40,10 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
 }
 
 export interface CommonDB {
-  resetCache (): Promise<void>
+  /**
+   * If table not specified - reset all DB.
+   */
+  resetCache (table?: string): Promise<void>
 
   // GET
   getByIds<DBM extends BaseDBEntity> (
@@ -63,13 +66,10 @@ export interface CommonDB {
 
   // DELETE
   /**
-   * @returns array of deleted items' ids
+   * @returns number of deleted items
    */
-  deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<string[]>
-  deleteByQuery<DBM extends BaseDBEntity> (
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<string[]>
+  deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<number>
+  deleteByQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
 }
 
 export enum DBRelation {
