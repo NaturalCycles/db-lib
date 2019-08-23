@@ -58,8 +58,8 @@ test('save with id, load, delete', async () => {
   const [loaded] = await db.getByIds(KIND, [obj.id])
   expect(loaded).toMatchSnapshot()
 
-  const deletedIds = await db.deleteByIds(KIND, [obj.id])
-  expect(deletedIds).toEqual([obj.id])
+  const deleted = await db.deleteByIds(KIND, [obj.id])
+  expect(deleted).toBe(1)
   const [loaded2] = await db.getByIds(KIND, [obj.id])
   expect(loaded2).toBeUndefined()
 })

@@ -466,9 +466,9 @@
     rimraf "^2.5.2"
 
 "@naturalcycles/db-dev-lib@^1.0.0":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-dev-lib/-/db-dev-lib-1.1.8.tgz#ab4bae6be92a889a56e72853cfd97e4cef1efd88"
-  integrity sha512-jmirF4GJN+boc2Be3YIDPY4aHmVn8mXrvE0ePDNUG5dXmZZexwD3IPOYpBWAgu5oIxG2afMVIw+CXpbYlTY25A==
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/db-dev-lib/-/db-dev-lib-1.1.9.tgz#72e451bb4fca786a0e5eee7a11a5b97f62aa2c7b"
+  integrity sha512-D8U/75yD0maNZh4kRfbQrk+fSPQZnGfmXzVua64KmiAts6Qf+gfHNs8j42HsCCwB6tdfHYfztXszfbJziumhZg==
   dependencies:
     "@naturalcycles/db-lib" "^1.2.1"
     "@naturalcycles/test-lib" "^1.0.3"
@@ -476,9 +476,9 @@
     type-fest "^0.7.1"
 
 "@naturalcycles/db-lib@^1.2.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.9.1.tgz#d0ade4ce8fdf3e265b9d49c5196b36501cfe2622"
-  integrity sha512-IaWcz8uMJ95tzTbRo3N/+zfam8X+2Yp8vAjOxekRbl6y1cFOx/KhKXmCkls5x9IS8SA9J9YzUvWjGNXc8x4odg==
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.10.1.tgz#4901bb43110242d4c9a9f9f79b3e7a10348f6104"
+  integrity sha512-kNau6iyrbBuc8Upu0T1ieKPuY/1c/PnQXm9VABtx+TTuavYhJEViILwl8hMeg8ZZr/K6BOnCfX+HMBJYnlII0Q==
   dependencies:
     "@naturalcycles/js-lib" "^8.2.1"
     "@naturalcycles/nodejs-lib" "^6.5.0"
