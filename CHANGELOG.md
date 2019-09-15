@@ -1,3 +1,10 @@
+## [1.10.3](https://github.com/NaturalCycles/db-lib/compare/v1.10.2...v1.10.3) (2019-09-15)
+
+
+### Bug Fixes
+
+* id to use stringSchema instead of idSchema ([bd0047a](https://github.com/NaturalCycles/db-lib/commit/bd0047a))
+
 ## [1.10.2](https://github.com/NaturalCycles/db-lib/compare/v1.10.1...v1.10.2) (2019-08-23)
 
 
