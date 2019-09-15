@@ -2,10 +2,10 @@ import {
   AnySchemaTyped,
   Debug,
   getValidationResult,
-  idSchema,
   JoiValidationError,
   ObjectSchemaTyped,
   stringId,
+  stringSchema,
   unixTimestampSchema,
   verSchema,
 } from '@naturalcycles/nodejs-lib'
@@ -79,7 +79,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     if (this.cfg.dbmUnsavedSchema) {
       this.dbmSavedSchema = this.cfg.dbmUnsavedSchema.keys({
-        id: cfg.idSchema || idSchema,
+        id: cfg.idSchema || stringSchema,
         created: unixTimestampSchema,
         updated: unixTimestampSchema,
         _ver: verSchema.optional(),
@@ -89,7 +89,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     if (this.cfg.bmUnsavedSchema) {
       this.bmSavedSchema = this.cfg.bmUnsavedSchema.keys({
-        id: cfg.idSchema || idSchema,
+        id: cfg.idSchema || stringSchema,
         created: unixTimestampSchema,
         updated: unixTimestampSchema,
         _ver: verSchema.optional(),
