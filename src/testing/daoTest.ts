@@ -66,7 +66,7 @@ export async function runCommonDaoTest (
   itemsLoaded = await dao.runQuery(q)
   expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems.filter(i => i.even))
 
-  q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('id', true)
+  q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
   itemsLoaded = await dao.runQuery(q)
   expect(itemsLoaded).toEqual([...expectedItems].reverse())
 
