@@ -29,6 +29,15 @@ import {
 } from './model.util'
 import { NoOpDB } from './noop.db'
 import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
+import { runCommonDaoTest } from './testing/daoTest'
+import { runCommonDBTest } from './testing/dbTest'
+import {
+  createTestItem,
+  createTestItems,
+  TEST_TABLE,
+  TestItem,
+  testItemSchema,
+} from './testing/test.model'
 
 export {
   DBQuery,
@@ -65,4 +74,12 @@ export {
   NoOpDB,
   SimpleFileDB,
   SimpleFileDBCfg,
+  // Testing
+  TEST_TABLE,
+  TestItem,
+  testItemSchema,
+  createTestItem,
+  createTestItems,
+  runCommonDBTest,
+  runCommonDaoTest,
 }

@@ -1,14 +1,9 @@
-import {
-  TEST_TABLE,
-  testDao,
-  testDB,
-  TestItem,
-  testItemUnsavedSchema,
-} from '@naturalcycles/db-dev-lib'
 import { CacheDB } from './cache.db'
 import { CommonDao, CommonDaoLogLevel } from './common.dao'
-import { DBQuery } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
+import { runCommonDaoTest } from './testing/daoTest'
+import { runCommonDBTest } from './testing/dbTest'
+import { TEST_TABLE, TestItem, testItemSchema } from './testing/test.model'
 
 const downstreamDB = new InMemoryDB()
 const cacheDB = new InMemoryDB()
@@ -23,18 +18,18 @@ const db = new CacheDB({
 const dao = new CommonDao<TestItem>({
   table: TEST_TABLE,
   db,
-  dbmSchema: testItemUnsavedSchema,
-  bmSchema: testItemUnsavedSchema,
+  dbmSchema: testItemSchema,
+  bmSchema: testItemSchema,
   logStarted: true,
   logLevel: CommonDaoLogLevel.DATA_FULL,
 })
 
-test('testDB', async () => {
-  await testDB(db as any, DBQuery)
+test('runCommonDBTest', async () => {
+  await runCommonDBTest(db)
 })
 
-test('testDao', async () => {
-  await testDao(dao as any, DBQuery)
+test('runCommonDaoTest', async () => {
+  await runCommonDaoTest(dao)
 })
 
 test('simple', async () => {

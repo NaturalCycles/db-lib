@@ -465,28 +465,6 @@
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
-"@naturalcycles/db-dev-lib@^1.0.0":
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-dev-lib/-/db-dev-lib-1.1.9.tgz#72e451bb4fca786a0e5eee7a11a5b97f62aa2c7b"
-  integrity sha512-D8U/75yD0maNZh4kRfbQrk+fSPQZnGfmXzVua64KmiAts6Qf+gfHNs8j42HsCCwB6tdfHYfztXszfbJziumhZg==
-  dependencies:
-    "@naturalcycles/db-lib" "^1.2.1"
-    "@naturalcycles/test-lib" "^1.0.3"
-    rxjs "^6.5.2"
-    type-fest "^0.7.1"
-
-"@naturalcycles/db-lib@^1.2.1":
-  version "1.10.3"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/db-lib/-/db-lib-1.10.3.tgz#e8de3cebba87dde18596fca2719b2f00cf1010f1"
-  integrity sha512-s3mJ1FgusNPYKlKYHacJbgVibsGfbd61KLJPjrcHyKdS81CsA+XtUe4FLUVbkflrggt9gvB2ARQacO8uLq4STA==
-  dependencies:
-    "@naturalcycles/js-lib" "^8.2.1"
-    "@naturalcycles/nodejs-lib" "^6.5.0"
-    "@naturalcycles/time-lib" "^1.4.3"
-    fs-extra "^8.1.0"
-    rxjs "^6.5.2"
-    type-fest "^0.7.1"
-
 "@naturalcycles/dev-lib@^7.12.0":
   version "7.18.0"
   resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-7.18.0.tgz#b945e590a0551509bd2232cddfd02cb6fe76eb08"

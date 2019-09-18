@@ -1,8 +1,9 @@
-import { TEST_TABLE, testDao, testDB, testItemUnsavedSchema } from '@naturalcycles/db-dev-lib'
 import { CommonDao, CommonDaoLogLevel } from './common.dao'
-import { DBQuery } from './dbQuery'
 import { SimpleFileDB } from './simpleFile.db'
 import { tmpDir } from './test/paths.cnst'
+import { runCommonDaoTest } from './testing/daoTest'
+import { runCommonDBTest } from './testing/dbTest'
+import { TEST_TABLE, testItemSchema } from './testing/test.model'
 
 const db = new SimpleFileDB({
   storageDir: `${tmpDir}/storage`,
@@ -11,16 +12,16 @@ const db = new SimpleFileDB({
 const dao = new CommonDao({
   table: TEST_TABLE,
   db,
-  dbmSchema: testItemUnsavedSchema,
-  bmSchema: testItemUnsavedSchema,
+  dbmSchema: testItemSchema,
+  bmSchema: testItemSchema,
   logStarted: true,
   logLevel: CommonDaoLogLevel.DATA_FULL,
 })
 
-test('testDB', async () => {
-  await testDB(db as any, DBQuery)
+test('runCommonDBTest', async () => {
+  await runCommonDBTest(db)
 })
 
-test('testDao', async () => {
-  await testDao(dao as any, DBQuery)
+test('runCommonDaoTest', async () => {
+  await runCommonDaoTest(dao)
 })
