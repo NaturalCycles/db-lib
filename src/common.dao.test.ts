@@ -11,8 +11,8 @@ const createDao = () => {
   const dao = new CommonDao<TestKindBM>({
     table: TEST_KIND,
     db,
-    dbmUnsavedSchema: testKindUnsavedBMSchema,
-    bmUnsavedSchema: testKindUnsavedBMSchema,
+    dbmSchema: testKindUnsavedBMSchema,
+    bmSchema: testKindUnsavedBMSchema,
   })
   dao.createId = () => ID
   return dao

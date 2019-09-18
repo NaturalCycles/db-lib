@@ -92,6 +92,7 @@ export enum DBRelation {
 export enum DBModelType {
   DBM = 'DBM',
   BM = 'BM',
+  TM = 'TM',
 }
 
 export interface CreatedUpdated {

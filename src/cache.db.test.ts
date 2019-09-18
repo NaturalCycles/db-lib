@@ -23,8 +23,8 @@ const db = new CacheDB({
 const dao = new CommonDao<TestItem>({
   table: TEST_TABLE,
   db,
-  dbmUnsavedSchema: testItemUnsavedSchema,
-  bmUnsavedSchema: testItemUnsavedSchema,
+  dbmSchema: testItemUnsavedSchema,
+  bmSchema: testItemUnsavedSchema,
   logStarted: true,
   logLevel: CommonDaoLogLevel.DATA_FULL,
 })

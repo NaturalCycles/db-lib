@@ -1,13 +1,9 @@
 import {
-  AnySchemaTyped,
   Debug,
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
   stringId,
-  stringSchema,
-  unixTimestampSchema,
-  verSchema,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
 import { Observable } from 'rxjs'
@@ -32,12 +28,12 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<BM, DBM extends BaseDBEntity> {
+export interface CommonDaoCfg<BM, DBM extends BaseDBEntity, TM> {
   db: CommonDB
   table: string
-  dbmUnsavedSchema?: ObjectSchemaTyped<Unsaved<DBM>>
-  bmUnsavedSchema?: ObjectSchemaTyped<Unsaved<BM>>
-  idSchema?: AnySchemaTyped<string>
+  dbmSchema?: ObjectSchemaTyped<DBM>
+  bmSchema?: ObjectSchemaTyped<BM>
+  tmSchema?: ObjectSchemaTyped<TM>
 
   /**
    * @default OPERATIONS
@@ -69,37 +65,15 @@ const log = Debug('nc:db-lib:commondao')
  *
  * DBM = Database model (how it's stored in DB)
  * BM = Backend model (optimized for API access)
+ * TM = Transport model (optimized to be sent over the wire)
  */
-export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
-  constructor (protected cfg: CommonDaoCfg<BM, DBM>) {
+export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, TM = BM> {
+  constructor (protected cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       ...cfg,
     }
-
-    if (this.cfg.dbmUnsavedSchema) {
-      this.dbmSavedSchema = this.cfg.dbmUnsavedSchema.keys({
-        id: cfg.idSchema || stringSchema,
-        created: unixTimestampSchema,
-        updated: unixTimestampSchema,
-        _ver: verSchema.optional(),
-      })
-      // this.cfg.dbmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.dbmUnsavedSchema)
-    }
-
-    if (this.cfg.bmUnsavedSchema) {
-      this.bmSavedSchema = this.cfg.bmUnsavedSchema.keys({
-        id: cfg.idSchema || stringSchema,
-        created: unixTimestampSchema,
-        updated: unixTimestampSchema,
-        _ver: verSchema.optional(),
-      })
-      // this.cfg.bmUnsavedSchema = unsavedDBEntitySchema.concat(this.cfg.bmUnsavedSchema)
-    }
   }
-
-  bmSavedSchema?: ObjectSchemaTyped<BM>
-  dbmSavedSchema?: ObjectSchemaTyped<DBM>
 
   /**
    * To be extended
@@ -146,6 +120,20 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   /**
    * To be extended
    */
+  async beforeTMToBM (tm: TM): Promise<BM> {
+    return tm as any
+  }
+
+  /**
+   * To be extended
+   */
+  async beforeBMToTM (bm: Unsaved<BM>): Promise<TM> {
+    return bm as any
+  }
+
+  /**
+   * To be extended
+   */
   anonymize (dbm: DBM): DBM {
     return dbm
   }
@@ -157,7 +145,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     let bm = Object.assign({}, this.beforeCreate(input))
-    bm = this.validateAndConvert(bm, this.cfg.bmUnsavedSchema, DBModelType.BM, opts)
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
 
     // If no SCHEMA - return as is
     return Object.assign({}, bm)
@@ -410,7 +398,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const bm = await this.beforeDBMToBM(dbm)
 
     // Validate/convert BM
-    return this.validateAndConvert<BM>(bm, this.bmSavedSchema, DBModelType.BM, opts)
+    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opts)
   }
 
   async dbmsToBM (dbms: DBM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
@@ -426,7 +414,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     // Validate/convert BM
     // bm gets assigned to the new reference
-    unsavedBM = this.validateAndConvert(unsavedBM, this.cfg.bmUnsavedSchema, DBModelType.BM, opts)
+    unsavedBM = this.validateAndConvert(unsavedBM, this.cfg.bmSchema, DBModelType.BM, opts)
 
     // BM > DBM
     let dbm = await this.beforeBMToDBM(unsavedBM)
@@ -435,7 +423,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     dbm = this.assignIdCreatedUpdated(dbm, opts)
 
     // Validate/convert DBM
-    return this.validateAndConvert(dbm, this.dbmSavedSchema, DBModelType.DBM, opts)
+    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
   }
 
   async bmsToDBM (bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<DBM[]> {
@@ -454,11 +442,49 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     // Validate/convert DBM
-    return this.validateAndConvert<DBM>(dbm, this.dbmSavedSchema, DBModelType.DBM, opts)
+    return this.validateAndConvert<DBM>(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
   }
 
   anyToDBMs (entities: Unsaved<DBM>[], opts: CommonDaoOptions = {}): DBM[] {
     return entities.map(entity => this.anyToDBM(entity, opts))
+  }
+
+  async bmToTM (unsavedBM: Unsaved<BM>, opts?: CommonDaoOptions): Promise<TM> {
+    if (unsavedBM === undefined) return undefined as any
+
+    // Validate/convert BM
+    // bm gets assigned to the new reference
+    unsavedBM = this.validateAndConvert(unsavedBM, this.cfg.bmSchema, DBModelType.BM, opts)
+
+    // BM > TM
+    const tm = await this.beforeBMToTM(unsavedBM)
+
+    // Validate/convert DBM
+    return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opts)
+  }
+
+  async bmsToTM (bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<TM[]> {
+    // try/catch?
+    return Promise.all(bms.map(bm => this.bmToTM(bm, opts)))
+  }
+
+  async tmToBM (tm: TM, opts: CommonDaoOptions = {}): Promise<BM> {
+    if (!tm) return undefined as any
+
+    // Validate/convert TM
+    // bm gets assigned to the new reference
+    tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opts)
+
+    // TM > BM
+    const bm = await this.beforeTMToBM(tm)
+
+    // Validate/convert BM
+    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+  }
+
+  async tmsToBM (tms: TM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
+    // try/catch?
+    return Promise.all(tms.map(tm => this.tmToBM(tm, opts)))
   }
 
   /**
