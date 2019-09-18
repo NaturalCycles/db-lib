@@ -1,3 +1,11 @@
+# [1.11.0](https://github.com/NaturalCycles/db-lib/compare/v1.10.3...v1.11.0) (2019-09-18)
+
+
+### Features
+
+* anonymize hook ([3bf5690](https://github.com/NaturalCycles/db-lib/commit/3bf5690))
+* simplify Saved/Unsaved schemas. Add TM ([4670693](https://github.com/NaturalCycles/db-lib/commit/4670693))
+
 ## [1.10.3](https://github.com/NaturalCycles/db-lib/compare/v1.10.2...v1.10.3) (2019-09-15)
 
 
