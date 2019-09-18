@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/NaturalCycles/db-lib/compare/v1.12.0...v1.13.0) (2019-09-18)
+
+
+### Features
+
+* CommonDBTestOptions ([fd82bab](https://github.com/NaturalCycles/db-lib/commit/fd82bab))
+
 # [1.12.0](https://github.com/NaturalCycles/db-lib/compare/v1.11.0...v1.12.0) (2019-09-18)
 
 
