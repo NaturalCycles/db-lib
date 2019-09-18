@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra'
 import { Observable, Subject } from 'rxjs'
-import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { CommonDB } from './common.db'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
 import { queryInMemory } from './inMemory.db'
 

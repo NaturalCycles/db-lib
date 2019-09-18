@@ -1,8 +1,9 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { Debug } from '@naturalcycles/nodejs-lib'
 import { Observable, of } from 'rxjs'
-import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery, DBQueryFilterOperator } from './dbQuery'
+import { CommonDB } from './index'
 
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {

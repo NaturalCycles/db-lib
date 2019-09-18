@@ -1,7 +1,8 @@
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { EMPTY, Observable } from 'rxjs'
 import { count, toArray } from 'rxjs/operators'
-import { BaseDBEntity, CommonDB, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { CommonDB } from './common.db'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CacheDBCfg {

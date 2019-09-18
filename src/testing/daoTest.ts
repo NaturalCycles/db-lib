@@ -3,9 +3,15 @@ import { deepFreeze } from '@naturalcycles/test-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDao } from '../common.dao'
 import { DBQuery } from '../dbQuery'
+import { CommonDBTestOptions } from './dbTest'
 import { createTestItems, TEST_TABLE, TestItem } from './test.model'
 
-export async function runCommonDaoTest (dao: CommonDao<any>): Promise<void> {
+export async function runCommonDaoTest (
+  dao: CommonDao<any>,
+  opt: CommonDBTestOptions = {},
+): Promise<void> {
+  const { allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
+
   const items = createTestItems(3)
   deepFreeze(items)
   const [item1] = items
@@ -44,7 +50,12 @@ export async function runCommonDaoTest (dao: CommonDao<any>): Promise<void> {
   // GET not empty
 
   itemsLoaded = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-  expect(itemsLoaded).toEqual(expectedItems)
+
+  if (allowGetByIdsUnsorted) {
+    expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+  } else {
+    expect(itemsLoaded).toEqual(expectedItems)
+  }
 
   // QUERY
   itemsLoaded = await dao.runQuery(queryAll())
@@ -70,7 +81,12 @@ export async function runCommonDaoTest (dao: CommonDao<any>): Promise<void> {
     .streamQuery(queryAll())
     .pipe(toArray())
     .toPromise()
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+
+  if (allowStreamQueryToBeUnsorted) {
+    expect(itemsLoaded).toEqual(expectedItems)
+  } else {
+    expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+  }
 
   // DELETE BY
   q = new DBQuery<TestItem>(TEST_TABLE).filter('even', '=', false)

@@ -4,9 +4,7 @@ import {
   unixTimestampSchema,
   verSchema,
 } from '@naturalcycles/nodejs-lib'
-import { Observable } from 'rxjs'
 import { Merge } from 'type-fest'
-import { DBQuery } from './dbQuery'
 
 /**
  * All properties default to undefined.
@@ -49,39 +47,6 @@ export interface CommonDBOptions {
  */
 export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
-}
-
-export interface CommonDB {
-  /**
-   * If table not specified - reset all DB.
-   */
-  resetCache (table?: string): Promise<void>
-
-  // GET
-  getByIds<DBM extends BaseDBEntity> (
-    table: string,
-    ids: string[],
-    opts?: CommonDBOptions,
-  ): Promise<DBM[]>
-
-  // QUERY
-  runQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
-  runQueryCount<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
-  streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
-
-  // SAVE
-  saveBatch<DBM extends BaseDBEntity> (
-    table: string,
-    dbms: DBM[],
-    opts?: CommonDBSaveOptions,
-  ): Promise<void>
-
-  // DELETE
-  /**
-   * @returns number of deleted items
-   */
-  deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<number>
-  deleteByQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
 }
 
 export enum DBRelation {

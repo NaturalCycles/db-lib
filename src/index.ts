@@ -1,11 +1,11 @@
 import { CacheDB, CacheDBCfg } from './cache.db'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
+import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
   baseDBEntitySchema,
   CommonDaoOptions,
   CommonDaoSaveOptions,
-  CommonDB,
   CommonDBOptions,
   CommonDBSaveOptions,
   CreatedUpdated,
@@ -30,7 +30,7 @@ import {
 import { NoOpDB } from './noop.db'
 import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
 import { runCommonDaoTest } from './testing/daoTest'
-import { runCommonDBTest } from './testing/dbTest'
+import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
 import {
   createTestItem,
   createTestItems,
@@ -82,4 +82,5 @@ export {
   createTestItems,
   runCommonDBTest,
   runCommonDaoTest,
+  CommonDBTestOptions,
 }

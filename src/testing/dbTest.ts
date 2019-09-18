@@ -1,11 +1,21 @@
 import { _pick, _sortBy } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
-import { CommonDB } from '../db.model'
+import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
 import { createTestItems, TEST_TABLE, TestItem } from './test.model'
 import { deepFreeze } from './test.util'
 
-export async function runCommonDBTest (db: CommonDB): Promise<void> {
+/**
+ * All options default to `false`.
+ */
+export interface CommonDBTestOptions {
+  allowGetByIdsUnsorted?: boolean
+  allowStreamQueryToBeUnsorted?: boolean
+}
+
+export async function runCommonDBTest (db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
+  const { allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
+
   const items = createTestItems(3)
   deepFreeze(items)
   const [item1] = items
@@ -37,7 +47,12 @@ export async function runCommonDBTest (db: CommonDB): Promise<void> {
   // GET not empty
 
   itemsLoaded = await db.getByIds<TestItem>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
-  expect(itemsLoaded).toEqual(items)
+
+  if (allowGetByIdsUnsorted) {
+    expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+  } else {
+    expect(itemsLoaded).toEqual(items)
+  }
 
   // QUERY
   itemsLoaded = await db.runQuery(queryAll())
@@ -48,7 +63,7 @@ export async function runCommonDBTest (db: CommonDB): Promise<void> {
   itemsLoaded = await db.runQuery(q)
   expect(_sortBy(itemsLoaded, 'id')).toEqual(items.filter(i => i.even))
 
-  q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('id', true)
+  q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
   itemsLoaded = await db.runQuery(q)
   expect(itemsLoaded).toEqual([...items].reverse())
 
@@ -63,7 +78,12 @@ export async function runCommonDBTest (db: CommonDB): Promise<void> {
     .streamQuery(queryAll())
     .pipe(toArray())
     .toPromise()
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+
+  if (allowStreamQueryToBeUnsorted) {
+    expect(itemsLoaded).toEqual(items)
+  } else {
+    expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+  }
 
   // DELETE BY
   q = new DBQuery<TestItem>(TEST_TABLE).filter('even', '=', false)

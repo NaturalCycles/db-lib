@@ -8,11 +8,11 @@ import {
 import { since } from '@naturalcycles/time-lib'
 import { Observable } from 'rxjs'
 import { count, map, mergeMap } from 'rxjs/operators'
+import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
   CommonDaoOptions,
   CommonDaoSaveOptions,
-  CommonDB,
   DBModelType,
   Unsaved,
 } from './db.model'
