@@ -7,7 +7,7 @@
     "@naturalcycles/time-lib": "^1.4.3",
     "fs-extra": "^8.1.0",
     "rxjs": "^6.5.2",
-    "type-fest": "^0.7.1"
+    "type-fest": "^0.8.0"
   },
   "devDependencies": {
     "@naturalcycles/db-dev-lib": "^1.0.0",

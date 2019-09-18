@@ -143,6 +143,13 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     return bm as any
   }
 
+  /**
+   * To be extended
+   */
+  anonymize (dbm: DBM): DBM {
+    return dbm
+  }
+
   // CREATE
   create (input: Unsaved<BM>, opts: CommonDaoOptions = {}): Unsaved<BM> {
     if (opts.throwOnError === undefined) {
@@ -442,6 +449,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     let dbm = this.assignIdCreatedUpdated(_dbm, opts)
     dbm = { ...dbm, ...this.parseNaturalId(dbm.id) }
 
+    if (opts.anonymize) {
+      dbm = this.anonymize(dbm)
+    }
+
     // Validate/convert DBM
     return this.validateAndConvert<DBM>(dbm, this.dbmSavedSchema, DBModelType.DBM, opts)
   }
@@ -455,22 +466,28 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * Validates (unless `validate=false` passed).
    * Throws only if `throwOnError=true` passed OR if `env().throwOnEntityValidationError`
    */
-  validateAndConvert<T = any> (
-    obj: T,
-    schema?: ObjectSchemaTyped<T>,
+  validateAndConvert<IN = any, OUT = IN> (
+    obj: IN,
+    schema?: ObjectSchemaTyped<IN>,
     modelType?: DBModelType,
     opts: CommonDaoOptions = {},
-  ): T {
+  ): OUT {
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
       obj = this.beforeDBMValidate(obj as any) as any
     }
 
     // Return as is if no schema is passed
-    if (!schema) return obj
+    if (!schema) {
+      return obj as any
+    }
 
     // This will Convert and Validate
-    const { value, error } = getValidationResult<T>(obj, schema, this.cfg.table + (modelType || ''))
+    const { value, error } = getValidationResult<IN, OUT>(
+      obj,
+      schema,
+      this.cfg.table + (modelType || ''),
+    )
 
     const { skipValidation, throwOnError } = opts
 

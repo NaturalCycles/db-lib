@@ -42,6 +42,7 @@ Concerns of CommonDao:
 - Access to one DB Table ("kind")
 - Transformation between DBM and BM, validation/conversion
 - Auto-generating `id`, `created`, `updated` fields
+- Anonymization hook to be able to plug your implementation (privacy by design)
 
 # DEBUG namespaces
 
