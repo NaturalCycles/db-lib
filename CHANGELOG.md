@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/NaturalCycles/db-lib/compare/v1.11.0...v1.12.0) (2019-09-18)
+
+
+### Features
+
+* include db-dev-lib tests here ([3d324c9](https://github.com/NaturalCycles/db-lib/commit/3d324c9))
+
 # [1.11.0](https://github.com/NaturalCycles/db-lib/compare/v1.10.3...v1.11.0) (2019-09-18)
 
 
