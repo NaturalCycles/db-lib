@@ -193,6 +193,17 @@ export class CommonDao<BM extends BaseDBEntity = any, DBM extends BaseDBEntity =
     return dbm
   }
 
+  async getByIdAsTM(id?: string, opts?: CommonDaoOptions): Promise<TM | undefined> {
+    if (!id) return
+    const op = `getByIdAsTM(${id})`
+    const started = this.logStarted(op)
+    const [dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
+    const bm = await this.dbmToBM(dbm, opts)
+    const tm = await this.bmToTM(bm, opts)
+    this.logResult(started, op, tm)
+    return tm
+  }
+
   async getByIds(ids: string[], opts?: CommonDaoOptions): Promise<BM[]> {
     const op = `getByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
