@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/NaturalCycles/db-lib/compare/v1.18.0...v1.19.0) (2019-09-19)
+
+
+### Features
+
+* refactor saved/unsaved models ([308d091](https://github.com/NaturalCycles/db-lib/commit/308d091))
+
 # [1.18.0](https://github.com/NaturalCycles/db-lib/compare/v1.17.1...v1.18.0) (2019-09-19)
 
 
