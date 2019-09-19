@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/NaturalCycles/db-lib/compare/v1.17.1...v1.18.0) (2019-09-19)
+
+
+### Features
+
+* CommonDao.getByIdAsTM() ([b3f4e2b](https://github.com/NaturalCycles/db-lib/commit/b3f4e2b))
+
 ## [1.17.1](https://github.com/NaturalCycles/db-lib/compare/v1.17.0...v1.17.1) (2019-09-19)
 
 
