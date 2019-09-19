@@ -210,16 +210,15 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(limit)
-    const { records } = await this.runQuery(q, opts)
-    return records
+    return await this.runQuery(q, opts)
   }
 
   async getOneBy(by: string, value: any, opts?: CommonDaoOptions): Promise<BM | undefined> {
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(1)
-    const { records } = await this.runQuery(q, opts)
-    return records[0]
+    const [bm] = await this.runQuery(q, opts)
+    return bm
   }
 
   // QUERY
@@ -227,7 +226,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return new DBQuery<DBM>(this.cfg.table)
   }
 
-  async runQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<RunQueryResult<BM>> {
+  async runQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
+    const { records } = await this.runQueryExtended(q, opts)
+    return records
+  }
+
+  async runQueryExtended(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<RunQueryResult<BM>> {
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op)
     const { records, ...queryResult } = await this.cfg.db.runQuery(q, opts)
@@ -240,7 +244,15 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     }
   }
 
-  async runQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
+  async runQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<DBM[]> {
+    const { records } = await this.runQueryExtendedAsDBM(q, opts)
+    return records
+  }
+
+  async runQueryExtendedAsDBM(
+    q: DBQuery<DBM>,
+    opts?: CommonDaoOptions,
+  ): Promise<RunQueryResult<DBM>> {
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op)
     const { records, ...queryResult } = await this.cfg.db.runQuery(q, opts)

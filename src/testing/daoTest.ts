@@ -24,12 +24,12 @@ export async function runCommonDaoTest(
   const queryAll = () => new DBQuery<TestItem>(TEST_TABLE, 'all')
 
   // DELETE ALL initially
-  let { records } = await dao.runQuery(queryAll())
+  let records = await dao.runQuery(queryAll())
   await dao.deleteByIds(records.map(i => i.id))
 
   // QUERY empty
 
-  expect((await dao.runQuery(queryAll())).records).toEqual([])
+  expect(await dao.runQuery(queryAll())).toEqual([])
   expect(await dao.runQueryCount(queryAll())).toEqual(0)
 
   // GET empty
@@ -58,20 +58,20 @@ export async function runCommonDaoTest(
   }
 
   // QUERY
-  ;({ records } = await dao.runQuery(queryAll()))
+  records = await dao.runQuery(queryAll())
   expect(_sortBy(records, 'id')).toEqual(expectedItems)
   // console.log(itemsLoaded)
 
   let q = new DBQuery<TestItem>(TEST_TABLE, 'only even').filter('even', '=', true)
-  ;({ records } = await dao.runQuery(q))
+  records = await dao.runQuery(q)
   expect(_sortBy(records, 'id')).toEqual(expectedItems.filter(i => i.even))
 
   q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
-  ;({ records } = await dao.runQuery(q))
+  records = await dao.runQuery(q)
   expect(records).toEqual([...expectedItems].reverse())
 
   q = new DBQuery<TestItem>(TEST_TABLE).select([])
-  ;({ records } = await dao.runQuery(q))
+  records = await dao.runQuery(q)
   expect(_sortBy(records, 'id')).toEqual(expectedItems.map(item => _pick(item, ['id'])))
 
   expect(await dao.runQueryCount(new DBQuery(TEST_TABLE))).toBe(3)
@@ -96,6 +96,6 @@ export async function runCommonDaoTest(
   expect(await dao.runQueryCount(queryAll())).toBe(1)
 
   // CLEAN UP
-  ;({ records } = await dao.runQuery(queryAll().select([])))
+  records = await dao.runQuery(queryAll().select([]))
   await dao.deleteByIds(records.map(i => i.id))
 }
