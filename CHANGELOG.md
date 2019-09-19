@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/NaturalCycles/db-lib/compare/v1.17.0...v1.17.1) (2019-09-19)
+
+
+### Bug Fixes
+
+* CommonDao.cfg public ([810a6fd](https://github.com/NaturalCycles/db-lib/commit/810a6fd))
+
 # [1.17.0](https://github.com/NaturalCycles/db-lib/compare/v1.16.0...v1.17.0) (2019-09-19)
 
 
