@@ -1,3 +1,10 @@
+# [1.16.0](https://github.com/NaturalCycles/db-lib/compare/v1.15.0...v1.16.0) (2019-09-19)
+
+
+### Features
+
+* CommonDao revert runQuery, provide runQueryExtended ([008a7bc](https://github.com/NaturalCycles/db-lib/commit/008a7bc))
+
 # [1.15.0](https://github.com/NaturalCycles/db-lib/compare/v1.14.0...v1.15.0) (2019-09-19)
 
 
