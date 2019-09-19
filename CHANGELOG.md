@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/NaturalCycles/db-lib/compare/v1.14.0...v1.15.0) (2019-09-19)
+
+
+### Features
+
+* runQuery to return RunQueryResult ([fd2b003](https://github.com/NaturalCycles/db-lib/commit/fd2b003))
+
 # [1.14.0](https://github.com/NaturalCycles/db-lib/compare/v1.13.1...v1.14.0) (2019-09-19)
 
 
