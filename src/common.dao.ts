@@ -235,6 +235,10 @@ export class CommonDao<
     return bm
   }
 
+  async getAll(): Promise<Saved<BM>[]> {
+    return await this.runQuery(this.createQuery())
+  }
+
   // QUERY
   createQuery(): DBQuery<DBM> {
     return new DBQuery<DBM>(this.cfg.table)
