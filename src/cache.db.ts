@@ -2,7 +2,7 @@ import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { EMPTY, Observable } from 'rxjs'
 import { count, toArray } from 'rxjs/operators'
 import { CommonDB } from './common.db'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CacheDBCfg {
@@ -62,7 +62,7 @@ export class CacheDB implements CommonDB {
     await this.cfg.cacheDB.resetCache(table)
   }
 
-  async getByIds<DBM extends BaseDBEntity>(
+  async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
     opts: CommonDBOptions = {},
@@ -131,7 +131,7 @@ export class CacheDB implements CommonDB {
     return deletedIds
   }
 
-  async saveBatch<DBM extends BaseDBEntity>(
+  async saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
     opts: CommonDBSaveOptions = {},
@@ -160,7 +160,7 @@ export class CacheDB implements CommonDB {
     }
   }
 
-  async runQuery<DBM extends BaseDBEntity>(
+  async runQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<RunQueryResult<DBM>> {
@@ -189,7 +189,7 @@ export class CacheDB implements CommonDB {
     return { records, ...queryResult }
   }
 
-  async runQueryCount<DBM extends BaseDBEntity>(
+  async runQueryCount<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<number> {
@@ -206,7 +206,7 @@ export class CacheDB implements CommonDB {
     return count
   }
 
-  streamQuery<DBM extends BaseDBEntity>(
+  streamQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBSaveOptions = {},
   ): Observable<DBM> {
@@ -241,7 +241,7 @@ export class CacheDB implements CommonDB {
     return obs
   }
 
-  async deleteByQuery<DBM extends BaseDBEntity>(
+  async deleteByQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<number> {

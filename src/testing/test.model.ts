@@ -1,26 +1,45 @@
 import { _range } from '@naturalcycles/js-lib'
 import { booleanSchema, numberSchema, objectSchema, stringSchema } from '@naturalcycles/nodejs-lib'
-import { BaseDBEntity, Unsaved, unsavedDBEntitySchema } from '../db.model'
+import { BaseDBEntity, baseDBEntitySchema, Saved, savedDBEntitySchema } from '../db.model'
 
 const MOCK_TS_2018_06_21 = 1529539200
 
 export const TEST_TABLE = 'TEST_TABLE'
 
-export interface TestItem extends BaseDBEntity {
+export interface TestItemBM extends BaseDBEntity {
   k1: string
   k2?: string
   k3?: number
   even?: boolean
 }
 
-export const testItemSchema = objectSchema<Unsaved<TestItem>>({
+export interface TestItemDBM extends Saved<TestItemBM> {}
+
+export interface TestItemTM {
+  k1: string
+  even?: boolean
+}
+
+export const testItemBMSchema = objectSchema<TestItemBM>({
   k1: stringSchema,
   k2: stringSchema.optional(),
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
-}).concat(unsavedDBEntitySchema)
+}).concat(baseDBEntitySchema)
 
-export function createTestItem(num = 1): TestItem {
+export const testItemDBMSchema = objectSchema<TestItemDBM>({
+  k1: stringSchema,
+  k2: stringSchema.optional(),
+  k3: numberSchema.optional(),
+  even: booleanSchema.optional(),
+}).concat(savedDBEntitySchema)
+
+export const testItemTMSchema = objectSchema<TestItemTM>({
+  k1: stringSchema,
+  even: booleanSchema.optional(),
+})
+
+export function createTestItemDBM(num = 1): TestItemDBM {
   return {
     id: `id${num}`,
     k1: `v${num}`,
@@ -32,6 +51,14 @@ export function createTestItem(num = 1): TestItem {
   }
 }
 
-export function createTestItems(count = 1): TestItem[] {
-  return _range(1, count + 1).map(num => createTestItem(num))
+export function createTestItemBM(num = 1): Saved<TestItemBM> {
+  return createTestItemDBM(num)
+}
+
+export function createTestItemsDBM(count = 1): TestItemDBM[] {
+  return _range(1, count + 1).map(num => createTestItemDBM(num))
+}
+
+export function createTestItemsBM(count = 1): Saved<TestItemBM>[] {
+  return _range(1, count + 1).map(num => createTestItemBM(num))
 }

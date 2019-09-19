@@ -1,18 +1,33 @@
 import { _pick, _sortBy } from '@naturalcycles/js-lib'
 import { deepFreeze } from '@naturalcycles/test-lib'
 import { toArray } from 'rxjs/operators'
-import { CommonDao } from '../common.dao'
+import { CommonDao, CommonDaoLogLevel } from '../common.dao'
+import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
 import { CommonDBTestOptions } from './dbTest'
-import { createTestItems, TEST_TABLE, TestItem } from './test.model'
+import {
+  createTestItemsBM,
+  TEST_TABLE,
+  testItemBMSchema,
+  TestItemDBM,
+  testItemDBMSchema,
+  testItemTMSchema,
+} from './test.model'
 
-export async function runCommonDaoTest(
-  dao: CommonDao<any>,
-  opt: CommonDBTestOptions = {},
-): Promise<void> {
+export async function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
+  const dao = new CommonDao({
+    table: TEST_TABLE,
+    db,
+    dbmSchema: testItemDBMSchema,
+    bmSchema: testItemBMSchema,
+    tmSchema: testItemTMSchema,
+    logStarted: true,
+    logLevel: CommonDaoLogLevel.DATA_FULL,
+  })
+
   const { allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
 
-  const items = createTestItems(3)
+  const items = createTestItemsBM(3)
   deepFreeze(items)
   const [item1] = items
 
@@ -21,7 +36,7 @@ export async function runCommonDaoTest(
     updated: expect.any(Number),
   }))
 
-  const queryAll = () => new DBQuery<TestItem>(TEST_TABLE, 'all')
+  const queryAll = () => new DBQuery<TestItemDBM>(TEST_TABLE, 'all')
 
   // DELETE ALL initially
   let records = await dao.runQuery(queryAll())
@@ -62,15 +77,15 @@ export async function runCommonDaoTest(
   expect(_sortBy(records, 'id')).toEqual(expectedItems)
   // console.log(itemsLoaded)
 
-  let q = new DBQuery<TestItem>(TEST_TABLE, 'only even').filter('even', '=', true)
+  let q = new DBQuery<TestItemDBM>(TEST_TABLE, 'only even').filter('even', '=', true)
   records = await dao.runQuery(q)
   expect(_sortBy(records, 'id')).toEqual(expectedItems.filter(i => i.even))
 
-  q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
+  q = new DBQuery<TestItemDBM>(TEST_TABLE, 'desc').order('k1', true)
   records = await dao.runQuery(q)
   expect(records).toEqual([...expectedItems].reverse())
 
-  q = new DBQuery<TestItem>(TEST_TABLE).select([])
+  q = new DBQuery<TestItemDBM>(TEST_TABLE).select([])
   records = await dao.runQuery(q)
   expect(_sortBy(records, 'id')).toEqual(expectedItems.map(item => _pick(item, ['id'])))
 
@@ -89,7 +104,7 @@ export async function runCommonDaoTest(
   }
 
   // DELETE BY
-  q = new DBQuery<TestItem>(TEST_TABLE).filter('even', '=', false)
+  q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
   const deleted = await dao.deleteByQuery(q)
   expect(deleted).toBe(expectedItems.filter(item => !item.even).length)
 

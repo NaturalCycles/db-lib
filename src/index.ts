@@ -15,9 +15,10 @@ import {
   DBRelation,
   ObjectWithId,
   RunQueryResult,
+  Saved,
+  SavedDBEntity,
+  savedDBEntitySchema,
   Unsaved,
-  UnsavedDBEntity,
-  unsavedDBEntitySchema,
 } from './db.model'
 import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
 import { InMemoryDB } from './inMemory.db'
@@ -33,11 +34,17 @@ import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
 import { runCommonDaoTest } from './testing/daoTest'
 import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
 import {
-  createTestItem,
-  createTestItems,
+  createTestItemBM,
+  createTestItemDBM,
+  createTestItemsBM,
+  createTestItemsDBM,
   TEST_TABLE,
-  TestItem,
-  testItemSchema,
+  TestItemBM,
+  testItemBMSchema,
+  TestItemDBM,
+  testItemDBMSchema,
+  TestItemTM,
+  testItemTMSchema,
 } from './testing/test.model'
 
 export {
@@ -59,9 +66,10 @@ export {
   CreatedUpdatedVer,
   ObjectWithId,
   BaseDBEntity,
+  SavedDBEntity,
   baseDBEntitySchema,
-  unsavedDBEntitySchema,
-  UnsavedDBEntity,
+  savedDBEntitySchema,
+  Saved,
   Unsaved,
   CommonDaoCfg,
   CommonDao,
@@ -78,10 +86,16 @@ export {
   SimpleFileDBCfg,
   // Testing
   TEST_TABLE,
-  TestItem,
-  testItemSchema,
-  createTestItem,
-  createTestItems,
+  createTestItemDBM,
+  createTestItemBM,
+  createTestItemsDBM,
+  createTestItemsBM,
+  TestItemDBM,
+  TestItemBM,
+  TestItemTM,
+  testItemDBMSchema,
+  testItemBMSchema,
+  testItemTMSchema,
   runCommonDBTest,
   runCommonDaoTest,
   CommonDBTestOptions,

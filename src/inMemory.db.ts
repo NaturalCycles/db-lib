@@ -1,7 +1,7 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { Debug } from '@naturalcycles/nodejs-lib'
 import { Observable, of } from 'rxjs'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery, DBQueryFilterOperator } from './dbQuery'
 import { CommonDB } from './index'
 
@@ -34,7 +34,7 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<DBM extends BaseDBEntity>(
+  async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
     opts?: CommonDBOptions,
@@ -43,7 +43,7 @@ export class InMemoryDB implements CommonDB {
     return ids.map(id => this.data[table][id]).filter(Boolean)
   }
 
-  async saveBatch<DBM extends BaseDBEntity>(
+  async saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
@@ -71,7 +71,7 @@ export class InMemoryDB implements CommonDB {
       .filter(Boolean).length
   }
 
-  async deleteByQuery<DBM extends BaseDBEntity>(
+  async deleteByQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
@@ -80,26 +80,26 @@ export class InMemoryDB implements CommonDB {
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<DBM extends BaseDBEntity>(
+  async runQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<RunQueryResult<DBM>> {
     return { records: queryInMemory(q, Object.values(this.data[q.table] || {})) }
   }
 
-  async runQueryCount<DBM extends BaseDBEntity>(
+  async runQueryCount<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
     return queryInMemory(q, Object.values(this.data[q.table] || {})).length
   }
 
-  streamQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     return of(...queryInMemory(q, Object.values(this.data[q.table] || {})))
   }
 }
 
-export function queryInMemory<DBM extends BaseDBEntity>(q: DBQuery<DBM>, rows: DBM[] = []): DBM[] {
+export function queryInMemory<DBM extends SavedDBEntity>(q: DBQuery<DBM>, rows: DBM[] = []): DBM[] {
   // .filter
   rows = q._filters.reduce((rows, filter) => {
     return rows.filter(row => {

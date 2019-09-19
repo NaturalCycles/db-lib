@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CommonDB {
@@ -13,7 +13,7 @@ export interface CommonDB {
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds<DBM extends BaseDBEntity>(
+  getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
     opts?: CommonDBOptions,
@@ -23,15 +23,17 @@ export interface CommonDB {
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    */
-  runQuery<DBM extends BaseDBEntity>(
+  runQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<RunQueryResult<DBM>>
-  runQueryCount<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
-  streamQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
+
+  runQueryCount<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+
+  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
 
   // SAVE
-  saveBatch<DBM extends BaseDBEntity>(
+  saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
@@ -43,5 +45,6 @@ export interface CommonDB {
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
   deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number>
-  deleteByQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+
+  deleteByQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
 }

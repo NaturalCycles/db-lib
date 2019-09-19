@@ -85,31 +85,32 @@ export interface ObjectWithId {
 }
 
 export interface BaseDBEntity {
-  id: string
-  created: number
-  updated: number
-  _ver?: number
-}
-
-export interface UnsavedDBEntity {
   id?: string
   created?: number
   updated?: number
   _ver?: number
 }
 
-export type Unsaved<E> = Merge<E, UnsavedDBEntity>
+export interface SavedDBEntity {
+  id: string
+  created: number
+  updated: number
+  _ver?: number
+}
+
+export type Saved<E> = Merge<E, SavedDBEntity>
+export type Unsaved<E> = Merge<E, BaseDBEntity>
 
 export const baseDBEntitySchema = objectSchema<BaseDBEntity>({
-  id: stringSchema,
-  created: unixTimestampSchema,
-  updated: unixTimestampSchema,
-  _ver: verSchema.optional(),
-})
-
-export const unsavedDBEntitySchema = objectSchema<UnsavedDBEntity>({
   id: stringSchema.optional(),
   created: unixTimestampSchema.optional(),
   updated: unixTimestampSchema.optional(),
+  _ver: verSchema.optional(),
+})
+
+export const savedDBEntitySchema = objectSchema<SavedDBEntity>({
+  id: stringSchema,
+  created: unixTimestampSchema,
+  updated: unixTimestampSchema,
   _ver: verSchema.optional(),
 })

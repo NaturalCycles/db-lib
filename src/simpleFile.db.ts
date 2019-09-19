@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'
 import { Observable, Subject } from 'rxjs'
 import { CommonDB } from './common.db'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
 import { queryInMemory } from './inMemory.db'
 
@@ -42,7 +42,7 @@ export class SimpleFileDB implements CommonDB {
     }
   }
 
-  private async getTable<DBM extends BaseDBEntity>(table: string): Promise<Record<string, DBM>> {
+  private async getTable<DBM extends SavedDBEntity>(table: string): Promise<Record<string, DBM>> {
     if (!this.cache[table]) {
       this.cache[table] = await fs
         .readJson(`${this.cfg.storageDir}/${table}.json`)
@@ -51,7 +51,7 @@ export class SimpleFileDB implements CommonDB {
     return this.cache[table]
   }
 
-  private async saveTable<DBM extends BaseDBEntity>(
+  private async saveTable<DBM extends SavedDBEntity>(
     table: string,
     data: Record<string, DBM>,
   ): Promise<void> {
@@ -61,7 +61,7 @@ export class SimpleFileDB implements CommonDB {
     await fs.writeJson(filePath, data, this.cfg.prettyJson ? { spaces: 2 } : {})
   }
 
-  async getByIds<DBM extends BaseDBEntity>(
+  async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
     opts?: CommonDBOptions,
@@ -84,7 +84,7 @@ export class SimpleFileDB implements CommonDB {
     return deletedIds.length
   }
 
-  async saveBatch<DBM extends BaseDBEntity>(
+  async saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
@@ -96,14 +96,14 @@ export class SimpleFileDB implements CommonDB {
     await this.saveTable(table, data)
   }
 
-  async runQuery<DBM extends BaseDBEntity>(
+  async runQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<RunQueryResult<DBM>> {
     return { records: queryInMemory(q, Object.values(await this.getTable(q.table))) }
   }
 
-  async runQueryCount<DBM extends BaseDBEntity>(
+  async runQueryCount<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
@@ -111,7 +111,7 @@ export class SimpleFileDB implements CommonDB {
     return rows.length
   }
 
-  streamQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     const subj = new Subject<DBM>()
 
     void this.getTable<DBM>(q.table).then(data => {
@@ -122,7 +122,7 @@ export class SimpleFileDB implements CommonDB {
     return subj
   }
 
-  async deleteByQuery<DBM extends BaseDBEntity>(
+  async deleteByQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
