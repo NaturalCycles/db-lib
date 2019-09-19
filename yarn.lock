@@ -465,10 +465,10 @@
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
-"@naturalcycles/dev-lib@^7.12.0":
-  version "7.18.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-7.18.0.tgz#b945e590a0551509bd2232cddfd02cb6fe76eb08"
-  integrity sha512-upm746zBzKLBrBi+PTy4EYhModk4MzQGVMxR76wINB4nc7vtLjGRS2hS3qaoD4V93jyaP47bAxOWru9XtwBYgg==
+"@naturalcycles/dev-lib@^8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-8.0.0.tgz#154907553ea8d10bb6424557cc677f0705d7b9a6"
+  integrity sha512-Q4emiFw5Rj4uDtVWii8mvY6hrMu+lxup+bOC/yCTapZIkU3Li0a95YUsGrtdkaXW5ml7Knzy3HIaCG9mr5utbg==
   dependencies:
     "@commitlint/cli" "^8.0.0"
     "@commitlint/config-conventional" "^8.0.0"

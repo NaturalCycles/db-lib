@@ -16,7 +16,7 @@ export const testKindUnsavedBMSchema = objectSchema<Unsaved<TestKindBM>>({
   c: booleanSchema.optional(),
 }).concat(unsavedDBEntitySchema)
 
-export function mockTestData (): Unsaved<TestKindBM>[] {
+export function mockTestData(): Unsaved<TestKindBM>[] {
   return _range(1, 5).map(num => ({
     id: `id${num}`,
     a: `a${num}`,

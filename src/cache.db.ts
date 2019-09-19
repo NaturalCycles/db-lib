@@ -48,7 +48,7 @@ export interface CacheDBCfg {
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
 export class CacheDB implements CommonDB {
-  constructor (public cfg: CacheDBCfg) {
+  constructor(public cfg: CacheDBCfg) {
     this.log = Debug(`nc:db-lib:${cfg.name}`)
   }
 
@@ -57,12 +57,12 @@ export class CacheDB implements CommonDB {
   /**
    * Resets InMemory DB data
    */
-  async resetCache (table?: string): Promise<void> {
+  async resetCache(table?: string): Promise<void> {
     this.log(`resetCache ${table || 'all'}`)
     await this.cfg.cacheDB.resetCache(table)
   }
 
-  async getByIds<DBM extends BaseDBEntity> (
+  async getByIds<DBM extends BaseDBEntity>(
     table: string,
     ids: string[],
     opts: CommonDBOptions = {},
@@ -108,7 +108,7 @@ export class CacheDB implements CommonDB {
     return ids.map(id => resultMap[id]).filter(Boolean)
   }
 
-  async deleteByIds (table: string, ids: string[], opts: CommonDBOptions = {}): Promise<number> {
+  async deleteByIds(table: string, ids: string[], opts: CommonDBOptions = {}): Promise<number> {
     let deletedIds = 0
 
     if (!opts.onlyCache && !this.cfg.onlyCache) {
@@ -131,7 +131,7 @@ export class CacheDB implements CommonDB {
     return deletedIds
   }
 
-  async saveBatch<DBM extends BaseDBEntity> (
+  async saveBatch<DBM extends BaseDBEntity>(
     table: string,
     dbms: DBM[],
     opts: CommonDBSaveOptions = {},
@@ -160,7 +160,7 @@ export class CacheDB implements CommonDB {
     }
   }
 
-  async runQuery<DBM extends BaseDBEntity> (
+  async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<DBM[]> {
@@ -189,7 +189,7 @@ export class CacheDB implements CommonDB {
     return dbms
   }
 
-  async runQueryCount<DBM extends BaseDBEntity> (
+  async runQueryCount<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<number> {
@@ -206,7 +206,7 @@ export class CacheDB implements CommonDB {
     return count
   }
 
-  streamQuery<DBM extends BaseDBEntity> (
+  streamQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBSaveOptions = {},
   ): Observable<DBM> {
@@ -241,7 +241,7 @@ export class CacheDB implements CommonDB {
     return obs
   }
 
-  async deleteByQuery<DBM extends BaseDBEntity> (
+  async deleteByQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
   ): Promise<number> {

@@ -20,7 +20,7 @@ export interface SimpleFileDBCfg {
 // const log = Debug('nc:db-lib:file')
 
 export class SimpleFileDB implements CommonDB {
-  constructor (cfg: SimpleFileDBCfg) {
+  constructor(cfg: SimpleFileDBCfg) {
     this.cfg = {
       prettyJson: true,
       ...cfg,
@@ -33,7 +33,7 @@ export class SimpleFileDB implements CommonDB {
 
   cache: Record<string, Record<string, any>> = {}
 
-  async resetCache (table?: string): Promise<void> {
+  async resetCache(table?: string): Promise<void> {
     if (table) {
       await this.saveTable(table, {})
     } else {
@@ -42,7 +42,7 @@ export class SimpleFileDB implements CommonDB {
     }
   }
 
-  private async getTable<DBM extends BaseDBEntity> (table: string): Promise<Record<string, DBM>> {
+  private async getTable<DBM extends BaseDBEntity>(table: string): Promise<Record<string, DBM>> {
     if (!this.cache[table]) {
       this.cache[table] = await fs
         .readJson(`${this.cfg.storageDir}/${table}.json`)
@@ -51,7 +51,7 @@ export class SimpleFileDB implements CommonDB {
     return this.cache[table]
   }
 
-  private async saveTable<DBM extends BaseDBEntity> (
+  private async saveTable<DBM extends BaseDBEntity>(
     table: string,
     data: Record<string, DBM>,
   ): Promise<void> {
@@ -61,7 +61,7 @@ export class SimpleFileDB implements CommonDB {
     await fs.writeJson(filePath, data, this.cfg.prettyJson ? { spaces: 2 } : {})
   }
 
-  async getByIds<DBM extends BaseDBEntity> (
+  async getByIds<DBM extends BaseDBEntity>(
     table: string,
     ids: string[],
     opts?: CommonDBOptions,
@@ -70,7 +70,7 @@ export class SimpleFileDB implements CommonDB {
     return ids.map(id => data[id]).filter(Boolean)
   }
 
-  async deleteByIds (table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
+  async deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
     const data = await this.getTable(table)
     const deletedIds: string[] = []
     ids.forEach(id => {
@@ -84,7 +84,7 @@ export class SimpleFileDB implements CommonDB {
     return deletedIds.length
   }
 
-  async saveBatch<DBM extends BaseDBEntity> (
+  async saveBatch<DBM extends BaseDBEntity>(
     table: string,
     dbms: DBM[],
     opts?: CommonDBSaveOptions,
@@ -96,14 +96,14 @@ export class SimpleFileDB implements CommonDB {
     await this.saveTable(table, data)
   }
 
-  async runQuery<DBM extends BaseDBEntity> (
+  async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<DBM[]> {
     return queryInMemory(q, Object.values(await this.getTable(q.table)))
   }
 
-  async runQueryCount<DBM extends BaseDBEntity> (
+  async runQueryCount<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
@@ -111,7 +111,7 @@ export class SimpleFileDB implements CommonDB {
     return rows.length
   }
 
-  streamQuery<DBM extends BaseDBEntity> (q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
     const subj = new Subject<DBM>()
 
     void this.getTable<DBM>(q.table).then(data => {
@@ -122,7 +122,7 @@ export class SimpleFileDB implements CommonDB {
     return subj
   }
 
-  async deleteByQuery<DBM extends BaseDBEntity> (
+  async deleteByQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {

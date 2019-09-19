@@ -6,7 +6,7 @@ import { DBQuery } from '../dbQuery'
 import { CommonDBTestOptions } from './dbTest'
 import { createTestItems, TEST_TABLE, TestItem } from './test.model'
 
-export async function runCommonDaoTest (
+export async function runCommonDaoTest(
   dao: CommonDao<any>,
   opt: CommonDBTestOptions = {},
 ): Promise<void> {

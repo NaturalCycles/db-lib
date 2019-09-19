@@ -34,7 +34,7 @@ export interface DBQueryOrder {
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
 export class DBQuery<DBM = any> {
-  constructor (public table: string, public name?: string) {}
+  constructor(public table: string, public name?: string) {}
 
   _filters: DBQueryFilter[] = []
   _limitValue = 0 // 0 means "no limit"
@@ -49,22 +49,22 @@ export class DBQuery<DBM = any> {
    */
   _selectedFieldNames?: string[]
 
-  filter (name: string, op: DBQueryFilterOperator, val: any): this {
+  filter(name: string, op: DBQueryFilterOperator, val: any): this {
     this._filters.push({ name, op, val })
     return this
   }
 
-  filterEq (name: string, val: any): this {
+  filterEq(name: string, val: any): this {
     this._filters.push({ name, op: '=', val })
     return this
   }
 
-  limit (limit: number): this {
+  limit(limit: number): this {
     this._limitValue = limit
     return this
   }
 
-  order (name: string, descending?: boolean): this {
+  order(name: string, descending?: boolean): this {
     this._orders.push({
       name,
       descending,
@@ -72,22 +72,22 @@ export class DBQuery<DBM = any> {
     return this
   }
 
-  select (fieldNames: string[]): this {
+  select(fieldNames: string[]): this {
     this._selectedFieldNames = fieldNames
     return this
   }
 
-  startCursor (startCursor?: string): this {
+  startCursor(startCursor?: string): this {
     this._startCursor = startCursor
     return this
   }
 
-  endCursor (endCursor?: string): this {
+  endCursor(endCursor?: string): this {
     this._endCursor = endCursor
     return this
   }
 
-  clone (): DBQuery<DBM> {
+  clone(): DBQuery<DBM> {
     return Object.assign(new DBQuery<DBM>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
@@ -98,11 +98,11 @@ export class DBQuery<DBM = any> {
     })
   }
 
-  pretty (): string {
+  pretty(): string {
     return this.prettyConditions().join(', ')
   }
 
-  prettyConditions (): string[] {
+  prettyConditions(): string[] {
     const tokens = []
 
     if (this.name) {

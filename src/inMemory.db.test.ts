@@ -140,7 +140,7 @@ test('sort', async () => {
   expect([r11.id, r12.id]).toEqual(['id2', 'id1'])
 })
 
-function mockTestKindItems (): TestKind[] {
+function mockTestKindItems(): TestKind[] {
   return [
     {
       id: 'id1',

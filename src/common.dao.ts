@@ -68,7 +68,7 @@ const log = Debug('nc:db-lib:commondao')
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, TM = BM> {
-  constructor (protected cfg: CommonDaoCfg<BM, DBM, TM>) {
+  constructor(protected cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       ...cfg,
@@ -78,68 +78,68 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
   /**
    * To be extended
    */
-  createId (dbm: Unsaved<DBM>): string {
+  createId(dbm: Unsaved<DBM>): string {
     return stringId()
   }
 
   /**
    * To be extended
    */
-  parseNaturalId (id: string): Partial<DBM> {
+  parseNaturalId(id: string): Partial<DBM> {
     return {}
   }
 
   /**
    * To be extended
    */
-  beforeCreate (bm: Unsaved<BM>): Unsaved<BM> {
+  beforeCreate(bm: Unsaved<BM>): Unsaved<BM> {
     return bm
   }
 
   /**
    * To be extended
    */
-  beforeDBMValidate (dbm: DBM): DBM {
+  beforeDBMValidate(dbm: DBM): DBM {
     return dbm
   }
 
   /**
    * To be extended
    */
-  async beforeDBMToBM (dbm: DBM): Promise<BM> {
+  async beforeDBMToBM(dbm: DBM): Promise<BM> {
     return dbm as any
   }
 
   /**
    * To be extended
    */
-  async beforeBMToDBM (bm: Unsaved<BM>): Promise<DBM> {
+  async beforeBMToDBM(bm: Unsaved<BM>): Promise<DBM> {
     return bm as any
   }
 
   /**
    * To be extended
    */
-  async beforeTMToBM (tm: TM): Promise<BM> {
+  async beforeTMToBM(tm: TM): Promise<BM> {
     return tm as any
   }
 
   /**
    * To be extended
    */
-  async beforeBMToTM (bm: Unsaved<BM>): Promise<TM> {
+  async beforeBMToTM(bm: Unsaved<BM>): Promise<TM> {
     return bm as any
   }
 
   /**
    * To be extended
    */
-  anonymize (dbm: DBM): DBM {
+  anonymize(dbm: DBM): DBM {
     return dbm
   }
 
   // CREATE
-  create (input: Unsaved<BM>, opts: CommonDaoOptions = {}): Unsaved<BM> {
+  create(input: Unsaved<BM>, opts: CommonDaoOptions = {}): Unsaved<BM> {
     if (opts.throwOnError === undefined) {
       opts.throwOnError = this.cfg.throwOnDaoCreateObject
     }
@@ -152,7 +152,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
   }
 
   // GET
-  async getById (id?: string, opts?: CommonDaoOptions): Promise<BM | undefined> {
+  async getById(id?: string, opts?: CommonDaoOptions): Promise<BM | undefined> {
     if (!id) return
     const op = `getById(${id})`
     const started = this.logStarted(op)
@@ -162,7 +162,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return bm
   }
 
-  async getByIdOrCreate (
+  async getByIdOrCreate(
     id: string,
     bmToCreate: Unsaved<BM>,
     opts?: CommonDaoOptions,
@@ -173,14 +173,14 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.create(bmToCreate, opts)
   }
 
-  async getByIdOrEmpty (id: string, opts?: CommonDaoOptions): Promise<Unsaved<BM>> {
+  async getByIdOrEmpty(id: string, opts?: CommonDaoOptions): Promise<Unsaved<BM>> {
     const bm = await this.getById(id, opts)
     if (bm) return bm
 
     return this.create({ id } as Unsaved<BM>, opts)
   }
 
-  async getByIdAsDBM (id?: string, opts?: CommonDaoOptions): Promise<DBM | undefined> {
+  async getByIdAsDBM(id?: string, opts?: CommonDaoOptions): Promise<DBM | undefined> {
     if (!id) return
     const op = `getByIdAsDBM(${id})`
     const started = this.logStarted(op)
@@ -190,7 +190,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return dbm
   }
 
-  async getByIds (ids: string[], opts?: CommonDaoOptions): Promise<BM[]> {
+  async getByIds(ids: string[], opts?: CommonDaoOptions): Promise<BM[]> {
     const op = `getByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
     const dbms = await this.cfg.db.getByIds<DBM>(this.cfg.table, ids)
@@ -199,20 +199,20 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return bms
   }
 
-  async requireById (id: string, opts?: CommonDaoOptions): Promise<BM> {
+  async requireById(id: string, opts?: CommonDaoOptions): Promise<BM> {
     const r = await this.getById(id, opts)
     if (!r) throw new Error(`DB record required, but not found: ${this.cfg.table}.${id}`)
     return r
   }
 
-  async getBy (by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<BM[]> {
+  async getBy(by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<BM[]> {
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(limit)
     return this.runQuery(q, opts)
   }
 
-  async getOneBy (by: string, value: any, opts?: CommonDaoOptions): Promise<BM | undefined> {
+  async getOneBy(by: string, value: any, opts?: CommonDaoOptions): Promise<BM | undefined> {
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(1)
@@ -221,11 +221,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
   }
 
   // QUERY
-  createQuery (): DBQuery<DBM> {
+  createQuery(): DBQuery<DBM> {
     return new DBQuery<DBM>(this.cfg.table)
   }
 
-  async runQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
+  async runQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<BM[]> {
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op)
     const dbms = await this.cfg.db.runQuery(q, opts)
@@ -235,7 +235,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return bms
   }
 
-  async runQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<DBM[]> {
+  async runQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<DBM[]> {
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op)
     const entities = await this.cfg.db.runQuery(q, opts)
@@ -245,7 +245,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return dbms
   }
 
-  async runQueryCount (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
+  async runQueryCount(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op)
     const count = await this.cfg.db.runQueryCount(q, opts)
@@ -255,7 +255,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return count
   }
 
-  streamQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<BM> {
+  streamQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<BM> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
@@ -276,7 +276,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return obs
   }
 
-  streamQueryAsDBM (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
+  streamQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
@@ -297,16 +297,16 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return obs
   }
 
-  async queryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
+  async queryIds(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
     const rows = await this.cfg.db.runQuery(q.select(['id']), opts)
     return rows.map(row => row.id)
   }
 
-  streamQueryIds (q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<string> {
+  streamQueryIds(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<string> {
     return this.cfg.db.streamQuery(q.select(['id']), opts).pipe(map(row => row.id))
   }
 
-  assignIdCreatedUpdated (dbm: Unsaved<DBM>, opts: CommonDaoOptions = {}): DBM {
+  assignIdCreatedUpdated(dbm: Unsaved<DBM>, opts: CommonDaoOptions = {}): DBM {
     const now = Math.floor(Date.now() / 1000)
 
     return {
@@ -318,7 +318,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
   }
 
   // SAVE
-  async save (bm: Unsaved<BM>, opts: CommonDaoSaveOptions = {}): Promise<BM> {
+  async save(bm: Unsaved<BM>, opts: CommonDaoSaveOptions = {}): Promise<BM> {
     const dbm = await this.bmToDBM(bm, opts)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm)
@@ -328,7 +328,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return savedBM
   }
 
-  async saveAsDBM (_dbm: Unsaved<DBM>, opts: CommonDaoSaveOptions = {}): Promise<DBM> {
+  async saveAsDBM(_dbm: Unsaved<DBM>, opts: CommonDaoSaveOptions = {}): Promise<DBM> {
     const dbm = this.anyToDBM(_dbm, opts)
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm)
@@ -337,7 +337,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return dbm
   }
 
-  async saveBatch (bms: Unsaved<BM>[], opts: CommonDaoSaveOptions = {}): Promise<BM[]> {
+  async saveBatch(bms: Unsaved<BM>[], opts: CommonDaoSaveOptions = {}): Promise<BM[]> {
     const dbms = await this.bmsToDBM(bms, opts)
     const op = `saveBatch(${dbms.map(bm => bm.id).join(', ')})`
     const started = this.logSaveStarted(op, bms)
@@ -347,7 +347,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return savedBMs
   }
 
-  async saveBatchAsDBM (_dbms: Unsaved<DBM>[], opts: CommonDaoSaveOptions = {}): Promise<DBM[]> {
+  async saveBatchAsDBM(_dbms: Unsaved<DBM>[], opts: CommonDaoSaveOptions = {}): Promise<DBM[]> {
     const dbms = this.anyToDBMs(_dbms, opts)
     const op = `saveBatch(${dbms.map(dbm => dbm.id).join(', ')})`
     const started = this.logSaveStarted(op, dbms)
@@ -362,7 +362,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
   /**
    * @returns number of deleted items
    */
-  async deleteById (id?: string): Promise<number> {
+  async deleteById(id?: string): Promise<number> {
     if (!id) return 0
     const op = `deleteById(${id})`
     const started = this.logStarted(op)
@@ -371,7 +371,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return ids
   }
 
-  async deleteByIds (ids: string[]): Promise<number> {
+  async deleteByIds(ids: string[]): Promise<number> {
     const op = `deleteByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
     const deletedIds = await this.cfg.db.deleteByIds(this.cfg.table, ids)
@@ -379,7 +379,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return deletedIds
   }
 
-  async deleteByQuery (q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
+  async deleteByQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op)
     const ids = await this.cfg.db.deleteByQuery(q, opts)
@@ -389,7 +389,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
 
   // CONVERSIONS
 
-  async dbmToBM (_dbm: DBM, opts: CommonDaoOptions = {}): Promise<BM> {
+  async dbmToBM(_dbm: DBM, opts: CommonDaoOptions = {}): Promise<BM> {
     if (!_dbm) return undefined as any
 
     const dbm = this.anyToDBM(_dbm, opts)
@@ -401,7 +401,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opts)
   }
 
-  async dbmsToBM (dbms: DBM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
+  async dbmsToBM(dbms: DBM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
     return Promise.all(dbms.map(dbm => this.dbmToBM(dbm, opts)))
   }
 
@@ -409,7 +409,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
    * Mutates object with properties: id, created, updated.
    * Returns DBM (new reference).
    */
-  async bmToDBM (unsavedBM: Unsaved<BM>, opts?: CommonDaoOptions): Promise<DBM> {
+  async bmToDBM(unsavedBM: Unsaved<BM>, opts?: CommonDaoOptions): Promise<DBM> {
     if (unsavedBM === undefined) return undefined as any
 
     // Validate/convert BM
@@ -426,12 +426,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
   }
 
-  async bmsToDBM (bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<DBM[]> {
+  async bmsToDBM(bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<DBM[]> {
     // try/catch?
     return Promise.all(bms.map(bm => this.bmToDBM(bm, opts)))
   }
 
-  anyToDBM (_dbm: Unsaved<DBM>, opts: CommonDaoOptions = {}): DBM {
+  anyToDBM(_dbm: Unsaved<DBM>, opts: CommonDaoOptions = {}): DBM {
     if (!_dbm) return undefined as any
 
     let dbm = this.assignIdCreatedUpdated(_dbm, opts)
@@ -445,11 +445,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.validateAndConvert<DBM>(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
   }
 
-  anyToDBMs (entities: Unsaved<DBM>[], opts: CommonDaoOptions = {}): DBM[] {
+  anyToDBMs(entities: Unsaved<DBM>[], opts: CommonDaoOptions = {}): DBM[] {
     return entities.map(entity => this.anyToDBM(entity, opts))
   }
 
-  async bmToTM (unsavedBM: Unsaved<BM>, opts?: CommonDaoOptions): Promise<TM> {
+  async bmToTM(unsavedBM: Unsaved<BM>, opts?: CommonDaoOptions): Promise<TM> {
     if (unsavedBM === undefined) return undefined as any
 
     // Validate/convert BM
@@ -463,12 +463,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opts)
   }
 
-  async bmsToTM (bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<TM[]> {
+  async bmsToTM(bms: Unsaved<BM>[], opts: CommonDaoOptions = {}): Promise<TM[]> {
     // try/catch?
     return Promise.all(bms.map(bm => this.bmToTM(bm, opts)))
   }
 
-  async tmToBM (tm: TM, opts: CommonDaoOptions = {}): Promise<BM> {
+  async tmToBM(tm: TM, opts: CommonDaoOptions = {}): Promise<BM> {
     if (!tm) return undefined as any
 
     // Validate/convert TM
@@ -482,7 +482,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opts)
   }
 
-  async tmsToBM (tms: TM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
+  async tmsToBM(tms: TM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
     // try/catch?
     return Promise.all(tms.map(tm => this.tmToBM(tm, opts)))
   }
@@ -492,7 +492,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
    * Validates (unless `validate=false` passed).
    * Throws only if `throwOnError=true` passed OR if `env().throwOnEntityValidationError`
    */
-  validateAndConvert<IN = any, OUT = IN> (
+  validateAndConvert<IN = any, OUT = IN>(
     obj: IN,
     schema?: ObjectSchemaTyped<IN>,
     modelType?: DBModelType,
@@ -533,7 +533,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     return value // converted value
   }
 
-  protected logResult (started: number, op: string, res: any): void {
+  protected logResult(started: number, op: string, res: any): void {
     if (!this.cfg.logLevel) return
 
     let logRes: any
@@ -556,19 +556,19 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     log(...[`<< ${this.cfg.table}.${op}: ${logRes} in ${since(started)}`].concat(args))
   }
 
-  protected logSaveResult (started: number, op: string): void {
+  protected logSaveResult(started: number, op: string): void {
     if (!this.cfg.logLevel) return
     log(`<< ${this.cfg.table}.${op} in ${since(started)}`)
   }
 
-  protected logStarted (op: string, force = false): number {
+  protected logStarted(op: string, force = false): number {
     if (this.cfg.logStarted || force) {
       log(`>> ${this.cfg.table}.${op}`)
     }
     return Date.now()
   }
 
-  protected logSaveStarted (op: string, items: any): number {
+  protected logSaveStarted(op: string, items: any): number {
     if (this.cfg.logStarted) {
       const args: any[] = [`>> ${this.cfg.table}.${op}`]
       if (Array.isArray(items)) {

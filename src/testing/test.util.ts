@@ -5,7 +5,7 @@
  *
  * Based on: https://github.com/substack/deep-freeze/blob/master/index.js
  */
-export function deepFreeze (o: any): void {
+export function deepFreeze(o: any): void {
   Object.freeze(o)
 
   Object.getOwnPropertyNames(o).forEach(prop => {

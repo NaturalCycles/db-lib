@@ -13,7 +13,7 @@ export interface CommonDBTestOptions {
   allowStreamQueryToBeUnsorted?: boolean
 }
 
-export async function runCommonDBTest (db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
+export async function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
   const { allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
 
   const items = createTestItems(3)

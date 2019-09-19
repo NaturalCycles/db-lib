@@ -20,7 +20,7 @@ export const testItemSchema = objectSchema<Unsaved<TestItem>>({
   even: booleanSchema.optional(),
 }).concat(unsavedDBEntitySchema)
 
-export function createTestItem (num = 1): TestItem {
+export function createTestItem(num = 1): TestItem {
   return {
     id: `id${num}`,
     k1: `v${num}`,
@@ -32,6 +32,6 @@ export function createTestItem (num = 1): TestItem {
   }
 }
 
-export function createTestItems (count = 1): TestItem[] {
+export function createTestItems(count = 1): TestItem[] {
   return _range(1, count + 1).map(num => createTestItem(num))
 }
