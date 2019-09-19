@@ -36,6 +36,8 @@ export interface CommonDaoCfg<BM, DBM extends BaseDBEntity, TM> {
   bmSchema?: ObjectSchemaTyped<BM>
   tmSchema?: ObjectSchemaTyped<TM>
 
+  excludeFromIndexes?: string[]
+
   /**
    * @default OPERATIONS
    */
@@ -339,7 +341,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     const dbm = await this.bmToDBM(bm, opts)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm)
-    await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
+      excludeFromIndexes: this.cfg.excludeFromIndexes,
+      ...opts,
+    })
     const savedBM = await this.dbmToBM(dbm, opts)
     this.logSaveResult(started, op)
     return savedBM
@@ -349,7 +354,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     const dbm = this.anyToDBM(_dbm, opts)
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm)
-    await this.cfg.db.saveBatch(this.cfg.table, [dbm], opts)
+    await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
+      excludeFromIndexes: this.cfg.excludeFromIndexes,
+      ...opts,
+    })
     this.logSaveResult(started, op)
     return dbm
   }
@@ -358,7 +366,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     const dbms = await this.bmsToDBM(bms, opts)
     const op = `saveBatch(${dbms.map(bm => bm.id).join(', ')})`
     const started = this.logSaveStarted(op, bms)
-    await this.cfg.db.saveBatch(this.cfg.table, dbms, opts)
+    await this.cfg.db.saveBatch(this.cfg.table, dbms, {
+      excludeFromIndexes: this.cfg.excludeFromIndexes,
+      ...opts,
+    })
     const savedBMs = await this.dbmsToBM(dbms, opts)
     this.logSaveResult(started, op)
     return savedBMs
@@ -369,7 +380,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, T
     const op = `saveBatch(${dbms.map(dbm => dbm.id).join(', ')})`
     const started = this.logSaveStarted(op, dbms)
     const dbms2 = this.anyToDBMs(dbms, opts)
-    await this.cfg.db.saveBatch(this.cfg.table, dbms2, opts)
+    await this.cfg.db.saveBatch(this.cfg.table, dbms2, {
+      excludeFromIndexes: this.cfg.excludeFromIndexes,
+      ...opts,
+    })
     const savedDBMs = this.anyToDBMs(dbms2, opts)
     this.logSaveResult(started, op)
     return savedDBMs
