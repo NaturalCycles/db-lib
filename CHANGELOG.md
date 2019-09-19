@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/NaturalCycles/db-lib/compare/v1.16.0...v1.17.0) (2019-09-19)
+
+
+### Features
+
+* CommonDaoCfg.excludeFromIndexes ([29d03b7](https://github.com/NaturalCycles/db-lib/commit/29d03b7))
+
 # [1.16.0](https://github.com/NaturalCycles/db-lib/compare/v1.15.0...v1.16.0) (2019-09-19)
 
 
