@@ -1,3 +1,5 @@
+import { _truncate } from '@naturalcycles/js-lib'
+
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
 export interface DBQueryFilter {
@@ -38,6 +40,9 @@ export class DBQuery<DBM = any> {
   _limitValue = 0 // 0 means "no limit"
   _orders: DBQueryOrder[] = []
 
+  _startCursor?: string
+  _endCursor?: string
+
   /**
    * If defined - only those fields will be selected.
    * In undefined - all fields (*) will be returned.
@@ -72,12 +77,24 @@ export class DBQuery<DBM = any> {
     return this
   }
 
+  startCursor (startCursor?: string): this {
+    this._startCursor = startCursor
+    return this
+  }
+
+  endCursor (endCursor?: string): this {
+    this._endCursor = endCursor
+    return this
+  }
+
   clone (): DBQuery<DBM> {
     return Object.assign(new DBQuery<DBM>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
       _orders: [...this._orders],
       _selectedFieldNames: this._selectedFieldNames && [...this._selectedFieldNames],
+      _startCursor: this._startCursor,
+      _endCursor: this._endCursor,
     })
   }
 
@@ -103,6 +120,15 @@ export class DBQuery<DBM = any> {
     if (this._limitValue) {
       tokens.push(`limit ${this._limitValue}`)
     }
+
+    if (this._startCursor) {
+      tokens.push(`startCursor ${_truncate(this._startCursor, 8)}`)
+    }
+
+    if (this._endCursor) {
+      tokens.push(`endCursor ${_truncate(this._endCursor, 8)}`)
+    }
+
     return tokens
   }
 }
