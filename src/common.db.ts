@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CommonDB {
@@ -23,7 +23,10 @@ export interface CommonDB {
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    */
-  runQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<DBM[]>
+  runQuery<DBM extends BaseDBEntity>(
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Promise<RunQueryResult<DBM>>
   runQueryCount<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
   streamQuery<DBM extends BaseDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
 

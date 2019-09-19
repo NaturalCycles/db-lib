@@ -49,6 +49,11 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
 }
 
+export interface RunQueryResult<T> extends Record<string, any> {
+  records: T[]
+  endCursor?: string
+}
+
 export enum DBRelation {
   ONE_TO_ONE = 'ONE_TO_ONE',
   ONE_TO_MANY = 'ONE_TO_MANY',

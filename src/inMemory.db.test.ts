@@ -110,9 +110,9 @@ test('select', async () => {
   await db.saveBatch(KIND, [obj1])
 
   const q = new DBQuery<TestKind>(KIND).select(['a'])
-  const rows = await db.runQuery(q)
+  const { records } = await db.runQuery(q)
   // console.log({rows})
-  expect(rows).toEqual([{ a: 'aa' }])
+  expect(records).toEqual([{ a: 'aa' }])
 })
 
 test('sort', async () => {
@@ -132,11 +132,13 @@ test('sort', async () => {
   await db.saveBatch(KIND, [obj1, obj2])
 
   const q = new DBQuery<TestKind>(KIND).order('a')
-  const [r1, r2] = await db.runQuery(q)
+  const { records } = await db.runQuery(q)
+  const [r1, r2] = records
   expect([r1.id, r2.id]).toEqual(['id1', 'id2'])
 
   const q2 = new DBQuery<TestKind>(KIND).order('a', true)
-  const [r11, r12] = await db.runQuery(q2)
+  const { records: records2 } = await db.runQuery(q2)
+  const [r11, r12] = records2
   expect([r11.id, r12.id]).toEqual(['id2', 'id1'])
 })
 

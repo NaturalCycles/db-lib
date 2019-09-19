@@ -23,12 +23,12 @@ export async function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {
   const queryAll = () => new DBQuery<TestItem>(TEST_TABLE, 'all')
 
   // DELETE ALL initially
-  let itemsLoaded = await db.runQuery(queryAll().select([]))
-  await db.deleteByIds(TEST_TABLE, itemsLoaded.map(i => i.id))
+  let { records } = await db.runQuery(queryAll().select([]))
+  await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
 
   // QUERY empty
 
-  expect(await db.runQuery(queryAll())).toEqual([])
+  expect((await db.runQuery(queryAll())).records).toEqual([])
   expect(await db.runQueryCount(queryAll())).toEqual(0)
 
   // GET empty
@@ -46,43 +46,43 @@ export async function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {
 
   // GET not empty
 
-  itemsLoaded = await db.getByIds<TestItem>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
+  records = await db.getByIds<TestItem>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
 
   if (allowGetByIdsUnsorted) {
-    expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+    expect(_sortBy(records, 'id')).toEqual(items)
   } else {
-    expect(itemsLoaded).toEqual(items)
+    expect(records).toEqual(items)
   }
 
   // QUERY
-  itemsLoaded = await db.runQuery(queryAll())
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+  ;({ records } = await db.runQuery(queryAll()))
+  expect(_sortBy(records, 'id')).toEqual(items)
   // console.log(itemsLoaded)
 
   let q = new DBQuery<TestItem>(TEST_TABLE, 'only even').filter('even', '=', true)
-  itemsLoaded = await db.runQuery(q)
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(items.filter(i => i.even))
+  ;({ records } = await db.runQuery(q))
+  expect(_sortBy(records, 'id')).toEqual(items.filter(i => i.even))
 
   q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
-  itemsLoaded = await db.runQuery(q)
-  expect(itemsLoaded).toEqual([...items].reverse())
+  ;({ records } = await db.runQuery(q))
+  expect(records).toEqual([...items].reverse())
 
   q = new DBQuery<TestItem>(TEST_TABLE).select([])
-  itemsLoaded = await db.runQuery(q)
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(items.map(item => _pick(item, ['id'])))
+  ;({ records } = await db.runQuery(q))
+  expect(_sortBy(records, 'id')).toEqual(items.map(item => _pick(item, ['id'])))
 
   expect(await db.runQueryCount(new DBQuery(TEST_TABLE))).toBe(3)
 
   // STREAM
-  itemsLoaded = await db
+  records = await db
     .streamQuery(queryAll())
     .pipe(toArray())
     .toPromise()
 
   if (allowStreamQueryToBeUnsorted) {
-    expect(itemsLoaded).toEqual(items)
+    expect(records).toEqual(items)
   } else {
-    expect(_sortBy(itemsLoaded, 'id')).toEqual(items)
+    expect(_sortBy(records, 'id')).toEqual(items)
   }
 
   // DELETE BY
@@ -93,6 +93,6 @@ export async function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {
   expect(await db.runQueryCount(queryAll())).toBe(1)
 
   // CLEAN UP
-  itemsLoaded = await db.runQuery(queryAll().select([]))
-  await db.deleteByIds(TEST_TABLE, itemsLoaded.map(i => i.id))
+  ;({ records } = await db.runQuery(queryAll().select([])))
+  await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
 }

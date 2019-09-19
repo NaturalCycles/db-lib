@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra'
 import { Observable, Subject } from 'rxjs'
 import { CommonDB } from './common.db'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
 import { DBQuery } from './dbQuery'
 import { queryInMemory } from './inMemory.db'
 
@@ -99,8 +99,8 @@ export class SimpleFileDB implements CommonDB {
   async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<DBM[]> {
-    return queryInMemory(q, Object.values(await this.getTable(q.table)))
+  ): Promise<RunQueryResult<DBM>> {
+    return { records: queryInMemory(q, Object.values(await this.getTable(q.table))) }
   }
 
   async runQueryCount<DBM extends BaseDBEntity>(

@@ -1,6 +1,6 @@
 import { EMPTY, Observable } from 'rxjs'
 import { CommonDB } from './common.db'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export class NoOpDB implements CommonDB {
@@ -28,8 +28,8 @@ export class NoOpDB implements CommonDB {
   async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<DBM[]> {
-    return []
+  ): Promise<RunQueryResult<DBM>> {
+    return { records: [] }
   }
 
   async runQueryCount<DBM extends BaseDBEntity>(

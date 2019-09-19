@@ -24,12 +24,12 @@ export async function runCommonDaoTest(
   const queryAll = () => new DBQuery<TestItem>(TEST_TABLE, 'all')
 
   // DELETE ALL initially
-  let itemsLoaded = await dao.runQuery(queryAll())
-  await dao.deleteByIds(itemsLoaded.map(i => i.id))
+  let { records } = await dao.runQuery(queryAll())
+  await dao.deleteByIds(records.map(i => i.id))
 
   // QUERY empty
 
-  expect(await dao.runQuery(queryAll())).toEqual([])
+  expect((await dao.runQuery(queryAll())).records).toEqual([])
   expect(await dao.runQueryCount(queryAll())).toEqual(0)
 
   // GET empty
@@ -49,43 +49,43 @@ export async function runCommonDaoTest(
 
   // GET not empty
 
-  itemsLoaded = await dao.getByIds(items.map(i => i.id).concat('abcd'))
+  records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
 
   if (allowGetByIdsUnsorted) {
-    expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+    expect(_sortBy(records, 'id')).toEqual(expectedItems)
   } else {
-    expect(itemsLoaded).toEqual(expectedItems)
+    expect(records).toEqual(expectedItems)
   }
 
   // QUERY
-  itemsLoaded = await dao.runQuery(queryAll())
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+  ;({ records } = await dao.runQuery(queryAll()))
+  expect(_sortBy(records, 'id')).toEqual(expectedItems)
   // console.log(itemsLoaded)
 
   let q = new DBQuery<TestItem>(TEST_TABLE, 'only even').filter('even', '=', true)
-  itemsLoaded = await dao.runQuery(q)
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems.filter(i => i.even))
+  ;({ records } = await dao.runQuery(q))
+  expect(_sortBy(records, 'id')).toEqual(expectedItems.filter(i => i.even))
 
   q = new DBQuery<TestItem>(TEST_TABLE, 'desc').order('k1', true)
-  itemsLoaded = await dao.runQuery(q)
-  expect(itemsLoaded).toEqual([...expectedItems].reverse())
+  ;({ records } = await dao.runQuery(q))
+  expect(records).toEqual([...expectedItems].reverse())
 
   q = new DBQuery<TestItem>(TEST_TABLE).select([])
-  itemsLoaded = await dao.runQuery(q)
-  expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems.map(item => _pick(item, ['id'])))
+  ;({ records } = await dao.runQuery(q))
+  expect(_sortBy(records, 'id')).toEqual(expectedItems.map(item => _pick(item, ['id'])))
 
   expect(await dao.runQueryCount(new DBQuery(TEST_TABLE))).toBe(3)
 
   // STREAM
-  itemsLoaded = await dao
+  records = await dao
     .streamQuery(queryAll())
     .pipe(toArray())
     .toPromise()
 
   if (allowStreamQueryToBeUnsorted) {
-    expect(itemsLoaded).toEqual(expectedItems)
+    expect(records).toEqual(expectedItems)
   } else {
-    expect(_sortBy(itemsLoaded, 'id')).toEqual(expectedItems)
+    expect(_sortBy(records, 'id')).toEqual(expectedItems)
   }
 
   // DELETE BY
@@ -96,6 +96,6 @@ export async function runCommonDaoTest(
   expect(await dao.runQueryCount(queryAll())).toBe(1)
 
   // CLEAN UP
-  itemsLoaded = await dao.runQuery(queryAll().select([]))
-  await dao.deleteByIds(itemsLoaded.map(i => i.id))
+  ;({ records } = await dao.runQuery(queryAll().select([])))
+  await dao.deleteByIds(records.map(i => i.id))
 }

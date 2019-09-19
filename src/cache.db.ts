@@ -2,7 +2,7 @@ import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { EMPTY, Observable } from 'rxjs'
 import { count, toArray } from 'rxjs/operators'
 import { CommonDB } from './common.db'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CacheDBCfg {
@@ -163,30 +163,30 @@ export class CacheDB implements CommonDB {
   async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts: CommonDBOptions = {},
-  ): Promise<DBM[]> {
+  ): Promise<RunQueryResult<DBM>> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
-      const dbms = await this.cfg.downstreamDB.runQuery(q, opts)
+      const { records, ...queryResult } = await this.cfg.downstreamDB.runQuery(q, opts)
 
       if (this.cfg.logDownstream) {
-        this.log(`${q.table}.runQuery ${dbms.length} rows from downstream`)
+        this.log(`${q.table}.runQuery ${records.length} rows from downstream`)
       }
 
       if (!opts.skipCache && !opts.skipCache) {
-        const cacheResult = this.cfg.cacheDB.saveBatch(q.table, dbms)
+        const cacheResult = this.cfg.cacheDB.saveBatch(q.table, records)
         if (this.cfg.awaitCache) await cacheResult
       }
-      return dbms
+      return { records, ...queryResult }
     }
 
-    if (opts.skipCache || this.cfg.skipCache) return []
+    if (opts.skipCache || this.cfg.skipCache) return { records: [] }
 
-    const dbms = await this.cfg.cacheDB.runQuery(q, opts)
+    const { records, ...queryResult } = await this.cfg.cacheDB.runQuery(q, opts)
 
     if (this.cfg.logCached) {
-      this.log(`${q.table}.runQuery ${dbms.length} rows from cache`)
+      this.log(`${q.table}.runQuery ${records.length} rows from cache`)
     }
 
-    return dbms
+    return { records, ...queryResult }
   }
 
   async runQueryCount<DBM extends BaseDBEntity>(

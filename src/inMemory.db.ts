@@ -1,7 +1,7 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { Debug } from '@naturalcycles/nodejs-lib'
 import { Observable, of } from 'rxjs'
-import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions } from './db.model'
+import { BaseDBEntity, CommonDBOptions, CommonDBSaveOptions, RunQueryResult } from './db.model'
 import { DBQuery, DBQueryFilterOperator } from './dbQuery'
 import { CommonDB } from './index'
 
@@ -83,8 +83,8 @@ export class InMemoryDB implements CommonDB {
   async runQuery<DBM extends BaseDBEntity>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<DBM[]> {
-    return queryInMemory(q, Object.values(this.data[q.table] || {}))
+  ): Promise<RunQueryResult<DBM>> {
+    return { records: queryInMemory(q, Object.values(this.data[q.table] || {})) }
   }
 
   async runQueryCount<DBM extends BaseDBEntity>(

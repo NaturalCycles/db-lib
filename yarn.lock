@@ -466,9 +466,9 @@
     rimraf "^2.5.2"
 
 "@naturalcycles/dev-lib@^8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-8.0.0.tgz#154907553ea8d10bb6424557cc677f0705d7b9a6"
-  integrity sha512-Q4emiFw5Rj4uDtVWii8mvY6hrMu+lxup+bOC/yCTapZIkU3Li0a95YUsGrtdkaXW5ml7Knzy3HIaCG9mr5utbg==
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-8.1.0.tgz#a09445c95a450aaaa3dfd70943aeed81af58f6b9"
+  integrity sha512-IpIcxBh6AXCSOTrZPKfI6m6wcgY26soV2pOLD4m1HsthnHOsOW/xQStUW2cWjj7ngill0Wyb6lKl5PNVXyidcA==
   dependencies:
     "@commitlint/cli" "^8.0.0"
     "@commitlint/config-conventional" "^8.0.0"
