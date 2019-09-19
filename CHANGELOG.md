@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/NaturalCycles/db-lib/compare/v1.13.1...v1.14.0) (2019-09-19)
+
+
+### Features
+
+* DBQuery.startCursor(), endCursor() ([0090631](https://github.com/NaturalCycles/db-lib/commit/0090631))
+
 ## [1.13.1](https://github.com/NaturalCycles/db-lib/compare/v1.13.0...v1.13.1) (2019-09-18)
 
 
