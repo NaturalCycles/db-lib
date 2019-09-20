@@ -535,13 +535,6 @@
     nanoid "^2.0.2"
     rxjs "^6.5.2"
 
-"@naturalcycles/test-lib@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/test-lib/-/test-lib-1.0.3.tgz#e054d8c47ceddd849e347b1e2106f87492828197"
-  integrity sha512-ulbuFcO6kZF6H9l0KAxZkm4YopFyqkjI10/kdagp0ETmhMjW6PwhCsu/5ul42qB3fO8/Uiw9Z93Hme1Z2vFgPQ==
-  dependencies:
-    timekeeper "^2.2.0"
-
 "@naturalcycles/time-lib@^1.0.0", "@naturalcycles/time-lib@^1.4.3", "@naturalcycles/time-lib@^1.5.0":
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/@naturalcycles/time-lib/-/time-lib-1.5.0.tgz#3b80ff2310b8efc3279ad6aad3dc1134dcf15a6c"
@@ -4889,11 +4882,6 @@ through2@^2.0.0, through2@^2.0.2:
   version "2.3.8"
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
-
-timekeeper@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/timekeeper/-/timekeeper-2.2.0.tgz#9645731fce9e3280a18614a57a9d1b72af3ca368"
-  integrity sha512-W3AmPTJWZkRwu+iSNxPIsLZ2ByADsOLbbLxe46UJyWj3mlYLlwucKiq+/dPm0l9wTzqoF3/2PH0AGFCebjq23A==
 
 tmpl@1.0.x:
   version "1.0.4"

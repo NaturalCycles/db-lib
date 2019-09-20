@@ -1,5 +1,4 @@
 import { _pick, _sortBy } from '@naturalcycles/js-lib'
-import { deepFreeze } from '@naturalcycles/test-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
@@ -13,6 +12,7 @@ import {
   testItemDBMSchema,
   testItemTMSchema,
 } from './test.model'
+import { deepFreeze } from './test.util'
 
 export async function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
   const dao = new CommonDao({
