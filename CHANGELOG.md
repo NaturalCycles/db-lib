@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/NaturalCycles/db-lib/compare/v1.20.0...v1.20.1) (2019-09-20)
+
+
+### Bug Fixes
+
+* remove test-lib dependency ([97bf9d3](https://github.com/NaturalCycles/db-lib/commit/97bf9d3))
+
 # [1.20.0](https://github.com/NaturalCycles/db-lib/compare/v1.19.0...v1.20.0) (2019-09-19)
 
 
