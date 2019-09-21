@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/NaturalCycles/db-lib/compare/v1.21.0...v1.22.0) (2019-09-21)
+
+
+### Features
+
+* refactor types, now order is DBM, BM, TM ([a52d236](https://github.com/NaturalCycles/db-lib/commit/a52d236))
+
 # [1.21.0](https://github.com/NaturalCycles/db-lib/compare/v1.20.1...v1.21.0) (2019-09-21)
 
 
