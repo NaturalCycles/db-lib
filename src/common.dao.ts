@@ -1,3 +1,4 @@
+import { _truncate } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -207,7 +208,7 @@ export class CommonDao<
   }
 
   async getByIds(ids: string[], opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
-    const op = `getByIds(${ids.join(', ')})`
+    const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const started = this.logStarted(op)
     const dbms = await this.cfg.db.getByIds<DBM>(this.cfg.table, ids)
     const bms = await this.dbmsToBM(dbms, opt)
@@ -289,7 +290,7 @@ export class CommonDao<
     const started = this.logStarted(op)
     const count = await this.cfg.db.runQueryCount(q, opt)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: ${count} rows in ${since(started)}`)
+      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
     }
     return count
   }
@@ -311,7 +312,7 @@ export class CommonDao<
         .pipe(count())
         .toPromise()
         .then(num => {
-          log(`<< ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+          log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
         })
     }
 
@@ -335,7 +336,7 @@ export class CommonDao<
         .pipe(count())
         .toPromise()
         .then(num => {
-          log(`<< ${this.cfg.table}.${op}: ${num} rows in ${since(started)}`)
+          log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
         })
     }
 
@@ -394,7 +395,13 @@ export class CommonDao<
 
   async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
     const dbms = await this.bmsToDBM(bms, opt)
-    const op = `saveBatch(${dbms.map(bm => bm.id).join(', ')})`
+    const op = `saveBatch ${dbms.length} row(s) (${_truncate(
+      dbms
+        .slice(0, 10)
+        .map(bm => bm.id)
+        .join(', '),
+      50,
+    )})`
     const started = this.logSaveStarted(op, bms)
     await this.cfg.db.saveBatch(this.cfg.table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
@@ -407,7 +414,13 @@ export class CommonDao<
 
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
     dbms = this.anyToDBMs(dbms, opt)
-    const op = `saveBatch(${dbms.map(dbm => dbm.id).join(', ')})`
+    const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
+      dbms
+        .slice(0, 10)
+        .map(bm => bm.id)
+        .join(', '),
+      50,
+    )})`
     const started = this.logSaveStarted(op, dbms)
 
     await this.cfg.db.saveBatch(this.cfg.table, dbms, {
@@ -635,7 +648,7 @@ export class CommonDao<
         if (items.length && this.cfg.logLevel! >= CommonDaoLogLevel.DATA_FULL) {
           args.push('\n', ...items.slice(0, 10))
         } else {
-          args.push(`${items.length} rows`)
+          args.push(`${items.length} row(s)`)
         }
       } else {
         if (this.cfg.logLevel! >= CommonDaoLogLevel.DATA_SINGLE) {
