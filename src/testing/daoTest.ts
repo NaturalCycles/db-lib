@@ -1,4 +1,4 @@
-import { _pick, _sortBy } from '@naturalcycles/js-lib'
+import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
@@ -24,7 +24,12 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     logLevel: CommonDaoLogLevel.DATA_FULL,
   })
 
-  const { allowQueryUnsorted, allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
+  const {
+    allowQueryUnsorted,
+    allowGetByIdsUnsorted,
+    allowStreamQueryToBeUnsorted,
+    eventualConsistencyDelay,
+  } = opt
 
   const items = createTestItemsBM(3)
   deepFreeze(items)
@@ -46,6 +51,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // QUERY empty
   test('runQuery(all), runQueryCount should return empty', async () => {
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     expect(await dao.query().runQuery()).toEqual([])
     expect(await dao.query().runQueryCount()).toEqual(0)
   })
@@ -80,6 +86,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // QUERY
   test('runQuery(all) should return all items', async () => {
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     let records = await dao.query().runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
@@ -136,6 +143,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
       .filter('even', '=', false)
       .deleteByQuery()
     expect(deleted).toBe(items.filter(item => !item.even).length)
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     expect(await dao.query().runQueryCount()).toBe(1)
   })
 

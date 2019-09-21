@@ -1,4 +1,4 @@
-import { _pick, _sortBy } from '@naturalcycles/js-lib'
+import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
@@ -12,10 +12,21 @@ export interface CommonDBTestOptions {
   allowQueryUnsorted?: boolean
   allowGetByIdsUnsorted?: boolean
   allowStreamQueryToBeUnsorted?: boolean
+
+  /**
+   * Applicable to e.g Datastore.
+   * Time in milliseconds to wait for eventual consistency to propagate.
+   */
+  eventualConsistencyDelay?: number
 }
 
 export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): void {
-  const { allowQueryUnsorted, allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
+  const {
+    allowQueryUnsorted,
+    allowGetByIdsUnsorted,
+    allowStreamQueryToBeUnsorted,
+    eventualConsistencyDelay,
+  } = opt
 
   const items = createTestItemsDBM(3)
   deepFreeze(items)
@@ -31,6 +42,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   // QUERY empty
   test('runQuery(all), runQueryCount should return empty', async () => {
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     expect((await db.runQuery(queryAll())).records).toEqual([])
     expect(await db.runQueryCount(queryAll())).toEqual(0)
   })
@@ -64,6 +76,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   // QUERY
   test('runQuery(all) should return all items', async () => {
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     let { records } = await db.runQuery(queryAll())
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(items)
@@ -111,6 +124,9 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
     const deleted = await db.deleteByQuery(q)
     expect(deleted).toBe(items.filter(item => !item.even).length)
+
+    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
+
     expect(await db.runQueryCount(queryAll())).toBe(1)
   })
 
