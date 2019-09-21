@@ -1,3 +1,10 @@
+## [1.23.2](https://github.com/NaturalCycles/db-lib/compare/v1.23.1...v1.23.2) (2019-09-21)
+
+
+### Bug Fixes
+
+* truncate long getByIds, saveBatch logs ([6826ffc](https://github.com/NaturalCycles/db-lib/commit/6826ffc))
+
 ## [1.23.1](https://github.com/NaturalCycles/db-lib/compare/v1.23.0...v1.23.1) (2019-09-21)
 
 
