@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/NaturalCycles/db-lib/compare/v1.22.0...v1.23.0) (2019-09-21)
+
+
+### Features
+
+* CommonDBTestOptions.eventualConsistencyDelay ([83839dc](https://github.com/NaturalCycles/db-lib/commit/83839dc))
+
 # [1.22.0](https://github.com/NaturalCycles/db-lib/compare/v1.21.0...v1.22.0) (2019-09-21)
 
 
