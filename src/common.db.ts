@@ -22,15 +22,20 @@ export interface CommonDB {
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
+   *
+   * DBM is included in generics, so it infer OUT from DBQuery<DBM>
    */
-  runQuery<DBM extends SavedDBEntity>(
+  runQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<DBM>,
     opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<DBM>>
+  ): Promise<RunQueryResult<OUT>>
 
-  runQueryCount<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Promise<number>
+  runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Observable<DBM>
+  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+    q: DBQuery<DBM>,
+    opt?: CommonDBOptions,
+  ): Observable<OUT>
 
   // SAVE
   saveBatch<DBM extends SavedDBEntity>(
@@ -46,5 +51,5 @@ export interface CommonDB {
    */
   deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number>
 
-  deleteByQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Promise<number>
+  deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 }

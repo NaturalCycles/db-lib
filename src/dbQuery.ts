@@ -1,7 +1,14 @@
 import { _truncate } from '@naturalcycles/js-lib'
 import { Observable } from 'rxjs'
 import { CommonDao } from './common.dao'
-import { BaseDBEntity, CommonDaoOptions, RunQueryResult, Saved, SavedDBEntity } from './db.model'
+import {
+  BaseDBEntity,
+  CommonDaoOptions,
+  RunQueryResult,
+  Saved,
+  SavedDBEntity,
+  Unsaved,
+} from './db.model'
 
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
@@ -38,7 +45,11 @@ export interface DBQueryOrder {
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<DBM = any> {
+export class DBQuery<
+  DBM extends SavedDBEntity = any,
+  BM extends BaseDBEntity = Unsaved<DBM>,
+  TM = BM
+> {
   constructor(public table: string, public name?: string) {}
 
   _filters: DBQueryFilter[] = []
@@ -92,8 +103,8 @@ export class DBQuery<DBM = any> {
     return this
   }
 
-  clone(): DBQuery<DBM> {
-    return Object.assign(new DBQuery<DBM>(this.table), {
+  clone(): DBQuery<DBM, BM, TM> {
+    return Object.assign(new DBQuery<DBM, BM, TM>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
       _orders: [...this._orders],
@@ -142,40 +153,40 @@ export class DBQuery<DBM = any> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends BaseDBEntity = any,
-  DBM extends SavedDBEntity = Saved<BM>,
+  DBM extends SavedDBEntity = any,
+  BM extends BaseDBEntity = Unsaved<DBM>,
   TM = BM
-> extends DBQuery<DBM> {
-  constructor(public dao: CommonDao<BM, DBM, TM>, name?: string) {
+> extends DBQuery<DBM, BM, TM> {
+  constructor(public dao: CommonDao<DBM, BM, TM>, name?: string) {
     super(dao.cfg.table, name)
   }
 
-  async runQuery(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
-    return await this.dao.runQuery(this, opt)
+  async runQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<OUT[]> {
+    return await this.dao.runQuery<OUT>(this, opt)
   }
 
-  async runAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
-    return await this.dao.runQueryAsDBM(this, opt)
+  async runQueryAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Promise<OUT[]> {
+    return await this.dao.runQueryAsDBM<OUT>(this, opt)
   }
 
-  async runExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<BM>>> {
-    return await this.dao.runQueryExtended(this, opt)
+  async runQueryExtended<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
+    return await this.dao.runQueryExtended<OUT>(this, opt)
   }
 
-  async runExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
-    return await this.dao.runQueryExtendedAsDBM(this, opt)
+  async runQueryExtendedAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
+    return await this.dao.runQueryExtendedAsDBM<OUT>(this, opt)
   }
 
   async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
     return await this.dao.runQueryCount(this, opt)
   }
 
-  streamQuery(opt?: CommonDaoOptions): Observable<Saved<BM>> {
-    return this.dao.streamQuery(this, opt)
+  streamQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Observable<OUT> {
+    return this.dao.streamQuery<OUT>(this, opt)
   }
 
-  streamQueryAsDBM(opt?: CommonDaoOptions): Observable<DBM> {
-    return this.dao.streamQueryAsDBM(this, opt)
+  streamQueryAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Observable<OUT> {
+    return this.dao.streamQueryAsDBM<OUT>(this, opt)
   }
 
   async queryIds(opt?: CommonDaoOptions): Promise<string[]> {

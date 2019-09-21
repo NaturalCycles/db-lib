@@ -96,36 +96,33 @@ export class SimpleFileDB implements CommonDB {
     await this.saveTable(table, data)
   }
 
-  async runQuery<DBM extends SavedDBEntity>(
+  async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<RunQueryResult<DBM>> {
-    return { records: queryInMemory(q, Object.values(await this.getTable(q.table))) }
+  ): Promise<RunQueryResult<OUT>> {
+    return { records: queryInMemory<DBM, OUT>(q, Object.values(await this.getTable(q.table))) }
   }
 
-  async runQueryCount<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<number> {
+  async runQueryCount(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
     const rows = queryInMemory(q, Object.values(await this.getTable(q.table)))
     return rows.length
   }
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
-    const subj = new Subject<DBM>()
+  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Observable<OUT> {
+    const subj = new Subject<OUT>()
 
     void this.getTable<DBM>(q.table).then(data => {
-      queryInMemory(q, Object.values(data)).forEach(dbm => subj.next(dbm))
+      queryInMemory<DBM, OUT>(q, Object.values(data)).forEach(dbm => subj.next(dbm))
       subj.complete()
     })
 
     return subj
   }
 
-  async deleteByQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<number> {
+  async deleteByQuery(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
     const data = await this.getTable(q.table)
     const rows = queryInMemory(q, Object.values(data))
     const deletedIds = rows.map(dbm => dbm.id)

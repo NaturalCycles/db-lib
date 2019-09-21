@@ -8,10 +8,7 @@ export class NoOpDB implements CommonDB {
     return 0
   }
 
-  async deleteByQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<number> {
+  async deleteByQuery(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
     return 0
   }
 
@@ -25,17 +22,11 @@ export class NoOpDB implements CommonDB {
 
   async resetCache(): Promise<void> {}
 
-  async runQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<RunQueryResult<DBM>> {
+  async runQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
     return { records: [] }
   }
 
-  async runQueryCount<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<number> {
+  async runQueryCount(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
     return 0
   }
 
@@ -45,7 +36,7 @@ export class NoOpDB implements CommonDB {
     opts?: CommonDBSaveOptions,
   ): Promise<void> {}
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
+  streamQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): Observable<OUT> {
     return EMPTY
   }
 }

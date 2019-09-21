@@ -75,31 +75,34 @@ export class InMemoryDB implements CommonDB {
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
-    const rows = queryInMemory(q, Object.values(this.data[q.table] || {}))
+    const rows = queryInMemory<DBM>(q, Object.values(this.data[q.table] || {}))
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<DBM extends SavedDBEntity>(
+  async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<DBM>,
     opts?: CommonDBOptions,
-  ): Promise<RunQueryResult<DBM>> {
-    return { records: queryInMemory(q, Object.values(this.data[q.table] || {})) }
+  ): Promise<RunQueryResult<OUT>> {
+    return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})) }
   }
 
-  async runQueryCount<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
-  ): Promise<number> {
+  async runQueryCount(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
     return queryInMemory(q, Object.values(this.data[q.table] || {})).length
   }
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM> {
-    return of(...queryInMemory(q, Object.values(this.data[q.table] || {})))
+  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+    q: DBQuery<DBM>,
+    opts?: CommonDBOptions,
+  ): Observable<OUT> {
+    return of(...queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
   }
 }
 
-export function queryInMemory<DBM extends SavedDBEntity>(q: DBQuery<DBM>, rows: DBM[] = []): DBM[] {
+export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
+  q: DBQuery<DBM>,
+  rows: DBM[] = [],
+): OUT[] {
   // .filter
   rows = q._filters.reduce((rows, filter) => {
     return rows.filter(row => {
@@ -138,5 +141,5 @@ export function queryInMemory<DBM extends SavedDBEntity>(q: DBQuery<DBM>, rows: 
     rows = rows.slice(0, Math.min(q._limitValue, rows.length))
   }
 
-  return rows as DBM[]
+  return (rows as any) as OUT[]
 }

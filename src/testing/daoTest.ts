@@ -2,6 +2,7 @@ import { _pick, _sortBy } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
+import { ObjectWithId } from '../index'
 import { CommonDBTestOptions } from './dbTest'
 import {
   createTestItemsBM,
@@ -37,16 +38,16 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   // DELETE ALL initially
   test('deleteByIds test items', async () => {
     const records = await dao
-      .createQuery()
+      .query()
       .select([])
-      .runQuery()
+      .runQuery<ObjectWithId>()
     await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
   })
 
   // QUERY empty
   test('runQuery(all), runQueryCount should return empty', async () => {
-    expect(await dao.createQuery().runQuery()).toEqual([])
-    expect(await dao.createQuery().runQueryCount()).toEqual(0)
+    expect(await dao.query().runQuery()).toEqual([])
+    expect(await dao.query().runQueryCount()).toEqual(0)
   })
 
   // GET empty
@@ -79,14 +80,14 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // QUERY
   test('runQuery(all) should return all items', async () => {
-    let records = await dao.createQuery().runQuery()
+    let records = await dao.query().runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
   })
 
   test('query even=true', async () => {
     let records = await dao
-      .createQuery('only even')
+      .query('only even')
       .filter('even', '=', true)
       .runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
@@ -96,7 +97,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   if (!allowQueryUnsorted) {
     test('query order by k1 desc', async () => {
       const records = await dao
-        .createQuery('desc')
+        .query('desc')
         .order('k1', true)
         .runQuery()
       expect(records).toEqual([...expectedItems].reverse())
@@ -105,21 +106,21 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   test('projection query with only ids', async () => {
     let records = await dao
-      .createQuery()
+      .query()
       .select([])
-      .runQuery()
+      .runQuery<ObjectWithId>()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems.map(item => _pick(item, ['id'])))
   })
 
   test('runQueryCount should return 3', async () => {
-    expect(await dao.createQuery().runQueryCount()).toBe(3)
+    expect(await dao.query().runQueryCount()).toBe(3)
   })
 
   // STREAM
   test('streamQuery all', async () => {
     let records = await dao
-      .createQuery()
+      .query()
       .streamQuery()
       .pipe(toArray())
       .toPromise()
@@ -131,17 +132,17 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   // DELETE BY
   test('deleteByQuery even=false', async () => {
     const deleted = await dao
-      .createQuery()
+      .query()
       .filter('even', '=', false)
       .deleteByQuery()
     expect(deleted).toBe(items.filter(item => !item.even).length)
-    expect(await dao.createQuery().runQueryCount()).toBe(1)
+    expect(await dao.query().runQueryCount()).toBe(1)
   })
 
   test('cleanup', async () => {
     // CLEAN UP
     const records = await dao
-      .createQuery()
+      .query()
       .select([])
       .runQuery()
     await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
