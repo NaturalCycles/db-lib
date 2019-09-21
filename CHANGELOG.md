@@ -1,3 +1,10 @@
+## [1.23.1](https://github.com/NaturalCycles/db-lib/compare/v1.23.0...v1.23.1) (2019-09-21)
+
+
+### Bug Fixes
+
+* change DBM/BM order, again ([ff388d2](https://github.com/NaturalCycles/db-lib/commit/ff388d2))
+
 # [1.23.0](https://github.com/NaturalCycles/db-lib/compare/v1.22.0...v1.23.0) (2019-09-21)
 
 
