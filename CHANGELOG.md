@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/NaturalCycles/db-lib/compare/v1.20.1...v1.21.0) (2019-09-21)
+
+
+### Features
+
+* RunnableDBQuery ([b045e89](https://github.com/NaturalCycles/db-lib/commit/b045e89))
+
 ## [1.20.1](https://github.com/NaturalCycles/db-lib/compare/v1.20.0...v1.20.1) (2019-09-20)
 
 
