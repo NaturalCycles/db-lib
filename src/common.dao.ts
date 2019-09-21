@@ -18,7 +18,7 @@ import {
   Saved,
   SavedDBEntity,
 } from './db.model'
-import { DBQuery } from './dbQuery'
+import { DBQuery, RunnableDBQuery } from './dbQuery'
 
 export enum CommonDaoLogLevel {
   /**
@@ -147,91 +147,91 @@ export class CommonDao<
   }
 
   // CREATE
-  create(input: BM, opts: CommonDaoOptions = {}): Saved<BM> {
-    if (opts.throwOnError === undefined) {
-      opts.throwOnError = this.cfg.throwOnDaoCreateObject
+  create(input: BM, opt: CommonDaoOptions = {}): Saved<BM> {
+    if (opt.throwOnError === undefined) {
+      opt.throwOnError = this.cfg.throwOnDaoCreateObject
     }
 
     let bm = { ...this.beforeCreate(input) }
-    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // If no SCHEMA - return as is
-    return this.assignIdCreatedUpdated(bm)
+    return this.assignIdCreatedUpdated(bm, opt)
   }
 
   // GET
-  async getById(id?: string, opts?: CommonDaoOptions): Promise<Saved<BM> | undefined> {
+  async getById(id?: string, opt?: CommonDaoOptions): Promise<Saved<BM> | undefined> {
     if (!id) return
     const op = `getById(${id})`
     const started = this.logStarted(op)
     const [dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
-    const bm = await this.dbmToBM(dbm as DBM, opts)
+    const bm = await this.dbmToBM(dbm as DBM, opt)
     this.logResult(started, op, bm)
     return bm
   }
 
-  async getByIdOrCreate(id: string, bmToCreate: BM, opts?: CommonDaoOptions): Promise<Saved<BM>> {
-    const bm = await this.getById(id, opts)
+  async getByIdOrCreate(id: string, bmToCreate: BM, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+    const bm = await this.getById(id, opt)
     if (bm) return bm
 
-    return this.create(bmToCreate, opts)
+    return this.create(bmToCreate, opt)
   }
 
-  async getByIdOrEmpty(id: string, opts?: CommonDaoOptions): Promise<Saved<BM>> {
-    const bm = await this.getById(id, opts)
+  async getByIdOrEmpty(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+    const bm = await this.getById(id, opt)
     if (bm) return bm
 
-    return this.create({ id } as BM, opts)
+    return this.create({ id } as BM, opt)
   }
 
-  async getByIdAsDBM(id?: string, opts?: CommonDaoOptions): Promise<DBM | undefined> {
+  async getByIdAsDBM(id?: string, opt?: CommonDaoOptions): Promise<DBM | undefined> {
     if (!id) return
     const op = `getByIdAsDBM(${id})`
     const started = this.logStarted(op)
     const [_dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
-    const dbm = this.anyToDBM(_dbm as DBM, opts)
+    const dbm = this.anyToDBM(_dbm as DBM, opt)
     this.logResult(started, op, dbm)
     return dbm
   }
 
-  async getByIdAsTM(id?: string, opts?: CommonDaoOptions): Promise<TM | undefined> {
+  async getByIdAsTM(id?: string, opt?: CommonDaoOptions): Promise<TM | undefined> {
     if (!id) return
     const op = `getByIdAsTM(${id})`
     const started = this.logStarted(op)
     const [dbm] = await this.cfg.db.getByIds(this.cfg.table, [id])
-    const bm = await this.dbmToBM(dbm as DBM, opts)
-    const tm = await this.bmToTM(bm as BM, opts)
+    const bm = await this.dbmToBM(dbm as DBM, opt)
+    const tm = await this.bmToTM(bm as BM, opt)
     this.logResult(started, op, tm)
     return tm
   }
 
-  async getByIds(ids: string[], opts?: CommonDaoOptions): Promise<Saved<BM>[]> {
+  async getByIds(ids: string[], opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     const op = `getByIds(${ids.join(', ')})`
     const started = this.logStarted(op)
     const dbms = await this.cfg.db.getByIds<DBM>(this.cfg.table, ids)
-    const bms = await this.dbmsToBM(dbms as DBM[], opts)
+    const bms = await this.dbmsToBM(dbms as DBM[], opt)
     this.logResult(started, op, bms)
     return bms
   }
 
-  async requireById(id: string, opts?: CommonDaoOptions): Promise<Saved<BM>> {
-    const r = await this.getById(id, opts)
+  async requireById(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+    const r = await this.getById(id, opt)
     if (!r) throw new Error(`DB record required, but not found: ${this.cfg.table}.${id}`)
     return r
   }
 
-  async getBy(by: string, value: any, limit = 0, opts?: CommonDaoOptions): Promise<Saved<BM>[]> {
+  async getBy(by: string, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(limit)
-    return await this.runQuery(q, opts)
+    return await this.runQuery(q, opt)
   }
 
-  async getOneBy(by: string, value: any, opts?: CommonDaoOptions): Promise<Saved<BM> | undefined> {
+  async getOneBy(by: string, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | undefined> {
     const q = this.createQuery()
       .filter(by, '=', value)
       .limit(1)
-    const [bm] = await this.runQuery(q, opts)
+    const [bm] = await this.runQuery(q, opt)
     return bm
   }
 
@@ -240,24 +240,24 @@ export class CommonDao<
   }
 
   // QUERY
-  createQuery(): DBQuery<DBM> {
-    return new DBQuery<DBM>(this.cfg.table)
+  createQuery(name?: string): RunnableDBQuery<BM, DBM, TM> {
+    return new RunnableDBQuery(this, name)
   }
 
-  async runQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<Saved<BM>[]> {
-    const { records } = await this.runQueryExtended(q, opts)
+  async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    const { records } = await this.runQueryExtended(q, opt)
     return records
   }
 
   async runQueryExtended(
     q: DBQuery<DBM>,
-    opts?: CommonDaoOptions,
+    opt?: CommonDaoOptions,
   ): Promise<RunQueryResult<Saved<BM>>> {
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op)
-    const { records, ...queryResult } = await this.cfg.db.runQuery(q, opts)
+    const { records, ...queryResult } = await this.cfg.db.runQuery(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    const bms = partialQuery ? (records as any[]) : await this.dbmsToBM(records as DBM[], opts)
+    const bms = partialQuery ? (records as any[]) : await this.dbmsToBM(records as DBM[], opt)
     this.logResult(started, op, bms)
     return {
       records: bms,
@@ -265,42 +265,42 @@ export class CommonDao<
     }
   }
 
-  async runQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<DBM[]> {
-    const { records } = await this.runQueryExtendedAsDBM(q, opts)
+  async runQueryAsDBM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<DBM[]> {
+    const { records } = await this.runQueryExtendedAsDBM(q, opt)
     return records
   }
 
   async runQueryExtendedAsDBM(
     q: DBQuery<DBM>,
-    opts?: CommonDaoOptions,
+    opt?: CommonDaoOptions,
   ): Promise<RunQueryResult<DBM>> {
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op)
-    const { records, ...queryResult } = await this.cfg.db.runQuery(q, opts)
+    const { records, ...queryResult } = await this.cfg.db.runQuery(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    const dbms = partialQuery ? records : this.anyToDBMs(records as DBM[], opts)
+    const dbms = partialQuery ? records : this.anyToDBMs(records as DBM[], opt)
     this.logResult(started, op, dbms)
     return { records: dbms as DBM[], ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
+  async runQueryCount(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<number> {
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op)
-    const count = await this.cfg.db.runQueryCount(q, opts)
+    const count = await this.cfg.db.runQueryCount(q, opt)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       log(`<< ${this.cfg.table}.${op}: ${count} rows in ${since(started)}`)
     }
     return count
   }
 
-  streamQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<Saved<BM>> {
+  streamQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Observable<Saved<BM>> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
     const obs = this.cfg.db.streamQuery(q).pipe(
       mergeMap(async dbm => {
         if (partialQuery) return (dbm as any) as BM
-        return await this.dbmToBM(dbm, opts)
+        return await this.dbmToBM(dbm, opt)
       }),
     )
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
@@ -314,14 +314,14 @@ export class CommonDao<
     return obs as Observable<Saved<BM>>
   }
 
-  streamQueryAsDBM(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<DBM> {
+  streamQueryAsDBM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Observable<DBM> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
     const obs = this.cfg.db.streamQuery(q).pipe(
       map(entity => {
         if (partialQuery) return entity
-        return this.anyToDBM(entity, opts)
+        return this.anyToDBM(entity, opt)
       }),
     )
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
@@ -335,75 +335,77 @@ export class CommonDao<
     return obs
   }
 
-  async queryIds(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<string[]> {
-    const { records } = await this.cfg.db.runQuery(q.select(['id']), opts)
+  async queryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<string[]> {
+    const { records } = await this.cfg.db.runQuery(q.select(['id']), opt)
     return records.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<DBM>, opts?: CommonDaoOptions): Observable<string> {
-    return this.cfg.db.streamQuery(q.select(['id']), opts).pipe(map(row => row.id))
+  streamQueryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Observable<string> {
+    return this.cfg.db.streamQuery(q.select(['id']), opt).pipe(map(row => row.id))
   }
 
-  assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opts: CommonDaoOptions = {}): Saved<T> {
+  assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
     const now = Math.floor(Date.now() / 1000)
 
     return {
       ...obj,
       id: obj.id || this.createId(obj),
       created: obj.created || obj.updated || now,
-      updated: opts.preserveUpdatedCreated && obj.updated ? obj.updated : now,
+      updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
     }
   }
 
   // SAVE
-  async save(bm: BM, opts: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
-    const dbm = await this.bmToDBM(bm, opts)
+  async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
+    const dbm = await this.bmToDBM(bm, opt) // does assignIdCreatedUpdated
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm)
     await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
-      ...opts,
+      ...opt,
     })
-    const savedBM = await this.dbmToBM(dbm, opts)
+    const savedBM = await this.dbmToBM(dbm, opt)
     this.logSaveResult(started, op)
     return savedBM
   }
 
-  async saveAsDBM(_dbm: DBM, opts: CommonDaoSaveOptions = {}): Promise<DBM> {
-    const dbm = this.anyToDBM(_dbm, opts)
+  async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+    // assigning id in case it misses the id
+    // will override/set `updated` field, unless opts.preserveUpdated is set
+    dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm)
     await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
-      ...opts,
+      ...opt,
     })
     this.logSaveResult(started, op)
     return dbm
   }
 
-  async saveBatch(bms: BM[], opts: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
-    const dbms = await this.bmsToDBM(bms, opts)
+  async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
+    const dbms = await this.bmsToDBM(bms, opt)
     const op = `saveBatch(${dbms.map(bm => bm.id).join(', ')})`
     const started = this.logSaveStarted(op, bms)
     await this.cfg.db.saveBatch(this.cfg.table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
-      ...opts,
+      ...opt,
     })
-    const savedBMs = await this.dbmsToBM(dbms, opts)
+    const savedBMs = await this.dbmsToBM(dbms, opt)
     this.logSaveResult(started, op)
     return savedBMs
   }
 
-  async saveBatchAsDBM(_dbms: DBM[], opts: CommonDaoSaveOptions = {}): Promise<DBM[]> {
-    const dbms = this.anyToDBMs(_dbms, opts)
+  async saveBatchAsDBM(_dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
+    const dbms = this.anyToDBMs(_dbms, opt)
     const op = `saveBatch(${dbms.map(dbm => dbm.id).join(', ')})`
     const started = this.logSaveStarted(op, dbms)
-    const dbms2 = this.anyToDBMs(dbms, opts)
+    const dbms2 = this.anyToDBMs(dbms, opt)
     await this.cfg.db.saveBatch(this.cfg.table, dbms2, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
-      ...opts,
+      ...opt,
     })
-    const savedDBMs = this.anyToDBMs(dbms2, opts)
+    const savedDBMs = this.anyToDBMs(dbms2, opt)
     this.logSaveResult(started, op)
     return savedDBMs
   }
@@ -429,112 +431,111 @@ export class CommonDao<
     return deletedIds
   }
 
-  async deleteByQuery(q: DBQuery<DBM>, opts?: CommonDaoOptions): Promise<number> {
+  async deleteByQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<number> {
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op)
-    const ids = await this.cfg.db.deleteByQuery(q, opts)
+    const ids = await this.cfg.db.deleteByQuery(q, opt)
     this.logSaveResult(started, op)
     return ids
   }
 
   // CONVERSIONS
 
-  async dbmToBM(_dbm: DBM, opts: CommonDaoOptions = {}): Promise<Saved<BM>> {
+  async dbmToBM(_dbm: DBM, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
     if (!_dbm) return undefined as any
 
-    const dbm = this.anyToDBM(_dbm, opts)
+    const dbm = this.anyToDBM(_dbm, opt)
 
     // DBM > BM
     const bm = await this.beforeDBMToBM(dbm)
 
     // Validate/convert BM
-    return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+    return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
   }
 
-  async dbmsToBM(dbms: DBM[], opts: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
-    return await Promise.all(dbms.map(dbm => this.dbmToBM(dbm, opts)))
+  async dbmsToBM(dbms: DBM[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
+    return await Promise.all(dbms.map(dbm => this.dbmToBM(dbm, opt)))
   }
 
   /**
    * Mutates object with properties: id, created, updated.
    * Returns DBM (new reference).
    */
-  async bmToDBM(bm: BM, opts?: CommonDaoOptions): Promise<DBM> {
+  async bmToDBM(bm: BM, opt?: CommonDaoOptions): Promise<DBM> {
     if (bm === undefined) return undefined as any
 
     // Validate/convert BM
     // bm gets assigned to the new reference
-    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // BM > DBM
     let dbm = await this.beforeBMToDBM(bm)
 
     // Does not mutate
-    dbm = this.assignIdCreatedUpdated(dbm, opts) as DBM
+    dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
 
     // Validate/convert DBM
-    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
+    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
   }
 
-  async bmsToDBM(bms: BM[], opts: CommonDaoOptions = {}): Promise<DBM[]> {
+  async bmsToDBM(bms: BM[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
     // try/catch?
-    return await Promise.all(bms.map(bm => this.bmToDBM(bm, opts)))
+    return await Promise.all(bms.map(bm => this.bmToDBM(bm, opt)))
   }
 
-  anyToDBM(obj: DBM, opts: CommonDaoOptions = {}): DBM {
-    if (!obj) return undefined as any
+  anyToDBM(dbm: DBM, opt: CommonDaoOptions = {}): DBM {
+    if (!dbm) return undefined as any
 
-    let dbm = this.assignIdCreatedUpdated(obj, opts) as DBM
     dbm = { ...dbm, ...this.parseNaturalId(dbm.id) }
 
-    if (opts.anonymize) {
+    if (opt.anonymize) {
       dbm = this.anonymize(dbm)
     }
 
     // Validate/convert DBM
-    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opts)
+    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
   }
 
-  anyToDBMs(entities: DBM[], opts: CommonDaoOptions = {}): DBM[] {
-    return entities.map(entity => this.anyToDBM(entity, opts))
+  anyToDBMs(entities: DBM[], opt: CommonDaoOptions = {}): DBM[] {
+    return entities.map(entity => this.anyToDBM(entity, opt))
   }
 
-  async bmToTM(bm: BM, opts?: CommonDaoOptions): Promise<TM> {
+  async bmToTM(bm: BM, opt?: CommonDaoOptions): Promise<TM> {
     if (bm === undefined) return undefined as any
 
     // Validate/convert BM
     // bm gets assigned to the new reference
-    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // BM > TM
     const tm = await this.beforeBMToTM(bm)
 
     // Validate/convert DBM
-    return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opts)
+    return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
   }
 
-  async bmsToTM(bms: BM[], opts: CommonDaoOptions = {}): Promise<TM[]> {
+  async bmsToTM(bms: BM[], opt: CommonDaoOptions = {}): Promise<TM[]> {
     // try/catch?
-    return await Promise.all(bms.map(bm => this.bmToTM(bm, opts)))
+    return await Promise.all(bms.map(bm => this.bmToTM(bm, opt)))
   }
 
-  async tmToBM(tm: TM, opts: CommonDaoOptions = {}): Promise<BM> {
+  async tmToBM(tm: TM, opt: CommonDaoOptions = {}): Promise<BM> {
     if (!tm) return undefined as any
 
     // Validate/convert TM
     // bm gets assigned to the new reference
-    tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opts)
+    tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
 
     // TM > BM
     const bm = await this.beforeTMToBM(tm)
 
     // Validate/convert BM
-    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opts)
+    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opt)
   }
 
-  async tmsToBM(tms: TM[], opts: CommonDaoOptions = {}): Promise<BM[]> {
+  async tmsToBM(tms: TM[], opt: CommonDaoOptions = {}): Promise<BM[]> {
     // try/catch?
-    return await Promise.all(tms.map(tm => this.tmToBM(tm, opts)))
+    return await Promise.all(tms.map(tm => this.tmToBM(tm, opt)))
   }
 
   /**
@@ -546,7 +547,7 @@ export class CommonDao<
     obj: IN,
     schema?: ObjectSchemaTyped<IN>,
     modelType?: DBModelType,
-    opts: CommonDaoOptions = {},
+    opt: CommonDaoOptions = {},
   ): OUT {
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
@@ -565,7 +566,7 @@ export class CommonDao<
       this.cfg.table + (modelType || ''),
     )
 
-    const { skipValidation, throwOnError } = opts
+    const { skipValidation, throwOnError } = opt
 
     // If we care about validation and there's an error
     if (error && !skipValidation) {

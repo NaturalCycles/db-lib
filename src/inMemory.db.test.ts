@@ -4,10 +4,6 @@ import { runCommonDBTest } from './testing/dbTest'
 
 const db = new InMemoryDB()
 
-test('runCommonDBTest', async () => {
-  await runCommonDBTest(db)
-})
+describe('runCommonDBTest', () => runCommonDBTest(db))
 
-test('runCommonDaoTest', async () => {
-  await runCommonDaoTest(db)
-})
+describe('runCommonDaoTest', () => runCommonDaoTest(db))

@@ -2,19 +2,17 @@ import { _pick, _sortBy } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
-import { DBQuery } from '../dbQuery'
 import { CommonDBTestOptions } from './dbTest'
 import {
   createTestItemsBM,
   TEST_TABLE,
   testItemBMSchema,
-  TestItemDBM,
   testItemDBMSchema,
   testItemTMSchema,
 } from './test.model'
 import { deepFreeze } from './test.util'
 
-export async function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): Promise<void> {
+export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): void {
   const dao = new CommonDao({
     table: TEST_TABLE,
     db,
@@ -25,7 +23,7 @@ export async function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = 
     logLevel: CommonDaoLogLevel.DATA_FULL,
   })
 
-  const { allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
+  const { allowQueryUnsorted, allowGetByIdsUnsorted, allowStreamQueryToBeUnsorted } = opt
 
   const items = createTestItemsBM(3)
   deepFreeze(items)
@@ -36,81 +34,116 @@ export async function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = 
     updated: expect.any(Number),
   }))
 
-  const queryAll = () => new DBQuery<TestItemDBM>(TEST_TABLE, 'all')
-
   // DELETE ALL initially
-  let records = await dao.runQuery(queryAll())
-  await dao.deleteByIds(records.map(i => i.id))
+  test('deleteByIds test items', async () => {
+    const records = await dao
+      .createQuery()
+      .select([])
+      .runQuery()
+    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+  })
 
   // QUERY empty
-
-  expect(await dao.runQuery(queryAll())).toEqual([])
-  expect(await dao.runQueryCount(queryAll())).toEqual(0)
+  test('runQuery(all), runQueryCount should return empty', async () => {
+    expect(await dao.createQuery().runQuery()).toEqual([])
+    expect(await dao.createQuery().runQueryCount()).toEqual(0)
+  })
 
   // GET empty
+  test('getByIds(item1.id) should return empty', async () => {
+    const [item1Loaded] = await dao.getByIds([item1.id])
+    expect(item1Loaded).toBeUndefined()
+    expect(await dao.getById(item1.id)).toBeUndefined()
+  })
 
-  const item1Loaded = await dao.getById(item1.id)
-  // console.log(a)
-  expect(item1Loaded).toBeUndefined()
+  test('getByIds([]) should return []', async () => {
+    expect(await dao.getByIds([])).toEqual([])
+  })
 
-  expect(await dao.getByIds([])).toEqual([])
-  expect(await dao.getByIds(['abc', 'abcd'])).toEqual([])
+  test('getByIds(...) should return empty', async () => {
+    expect(await dao.getByIds(['abc', 'abcd'])).toEqual([])
+  })
 
   // SAVE
-
-  const itemsSaved = await dao.saveBatch(items)
-
-  expect(itemsSaved).toEqual(expectedItems)
+  test('saveBatch test items', async () => {
+    const itemsSaved = await dao.saveBatch(items)
+    expect(itemsSaved).toEqual(expectedItems)
+  })
 
   // GET not empty
-
-  records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-
-  if (allowGetByIdsUnsorted) {
-    expect(_sortBy(records, 'id')).toEqual(expectedItems)
-  } else {
+  test('getByIds all items', async () => {
+    let records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
+    if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
-  }
+  })
 
   // QUERY
-  records = await dao.runQuery(queryAll())
-  expect(_sortBy(records, 'id')).toEqual(expectedItems)
-  // console.log(itemsLoaded)
-
-  let q = new DBQuery<TestItemDBM>(TEST_TABLE, 'only even').filter('even', '=', true)
-  records = await dao.runQuery(q)
-  expect(_sortBy(records, 'id')).toEqual(expectedItems.filter(i => i.even))
-
-  q = new DBQuery<TestItemDBM>(TEST_TABLE, 'desc').order('k1', true)
-  records = await dao.runQuery(q)
-  expect(records).toEqual([...expectedItems].reverse())
-
-  q = new DBQuery<TestItemDBM>(TEST_TABLE).select([])
-  records = await dao.runQuery(q)
-  expect(_sortBy(records, 'id')).toEqual(expectedItems.map(item => _pick(item, ['id'])))
-
-  expect(await dao.runQueryCount(new DBQuery(TEST_TABLE))).toBe(3)
-
-  // STREAM
-  records = await dao
-    .streamQuery(queryAll())
-    .pipe(toArray())
-    .toPromise()
-
-  if (allowStreamQueryToBeUnsorted) {
+  test('runQuery(all) should return all items', async () => {
+    let records = await dao.createQuery().runQuery()
+    if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
-  } else {
-    expect(_sortBy(records, 'id')).toEqual(expectedItems)
+  })
+
+  test('query even=true', async () => {
+    let records = await dao
+      .createQuery('only even')
+      .filter('even', '=', true)
+      .runQuery()
+    if (allowQueryUnsorted) records = _sortBy(records, 'id')
+    expect(records).toEqual(expectedItems.filter(i => i.even))
+  })
+
+  if (!allowQueryUnsorted) {
+    test('query order by k1 desc', async () => {
+      const records = await dao
+        .createQuery('desc')
+        .order('k1', true)
+        .runQuery()
+      expect(records).toEqual([...expectedItems].reverse())
+    })
   }
 
+  test('projection query with only ids', async () => {
+    let records = await dao
+      .createQuery()
+      .select([])
+      .runQuery()
+    if (allowQueryUnsorted) records = _sortBy(records, 'id')
+    expect(records).toEqual(expectedItems.map(item => _pick(item, ['id'])))
+  })
+
+  test('runQueryCount should return 3', async () => {
+    expect(await dao.createQuery().runQueryCount()).toBe(3)
+  })
+
+  // STREAM
+  test('streamQuery all', async () => {
+    let records = await dao
+      .createQuery()
+      .streamQuery()
+      .pipe(toArray())
+      .toPromise()
+
+    if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
+    expect(records).toEqual(expectedItems)
+  })
+
   // DELETE BY
-  q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
-  const deleted = await dao.deleteByQuery(q)
-  expect(deleted).toBe(expectedItems.filter(item => !item.even).length)
+  test('deleteByQuery even=false', async () => {
+    const deleted = await dao
+      .createQuery()
+      .filter('even', '=', false)
+      .deleteByQuery()
+    expect(deleted).toBe(items.filter(item => !item.even).length)
+    expect(await dao.createQuery().runQueryCount()).toBe(1)
+  })
 
-  expect(await dao.runQueryCount(queryAll())).toBe(1)
-
-  // CLEAN UP
-  records = await dao.runQuery(queryAll().select([]))
-  await dao.deleteByIds(records.map(i => i.id))
+  test('cleanup', async () => {
+    // CLEAN UP
+    const records = await dao
+      .createQuery()
+      .select([])
+      .runQuery()
+    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+  })
 }

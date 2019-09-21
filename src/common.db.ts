@@ -16,7 +16,7 @@ export interface CommonDB {
   getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<DBM[]>
 
   // QUERY
@@ -25,18 +25,18 @@ export interface CommonDB {
    */
   runQuery<DBM extends SavedDBEntity>(
     q: DBQuery<DBM>,
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<RunQueryResult<DBM>>
 
-  runQueryCount<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+  runQueryCount<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Observable<DBM>
+  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Observable<DBM>
 
   // SAVE
   saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
-    opts?: CommonDBSaveOptions,
+    opt?: CommonDBSaveOptions,
   ): Promise<void>
 
   // DELETE
@@ -44,7 +44,7 @@ export interface CommonDB {
    * @returns number of deleted items.
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
-  deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number>
+  deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number>
 
-  deleteByQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opts?: CommonDBOptions): Promise<number>
+  deleteByQuery<DBM extends SavedDBEntity>(q: DBQuery<DBM>, opt?: CommonDBOptions): Promise<number>
 }

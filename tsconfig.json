@@ -1,6 +1,7 @@
 {
   "extends": "@naturalcycles/dev-lib/cfg/tsconfig.json",
   "compilerOptions": {
+    "lib": ["es2018"],
     "outDir": "dist"
   },
   "include": ["src"],

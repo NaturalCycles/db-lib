@@ -14,13 +14,9 @@ const db = new CacheDB({
   logDownstream: true,
 })
 
-test('runCommonDBTest', async () => {
-  await runCommonDBTest(db)
-})
+describe('runCommonDBTest', () => runCommonDBTest(db))
 
-test('runCommonDaoTest', async () => {
-  await runCommonDaoTest(db)
-})
+describe('runCommonDaoTest', () => runCommonDaoTest(db))
 
 test('simple', async () => {
   const _r = await db.getByIds(TEST_TABLE, ['id1'])

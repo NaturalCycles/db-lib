@@ -1,4 +1,7 @@
 import { _truncate } from '@naturalcycles/js-lib'
+import { Observable } from 'rxjs'
+import { CommonDao } from './common.dao'
+import { BaseDBEntity, CommonDaoOptions, RunQueryResult, Saved, SavedDBEntity } from './db.model'
 
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
@@ -30,6 +33,8 @@ export interface DBQueryOrder {
  * To be executed by CommonDao / CommonDB.
  *
  * Fluent API (returns `this` after each method).
+ *
+ * Methods do MUTATE the query object, be careful.
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
@@ -130,5 +135,58 @@ export class DBQuery<DBM = any> {
     }
 
     return tokens
+  }
+}
+
+/**
+ * DBQuery that has additional method to support Fluent API style.
+ */
+export class RunnableDBQuery<
+  BM extends BaseDBEntity = any,
+  DBM extends SavedDBEntity = Saved<BM>,
+  TM = BM
+> extends DBQuery<DBM> {
+  constructor(public dao: CommonDao<BM, DBM, TM>, name?: string) {
+    super(dao.cfg.table, name)
+  }
+
+  async runQuery(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    return await this.dao.runQuery(this, opt)
+  }
+
+  async runAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
+    return await this.dao.runQueryAsDBM(this, opt)
+  }
+
+  async runExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<BM>>> {
+    return await this.dao.runQueryExtended(this, opt)
+  }
+
+  async runExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
+    return await this.dao.runQueryExtendedAsDBM(this, opt)
+  }
+
+  async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
+    return await this.dao.runQueryCount(this, opt)
+  }
+
+  streamQuery(opt?: CommonDaoOptions): Observable<Saved<BM>> {
+    return this.dao.streamQuery(this, opt)
+  }
+
+  streamQueryAsDBM(opt?: CommonDaoOptions): Observable<DBM> {
+    return this.dao.streamQueryAsDBM(this, opt)
+  }
+
+  async queryIds(opt?: CommonDaoOptions): Promise<string[]> {
+    return await this.dao.queryIds(this, opt)
+  }
+
+  streamQueryIds(opt?: CommonDaoOptions): Observable<string> {
+    return this.dao.streamQueryIds(this, opt)
+  }
+
+  async deleteByQuery(opt?: CommonDaoOptions): Promise<number> {
+    return await this.dao.deleteByQuery(this, opt)
   }
 }

@@ -7,10 +7,6 @@ const db = new SimpleFileDB({
   storageDir: `${tmpDir}/storage`,
 })
 
-test('runCommonDBTest', async () => {
-  await runCommonDBTest(db)
-})
+describe('runCommonDBTest', () => runCommonDBTest(db))
 
-test('runCommonDaoTest', async () => {
-  await runCommonDaoTest(db)
-})
+describe('runCommonDaoTest', () => runCommonDaoTest(db))

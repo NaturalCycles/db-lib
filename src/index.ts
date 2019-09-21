@@ -20,8 +20,14 @@ import {
   savedDBEntitySchema,
   Unsaved,
 } from './db.model'
-import { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from './dbQuery'
-import { InMemoryDB } from './inMemory.db'
+import {
+  DBQuery,
+  DBQueryFilter,
+  DBQueryFilterOperator,
+  DBQueryOrder,
+  RunnableDBQuery,
+} from './dbQuery'
+import { InMemoryDB, queryInMemory } from './inMemory.db'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -52,6 +58,7 @@ export {
   DBQueryFilterOperator,
   DBQueryFilter,
   DBQueryOrder,
+  RunnableDBQuery,
   CommonDaoLogLevel,
   CommonDaoOptions,
   CommonDaoSaveOptions,
@@ -77,6 +84,7 @@ export {
   createdUpdatedIdFields,
   idField,
   InMemoryDB,
+  queryInMemory,
   serializeJsonField,
   deserializeJsonField,
   CacheDBCfg,
