@@ -161,7 +161,7 @@ export class CacheDB implements CommonDB {
   }
 
   async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts: CommonDBOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {
@@ -205,7 +205,7 @@ export class CacheDB implements CommonDB {
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts: CommonDBSaveOptions = {},
   ): Observable<OUT> {
     if (!opts.onlyCache && !this.cfg.onlyCache) {

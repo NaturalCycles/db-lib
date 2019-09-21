@@ -72,7 +72,7 @@ export class InMemoryDB implements CommonDB {
   }
 
   async deleteByQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
   ): Promise<number> {
     const rows = queryInMemory<DBM>(q, Object.values(this.data[q.table] || {}))
@@ -81,7 +81,7 @@ export class InMemoryDB implements CommonDB {
   }
 
   async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})) }
@@ -92,7 +92,7 @@ export class InMemoryDB implements CommonDB {
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
   ): Observable<OUT> {
     return of(...queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
@@ -100,7 +100,7 @@ export class InMemoryDB implements CommonDB {
 }
 
 export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
-  q: DBQuery<DBM>,
+  q: DBQuery<any, DBM>,
   rows: DBM[] = [],
 ): OUT[] {
   // .filter

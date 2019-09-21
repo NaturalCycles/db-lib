@@ -2,7 +2,7 @@ import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
 import { toArray } from 'rxjs/operators'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
-import { createTestItemsDBM, TEST_TABLE, TestItemDBM } from './test.model'
+import { createTestItemsDBM, TEST_TABLE, TestItemBM, TestItemDBM } from './test.model'
 import { deepFreeze } from './test.util'
 
 /**
@@ -32,7 +32,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   deepFreeze(items)
   const [item1] = items
 
-  const queryAll = () => new DBQuery<TestItemDBM>(TEST_TABLE, 'all')
+  const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'all')
 
   // DELETE ALL initially
   test('deleteByIds test items', async () => {
@@ -83,7 +83,11 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   })
 
   test('query even=true', async () => {
-    const q = new DBQuery<TestItemDBM>(TEST_TABLE, 'only even').filter('even', '=', true)
+    const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'only even').filter(
+      'even',
+      '=',
+      true,
+    )
     let { records } = await db.runQuery(q)
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(items.filter(i => i.even))
@@ -91,14 +95,14 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   if (!allowQueryUnsorted) {
     test('query order by k1 desc', async () => {
-      const q = new DBQuery<TestItemDBM>(TEST_TABLE, 'desc').order('k1', true)
+      const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'desc').order('k1', true)
       const { records } = await db.runQuery(q)
       expect(records).toEqual([...items].reverse())
     })
   }
 
   test('projection query with only ids', async () => {
-    const q = new DBQuery<TestItemDBM>(TEST_TABLE).select([])
+    const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
     let { records } = await db.runQuery(q)
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(items.map(item => _pick(item, ['id'])))
@@ -121,7 +125,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   // DELETE BY
   test('deleteByQuery even=false', async () => {
-    const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
+    const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).filter('even', '=', false)
     const deleted = await db.deleteByQuery(q)
     expect(deleted).toBe(items.filter(item => !item.even).length)
 

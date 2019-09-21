@@ -26,14 +26,14 @@ export interface CommonDB {
    * DBM is included in generics, so it infer OUT from DBQuery<DBM>
    */
   runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>>
 
   runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opt?: CommonDBOptions,
   ): Observable<OUT>
 

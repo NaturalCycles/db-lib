@@ -97,7 +97,7 @@ export class SimpleFileDB implements CommonDB {
   }
 
   async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return { records: queryInMemory<DBM, OUT>(q, Object.values(await this.getTable(q.table))) }
@@ -109,7 +109,7 @@ export class SimpleFileDB implements CommonDB {
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<DBM>,
+    q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
   ): Observable<OUT> {
     const subj = new Subject<OUT>()

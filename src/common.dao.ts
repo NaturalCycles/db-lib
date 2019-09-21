@@ -18,7 +18,6 @@ import {
   RunQueryResult,
   Saved,
   SavedDBEntity,
-  Unsaved,
 } from './db.model'
 import { DBQuery, RunnableDBQuery } from './dbQuery'
 
@@ -32,7 +31,7 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<DBM extends SavedDBEntity, BM extends BaseDBEntity, TM> {
+export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity, TM> {
   db: CommonDB
   table: string
   dbmSchema?: ObjectSchemaTyped<DBM>
@@ -74,11 +73,11 @@ const log = Debug('nc:db-lib:commondao')
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<
-  DBM extends SavedDBEntity = any,
-  BM extends BaseDBEntity = Unsaved<DBM>,
+  BM extends BaseDBEntity = any,
+  DBM extends SavedDBEntity = Saved<BM>,
   TM = BM
 > {
-  constructor(public cfg: CommonDaoCfg<DBM, BM, TM>) {
+  constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       ...cfg,
@@ -242,17 +241,17 @@ export class CommonDao<
   }
 
   // QUERY
-  query(name?: string): RunnableDBQuery<DBM, BM, TM> {
-    return new RunnableDBQuery<DBM, BM, TM>(this, name)
+  query(name?: string): RunnableDBQuery<BM, DBM, TM> {
+    return new RunnableDBQuery<BM, DBM, TM>(this, name)
   }
 
-  async runQuery<OUT = Saved<BM>>(q: DBQuery<DBM, BM, TM>, opt?: CommonDaoOptions): Promise<OUT[]> {
+  async runQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<OUT[]> {
     const { records } = await this.runQueryExtended<OUT>(q, opt)
     return records
   }
 
   async runQueryExtended<OUT = Saved<BM>>(
-    q: DBQuery<DBM, BM, TM>,
+    q: DBQuery<BM, DBM, TM>,
     opt?: CommonDaoOptions,
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQuery(${q.pretty()})`
@@ -267,13 +266,13 @@ export class CommonDao<
     }
   }
 
-  async runQueryAsDBM<OUT = DBM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
+  async runQueryAsDBM<OUT = DBM>(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
     const { records } = await this.runQueryExtendedAsDBM<OUT>(q, opt)
     return records
   }
 
   async runQueryExtendedAsDBM<OUT = DBM>(
-    q: DBQuery<DBM, BM, TM>,
+    q: DBQuery<BM, DBM, TM>,
     opt?: CommonDaoOptions,
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQueryAsDBM(${q.pretty()})`
@@ -285,7 +284,7 @@ export class CommonDao<
     return { records: (dbms as any) as OUT[], ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery<DBM, BM, TM>, opt?: CommonDaoOptions): Promise<number> {
+  async runQueryCount(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<number> {
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op)
     const count = await this.cfg.db.runQueryCount(q, opt)
@@ -295,7 +294,7 @@ export class CommonDao<
     return count
   }
 
-  streamQuery<OUT = Saved<BM>>(q: DBQuery<DBM, BM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
+  streamQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
@@ -319,7 +318,7 @@ export class CommonDao<
     return obs
   }
 
-  streamQueryAsDBM<OUT = DBM>(q: DBQuery<DBM, BM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
+  streamQueryAsDBM<OUT = DBM>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
@@ -343,12 +342,12 @@ export class CommonDao<
     return obs
   }
 
-  async queryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<string[]> {
+  async queryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<string[]> {
     const { records } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
     return records.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Observable<string> {
+  streamQueryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Observable<string> {
     return this.cfg.db
       .streamQuery<DBM, ObjectWithId>(q.select(['id']), opt)
       .pipe(map(row => row.id))

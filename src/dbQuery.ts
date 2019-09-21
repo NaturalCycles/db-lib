@@ -1,14 +1,7 @@
 import { _truncate } from '@naturalcycles/js-lib'
 import { Observable } from 'rxjs'
 import { CommonDao } from './common.dao'
-import {
-  BaseDBEntity,
-  CommonDaoOptions,
-  RunQueryResult,
-  Saved,
-  SavedDBEntity,
-  Unsaved,
-} from './db.model'
+import { BaseDBEntity, CommonDaoOptions, RunQueryResult, Saved, SavedDBEntity } from './db.model'
 
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
@@ -46,8 +39,8 @@ export interface DBQueryOrder {
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
 export class DBQuery<
-  DBM extends SavedDBEntity = any,
-  BM extends BaseDBEntity = Unsaved<DBM>,
+  BM extends BaseDBEntity = any,
+  DBM extends SavedDBEntity = Saved<BM>,
   TM = BM
 > {
   constructor(public table: string, public name?: string) {}
@@ -103,8 +96,8 @@ export class DBQuery<
     return this
   }
 
-  clone(): DBQuery<DBM, BM, TM> {
-    return Object.assign(new DBQuery<DBM, BM, TM>(this.table), {
+  clone(): DBQuery<BM, DBM, TM> {
+    return Object.assign(new DBQuery<BM, DBM, TM>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
       _orders: [...this._orders],
@@ -153,11 +146,11 @@ export class DBQuery<
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  DBM extends SavedDBEntity = any,
-  BM extends BaseDBEntity = Unsaved<DBM>,
+  BM extends BaseDBEntity = any,
+  DBM extends SavedDBEntity = Saved<BM>,
   TM = BM
-> extends DBQuery<DBM, BM, TM> {
-  constructor(public dao: CommonDao<DBM, BM, TM>, name?: string) {
+> extends DBQuery<BM, DBM, TM> {
+  constructor(public dao: CommonDao<BM, DBM, TM>, name?: string) {
     super(dao.cfg.table, name)
   }
 
