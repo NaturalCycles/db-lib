@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/NaturalCycles/db-lib/compare/v1.23.2...v1.24.0) (2019-09-30)
+
+
+### Features
+
+* DBQuery.offset ([2995253](https://github.com/NaturalCycles/db-lib/commit/2995253))
+
 ## [1.23.2](https://github.com/NaturalCycles/db-lib/compare/v1.23.1...v1.23.2) (2019-09-21)
 
 
