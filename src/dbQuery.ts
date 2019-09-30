@@ -47,6 +47,7 @@ export class DBQuery<
 
   _filters: DBQueryFilter[] = []
   _limitValue = 0 // 0 means "no limit"
+  _offsetValue = 0 // 0 means "no offset"
   _orders: DBQueryOrder[] = []
 
   _startCursor?: string
@@ -70,6 +71,11 @@ export class DBQuery<
 
   limit(limit: number): this {
     this._limitValue = limit
+    return this
+  }
+
+  offset(offset: number): this {
+    this._offsetValue = offset
     return this
   }
 
@@ -100,6 +106,7 @@ export class DBQuery<
     return Object.assign(new DBQuery<BM, DBM, TM>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
+      _offsetValue: this._offsetValue,
       _orders: [...this._orders],
       _selectedFieldNames: this._selectedFieldNames && [...this._selectedFieldNames],
       _startCursor: this._startCursor,
@@ -125,6 +132,10 @@ export class DBQuery<
     tokens.push(...this._filters.map(f => `${f.name}${f.op}${f.val}`))
 
     tokens.push(...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`))
+
+    if (this._offsetValue) {
+      tokens.push(`offset ${this._offsetValue}`)
+    }
 
     if (this._limitValue) {
       tokens.push(`limit ${this._limitValue}`)

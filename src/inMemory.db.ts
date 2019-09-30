@@ -136,6 +136,11 @@ export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
     })
   }
 
+  // .offset()
+  if (q._offsetValue) {
+    rows = rows.slice(q._offsetValue)
+  }
+
   // .limit()
   if (q._limitValue) {
     rows = rows.slice(0, Math.min(q._limitValue, rows.length))
