@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/NaturalCycles/db-lib/compare/v1.24.0...v1.24.1) (2019-10-18)
+
+
+### Bug Fixes
+
+* pin @types/hapi__joi ([14cee06](https://github.com/NaturalCycles/db-lib/commit/14cee06))
+
 # [1.24.0](https://github.com/NaturalCycles/db-lib/compare/v1.23.2...v1.24.0) (2019-09-30)
 
 
