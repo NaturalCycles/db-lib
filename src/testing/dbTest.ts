@@ -1,5 +1,5 @@
 import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
-import { toArray } from 'rxjs/operators'
+import { streamToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
 import { createTestItemsDBM, TEST_TABLE, TestItemBM, TestItemDBM } from './test.model'
@@ -114,10 +114,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   // STREAM
   test('streamQuery all', async () => {
-    let records = await db
-      .streamQuery(queryAll())
-      .pipe(toArray())
-      .toPromise()
+    let records = await streamToArray<TestItemBM>(db.streamQuery(queryAll()))
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(items)

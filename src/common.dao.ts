@@ -4,16 +4,18 @@ import {
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
+  pMapStream,
   stringId,
 } from '@naturalcycles/nodejs-lib'
+import { PMapStreamMapper } from '@naturalcycles/nodejs-lib/dist/stream/pMapStream'
 import { since } from '@naturalcycles/time-lib'
-import { Observable } from 'rxjs'
-import { count, map, mergeMap } from 'rxjs/operators'
+import { Transform } from 'stream'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
   CommonDaoOptions,
   CommonDaoSaveOptions,
+  CommonDaoStreamOptions,
   DBModelType,
   ObjectWithId,
   RunQueryResult,
@@ -295,52 +297,74 @@ export class CommonDao<
     return count
   }
 
-  streamQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
+  async streamQuery<IN = Saved<BM>, OUT = IN>(
+    q: DBQuery<BM, DBM, TM>,
+    mapper: PMapStreamMapper<IN, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
 
-    const obs: Observable<OUT> = this.cfg.db.streamQuery<DBM>(q).pipe(
-      mergeMap<DBM, Promise<OUT>>(async dbm => {
-        if (partialQuery) return (dbm as any) as OUT
-        return ((await this.dbmToBM(dbm, opt)) as any) as OUT
-      }),
-    )
-
-    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      void obs
-        .pipe(count())
-        .toPromise()
-        .then(num => {
-          log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
-        })
+    let stream = this.cfg.db.streamQuery(q, opt)
+    if (!partialQuery) {
+      const _this = this
+      stream = stream.pipe(
+        new Transform({
+          objectMode: true,
+          async transform(dbm, _encoding, cb) {
+            const bm = await _this.dbmToBM(dbm, opt)
+            cb(null, bm)
+          },
+        }),
+      )
     }
 
-    return obs
+    const res = await pMapStream<IN, OUT>(stream, mapper, opt)
+
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
+      // todo: rethink if we need to count results here
+      // void obs
+      //   .pipe(count())
+      //   .toPromise()
+      //   .then(num => {
+      //     log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
+      //   })
+    }
+    return res
   }
 
-  streamQueryAsDBM<OUT = DBM>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Observable<OUT> {
+  async streamQueryAsDBM<IN = DBM, OUT = IN>(
+    q: DBQuery<BM, DBM, TM>,
+    mapper: PMapStreamMapper<IN, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
 
-    const obs: Observable<OUT> = this.cfg.db.streamQuery<DBM>(q).pipe(
-      map<DBM, OUT>(dbm => {
-        if (partialQuery) return (dbm as any) as OUT
-        return (this.anyToDBM(dbm, opt) as any) as OUT
-      }),
-    )
-
-    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      void obs
-        .pipe(count())
-        .toPromise()
-        .then(num => {
-          log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
-        })
+    let stream = this.cfg.db.streamQuery(q, opt)
+    if (!partialQuery) {
+      const _this = this
+      stream = stream.pipe(
+        new Transform({
+          objectMode: true,
+          async transform(dbm, _encoding, cb) {
+            const bm = await _this.anyToDBM(dbm, opt)
+            cb(null, bm)
+          },
+        }),
+      )
     }
 
-    return obs
+    const res = await pMapStream<IN, OUT>(stream, mapper, opt)
+
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
+      // todo: rethink if we need to count results here
+    }
+    return res
   }
 
   async queryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<string[]> {
@@ -348,10 +372,21 @@ export class CommonDao<
     return records.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Observable<string> {
-    return this.cfg.db
-      .streamQuery<DBM, ObjectWithId>(q.select(['id']), opt)
-      .pipe(map(row => row.id))
+  async streamQueryIds<OUT = string>(
+    q: DBQuery<BM, DBM>,
+    mapper: PMapStreamMapper<string, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
+    const stream = this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
+      new Transform({
+        objectMode: true,
+        transform(objectWithId: ObjectWithId, _encoding, cb) {
+          cb(null, objectWithId.id)
+        },
+      }),
+    )
+
+    return await pMapStream<string, OUT>(stream, mapper, opt)
   }
 
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {

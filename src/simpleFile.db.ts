@@ -1,5 +1,5 @@
 import * as fs from 'fs-extra'
-import { Observable, Subject } from 'rxjs'
+import { Readable } from 'stream'
 import { CommonDB } from './common.db'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -108,18 +108,21 @@ export class SimpleFileDB implements CommonDB {
     return rows.length
   }
 
-  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+  streamQuery<DBM extends SavedDBEntity>(
     q: DBQuery<any, DBM>,
     opts?: CommonDBOptions,
-  ): Observable<OUT> {
-    const subj = new Subject<OUT>()
-
-    void this.getTable<DBM>(q.table).then(data => {
-      queryInMemory<DBM, OUT>(q, Object.values(data)).forEach(dbm => subj.next(dbm))
-      subj.complete()
+  ): NodeJS.ReadableStream {
+    const readable = new Readable({
+      objectMode: true,
+      read() {},
     })
 
-    return subj
+    void this.getTable<DBM>(q.table).then(data => {
+      queryInMemory<DBM>(q, Object.values(data)).forEach(dbm => readable.push(dbm))
+      readable.push(null) // "complete" the stream
+    })
+
+    return readable
   }
 
   async deleteByQuery(q: DBQuery, opts?: CommonDBOptions): Promise<number> {

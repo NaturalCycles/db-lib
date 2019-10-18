@@ -12,11 +12,13 @@
       in Datastore mode)
 - [x] [firestore-lib](https://github.com/NaturalCycles/firestore-lib) (Firestore in Native mode)
 - [x] [mysql-lib](https://github.com/NaturalCycles/mysql-lib) (MySQL)
+- [x] redis-lib
+- [x] mongo-lib
 
 # Features
 
 - CommonDB, CommonDao, DBQuery
-- Streaming (Node.js streams transformed into RxJS Observable streams)
+- Streaming (Node.js streams with backpressure)
 - DBM / BM, validation, conversion (Joi-powered)
 - Conventions
   - String `ids`

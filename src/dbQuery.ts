@@ -1,7 +1,14 @@
 import { _truncate } from '@naturalcycles/js-lib'
-import { Observable } from 'rxjs'
+import { PMapStreamMapper } from '@naturalcycles/nodejs-lib/dist/stream/pMapStream'
 import { CommonDao } from './common.dao'
-import { BaseDBEntity, CommonDaoOptions, RunQueryResult, Saved, SavedDBEntity } from './db.model'
+import {
+  BaseDBEntity,
+  CommonDaoOptions,
+  CommonDaoStreamOptions,
+  RunQueryResult,
+  Saved,
+  SavedDBEntity,
+} from './db.model'
 
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 
@@ -185,20 +192,29 @@ export class RunnableDBQuery<
     return await this.dao.runQueryCount(this, opt)
   }
 
-  streamQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Observable<OUT> {
-    return this.dao.streamQuery<OUT>(this, opt)
+  async streamQuery<IN = Saved<BM>, OUT = IN>(
+    mapper: PMapStreamMapper<IN, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
+    return this.dao.streamQuery<OUT>(this, mapper as any, opt)
   }
 
-  streamQueryAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Observable<OUT> {
-    return this.dao.streamQueryAsDBM<OUT>(this, opt)
+  async streamQueryAsDBM<IN = DBM, OUT = IN>(
+    mapper: PMapStreamMapper<IN, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
+    return this.dao.streamQueryAsDBM<OUT>(this, mapper as any, opt)
   }
 
   async queryIds(opt?: CommonDaoOptions): Promise<string[]> {
     return await this.dao.queryIds(this, opt)
   }
 
-  streamQueryIds(opt?: CommonDaoOptions): Observable<string> {
-    return this.dao.streamQueryIds(this, opt)
+  async streamQueryIds<OUT = string>(
+    mapper: PMapStreamMapper<string, OUT>,
+    opt?: CommonDaoStreamOptions,
+  ): Promise<OUT[]> {
+    return this.dao.streamQueryIds(this, mapper, opt)
   }
 
   async deleteByQuery(opt?: CommonDaoOptions): Promise<number> {

@@ -1,5 +1,4 @@
 import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
-import { toArray } from 'rxjs/operators'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
 import { ObjectWithId } from '../index'
@@ -126,11 +125,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // STREAM
   test('streamQuery all', async () => {
-    let records = await dao
-      .query()
-      .streamQuery()
-      .pipe(toArray())
-      .toPromise()
+    let records = await dao.query().streamQuery(rec => rec, { collectResults: true })
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)

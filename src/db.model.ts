@@ -1,5 +1,6 @@
 import {
   objectSchema,
+  PMapStreamOptions,
   stringSchema,
   unixTimestampSchema,
   verSchema,
@@ -26,6 +27,8 @@ export interface CommonDaoOptions extends CommonDBOptions {
  * All properties default to undefined.
  */
 export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
+
+export interface CommonDaoStreamOptions extends CommonDaoOptions, PMapStreamOptions {}
 
 /**
  * All properties default to undefined.

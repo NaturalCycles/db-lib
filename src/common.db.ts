@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
 
@@ -32,10 +31,10 @@ export interface CommonDB {
 
   runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+  streamQuery<DBM extends SavedDBEntity>(
     q: DBQuery<any, DBM>,
     opt?: CommonDBOptions,
-  ): Observable<OUT>
+  ): NodeJS.ReadableStream
 
   // SAVE
   saveBatch<DBM extends SavedDBEntity>(

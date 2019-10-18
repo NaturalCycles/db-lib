@@ -520,9 +520,9 @@
     type-fest "^0.8.0"
 
 "@naturalcycles/nodejs-lib@^6.20.0", "@naturalcycles/nodejs-lib@^6.5.0":
-  version "6.21.3"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-6.21.3.tgz#5dc6fbf51f3543637a32a9e825327ea8cc9a7336"
-  integrity sha512-EBmwm0YeWxLwOLPXnCVVtx7SQC/qm7zjvy46JjlL/SBucrBqlbsAw8aGBJixb7c8ONC/Z9243NxC1mMhLIEUBQ==
+  version "6.23.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-6.23.1.tgz#745dc924b6cc58ec7ab8b045d8ea04507600292a"
+  integrity sha512-KxzkXufvz/I1TmpU2RRMBi7IzBYn/aZA6JOpdScqYujG9WiyvS9uw6csfmJRvaw25e1OUj7tiFX6CJdtXMu6xQ==
   dependencies:
     "@hapi/joi" "^15.0.2"
     "@naturalcycles/js-lib" "^8.0.0"
@@ -532,6 +532,7 @@
     "@types/hapi__joi" "^15.0.1"
     "@types/lru-cache" "^5.1.0"
     "@types/nanoid" "^2.0.0"
+    "@types/through2-concurrent" "^2.0.0"
     chalk "^2.4.2"
     debug "^4.1.1"
     dotenv "^8.1.0"
@@ -540,6 +541,7 @@
     lru-cache "^5.1.1"
     nanoid "^2.0.2"
     rxjs "^6.5.2"
+    through2-concurrent "^2.0.0"
 
 "@naturalcycles/time-lib@^1.0.0", "@naturalcycles/time-lib@^1.4.3", "@naturalcycles/time-lib@^1.5.0":
   version "1.5.0"
@@ -733,6 +735,21 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
+
+"@types/through2-concurrent@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/through2-concurrent/-/through2-concurrent-2.0.0.tgz#1e4a0c640c9dd0443f8984a3efde142d0bde0c18"
+  integrity sha512-sdgIdY5R6O/k9ddw2cZE0jMOG9kCcV+6mmi9KACYpHoK7+SjZgo6Wb3PQ9Z9icB2PENCoEkBDMR+C2UnhbX8IQ==
+  dependencies:
+    "@types/node" "*"
+    "@types/through2" "*"
+
+"@types/through2@*":
+  version "2.0.34"
+  resolved "https://registry.yarnpkg.com/@types/through2/-/through2-2.0.34.tgz#9c2a259a238dace2a05a2f8e94b786961bc27ac4"
+  integrity sha512-nhRG8+RuG/L+0fAZBQYaRflXKjTrHOKH8MFTChnf+dNVMxA3wHYYrfj0tztK0W51ABXjGfRCDc0vRkecCOrsow==
+  dependencies:
+    "@types/node" "*"
 
 "@types/tough-cookie@*":
   version "2.3.5"
@@ -5056,6 +5073,13 @@ throat@^4.0.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-4.1.0.tgz#89037cbc92c56ab18926e6ba4cbb200e15672a6a"
   integrity sha1-iQN8vJLFarGJJua6TLsgDhVnKmo=
+
+through2-concurrent@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/through2-concurrent/-/through2-concurrent-2.0.0.tgz#c9dd2c146504ec9962dbc86a5168b63d662669fa"
+  integrity sha512-R5/jLkfMvdmDD+seLwN7vB+mhbqzWop5fAjx5IX8/yQq7VhBhzDmhXgaHAOnhnWkCpRMM7gToYHycB0CS/pd+A==
+  dependencies:
+    through2 "^2.0.0"
 
 through2@^2.0.0, through2@^2.0.2:
   version "2.0.5"

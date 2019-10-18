@@ -1,4 +1,4 @@
-import { EMPTY, Observable } from 'rxjs'
+import { readableFrom } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -36,7 +36,7 @@ export class NoOpDB implements CommonDB {
     opts?: CommonDBSaveOptions,
   ): Promise<void> {}
 
-  streamQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): Observable<OUT> {
-    return EMPTY
+  streamQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): NodeJS.ReadableStream {
+    return readableFrom([])
   }
 }
