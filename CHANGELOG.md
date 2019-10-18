@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/NaturalCycles/db-lib/compare/v1.24.1...v2.0.0) (2019-10-18)
+
+
+### Features
+
+* refactor RxJS streams into Node stream w/ backpressure ([3268150](https://github.com/NaturalCycles/db-lib/commit/3268150))
+
+
+### BREAKING CHANGES
+
+* ^^^
+
 ## [1.24.1](https://github.com/NaturalCycles/db-lib/compare/v1.24.0...v1.24.1) (2019-10-18)
 
 
