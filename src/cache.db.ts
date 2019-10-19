@@ -1,4 +1,5 @@
 import { Debug, IDebugger, readableFrom } from '@naturalcycles/nodejs-lib'
+import { Readable } from 'stream'
 import { CommonDB } from './common.db'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -205,7 +206,7 @@ export class CacheDB implements CommonDB {
   streamQuery<DBM extends SavedDBEntity>(
     q: DBQuery<any, DBM>,
     opt: CommonDBSaveOptions = {},
-  ): NodeJS.ReadableStream {
+  ): Readable {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const stream = this.cfg.downstreamDB.streamQuery<DBM>(q, opt)
 

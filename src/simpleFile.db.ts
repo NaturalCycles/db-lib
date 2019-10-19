@@ -108,10 +108,7 @@ export class SimpleFileDB implements CommonDB {
     return rows.length
   }
 
-  streamQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<any, DBM>,
-    opts?: CommonDBOptions,
-  ): NodeJS.ReadableStream {
+  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<any, DBM>, opts?: CommonDBOptions): Readable {
     const readable = new Readable({
       objectMode: true,
       read() {},
