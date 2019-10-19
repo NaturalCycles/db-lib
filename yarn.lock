@@ -520,9 +520,9 @@
     type-fest "^0.8.0"
 
 "@naturalcycles/nodejs-lib@^6.20.0", "@naturalcycles/nodejs-lib@^6.5.0":
-  version "6.23.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-6.23.1.tgz#745dc924b6cc58ec7ab8b045d8ea04507600292a"
-  integrity sha512-KxzkXufvz/I1TmpU2RRMBi7IzBYn/aZA6JOpdScqYujG9WiyvS9uw6csfmJRvaw25e1OUj7tiFX6CJdtXMu6xQ==
+  version "6.24.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-6.24.0.tgz#f06c020bde8501e9a0e0b0aa2032de95f6ca3ae9"
+  integrity sha512-xBewfWzRZT24D6INGUVPgUf4j+Qip7bl1LoWJwBtpFr33lqpBYPanhIz9b6KPeGai/pJfhNJi12nGNPIfFRNgQ==
   dependencies:
     "@hapi/joi" "^15.0.2"
     "@naturalcycles/js-lib" "^8.0.0"
@@ -1716,9 +1716,9 @@ error-ex@^1.3.1:
     is-arrayish "^0.2.1"
 
 es-abstract@^1.5.1:
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.15.0.tgz#8884928ec7e40a79e3c9bc812d37d10c8b24cc57"
-  integrity sha512-bhkEqWJ2t2lMeaJDuk7okMkJWI/yqgH/EoGwpcvv0XW9RWQsRspI4wt6xuyuvMvvQE3gg/D9HXppgk21w78GyQ==
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.16.0.tgz#d3a26dc9c3283ac9750dca569586e976d9dcc06d"
+  integrity sha512-xdQnfykZ9JMEiasTAJZJdMWCQ1Vm00NBw79/AWi7ELfZuuPCSOMDZbT9mkOfSctVtfhb+sAAzrm+j//GjjLHLg==
   dependencies:
     es-to-primitive "^1.2.0"
     function-bind "^1.1.1"

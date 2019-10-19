@@ -4,10 +4,10 @@ import {
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
-  pMapStream,
+  streamMap,
+  StreamMapper,
   stringId,
 } from '@naturalcycles/nodejs-lib'
-import { PMapStreamMapper } from '@naturalcycles/nodejs-lib/dist/stream/pMapStream'
 import { since } from '@naturalcycles/time-lib'
 import { Transform } from 'stream'
 import { CommonDB } from './common.db'
@@ -299,7 +299,7 @@ export class CommonDao<
 
   async streamQuery<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    mapper: PMapStreamMapper<IN, OUT>,
+    mapper: StreamMapper<IN, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     const op = `streamQuery(${q.pretty()})`
@@ -320,7 +320,7 @@ export class CommonDao<
       )
     }
 
-    const res = await pMapStream<IN, OUT>(stream, mapper, opt)
+    const res = await streamMap<IN, OUT>(stream, mapper, opt)
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
@@ -337,7 +337,7 @@ export class CommonDao<
 
   async streamQueryAsDBM<IN = DBM, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    mapper: PMapStreamMapper<IN, OUT>,
+    mapper: StreamMapper<IN, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     const op = `streamQueryAsDBM(${q.pretty()})`
@@ -358,7 +358,7 @@ export class CommonDao<
       )
     }
 
-    const res = await pMapStream<IN, OUT>(stream, mapper, opt)
+    const res = await streamMap<IN, OUT>(stream, mapper, opt)
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
@@ -374,7 +374,7 @@ export class CommonDao<
 
   async streamQueryIds<OUT = string>(
     q: DBQuery<BM, DBM>,
-    mapper: PMapStreamMapper<string, OUT>,
+    mapper: StreamMapper<string, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     const stream = this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
@@ -386,7 +386,7 @@ export class CommonDao<
       }),
     )
 
-    return await pMapStream<string, OUT>(stream, mapper, opt)
+    return await streamMap<string, OUT>(stream, mapper, opt)
   }
 
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {

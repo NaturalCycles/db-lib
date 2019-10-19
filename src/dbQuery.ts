@@ -1,5 +1,5 @@
 import { _truncate } from '@naturalcycles/js-lib'
-import { PMapStreamMapper } from '@naturalcycles/nodejs-lib/dist/stream/pMapStream'
+import { StreamMapper } from '@naturalcycles/nodejs-lib'
 import { CommonDao } from './common.dao'
 import {
   BaseDBEntity,
@@ -193,14 +193,14 @@ export class RunnableDBQuery<
   }
 
   async streamQuery<IN = Saved<BM>, OUT = IN>(
-    mapper: PMapStreamMapper<IN, OUT>,
+    mapper: StreamMapper<IN, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     return this.dao.streamQuery<OUT>(this, mapper as any, opt)
   }
 
   async streamQueryAsDBM<IN = DBM, OUT = IN>(
-    mapper: PMapStreamMapper<IN, OUT>,
+    mapper: StreamMapper<IN, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     return this.dao.streamQueryAsDBM<OUT>(this, mapper as any, opt)
@@ -211,7 +211,7 @@ export class RunnableDBQuery<
   }
 
   async streamQueryIds<OUT = string>(
-    mapper: PMapStreamMapper<string, OUT>,
+    mapper: StreamMapper<string, OUT>,
     opt?: CommonDaoStreamOptions,
   ): Promise<OUT[]> {
     return this.dao.streamQueryIds(this, mapper, opt)

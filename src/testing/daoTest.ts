@@ -125,7 +125,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // STREAM
   test('streamQuery all', async () => {
-    let records = await dao.query().streamQuery(rec => rec, { collectResults: true })
+    let records = await dao.query().streamQuery(async rec => rec, { collectResults: true })
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
