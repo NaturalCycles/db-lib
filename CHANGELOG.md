@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/NaturalCycles/db-lib/compare/v2.0.0...v2.0.1) (2019-10-19)
+
+
+### Bug Fixes
+
+* pMapStream>streamMap ([4eddf78](https://github.com/NaturalCycles/db-lib/commit/4eddf78))
+
 # [2.0.0](https://github.com/NaturalCycles/db-lib/compare/v1.24.1...v2.0.0) (2019-10-18)
 
 
