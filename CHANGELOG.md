@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/NaturalCycles/db-lib/compare/v2.0.1...v2.0.2) (2019-10-19)
+
+
+### Bug Fixes
+
+* use Readable instead of ReadableStream ([51248c6](https://github.com/NaturalCycles/db-lib/commit/51248c6))
+
 ## [2.0.1](https://github.com/NaturalCycles/db-lib/compare/v2.0.0...v2.0.1) (2019-10-19)
 
 
