@@ -1,6 +1,6 @@
 import {
   objectSchema,
-  StreamMapOptions,
+  StreamToObservableOptions,
   stringSchema,
   unixTimestampSchema,
   verSchema,
@@ -28,7 +28,9 @@ export interface CommonDaoOptions extends CommonDBOptions {
  */
 export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
 
-export interface CommonDaoStreamOptions extends CommonDaoOptions, StreamMapOptions {}
+export interface CommonDaoStreamOptions<IN, OUT>
+  extends CommonDaoOptions,
+    StreamToObservableOptions<IN, OUT> {}
 
 /**
  * All properties default to undefined.

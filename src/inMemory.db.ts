@@ -1,6 +1,5 @@
 import { _pick } from '@naturalcycles/js-lib'
-import { Debug, readableFrom } from '@naturalcycles/nodejs-lib'
-import { Readable } from 'stream'
+import { Debug, readableFrom, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery, DBQueryFilterOperator } from './dbQuery'
 import { CommonDB } from './index'
@@ -91,8 +90,11 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory(q, Object.values(this.data[q.table] || {})).length
   }
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<any, DBM>, opts?: CommonDBOptions): Readable {
-    return readableFrom(queryInMemory<DBM>(q, Object.values(this.data[q.table] || {})))
+  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+    q: DBQuery<any, DBM>,
+    opts?: CommonDBOptions,
+  ): ReadableTyped<OUT> {
+    return readableFrom(queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
   }
 }
 

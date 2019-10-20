@@ -1,5 +1,5 @@
 import { _truncate } from '@naturalcycles/js-lib'
-import { StreamMapper } from '@naturalcycles/nodejs-lib'
+import { Observable } from 'rxjs'
 import { CommonDao } from './common.dao'
 import {
   BaseDBEntity,
@@ -164,9 +164,9 @@ export class DBQuery<
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends BaseDBEntity = any,
-  DBM extends SavedDBEntity = Saved<BM>,
-  TM = BM
+  BM extends BaseDBEntity,
+  DBM extends SavedDBEntity,
+  TM
 > extends DBQuery<BM, DBM, TM> {
   constructor(public dao: CommonDao<BM, DBM, TM>, name?: string) {
     super(dao.cfg.table, name)
@@ -192,29 +192,20 @@ export class RunnableDBQuery<
     return await this.dao.runQueryCount(this, opt)
   }
 
-  async streamQuery<IN = Saved<BM>, OUT = IN>(
-    mapper: StreamMapper<IN, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
-    return this.dao.streamQuery<OUT>(this, mapper as any, opt)
+  streamQuery<IN = Saved<BM>, OUT = IN>(opt?: CommonDaoStreamOptions<IN, OUT>): Observable<OUT> {
+    return this.dao.streamQuery(this, opt)
   }
 
-  async streamQueryAsDBM<IN = DBM, OUT = IN>(
-    mapper: StreamMapper<IN, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
-    return this.dao.streamQueryAsDBM<OUT>(this, mapper as any, opt)
+  streamQueryAsDBM<IN = DBM, OUT = IN>(opt?: CommonDaoStreamOptions<IN, OUT>): Observable<OUT> {
+    return this.dao.streamQueryAsDBM(this, opt)
   }
 
   async queryIds(opt?: CommonDaoOptions): Promise<string[]> {
     return await this.dao.queryIds(this, opt)
   }
 
-  async streamQueryIds<OUT = string>(
-    mapper: StreamMapper<string, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
-    return this.dao.streamQueryIds(this, mapper, opt)
+  streamQueryIds<OUT = string>(opt?: CommonDaoStreamOptions<string, OUT>): Observable<OUT> {
+    return this.dao.streamQueryIds(this, opt)
   }
 
   async deleteByQuery(opt?: CommonDaoOptions): Promise<number> {

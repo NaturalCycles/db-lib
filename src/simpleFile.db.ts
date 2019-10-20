@@ -1,3 +1,4 @@
+import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { CommonDB } from './common.db'
@@ -108,14 +109,17 @@ export class SimpleFileDB implements CommonDB {
     return rows.length
   }
 
-  streamQuery<DBM extends SavedDBEntity>(q: DBQuery<any, DBM>, opts?: CommonDBOptions): Readable {
+  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
+    q: DBQuery<any, DBM>,
+    opts?: CommonDBOptions,
+  ): ReadableTyped<OUT> {
     const readable = new Readable({
       objectMode: true,
       read() {},
     })
 
     void this.getTable<DBM>(q.table).then(data => {
-      queryInMemory<DBM>(q, Object.values(data)).forEach(dbm => readable.push(dbm))
+      queryInMemory<DBM, OUT>(q, Object.values(data)).forEach(dbm => readable.push(dbm))
       readable.push(null) // "complete" the stream
     })
 

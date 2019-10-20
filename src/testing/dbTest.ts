@@ -114,7 +114,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   // STREAM
   test('streamQuery all', async () => {
-    let records = await streamToArray<TestItemBM>(db.streamQuery(queryAll()))
+    let records = await streamToArray(db.streamQuery(queryAll()))
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(items)

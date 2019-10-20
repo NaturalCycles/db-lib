@@ -4,11 +4,12 @@ import {
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
-  streamMap,
-  StreamMapper,
+  ReadableTyped,
+  streamToObservable,
   stringId,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
+import { Observable } from 'rxjs'
 import { Transform } from 'stream'
 import { CommonDB } from './common.db'
 import {
@@ -297,30 +298,28 @@ export class CommonDao<
     return count
   }
 
-  async streamQuery<IN = Saved<BM>, OUT = IN>(
+  streamQuery<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    mapper: StreamMapper<IN, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
+    opt?: CommonDaoStreamOptions<IN, OUT>,
+  ): Observable<OUT> {
     const op = `streamQuery(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
 
     let stream = this.cfg.db.streamQuery(q, opt)
     if (!partialQuery) {
-      const _this = this
       stream = stream.pipe(
         new Transform({
           objectMode: true,
-          async transform(dbm, _encoding, cb) {
-            const bm = await _this.dbmToBM(dbm, opt)
+          transform: async (dbm, _encoding, cb) => {
+            const bm = await this.dbmToBM(dbm, opt)
             cb(null, bm)
           },
         }),
       )
     }
 
-    const res = await streamMap<IN, OUT>(stream, mapper, opt)
+    const res = streamToObservable<IN, OUT>(stream, opt)
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
@@ -335,11 +334,10 @@ export class CommonDao<
     return res
   }
 
-  async streamQueryAsDBM<IN = DBM, OUT = IN>(
+  streamQueryAsDBM<IN = DBM, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    mapper: StreamMapper<IN, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
+    opt?: CommonDaoStreamOptions<IN, OUT>,
+  ): Observable<OUT> {
     const op = `streamQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
@@ -358,7 +356,7 @@ export class CommonDao<
       )
     }
 
-    const res = await streamMap<IN, OUT>(stream, mapper, opt)
+    const res = streamToObservable<IN, OUT>(stream, opt)
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
       log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
@@ -372,12 +370,11 @@ export class CommonDao<
     return records.map(r => r.id)
   }
 
-  async streamQueryIds<OUT = string>(
+  streamQueryIds<OUT = string>(
     q: DBQuery<BM, DBM>,
-    mapper: StreamMapper<string, OUT>,
-    opt?: CommonDaoStreamOptions,
-  ): Promise<OUT[]> {
-    const stream = this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
+    opt?: CommonDaoStreamOptions<string, OUT>,
+  ): Observable<OUT> {
+    const stream: ReadableTyped<string> = this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
       new Transform({
         objectMode: true,
         transform(objectWithId: ObjectWithId, _encoding, cb) {
@@ -386,7 +383,7 @@ export class CommonDao<
       }),
     )
 
-    return await streamMap<string, OUT>(stream, mapper, opt)
+    return streamToObservable<string, OUT>(stream, opt)
   }
 
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
