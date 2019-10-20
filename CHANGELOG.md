@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/NaturalCycles/db-lib/compare/v2.0.2...v2.1.0) (2019-10-20)
+
+
+### Features
+
+* CommonDao.stream returns Observable ([253003f](https://github.com/NaturalCycles/db-lib/commit/253003f))
+
 ## [2.0.2](https://github.com/NaturalCycles/db-lib/compare/v2.0.1...v2.0.2) (2019-10-19)
 
 
