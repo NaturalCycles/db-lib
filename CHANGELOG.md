@@ -1,3 +1,10 @@
+# [2.2.0](https://github.com/NaturalCycles/db-lib/compare/v2.1.0...v2.2.0) (2019-10-31)
+
+
+### Features
+
+* CommonDao.streamQueryAsReadable ([dd961d0](https://github.com/NaturalCycles/db-lib/commit/dd961d038b329818ebd00eb450bb430b7b0a112f))
+
 # [2.1.0](https://github.com/NaturalCycles/db-lib/compare/v2.0.2...v2.1.0) (2019-10-20)
 
 
