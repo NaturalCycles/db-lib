@@ -1,4 +1,5 @@
 import { _truncate } from '@naturalcycles/js-lib'
+import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { Observable } from 'rxjs'
 import { CommonDao } from './common.dao'
 import {
@@ -198,6 +199,12 @@ export class RunnableDBQuery<
 
   streamQueryAsDBM<IN = DBM, OUT = IN>(opt?: CommonDaoStreamOptions<IN, OUT>): Observable<OUT> {
     return this.dao.streamQueryAsDBM(this, opt)
+  }
+
+  streamQueryAsReadable<IN = Saved<BM>, OUT = IN>(
+    opt?: CommonDaoStreamOptions<IN, OUT>,
+  ): ReadableTyped<OUT> {
+    return this.dao.streamQueryAsReadable(this, opt)
   }
 
   async queryIds(opt?: CommonDaoOptions): Promise<string[]> {

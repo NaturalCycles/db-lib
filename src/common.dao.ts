@@ -302,27 +302,12 @@ export class CommonDao<
     q: DBQuery<BM, DBM, TM>,
     opt?: CommonDaoStreamOptions<IN, OUT>,
   ): Observable<OUT> {
-    const op = `streamQuery(${q.pretty()})`
-    const started = this.logStarted(op, true)
-    const partialQuery = !!q._selectedFieldNames
-
-    let stream = this.cfg.db.streamQuery(q, opt)
-    if (!partialQuery) {
-      stream = stream.pipe(
-        new Transform({
-          objectMode: true,
-          transform: async (dbm, _encoding, cb) => {
-            const bm = await this.dbmToBM(dbm, opt)
-            cb(null, bm)
-          },
-        }),
-      )
-    }
+    const stream = this.streamQueryAsReadable<IN, OUT>(q, opt)
 
     const res = streamToObservable<IN, OUT>(stream, opt)
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
+      // log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
       // todo: rethink if we need to count results here
       // void obs
       //   .pipe(count())
@@ -332,6 +317,33 @@ export class CommonDao<
       //   })
     }
     return res
+  }
+
+  /**
+   * Stream as Readable, to be able to .pipe() it further with support of backpressure.
+   */
+  streamQueryAsReadable<IN = Saved<BM>, OUT = IN>(
+    q: DBQuery<BM, DBM, TM>,
+    opt?: CommonDaoStreamOptions<IN, OUT>,
+  ): ReadableTyped<OUT> {
+    const op = `streamQuery(${q.pretty()})`
+    const _started = this.logStarted(op, true)
+    const partialQuery = !!q._selectedFieldNames
+
+    let stream = this.cfg.db.streamQuery(q, opt)
+    if (!partialQuery) {
+      stream = stream.pipe(
+        new Transform({
+          objectMode: true,
+          transform: async (dbm, _encoding, cb) => {
+            const bm = await this.dbmToBM(dbm, opt).catch(err => cb(err))
+            cb(null, bm)
+          },
+        }),
+      )
+    }
+
+    return stream
   }
 
   streamQueryAsDBM<IN = DBM, OUT = IN>(
