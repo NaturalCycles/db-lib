@@ -1,3 +1,15 @@
+# [2.4.0](https://github.com/NaturalCycles/db-lib/compare/v2.3.0...v2.4.0) (2019-11-02)
+
+
+### Bug Fixes
+
+* simpleFileDB ndjson mode ([f3324da](https://github.com/NaturalCycles/db-lib/commit/f3324da46bd59957904de9a05d7b2104e76e0041))
+
+
+### Features
+
+* stream skipValidation=true by default ([2279e82](https://github.com/NaturalCycles/db-lib/commit/2279e8239c55d4b2e9242c6d531b5eb8fc689110))
+
 # [2.3.0](https://github.com/NaturalCycles/db-lib/compare/v2.2.0...v2.3.0) (2019-11-02)
 
 
