@@ -1,3 +1,16 @@
+# [3.0.0](https://github.com/NaturalCycles/db-lib/compare/v2.4.0...v3.0.0) (2019-11-02)
+
+
+### Features
+
+* changed streaming interface from RxJS to Readable ([376a21d](https://github.com/NaturalCycles/db-lib/commit/376a21daadc4696475a8baea3448e573df546e60))
+* experimental dbPipeline ([7297897](https://github.com/NaturalCycles/db-lib/commit/7297897e3101247c3b3591eef449ea7dd72ad9a9))
+
+
+### BREAKING CHANGES
+
+* ^^^
+
 # [2.4.0](https://github.com/NaturalCycles/db-lib/compare/v2.3.0...v2.4.0) (2019-11-02)
 
 
