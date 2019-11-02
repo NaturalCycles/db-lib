@@ -30,7 +30,12 @@ export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOpti
 
 export interface CommonDaoStreamOptions<IN, OUT>
   extends CommonDaoOptions,
-    StreamToObservableOptions<IN, OUT> {}
+    StreamToObservableOptions<IN, OUT> {
+  /**
+   * @default true (for streams)
+   */
+  skipValidation?: boolean
+}
 
 /**
  * All properties default to undefined.

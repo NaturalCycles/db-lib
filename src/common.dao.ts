@@ -324,8 +324,11 @@ export class CommonDao<
    */
   streamQueryAsReadable<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    opt?: CommonDaoStreamOptions<IN, OUT>,
+    opt: CommonDaoStreamOptions<IN, OUT> = {},
   ): ReadableTyped<OUT> {
+    // skipValidation is by default
+    if (opt.skipValidation === undefined) opt.skipValidation = true
+
     const op = `streamQuery(${q.pretty()})`
     const _started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
