@@ -89,7 +89,12 @@ export class SimpleFileDB implements CommonDB {
     await fs.ensureFile(filePath)
 
     if (this.cfg.ndjson) {
-      await fs.writeFile(filePath, Object.values(data).join('\n'))
+      await fs.writeFile(
+        filePath,
+        Object.values(data)
+          .map(r => JSON.stringify(r))
+          .join('\n'),
+      )
     } else {
       await fs.writeJson(filePath, data, this.cfg.prettyJson ? { spaces: 2 } : {})
     }
