@@ -1,3 +1,10 @@
+# [2.3.0](https://github.com/NaturalCycles/db-lib/compare/v2.2.0...v2.3.0) (2019-11-02)
+
+
+### Features
+
+* SimpleFileDB ndjson mode ([68e20ab](https://github.com/NaturalCycles/db-lib/commit/68e20abea1adeb3bf00b247eaa10f7e89d4ece06))
+
 # [2.2.0](https://github.com/NaturalCycles/db-lib/compare/v2.1.0...v2.2.0) (2019-10-31)
 
 
