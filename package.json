@@ -3,10 +3,9 @@
   "scripts": {},
   "dependencies": {
     "@naturalcycles/js-lib": "^8.2.1",
-    "@naturalcycles/nodejs-lib": "^6.5.0",
+    "@naturalcycles/nodejs-lib": "^7.0.0",
     "@naturalcycles/time-lib": "^1.4.3",
     "fs-extra": "^8.1.0",
-    "rxjs": "^6.5.3",
     "type-fest": "^0.8.0"
   },
   "devDependencies": {

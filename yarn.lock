@@ -465,15 +465,15 @@
     rimraf "^2.5.2"
 
 "@naturalcycles/dev-lib@^9.0.1":
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-9.0.1.tgz#7ed43359a870a216ce6506e0a8c5aac2f694c491"
-  integrity sha512-Rf13DuvmFsFMqHE2zO1wFeeqM7ocH2X0rxX2li5C3uyvYA0tyFxNRKrW/H6jo7rxmtrQZGvQbFBoPc4qJuCy3w==
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-9.0.2.tgz#3df7e9c8b63dbdee8317f62b595aebbd71c02c70"
+  integrity sha512-3ACVtfdEqQfw009Gc1GSvlpUQI2HEsH7LQi7QpXnvZ7PhRJ10JAKB3biqdaaayDyuyGAHQOxVRv64rDQzhemhQ==
   dependencies:
     "@commitlint/cli" "^8.0.0"
     "@commitlint/config-conventional" "^8.0.0"
     "@naturalcycles/fs-lib" "^2.0.0"
     "@naturalcycles/js-lib" "^8.0.0"
-    "@naturalcycles/nodejs-lib" "^6.20.0"
+    "@naturalcycles/nodejs-lib" "^7.0.0"
     "@naturalcycles/time-lib" "^1.5.0"
     "@types/fs-extra" "^8.0.0"
     "@types/jest" "^24.0.6"
@@ -512,16 +512,16 @@
     yargs "^14.0.0"
 
 "@naturalcycles/js-lib@^8.0.0", "@naturalcycles/js-lib@^8.2.1", "@naturalcycles/js-lib@^8.4.0":
-  version "8.8.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-8.8.1.tgz#774ea3bc3399272eb79792eb63d8171c7730adac"
-  integrity sha512-SHldIoN0QUqJ7GMjy9H4vI0jzeMDb/ZcNVChCZZfP5lK1og8m/fUC2xMlU8c8395bgSoOwtq1P42NDnhY6cpeA==
+  version "8.9.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-8.9.0.tgz#802cdc34cb1f59895958dbed9565c832e50b2dd6"
+  integrity sha512-3lWviRyGxucrH8Z1A2j7mO4hIy+qJkt2+IOac3WkLVaxpXNYCe7f+yrliSNo5tbNts6r2oH11VCj/uEI1r6J0w==
   dependencies:
     type-fest "^0.8.0"
 
-"@naturalcycles/nodejs-lib@^6.20.0", "@naturalcycles/nodejs-lib@^6.5.0":
-  version "6.33.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-6.33.0.tgz#483af3d6ca84fce1ad24761c7f901f541870d5fd"
-  integrity sha512-ON8ZYv0w906BI3Sun2vrwF0RsMwHiCIGzlWUsaTTu37fjJYTxzSNNulghFoHQQGk4k2NXIsdZ/CimhebV+p38w==
+"@naturalcycles/nodejs-lib@^7.0.0":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-7.1.1.tgz#e70d34e5eaa233ed275457e894c8e303651c0ae3"
+  integrity sha512-ZyD5jTZb+OYCmnALqIoSseCObso49N5wE06GuRNvZQCiUC9p/FZAzQ2mcf7FkCBPkoJ2F76U8IAxfCl/484iPQ==
   dependencies:
     "@hapi/joi" "^15.0.2"
     "@naturalcycles/js-lib" "^8.0.0"
@@ -536,6 +536,7 @@
     debug "^4.1.1"
     dotenv "^8.1.0"
     execa "^3.0.0"
+    fs-extra "^8.1.0"
     got "^9.6.0"
     lru-cache "^5.1.1"
     nanoid "^2.0.2"
@@ -1571,9 +1572,9 @@ deep-is@~0.1.3:
   integrity sha1-s2nW+128E+7PUk+RsHD+7cNXzzQ=
 
 defer-to-connect@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/defer-to-connect/-/defer-to-connect-1.0.2.tgz#4bae758a314b034ae33902b5aac25a8dd6a8633e"
-  integrity sha512-k09hcQcTDY+cwgiwa6PYKLm3jlagNzQ+RSvhjzESOGOx+MNOuXkxTfEvPrO1IOQ81tArCFYQgi631clB70RpQw==
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/defer-to-connect/-/defer-to-connect-1.1.0.tgz#b41bd7efa8508cef13f8456975f7a278c72833fd"
+  integrity sha512-WE2sZoctWm/v4smfCAdjYbrfS55JiMRdlY9ZubFhsYbteCK9+BvAx4YV7nPjYM6ZnX5BcoVKwfmyx9sIFTgQMQ==
 
 define-properties@^1.1.2, define-properties@^1.1.3:
   version "1.1.3"
@@ -4592,7 +4593,7 @@ run-parallel@^1.1.9:
   resolved "https://registry.yarnpkg.com/run-parallel/-/run-parallel-1.1.9.tgz#c9dd3a7cf9f4b2c4b6244e173a6ed866e61dd679"
   integrity sha512-DEqnSRTDw/Tc3FXf49zedI638Z9onwUotBMiUFKmrO2sdFKIbXamXGQ3Axd4qgphxKB4kw/qP1w5kTxnfU1B9Q==
 
-rxjs@^6.3.3, rxjs@^6.5.2, rxjs@^6.5.3:
+rxjs@^6.3.3, rxjs@^6.5.2:
   version "6.5.3"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.3.tgz#510e26317f4db91a7eb1de77d9dd9ba0a4899a3a"
   integrity sha512-wuYsAYYFdWTAnAaPoKGNhfpWwKZbJW+HgAJ+mImp+Epl7BG8oNWBCTyRM8gba9k4lk8BgWdoYm21Mo/RYhhbgA==
@@ -5266,9 +5267,9 @@ typescript@^3.4.5:
   integrity sha512-unoCll1+l+YK4i4F8f22TaNVPRHcD9PA3yCuZ8g5e0qGqlVlJ/8FSateOLLSagn+Yg5+ZwuPkL8LFUc0Jcvksg==
 
 uglify-js@^3.1.4:
-  version "3.6.6"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.6.6.tgz#7ec28c92c7131c6a096b69cd48722600cc534207"
-  integrity sha512-q3Zusqd028P8MdbarqL0I1snTZ7+IbIWiKUXVZyXMVdOSxOG2FFqLXyGlgYSqYu46SR7tR3Sk0xqN1VtvxGWnQ==
+  version "3.6.7"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.6.7.tgz#15f49211df6b8a01ee91322bbe46fa33223175dc"
+  integrity sha512-4sXQDzmdnoXiO+xvmTzQsfIiwrjUCSA95rSP4SEd8tDb51W2TiDOlL76Hl+Kw0Ie42PSItCW8/t6pBNCF2R48A==
   dependencies:
     commander "~2.20.3"
     source-map "~0.6.1"

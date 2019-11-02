@@ -1,7 +1,7 @@
 import {
   objectSchema,
-  StreamToObservableOptions,
   stringSchema,
+  TransformMapOptions,
   unixTimestampSchema,
   verSchema,
 } from '@naturalcycles/nodejs-lib'
@@ -28,9 +28,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
  */
 export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
 
-export interface CommonDaoStreamOptions<IN, OUT>
-  extends CommonDaoOptions,
-    StreamToObservableOptions<IN, OUT> {
+export interface CommonDaoStreamOptions extends CommonDaoOptions, TransformMapOptions {
   /**
    * @default true (for streams)
    */

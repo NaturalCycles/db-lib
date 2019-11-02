@@ -1,16 +1,16 @@
-import { _truncate } from '@naturalcycles/js-lib'
+import { _truncate, Mapper } from '@naturalcycles/js-lib'
 import {
+  _pipeline,
   Debug,
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
   ReadableTyped,
-  streamToObservable,
   stringId,
+  transformMap,
+  transformTap,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
-import { Observable } from 'rxjs'
-import { Transform } from 'stream'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
@@ -298,86 +298,76 @@ export class CommonDao<
     return count
   }
 
-  streamQuery<IN = Saved<BM>, OUT = IN>(
+  async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
-    opt?: CommonDaoStreamOptions<IN, OUT>,
-  ): Observable<OUT> {
-    const stream = this.streamQueryAsReadable<IN, OUT>(q, opt)
+    mapper: Mapper<OUT, any>,
+    opt: CommonDaoStreamOptions = {},
+  ): Promise<void> {
+    if (opt.skipValidation === undefined) opt.skipValidation = true
 
-    const res = streamToObservable<IN, OUT>(stream, opt)
+    const op = `streamQueryForEach(${q.pretty()})`
+    const started = this.logStarted(op, true)
+    const stream = this.streamQuery<OUT>(q, opt)
+    let count = 0
+
+    await _pipeline([stream, transformTap(() => count++), transformMap<OUT, any>(mapper, opt)])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      // log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
-      // todo: rethink if we need to count results here
-      // void obs
-      //   .pipe(count())
-      //   .toPromise()
-      //   .then(num => {
-      //     log(`<< ${this.cfg.table}.${op}: ${num} row(s) in ${since(started)}`)
-      //   })
+      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
     }
-    return res
+  }
+
+  async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
+    q: DBQuery<BM, DBM, TM>,
+    mapper: Mapper<OUT, any>,
+    opt: CommonDaoStreamOptions = {},
+  ): Promise<void> {
+    if (opt.skipValidation === undefined) opt.skipValidation = true
+
+    const op = `streamQueryAsDBMForEach(${q.pretty()})`
+    const started = this.logStarted(op, true)
+    const stream = this.streamQueryAsDBM<OUT>(q, opt)
+    let count = 0
+
+    await _pipeline([stream, transformTap(() => count++), transformMap<OUT, any>(mapper, opt)])
+
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
+    }
   }
 
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQueryAsReadable<IN = Saved<BM>, OUT = IN>(
+  streamQueryAsDBM<OUT = DBM>(
     q: DBQuery<BM, DBM, TM>,
-    opt: CommonDaoStreamOptions<IN, OUT> = {},
+    opt: CommonDaoStreamOptions = {},
   ): ReadableTyped<OUT> {
-    // skipValidation is by default
     if (opt.skipValidation === undefined) opt.skipValidation = true
 
-    const op = `streamQuery(${q.pretty()})`
-    const _started = this.logStarted(op, true)
     const partialQuery = !!q._selectedFieldNames
 
-    let stream = this.cfg.db.streamQuery(q, opt)
-    if (!partialQuery) {
-      stream = stream.pipe(
-        new Transform({
-          objectMode: true,
-          transform: async (dbm, _encoding, cb) => {
-            const bm = await this.dbmToBM(dbm, opt).catch(err => cb(err))
-            cb(null, bm)
-          },
-        }),
-      )
-    }
+    const stream = this.cfg.db.streamQuery<DBM, OUT>(q, opt)
+    if (partialQuery) return stream
 
-    return stream
+    return stream.pipe(transformMap<any, DBM>(dbm => this.anyToDBM(dbm, opt)))
   }
 
-  streamQueryAsDBM<IN = DBM, OUT = IN>(
+  /**
+   * Stream as Readable, to be able to .pipe() it further with support of backpressure.
+   */
+  streamQuery<OUT = Saved<BM>>(
     q: DBQuery<BM, DBM, TM>,
-    opt?: CommonDaoStreamOptions<IN, OUT>,
-  ): Observable<OUT> {
-    const op = `streamQueryAsDBM(${q.pretty()})`
-    const started = this.logStarted(op, true)
+    opt: CommonDaoStreamOptions = {},
+  ): ReadableTyped<OUT> {
+    if (opt.skipValidation === undefined) opt.skipValidation = true
+
+    const stream = this.streamQueryAsDBM(q, opt)
+
     const partialQuery = !!q._selectedFieldNames
+    if (partialQuery) return stream
 
-    let stream = this.cfg.db.streamQuery(q, opt)
-    if (!partialQuery) {
-      const _this = this
-      stream = stream.pipe(
-        new Transform({
-          objectMode: true,
-          async transform(dbm, _encoding, cb) {
-            const bm = await _this.anyToDBM(dbm, opt)
-            cb(null, bm)
-          },
-        }),
-      )
-    }
-
-    const res = streamToObservable<IN, OUT>(stream, opt)
-
-    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: done in ${since(started)}`)
-      // todo: rethink if we need to count results here
-    }
-    return res
+    return stream.pipe(transformMap<DBM, Saved<BM>>(async dbm => await this.dbmToBM(dbm, opt)))
   }
 
   async queryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<string[]> {
@@ -385,20 +375,31 @@ export class CommonDao<
     return records.map(r => r.id)
   }
 
-  streamQueryIds<OUT = string>(
-    q: DBQuery<BM, DBM>,
-    opt?: CommonDaoStreamOptions<string, OUT>,
-  ): Observable<OUT> {
-    const stream: ReadableTyped<string> = this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
-      new Transform({
-        objectMode: true,
-        transform(objectWithId: ObjectWithId, _encoding, cb) {
-          cb(null, objectWithId.id)
-        },
-      }),
-    )
+  streamQueryIds(q: DBQuery<BM, DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
+    if (opt.skipValidation === undefined) opt.skipValidation = true
 
-    return streamToObservable<string, OUT>(stream, opt)
+    return this.cfg.db
+      .streamQuery<DBM>(q.select(['id']), opt)
+      .pipe(transformMap<ObjectWithId, string>(objectWithId => objectWithId.id, opt))
+  }
+
+  async streamQueryIdsForEach(
+    q: DBQuery<BM, DBM>,
+    mapper: Mapper<string, any>,
+    opt: CommonDaoStreamOptions = {},
+  ): Promise<void> {
+    if (opt.skipValidation === undefined) opt.skipValidation = true
+
+    const op = `streamQueryIdsForEach(${q.pretty()})`
+    const started = this.logStarted(op, true)
+    const stream = this.streamQueryIds(q, opt)
+    let count = 0
+
+    await _pipeline([stream, transformTap(() => count++), transformMap<string, any>(mapper, opt)])
+
+    if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
+      log(`<< ${this.cfg.table}.${op}: ${count} id(s) in ${since(started)}`)
+    }
   }
 
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {

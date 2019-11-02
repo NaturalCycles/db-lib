@@ -1,4 +1,4 @@
-import { readableFrom, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
 import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
 import { DBQuery } from './dbQuery'
@@ -37,6 +37,6 @@ export class NoOpDB implements CommonDB {
   ): Promise<void> {}
 
   streamQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): ReadableTyped<OUT> {
-    return readableFrom([])
+    return readableFromArray([])
   }
 }

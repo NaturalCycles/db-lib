@@ -1,8 +1,8 @@
 import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
-import { toArray } from 'rxjs/operators'
+import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
-import { ObjectWithId } from '../index'
+import { ObjectWithId, TestItemBM } from '../index'
 import { CommonDBTestOptions } from './dbTest'
 import {
   createTestItemsBM,
@@ -125,26 +125,34 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   })
 
   // STREAM
-  test('streamQuery all', async () => {
-    let records = await dao
-      .query()
-      .streamQuery()
-      .pipe(toArray())
-      .toPromise()
+  test('streamQueryForEach all', async () => {
+    let records: TestItemBM[] = []
+    await dao.query().streamQueryForEach(bm => records.push(bm))
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
     expect(records).toEqual(expectedItems)
   })
 
-  test('streamQueryIds all', async () => {
-    let records = await dao
-      .query()
-      .streamQueryIds()
-      .pipe(toArray())
-      .toPromise()
+  test('streamQuery all', async () => {
+    let records = await streamMapToArray(dao.query().streamQuery())
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems.map(i => i.id))
+    expect(records).toEqual(expectedItems)
+  })
+
+  test('streamQueryIdsForEach all', async () => {
+    let ids: string[] = []
+    await dao.query().streamQueryIdsForEach(id => ids.push(id))
+
+    if (allowStreamQueryToBeUnsorted) ids = ids.sort()
+    expect(ids).toEqual(expectedItems.map(i => i.id))
+  })
+
+  test('streamQueryIds all', async () => {
+    let ids = await streamMapToArray(dao.query().streamQueryIds())
+
+    if (allowStreamQueryToBeUnsorted) ids = ids.sort()
+    expect(ids).toEqual(expectedItems.map(i => i.id))
   })
 
   // DELETE BY
