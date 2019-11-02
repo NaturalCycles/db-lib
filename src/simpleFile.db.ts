@@ -1,3 +1,4 @@
+import { by } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
@@ -16,6 +17,19 @@ export interface SimpleFileDBCfg {
    * @default true
    */
   prettyJson?: boolean
+
+  /**
+   * @default false
+   *
+   * If true - writes target files in newling-delimited json format
+   */
+  ndjson?: boolean
+
+  /**
+   * @default `json`
+   * @default `jsonl` if ndjson=true
+   */
+  ext?: string
 }
 
 // const log = Debug('nc:db-lib:file')
@@ -24,6 +38,8 @@ export class SimpleFileDB implements CommonDB {
   constructor(cfg: SimpleFileDBCfg) {
     this.cfg = {
       prettyJson: true,
+      ndjson: false,
+      ext: cfg.ndjson ? 'jsonl' : 'json',
       ...cfg,
     }
 
@@ -45,9 +61,21 @@ export class SimpleFileDB implements CommonDB {
 
   private async getTable<DBM extends SavedDBEntity>(table: string): Promise<Record<string, DBM>> {
     if (!this.cache[table]) {
-      this.cache[table] = await fs
-        .readJson(`${this.cfg.storageDir}/${table}.json`)
-        .catch(() => ({}))
+      if (this.cfg.ndjson) {
+        const data = await fs
+          .readFile(`${this.cfg.storageDir}/${table}.${this.cfg.ext}`, 'utf8')
+          .catch(() => '')
+
+        const rows = data
+          .split('\n')
+          .filter(Boolean)
+          .map(row => JSON.parse(row) as DBM)
+        this.cache[table] = by(rows, r => r.id)
+      } else {
+        this.cache[table] = await fs
+          .readJson(`${this.cfg.storageDir}/${table}.${this.cfg.ext}`)
+          .catch(() => ({}))
+      }
     }
     return this.cache[table]
   }
@@ -57,9 +85,14 @@ export class SimpleFileDB implements CommonDB {
     data: Record<string, DBM>,
   ): Promise<void> {
     this.cache[table] = data
-    const filePath = `${this.cfg.storageDir}/${table}.json`
+    const filePath = `${this.cfg.storageDir}/${table}.${this.cfg.ext}`
     await fs.ensureFile(filePath)
-    await fs.writeJson(filePath, data, this.cfg.prettyJson ? { spaces: 2 } : {})
+
+    if (this.cfg.ndjson) {
+      await fs.writeFile(filePath, Object.values(data).join('\n'))
+    } else {
+      await fs.writeJson(filePath, data, this.cfg.prettyJson ? { spaces: 2 } : {})
+    }
   }
 
   async getByIds<DBM extends SavedDBEntity>(

@@ -36,7 +36,7 @@ export class InMemoryDB implements CommonDB {
   async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<DBM[]> {
     this.data[table] = this.data[table] || {}
     return ids.map(id => this.data[table][id]).filter(Boolean)
@@ -45,7 +45,7 @@ export class InMemoryDB implements CommonDB {
   async saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
-    opts?: CommonDBSaveOptions,
+    opt?: CommonDBSaveOptions,
   ): Promise<void> {
     this.data[table] = this.data[table] || {}
 
@@ -58,7 +58,7 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
+  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
     this.data[table] = this.data[table] || {}
 
     return ids
@@ -72,7 +72,7 @@ export class InMemoryDB implements CommonDB {
 
   async deleteByQuery<DBM extends SavedDBEntity>(
     q: DBQuery<any, DBM>,
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<number> {
     const rows = queryInMemory<DBM>(q, Object.values(this.data[q.table] || {}))
     const ids = rows.map(r => r.id)
@@ -81,18 +81,18 @@ export class InMemoryDB implements CommonDB {
 
   async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<any, DBM>,
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})) }
   }
 
-  async runQueryCount(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
+  async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
     return queryInMemory(q, Object.values(this.data[q.table] || {})).length
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<any, DBM>,
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): ReadableTyped<OUT> {
     return readableFrom(queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
   }

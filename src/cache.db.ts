@@ -172,7 +172,7 @@ export class CacheDB implements CommonDB {
 
       // Don't save to cache if it was a projection query
       if (!opt.skipCache && !opt.skipCache && !q._selectedFieldNames) {
-        const cacheResult = this.cfg.cacheDB.saveBatch(q.table, records as any)
+        const cacheResult = this.cfg.cacheDB.saveBatch(q.table, records as any, opt)
         if (this.cfg.awaitCache) await cacheResult
       }
       return { records, ...queryResult }

@@ -1,5 +1,11 @@
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
+import {
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  CommonDBStreamOptions,
+  RunQueryResult,
+  SavedDBEntity,
+} from './db.model'
 import { DBQuery } from './dbQuery'
 
 export interface CommonDB {
@@ -34,7 +40,7 @@ export interface CommonDB {
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
     q: DBQuery<any, DBM>,
-    opt?: CommonDBOptions,
+    opt?: CommonDBStreamOptions,
   ): ReadableTyped<OUT>
 
   // SAVE

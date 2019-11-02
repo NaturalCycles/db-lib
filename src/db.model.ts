@@ -54,6 +54,8 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
 }
 
+export interface CommonDBStreamOptions extends CommonDBOptions {}
+
 export interface RunQueryResult<T> {
   records: T[]
   endCursor?: string
