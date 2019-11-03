@@ -4,6 +4,10 @@ import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } f
 import { DBQuery } from './dbQuery'
 
 export class NoOpDB implements CommonDB {
+  async getTables(): Promise<string[]> {
+    return []
+  }
+
   async deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
     return 0
   }

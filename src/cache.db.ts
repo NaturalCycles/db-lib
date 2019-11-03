@@ -61,6 +61,10 @@ export class CacheDB implements CommonDB {
     await this.cfg.cacheDB.resetCache(table)
   }
 
+  async getTables(): Promise<string[]> {
+    return await this.cfg.downstreamDB.getTables()
+  }
+
   async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],

@@ -120,6 +120,12 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     expect(records).toEqual(items)
   })
 
+  // getTables
+  test('getTables', async () => {
+    const tables = await db.getTables()
+    console.log({ tables })
+  })
+
   // DELETE BY
   test('deleteByQuery even=false', async () => {
     const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).filter('even', '=', false)

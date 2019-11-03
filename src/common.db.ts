@@ -10,9 +10,14 @@ import { DBQuery } from './dbQuery'
 
 export interface CommonDB {
   /**
-   * If table not specified - reset all DB.
+   * If table not specified - reset all DB tables.
    */
   resetCache(table?: string): Promise<void>
+
+  /**
+   * Return all tables (table names) available in this DB.
+   */
+  getTables(): Promise<string[]>
 
   // GET
   /**

@@ -100,6 +100,13 @@ export class SimpleFileDB implements CommonDB {
     }
   }
 
+  async getTables(): Promise<string[]> {
+    // scan all files (w/o subfolders) in dir, ending with ext
+    return (await fs.readdir(this.cfg.storageDir))
+      .filter(f => f.endsWith(this.cfg.ext))
+      .map(f => f.substr(0, f.length - this.cfg.ext.length - 1)) // -1 is to include '.'
+  }
+
   async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],

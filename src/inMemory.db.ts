@@ -33,6 +33,10 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
+  async getTables(): Promise<string[]> {
+    return Object.keys(this.data)
+  }
+
   async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
