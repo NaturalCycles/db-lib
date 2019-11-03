@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/NaturalCycles/db-lib/compare/v3.0.0...v3.1.0) (2019-11-03)
+
+
+### Features
+
+* CommonDB.getTables() ([979efaa](https://github.com/NaturalCycles/db-lib/commit/979efaa4e758c87acccc882ddcfcade31e3c33d7))
+
 # [3.0.0](https://github.com/NaturalCycles/db-lib/compare/v2.4.0...v3.0.0) (2019-11-02)
 
 
