@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/NaturalCycles/db-lib/compare/v3.2.1...v3.3.0) (2019-11-04)
+
+
+### Features
+
+* DBPipelineSaveToNDJsonOptions.sinceUpdated ([6b460f9](https://github.com/NaturalCycles/db-lib/commit/6b460f9615acc603d70b464cb7b17886afa2d855))
+
 ## [3.2.1](https://github.com/NaturalCycles/db-lib/compare/v3.2.0...v3.2.1) (2019-11-04)
 
 
