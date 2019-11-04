@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/NaturalCycles/db-lib/compare/v3.2.0...v3.2.1) (2019-11-04)
+
+
+### Bug Fixes
+
+* imports/exports ([0b6c8c9](https://github.com/NaturalCycles/db-lib/commit/0b6c8c983bdd0f40bfa14389ed123945a45caf6d))
+
 # [3.2.0](https://github.com/NaturalCycles/db-lib/compare/v3.1.0...v3.2.0) (2019-11-04)
 
 
