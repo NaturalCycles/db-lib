@@ -6,17 +6,21 @@ import {
   NDJsonStats,
   pipelineToNDJsonFile,
   transformLogProgress,
+  TransformLogProgressOptions,
   transformMap,
   TransformMapOptions,
   TransformToNDJsonOptions,
   yellow,
 } from '@naturalcycles/nodejs-lib'
+import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
 
-export interface DBPipelineSaveToNDJsonOptions extends TransformToNDJsonOptions {
+export interface DBPipelineSaveToNDJsonOptions
+  extends TransformToNDJsonOptions,
+    TransformLogProgressOptions {
   /**
    * DB to dump data from.
    */
@@ -47,6 +51,12 @@ export interface DBPipelineSaveToNDJsonOptions extends TransformToNDJsonOptions 
    * If set - will dump maximum that number of rows per table
    */
   limit?: number
+
+  /**
+   * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated`
+   * @default undefined
+   */
+  sinceUpdated?: number
 
   /**
    * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
@@ -105,6 +115,7 @@ export async function dbPipelineSaveToNDJson(
     db,
     concurrency = 16,
     limit = 0,
+    sinceUpdated,
     outputDirPath = process.cwd(),
     protectFromOverwrite = false,
     zlibOptions,
@@ -116,7 +127,11 @@ export async function dbPipelineSaveToNDJson(
 
   let { tables } = opt
 
-  console.log(`>> ${dimWhite('dbPipelineSaveToNDJson')} started in ${grey(outputDirPath)}...`)
+  console.log(
+    `>> ${dimWhite('dbPipelineSaveToNDJson')} started in ${grey(outputDirPath)}... (sinceUpdated=${
+      sinceUpdated ? dayjs.unix(sinceUpdated).toPretty() : 'undefined'
+    })`,
+  )
 
   await fs.ensureDir(outputDirPath)
 
@@ -131,7 +146,13 @@ export async function dbPipelineSaveToNDJson(
   await pMap(
     tables,
     async table => {
-      const stream = db.streamQuery(new DBQuery(table).limit(limit))
+      let q = new DBQuery(table).limit(limit)
+
+      if (sinceUpdated) {
+        q = q.filter('updated', '>=', sinceUpdated)
+      }
+
+      const stream = db.streamQuery(q)
 
       const filePath = `${outputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
 
@@ -139,8 +160,9 @@ export async function dbPipelineSaveToNDJson(
         [
           stream,
           transformLogProgress({
-            metric: table,
             logEvery: 1000,
+            ...opt,
+            metric: table,
           }),
           transformMap(mapperPerTable[table] || passthroughMapper, {
             errorMode,
