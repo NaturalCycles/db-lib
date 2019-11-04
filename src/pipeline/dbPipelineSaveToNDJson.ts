@@ -2,6 +2,7 @@ import { ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-li
 import {
   boldWhite,
   dimWhite,
+  grey,
   NDJsonStats,
   pipelineToNDJsonFile,
   transformLogProgress,
@@ -10,16 +11,12 @@ import {
   TransformToNDJsonOptions,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import { grey } from '@naturalcycles/nodejs-lib/src/log/colors'
 import * as fs from 'fs-extra'
 import { ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
-import { CommonDBSaveOptions } from '../db.model'
 import { DBQuery } from '../index'
 
-export interface DBPipelineSaveToNDJsonOptions
-  extends CommonDBSaveOptions,
-    TransformToNDJsonOptions {
+export interface DBPipelineSaveToNDJsonOptions extends TransformToNDJsonOptions {
   /**
    * DB to dump data from.
    */

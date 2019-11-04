@@ -519,9 +519,9 @@
     type-fest "^0.8.0"
 
 "@naturalcycles/nodejs-lib@^7.0.0":
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-7.8.0.tgz#1683fd8f1cfcfe78244602717c5477cee1f3b58e"
-  integrity sha512-Lpuoii+PNhaYMFgLJiQAwBQOY3zcBK0GdYI/IpG75dqPC3TpZ8fm/4xZ+DKA+4C08NXIJ9bjPUGK1F2T0FT77w==
+  version "7.9.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-7.9.1.tgz#c9cc319d089b341edf1c29b8664849992ccfe063"
+  integrity sha512-N8r8Te5aAhUgk/z+vye/uUky069FzmjEB/sbiSu+rjwJ44YrnLff5dNa/l1IXGqYUz13HqmBr6fDVppInJ2eXg==
   dependencies:
     "@hapi/joi" "^15.0.2"
     "@naturalcycles/js-lib" "^8.0.0"

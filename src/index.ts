@@ -37,6 +37,10 @@ import {
   serializeJsonField,
 } from './model.util'
 import { NoOpDB } from './noop.db'
+import {
+  dbPipelineSaveToNDJson,
+  DBPipelineSaveToNDJsonOptions,
+} from './pipeline/dbPipelineSaveToNDJson'
 import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
 import { runCommonDaoTest } from './testing/daoTest'
 import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
@@ -109,4 +113,6 @@ export {
   runCommonDBTest,
   runCommonDaoTest,
   CommonDBTestOptions,
+  dbPipelineSaveToNDJson,
+  DBPipelineSaveToNDJsonOptions,
 }
