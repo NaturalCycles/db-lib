@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/NaturalCycles/db-lib/compare/v3.1.0...v3.2.0) (2019-11-04)
+
+
+### Features
+
+* dbPipelineSaveToNDJson ([fcf14ae](https://github.com/NaturalCycles/db-lib/commit/fcf14ae516ba30883632367bcbfe40c29e11c43f))
+
 # [3.1.0](https://github.com/NaturalCycles/db-lib/compare/v3.0.0...v3.1.0) (2019-11-03)
 
 
