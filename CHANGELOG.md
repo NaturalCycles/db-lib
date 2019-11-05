@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/NaturalCycles/db-lib/compare/v3.3.0...v3.4.0) (2019-11-05)
+
+
+### Features
+
+* dbPipelineLoadFromNDJson, dbPipelineCopy ([5c27c3c](https://github.com/NaturalCycles/db-lib/commit/5c27c3ccb5d497142e741c1728860d93bb0c3c7e))
+
 # [3.3.0](https://github.com/NaturalCycles/db-lib/compare/v3.2.1...v3.3.0) (2019-11-04)
 
 
