@@ -37,6 +37,11 @@ import {
   serializeJsonField,
 } from './model.util'
 import { NoOpDB } from './noop.db'
+import { dbPipelineCopy, DBPipelineCopyOptions } from './pipeline/dbPipelineCopy'
+import {
+  dbPipelineLoadFromNDJson,
+  DBPipelineLoadFromNDJsonOptions,
+} from './pipeline/dbPipelineLoadFromNDJson'
 import {
   dbPipelineSaveToNDJson,
   DBPipelineSaveToNDJsonOptions,
@@ -115,4 +120,8 @@ export {
   CommonDBTestOptions,
   dbPipelineSaveToNDJson,
   DBPipelineSaveToNDJsonOptions,
+  dbPipelineLoadFromNDJson,
+  DBPipelineLoadFromNDJsonOptions,
+  dbPipelineCopy,
+  DBPipelineCopyOptions,
 }

@@ -1,4 +1,4 @@
-import { by } from '@naturalcycles/js-lib'
+import { by, sortObjectDeep } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
@@ -20,6 +20,12 @@ export interface SimpleFileDBCfg {
 
   /**
    * @default false
+   * If true - will run `sortObjectDeep()` on each object to achieve deterministic sort
+   */
+  sortObjects?: boolean
+
+  /**
+   * @default false
    *
    * If true - writes target files in newling-delimited json format
    */
@@ -37,10 +43,11 @@ export interface SimpleFileDBCfg {
 export class SimpleFileDB implements CommonDB {
   constructor(cfg: SimpleFileDBCfg) {
     this.cfg = {
-      prettyJson: true,
       ndjson: false,
       ext: cfg.ndjson ? 'jsonl' : 'json',
       ...cfg,
+      prettyJson: cfg.prettyJson !== false, // default true
+      sortObjects: cfg.sortObjects !== false, // default true
     }
 
     fs.ensureDirSync(cfg.storageDir)
@@ -84,6 +91,10 @@ export class SimpleFileDB implements CommonDB {
     table: string,
     data: Record<string, DBM>,
   ): Promise<void> {
+    if (this.cfg.sortObjects) {
+      data = sortObjectDeep(data)
+    }
+
     this.cache[table] = data
     const filePath = `${this.cfg.storageDir}/${table}.${this.cfg.ext}`
     await fs.ensureFile(filePath)

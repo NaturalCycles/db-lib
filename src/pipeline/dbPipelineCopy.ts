@@ -1,29 +1,27 @@
-import { AppError, ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
+import { ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
 import {
   _pipeline,
   boldWhite,
   dimWhite,
   grey,
   NDJsonStats,
+  transformBuffer,
   transformLogProgress,
   TransformLogProgressOptions,
   transformMap,
   TransformMapOptions,
   transformTap,
-  transformToNDJson,
+  writableForEach,
   yellow,
 } from '@naturalcycles/nodejs-lib'
 import { dayjs } from '@naturalcycles/time-lib'
-import * as fs from 'fs-extra'
-import { createGzip, ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
-import { DBQuery } from '../index'
+import { CommonDBSaveOptions } from '../db.model'
+import { DBQuery } from '../dbQuery'
 
-export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptions {
-  /**
-   * DB to dump data from.
-   */
-  db: CommonDB
+export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
+  dbInput: CommonDB
+  dbOutput: CommonDB
 
   /**
    * List of tables to dump. If undefined - will call CommonDB.getTables() and dump ALL tables returned.
@@ -36,6 +34,13 @@ export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptio
    * Set to `1` for serial (1 at a time) processing or debugging.
    */
   concurrency?: number
+
+  /**
+   * @default 100
+   *
+   * Determines the size of .saveBatch()
+   */
+  batchSize?: number
 
   /**
    * @default ErrorMode.SUPPRESS
@@ -58,29 +63,6 @@ export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptio
   sinceUpdated?: number
 
   /**
-   * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
-   * All parent directories will be created.
-   * @default to process.cwd()
-   */
-  outputDirPath: string
-
-  /**
-   * @default false
-   * If true - will fail if output file already exists.
-   */
-  protectFromOverwrite?: boolean
-
-  /**
-   * @default true
-   */
-  gzip?: boolean
-
-  /**
-   * Only applicable if `gzip` is enabled
-   */
-  zlibOptions?: ZlibOptions
-
-  /**
    * Optionally you can provide mapper that is going to run for each table.
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
@@ -94,51 +76,38 @@ export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptio
    * `metric` will be set to table name
    */
   transformMapOptions?: TransformMapOptions
+
+  saveOptionsPerTable?: Record<string, CommonDBSaveOptions>
 }
 
-// const log = Debug('nc:db-lib:pipeline')
-
 /**
- * Pipeline from input stream(s) to a NDJSON file (optionally gzipped).
- * File is overwritten (by default).
+ * Pipeline from input stream(s) to CommonDB .saveBatch().
  * Input stream can be a stream from CommonDB.streamQuery()
  * Allows to define a mapper and a predicate to map/filter objects between input and output.
  * Handles backpressure.
- *
- * Optionally you can provide mapperPerTable and @param transformMapOptions (one for all mappers) - it will run for each table.
  */
-export async function dbPipelineSaveToNDJson(
-  opt: DBPipelineSaveToNDJsonOptions,
-): Promise<NDJsonStats> {
+export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJsonStats> {
   const {
-    db,
+    batchSize = 100,
+    dbInput,
+    dbOutput,
     concurrency = 16,
     limit = 0,
     sinceUpdated,
-    outputDirPath,
-    protectFromOverwrite = false,
-    zlibOptions,
     mapperPerTable = {},
+    saveOptionsPerTable = {},
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
   } = opt
-  const strict = errorMode !== ErrorMode.SUPPRESS
-  const gzip = opt.gzip !== false // default to true
 
   let { tables } = opt
 
   const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
 
-  console.log(
-    `>> ${dimWhite('dbPipelineSaveToNDJson')} started in ${grey(
-      outputDirPath,
-    )}...${sinceUpdatedStr}`,
-  )
-
-  await fs.ensureDir(outputDirPath)
+  console.log(`>> ${dimWhite('dbPipelineCopy')} started...${sinceUpdatedStr}`)
 
   if (!tables) {
-    tables = await db.getTables()
+    tables = await dbInput.getTables()
   }
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n\n` + tables.join('\n') + '\n')
@@ -154,20 +123,13 @@ export async function dbPipelineSaveToNDJson(
         q = q.filter('updated', '>=', sinceUpdated)
       }
 
-      const stream = db.streamQuery(q)
+      const saveOptions: CommonDBSaveOptions = saveOptionsPerTable[table] || {}
+      const mapper = mapperPerTable[table] || passthroughMapper
 
-      const filePath = `${outputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
-
-      if (protectFromOverwrite && (await fs.pathExists(filePath))) {
-        throw new AppError(`pipelineToNDJsonFile: output file exists: ${filePath}`)
-      }
+      const stream = dbInput.streamQuery(q)
 
       const started = Date.now()
       let rows = 0
-
-      await fs.ensureFile(filePath)
-
-      console.log(`>> ${grey(filePath)} started...`)
 
       await _pipeline([
         stream,
@@ -176,26 +138,25 @@ export async function dbPipelineSaveToNDJson(
           ...opt,
           metric: table,
         }),
-        transformMap(mapperPerTable[table] || passthroughMapper, {
+        transformMap(mapper, {
           errorMode,
           ...transformMapOptions,
           metric: table,
         }),
         transformTap(() => rows++),
-        transformToNDJson({ strict, sortObjects: true }),
-        ...(gzip ? [createGzip(zlibOptions)] : []), // optional gzip
-        fs.createWriteStream(filePath),
+        transformBuffer({ batchSize }),
+        writableForEach(async dbms => {
+          await dbOutput.saveBatch(table, dbms, saveOptions)
+        }),
       ])
-
-      const { size: sizeBytes } = await fs.stat(filePath)
 
       const stats = NDJsonStats.create({
         tookMillis: Date.now() - started,
         rows,
-        sizeBytes,
+        sizeBytes: 0, // n/a
       })
 
-      console.log(`>> ${grey(filePath)}\n` + stats.toPretty())
+      console.log(`>> ${grey(table)}\n` + stats.toPretty())
 
       statsPerTable[table] = stats
     },
