@@ -19,7 +19,7 @@ import { createGzip, ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
 
-export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptions {
+export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   /**
    * DB to dump data from.
    */
@@ -107,9 +107,7 @@ export interface DBPipelineSaveToNDJsonOptions extends TransformLogProgressOptio
  *
  * Optionally you can provide mapperPerTable and @param transformMapOptions (one for all mappers) - it will run for each table.
  */
-export async function dbPipelineSaveToNDJson(
-  opt: DBPipelineSaveToNDJsonOptions,
-): Promise<NDJsonStats> {
+export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<NDJsonStats> {
   const {
     db,
     concurrency = 16,
@@ -130,9 +128,7 @@ export async function dbPipelineSaveToNDJson(
   const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
 
   console.log(
-    `>> ${dimWhite('dbPipelineSaveToNDJson')} started in ${grey(
-      outputDirPath,
-    )}...${sinceUpdatedStr}`,
+    `>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...${sinceUpdatedStr}`,
   )
 
   await fs.ensureDir(outputDirPath)
@@ -141,7 +137,7 @@ export async function dbPipelineSaveToNDJson(
     tables = await db.getTables()
   }
 
-  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n\n` + tables.join('\n') + '\n')
+  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n` + tables.join('\n'))
 
   const statsPerTable: Record<string, NDJsonStats> = {}
 
@@ -159,7 +155,7 @@ export async function dbPipelineSaveToNDJson(
       const filePath = `${outputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
 
       if (protectFromOverwrite && (await fs.pathExists(filePath))) {
-        throw new AppError(`pipelineToNDJsonFile: output file exists: ${filePath}`)
+        throw new AppError(`dbPipelineBackup: output file exists: ${filePath}`)
       }
 
       const started = Date.now()

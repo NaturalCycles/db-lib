@@ -7,7 +7,9 @@ import {
   hb,
   NDJsonStats,
   transformBuffer,
+  transformFilter,
   transformJsonParse,
+  transformLimit,
   transformLogProgress,
   TransformLogProgressOptions,
   transformMap,
@@ -21,9 +23,9 @@ import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { createUnzip } from 'zlib'
 import { CommonDB } from '../common.db'
-import { CommonDBSaveOptions } from '../index'
+import { CommonDBSaveOptions, SavedDBEntity } from '../index'
 
-export interface DBPipelineLoadFromNDJsonOptions extends TransformLogProgressOptions {
+export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   /**
    * DB to save data to.
    */
@@ -99,15 +101,13 @@ export interface DBPipelineLoadFromNDJsonOptions extends TransformLogProgressOpt
  *
  * Optionally you can provide mapperPerTable and @param transformMapOptions (one for all mappers) - it will run for each table.
  */
-export async function dbPipelineLoadFromNDJson(
-  opt: DBPipelineLoadFromNDJsonOptions,
-): Promise<NDJsonStats> {
+export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<NDJsonStats> {
   const {
     db,
     tables = [],
     concurrency = 16,
     batchSize = 100,
-    // limit = 0, // todo
+    limit,
     sinceUpdated,
     inputDirPath,
     mapperPerTable = {},
@@ -120,9 +120,7 @@ export async function dbPipelineLoadFromNDJson(
   const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
 
   console.log(
-    `>> ${dimWhite('dbPipelineLoadFromNDJson')} started in ${grey(
-      inputDirPath,
-    )}...${sinceUpdatedStr}`,
+    `>> ${dimWhite('dbPipelineRestore')} started in ${grey(inputDirPath)}...${sinceUpdatedStr}`,
   )
 
   await fs.ensureDir(inputDirPath)
@@ -155,7 +153,7 @@ export async function dbPipelineLoadFromNDJson(
 
   const sizeStrByTable = _mapValues(sizeByTable, b => hb(b))
 
-  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n\n`, sizeStrByTable)
+  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n`, sizeStrByTable)
 
   await pMap(
     tables,
@@ -177,13 +175,13 @@ export async function dbPipelineLoadFromNDJson(
         transformSplit(), // splits by \n
         transformJsonParse({ strict }),
         transformTap(() => rows++),
-        // todo: transformLimit in nodejs-lib
-        // todo: transformFilter sinceUpdated
         transformLogProgress({
           logEvery: 1000,
           ...opt,
           metric: table,
         }),
+        transformLimit(limit),
+        ...(sinceUpdated ? [transformFilter<SavedDBEntity>(r => r.updated >= sinceUpdated)] : []),
         transformMap(mapperPerTable[table] || passthroughMapper, {
           errorMode,
           ...transformMapOptions,

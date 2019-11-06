@@ -5,9 +5,8 @@ DEBUG=nc* yarn tsn ./scripts/ndjsonTest.script.ts
  */
 
 import { runScript } from '@naturalcycles/nodejs-lib'
-import { createTestItemsDBM, dbPipelineSaveToNDJson, SimpleFileDB, TEST_TABLE } from '../src'
-import { dbPipelineCopy } from '../src/pipeline/dbPipelineCopy'
-import { dbPipelineLoadFromNDJson } from '../src/pipeline/dbPipelineLoadFromNDJson'
+import { createTestItemsDBM, dbPipelineBackup, SimpleFileDB, TEST_TABLE } from '../src'
+import { dbPipelineCopy, dbPipelineRestore } from '../src'
 import { tmpDir } from '../src/test/paths.cnst'
 
 runScript(async () => {
@@ -33,16 +32,17 @@ runScript(async () => {
   await dbPipelineCopy({
     dbInput: fileDB1,
     dbOutput: fileDB2,
+    // limit: 2,
   })
 
   const backupDir = `${tmpDir}/backup`
 
-  await dbPipelineSaveToNDJson({
+  await dbPipelineBackup({
     db: fileDB2,
     outputDirPath: backupDir,
   })
 
-  await dbPipelineLoadFromNDJson({
+  await dbPipelineRestore({
     db: fileDB3,
     inputDirPath: backupDir,
   })

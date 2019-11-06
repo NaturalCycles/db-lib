@@ -110,7 +110,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
     tables = await dbInput.getTables()
   }
 
-  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n\n` + tables.join('\n') + '\n')
+  console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n` + tables.join('\n'))
 
   const statsPerTable: Record<string, NDJsonStats> = {}
 

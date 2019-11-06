@@ -1,7 +1,7 @@
 import { createTestItemsDBM, TEST_TABLE } from '..'
 import { InMemoryDB } from '../inMemory.db'
 import { tmpDir } from '../test/paths.cnst'
-import { dbPipelineSaveToNDJson } from './dbPipelineSaveToNDJson'
+import { dbPipelineBackup } from './dbPipelineBackup'
 
 test('dbPipelineSaveToNDJson', async () => {
   const db = new InMemoryDB()
@@ -9,7 +9,7 @@ test('dbPipelineSaveToNDJson', async () => {
   const items = createTestItemsDBM(70)
   await db.saveBatch(TEST_TABLE, items)
 
-  await dbPipelineSaveToNDJson({
+  await dbPipelineBackup({
     db,
     outputDirPath: `${tmpDir}`,
     gzip: false,

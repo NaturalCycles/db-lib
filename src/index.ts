@@ -37,15 +37,9 @@ import {
   serializeJsonField,
 } from './model.util'
 import { NoOpDB } from './noop.db'
+import { dbPipelineBackup, DBPipelineBackupOptions } from './pipeline/dbPipelineBackup'
 import { dbPipelineCopy, DBPipelineCopyOptions } from './pipeline/dbPipelineCopy'
-import {
-  dbPipelineLoadFromNDJson,
-  DBPipelineLoadFromNDJsonOptions,
-} from './pipeline/dbPipelineLoadFromNDJson'
-import {
-  dbPipelineSaveToNDJson,
-  DBPipelineSaveToNDJsonOptions,
-} from './pipeline/dbPipelineSaveToNDJson'
+import { dbPipelineRestore, DBPipelineRestoreOptions } from './pipeline/dbPipelineRestore'
 import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
 import { runCommonDaoTest } from './testing/daoTest'
 import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
@@ -118,10 +112,10 @@ export {
   runCommonDBTest,
   runCommonDaoTest,
   CommonDBTestOptions,
-  dbPipelineSaveToNDJson,
-  DBPipelineSaveToNDJsonOptions,
-  dbPipelineLoadFromNDJson,
-  DBPipelineLoadFromNDJsonOptions,
+  dbPipelineBackup,
+  DBPipelineBackupOptions,
+  dbPipelineRestore,
+  DBPipelineRestoreOptions,
   dbPipelineCopy,
   DBPipelineCopyOptions,
 }
