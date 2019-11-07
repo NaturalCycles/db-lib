@@ -1,3 +1,11 @@
+# [3.5.0](https://github.com/NaturalCycles/db-lib/compare/v3.4.0...v3.5.0) (2019-11-07)
+
+
+### Features
+
+* CommonDB.getTableSchema(), CommonSchemaGenerator ([6802015](https://github.com/NaturalCycles/db-lib/commit/6802015e37d468c767f4b5f197e4a8c7e4ec80c4))
+* rename to dbPipelineBackup, dbPipelineRestore ([b968d05](https://github.com/NaturalCycles/db-lib/commit/b968d052677e3dafd413541cb99d0c8cfc62c575))
+
 # [3.4.0](https://github.com/NaturalCycles/db-lib/compare/v3.3.0...v3.4.0) (2019-11-05)
 
 
