@@ -1,4 +1,4 @@
-import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
+import { _pick, _sortBy, pDelay, pMap } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
@@ -121,9 +121,14 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   })
 
   // getTables
-  test('getTables', async () => {
+  test('getTables, getTableSchema', async () => {
     const tables = await db.getTables()
     console.log({ tables })
+    await pMap(tables, async table => {
+      const schema = await db.getTableSchema(table)
+      console.log(schema)
+      expect(schema).toBeDefined()
+    })
   })
 
   // DELETE BY
