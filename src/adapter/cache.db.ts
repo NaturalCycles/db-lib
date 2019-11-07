@@ -1,8 +1,9 @@
 import { Debug, IDebugger, readableFromArray } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
-import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
-import { DBQuery } from './dbQuery'
+import { CommonDB } from '../common.db'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import { DBQuery } from '../dbQuery'
+import { CommonSchema } from '../schema/common.schema'
 
 export interface CacheDBCfg {
   name: string
@@ -63,6 +64,10 @@ export class CacheDB implements CommonDB {
 
   async getTables(): Promise<string[]> {
     return await this.cfg.downstreamDB.getTables()
+  }
+
+  async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
+    return await this.cfg.downstreamDB.getTableSchema<DBM>(table)
   }
 
   async getByIds<DBM extends SavedDBEntity>(

@@ -18,6 +18,7 @@ import * as fs from 'fs-extra'
 import { createGzip, ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
+import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
 
 export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   /**
@@ -94,6 +95,18 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * `metric` will be set to table name
    */
   transformMapOptions?: TransformMapOptions
+
+  /**
+   * @default false
+   * If true - will use CommonSchemaGenerator to detect schema from input data.
+   */
+  emitSchemaFromData?: boolean
+
+  /**
+   * @default false
+   * If true - will use CommonDB.getTableSchema() and emit schema.
+   */
+  emitSchemaFromDB?: boolean
 }
 
 // const log = Debug('nc:db-lib:pipeline')
@@ -119,6 +132,8 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     mapperPerTable = {},
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
+    emitSchemaFromDB = false,
+    emitSchemaFromData = false,
   } = opt
   const strict = errorMode !== ErrorMode.SUPPRESS
   const gzip = opt.gzip !== false // default to true
@@ -150,9 +165,8 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         q = q.filter('updated', '>=', sinceUpdated)
       }
 
-      const stream = db.streamQuery(q)
-
       const filePath = `${outputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
+      const schemaFilePath = `${outputDirPath}/${table}.schema.json`
 
       if (protectFromOverwrite && (await fs.pathExists(filePath))) {
         throw new AppError(`dbPipelineBackup: output file exists: ${filePath}`)
@@ -165,8 +179,18 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
       console.log(`>> ${grey(filePath)} started...`)
 
+      if (emitSchemaFromDB) {
+        const schema = await db.getTableSchema(table)
+        await fs.writeJson(schemaFilePath, schema, { spaces: 2 })
+        console.log(`>> ${grey(schemaFilePath)} saved (generated from DB)`)
+      }
+
+      const schemaGen = emitSchemaFromData
+        ? new CommonSchemaGenerator({ table, sortedFields: true })
+        : undefined
+
       await _pipeline([
-        stream,
+        db.streamQuery(q),
         transformLogProgress({
           logEvery: 1000,
           ...opt,
@@ -177,7 +201,10 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
           ...transformMapOptions,
           metric: table,
         }),
-        transformTap(() => rows++),
+        transformTap(row => {
+          rows++
+          if (schemaGen) schemaGen.add(row)
+        }),
         transformToNDJson({ strict, sortObjects: true }),
         ...(gzip ? [createGzip(zlibOptions)] : []), // optional gzip
         fs.createWriteStream(filePath),
@@ -192,6 +219,12 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
       })
 
       console.log(`>> ${grey(filePath)}\n` + stats.toPretty())
+
+      if (schemaGen) {
+        const schema = schemaGen.generate()
+        await fs.writeJson(schemaFilePath, schema, { spaces: 2 })
+        console.log(`>> ${grey(schemaFilePath)} saved (generated from data)`)
+      }
 
       statsPerTable[table] = stats
     },

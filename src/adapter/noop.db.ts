@@ -1,11 +1,16 @@
 import { readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
-import { DBQuery } from './dbQuery'
+import { CommonDB } from '../common.db'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import { DBQuery } from '../dbQuery'
+import { CommonSchema } from '../schema/common.schema'
 
 export class NoOpDB implements CommonDB {
   async getTables(): Promise<string[]> {
     return []
+  }
+
+  async getTableSchema<DBM>(table: string): Promise<CommonSchema<DBM>> {
+    return { table, fields: [] }
   }
 
   async deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {

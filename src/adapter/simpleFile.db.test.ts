@@ -1,7 +1,7 @@
+import { tmpDir } from '../test/paths.cnst'
+import { runCommonDaoTest } from '../testing/daoTest'
+import { runCommonDBTest } from '../testing/dbTest'
 import { SimpleFileDB } from './simpleFile.db'
-import { tmpDir } from './test/paths.cnst'
-import { runCommonDaoTest } from './testing/daoTest'
-import { runCommonDBTest } from './testing/dbTest'
 
 describe('json', () => {
   const db = new SimpleFileDB({

@@ -1,8 +1,10 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { Debug, readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
-import { DBQuery, DBQueryFilterOperator } from './dbQuery'
-import { CommonDB } from './index'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import { DBQuery, DBQueryFilterOperator } from '../dbQuery'
+import { CommonDB } from '../index'
+import { CommonSchema } from '../schema/common.schema'
+import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
 
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
@@ -35,6 +37,13 @@ export class InMemoryDB implements CommonDB {
 
   async getTables(): Promise<string[]> {
     return Object.keys(this.data)
+  }
+
+  async getTableSchema<DBM>(table: string): Promise<CommonSchema<DBM>> {
+    return CommonSchemaGenerator.generateFromRows<DBM>(
+      { table },
+      Object.values(this.data[table] || {}),
+    )
   }
 
   async getByIds<DBM extends SavedDBEntity>(

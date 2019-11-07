@@ -7,6 +7,7 @@ import {
   SavedDBEntity,
 } from './db.model'
 import { DBQuery } from './dbQuery'
+import { CommonSchema } from './schema/common.schema'
 
 export interface CommonDB {
   /**
@@ -18,6 +19,8 @@ export interface CommonDB {
    * Return all tables (table names) available in this DB.
    */
   getTables(): Promise<string[]>
+
+  getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>>
 
   // GET
   /**

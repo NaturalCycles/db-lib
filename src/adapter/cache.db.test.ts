@@ -1,8 +1,8 @@
+import { runCommonDaoTest } from '../testing/daoTest'
+import { runCommonDBTest } from '../testing/dbTest'
+import { TEST_TABLE } from '../testing/test.model'
 import { CacheDB } from './cache.db'
 import { InMemoryDB } from './inMemory.db'
-import { runCommonDaoTest } from './testing/daoTest'
-import { runCommonDBTest } from './testing/dbTest'
-import { TEST_TABLE } from './testing/test.model'
 
 const downstreamDB = new InMemoryDB()
 const cacheDB = new InMemoryDB()

@@ -2,9 +2,11 @@ import { by, sortObjectDeep } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
-import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from './db.model'
-import { DBQuery } from './dbQuery'
+import { CommonDB } from '../common.db'
+import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import { DBQuery } from '../dbQuery'
+import { CommonSchema } from '../schema/common.schema'
+import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
 import { queryInMemory } from './inMemory.db'
 
 export interface SimpleFileDBCfg {
@@ -116,6 +118,11 @@ export class SimpleFileDB implements CommonDB {
     return (await fs.readdir(this.cfg.storageDir))
       .filter(f => f.endsWith(this.cfg.ext))
       .map(f => f.substr(0, f.length - this.cfg.ext.length - 1)) // -1 is to include '.'
+  }
+
+  async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
+    const rows = Object.values(await this.getTable<DBM>(table))
+    return CommonSchemaGenerator.generateFromRows<DBM>({ table }, rows)
   }
 
   async getByIds<DBM extends SavedDBEntity>(

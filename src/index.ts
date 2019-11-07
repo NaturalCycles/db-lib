@@ -1,4 +1,7 @@
-import { CacheDB, CacheDBCfg } from './cache.db'
+import { CacheDB, CacheDBCfg } from './adapter/cache.db'
+import { InMemoryDB, queryInMemory } from './adapter/inMemory.db'
+import { NoOpDB } from './adapter/noop.db'
+import { SimpleFileDB, SimpleFileDBCfg } from './adapter/simpleFile.db'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
 import {
@@ -28,7 +31,6 @@ import {
   DBQueryOrder,
   RunnableDBQuery,
 } from './dbQuery'
-import { InMemoryDB, queryInMemory } from './inMemory.db'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -36,11 +38,11 @@ import {
   idField,
   serializeJsonField,
 } from './model.util'
-import { NoOpDB } from './noop.db'
 import { dbPipelineBackup, DBPipelineBackupOptions } from './pipeline/dbPipelineBackup'
 import { dbPipelineCopy, DBPipelineCopyOptions } from './pipeline/dbPipelineCopy'
 import { dbPipelineRestore, DBPipelineRestoreOptions } from './pipeline/dbPipelineRestore'
-import { SimpleFileDB, SimpleFileDBCfg } from './simpleFile.db'
+import { CommonSchema, CommonSchemaField, DATA_TYPE } from './schema/common.schema'
+import { CommonSchemaGenerator, CommonSchemaGeneratorCfg } from './schema/commonSchemaGenerator'
 import { runCommonDaoTest } from './testing/daoTest'
 import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
 import {
@@ -118,4 +120,9 @@ export {
   DBPipelineRestoreOptions,
   dbPipelineCopy,
   DBPipelineCopyOptions,
+  CommonSchema,
+  CommonSchemaField,
+  DATA_TYPE,
+  CommonSchemaGeneratorCfg,
+  CommonSchemaGenerator,
 }

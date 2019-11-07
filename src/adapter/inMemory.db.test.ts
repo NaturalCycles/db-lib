@@ -1,6 +1,6 @@
+import { runCommonDaoTest } from '../testing/daoTest'
+import { runCommonDBTest } from '../testing/dbTest'
 import { InMemoryDB } from './inMemory.db'
-import { runCommonDaoTest } from './testing/daoTest'
-import { runCommonDBTest } from './testing/dbTest'
 
 const db = new InMemoryDB()
 
