@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/NaturalCycles/db-lib/compare/v3.5.0...v3.5.1) (2019-11-07)
+
+
+### Bug Fixes
+
+* include getTableSchema in dbTest() ([7f0246d](https://github.com/NaturalCycles/db-lib/commit/7f0246dbaa2914b5404b4253d3cc06e613646ef7))
+
 # [3.5.0](https://github.com/NaturalCycles/db-lib/compare/v3.4.0...v3.5.0) (2019-11-07)
 
 
