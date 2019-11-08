@@ -26,6 +26,7 @@ import {
   SavedDBEntity,
 } from './db.model'
 import { DBQuery, RunnableDBQuery } from './dbQuery'
+import { CommonSchema } from './schema/common.schema'
 
 export enum CommonDaoLogLevel {
   /**
@@ -704,6 +705,10 @@ export class CommonDao<
     }
 
     return value // converted value
+  }
+
+  async getTableSchema(): Promise<CommonSchema> {
+    return this.cfg.db.getTableSchema<DBM>(this.cfg.table)
   }
 
   protected logResult(started: number, op: string, res: any): void {
