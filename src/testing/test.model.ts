@@ -1,5 +1,6 @@
 import { _range } from '@naturalcycles/js-lib'
 import { booleanSchema, numberSchema, objectSchema, stringSchema } from '@naturalcycles/nodejs-lib'
+import { CommonSchema, CommonSchemaGenerator } from '..'
 import { BaseDBEntity, baseDBEntitySchema, Saved, savedDBEntitySchema } from '../db.model'
 
 const MOCK_TS_2018_06_21 = 1529539200
@@ -61,4 +62,8 @@ export function createTestItemsDBM(count = 1): TestItemDBM[] {
 
 export function createTestItemsBM(count = 1): Saved<TestItemBM>[] {
   return _range(1, count + 1).map(num => createTestItemBM(num))
+}
+
+export function getTestItemSchema(): CommonSchema<TestItemDBM> {
+  return CommonSchemaGenerator.generateFromRows({ table: TEST_TABLE }, createTestItemsDBM())
 }

@@ -1,4 +1,4 @@
-import { createTestItemsDBM, TEST_TABLE } from '..'
+import { createTestItemsDBM, getTestItemSchema, TEST_TABLE } from '..'
 import { CommonSchemaGenerator } from './commonSchemaGenerator'
 
 test('testItems', () => {
@@ -44,5 +44,11 @@ test('complex example', () => {
 
   const schema = CommonSchemaGenerator.generateFromRows({ table: TEST_TABLE }, rows)
   // console.log(JSON.stringify(schema, null,2))
+  expect(schema).toMatchSnapshot()
+})
+
+test('getTestItemSchema', () => {
+  const schema = getTestItemSchema()
+  // console.log(schema)
   expect(schema).toMatchSnapshot()
 })

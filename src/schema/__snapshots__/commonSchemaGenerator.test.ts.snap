@@ -104,6 +104,61 @@ Object {
 }
 `;
 
+exports[`getTestItemSchema 1`] = `
+Object {
+  "fields": Array [
+    Object {
+      "maxLen": 3,
+      "minLen": 3,
+      "name": "id",
+      "notNull": true,
+      "type": "STRING",
+    },
+    Object {
+      "maxLen": 2,
+      "minLen": 2,
+      "name": "k1",
+      "notNull": true,
+      "type": "STRING",
+    },
+    Object {
+      "maxLen": 2,
+      "minLen": 2,
+      "name": "k2",
+      "notNull": true,
+      "type": "STRING",
+    },
+    Object {
+      "maxLen": 1,
+      "minLen": 1,
+      "name": "k3",
+      "notNull": true,
+      "type": "INT",
+    },
+    Object {
+      "name": "even",
+      "notNull": true,
+      "type": "BOOLEAN",
+    },
+    Object {
+      "maxLen": 1529539200,
+      "minLen": 1529539200,
+      "name": "created",
+      "notNull": true,
+      "type": "INT",
+    },
+    Object {
+      "maxLen": 1529539200,
+      "minLen": 1529539200,
+      "name": "updated",
+      "notNull": true,
+      "type": "INT",
+    },
+  ],
+  "table": "TEST_TABLE",
+}
+`;
+
 exports[`testItems 1`] = `
 Object {
   "fields": Array [
