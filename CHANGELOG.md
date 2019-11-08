@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/NaturalCycles/db-lib/compare/v3.6.0...v3.7.0) (2019-11-08)
+
+
+### Features
+
+* getTestItemSchema() ([a2aba65](https://github.com/NaturalCycles/db-lib/commit/a2aba65c47979b4204f328f6a02c24c14f43b79a))
+
 # [3.6.0](https://github.com/NaturalCycles/db-lib/compare/v3.5.1...v3.6.0) (2019-11-08)
 
 
