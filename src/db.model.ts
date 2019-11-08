@@ -1,6 +1,8 @@
+import { ErrorMode } from '@naturalcycles/js-lib'
 import {
   objectSchema,
   stringSchema,
+  TransformLogProgressOptions,
   TransformMapOptions,
   unixTimestampSchema,
   verSchema,
@@ -28,11 +30,20 @@ export interface CommonDaoOptions extends CommonDBOptions {
  */
 export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
 
-export interface CommonDaoStreamOptions extends CommonDaoOptions, TransformMapOptions {
+export interface CommonDaoStreamOptions
+  extends CommonDaoOptions,
+    TransformMapOptions,
+    TransformLogProgressOptions {
   /**
    * @default true (for streams)
    */
   skipValidation?: boolean
+
+  /**
+   * @default ErrorMode.SUPPRESS for returning ReadableStream, because .pipe() has no concept of "error propagation"
+   * @default ErrorMode.SUPPRESS for .forEach() streams as well, but overridable
+   */
+  errorMode?: ErrorMode
 }
 
 /**
