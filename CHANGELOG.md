@@ -1,3 +1,10 @@
+## [3.7.1](https://github.com/NaturalCycles/db-lib/compare/v3.7.0...v3.7.1) (2019-11-08)
+
+
+### Bug Fixes
+
+* dbPipelineRestore opt.tables ([5bf821c](https://github.com/NaturalCycles/db-lib/commit/5bf821c0ef3e8c849e54c68082ecd7f602a3af2d))
+
 # [3.7.0](https://github.com/NaturalCycles/db-lib/compare/v3.6.0...v3.7.0) (2019-11-08)
 
 
