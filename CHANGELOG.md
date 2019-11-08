@@ -1,3 +1,11 @@
+# [3.6.0](https://github.com/NaturalCycles/db-lib/compare/v3.5.1...v3.6.0) (2019-11-08)
+
+
+### Features
+
+* CommonDao.getTableSchema() ([48db668](https://github.com/NaturalCycles/db-lib/commit/48db668b59f247e799b0b34b43314b4923150630))
+* streams errorMode support, default to SUPPRESS ([4bbab7f](https://github.com/NaturalCycles/db-lib/commit/4bbab7f0c3e8c14706508226ff8285347ec508d9))
+
 ## [3.5.1](https://github.com/NaturalCycles/db-lib/compare/v3.5.0...v3.5.1) (2019-11-07)
 
 
