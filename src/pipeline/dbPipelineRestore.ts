@@ -129,30 +129,25 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   const sizeByTable: Record<string, number> = {}
   const statsPerTable: Record<string, NDJsonStats> = {}
   const tables: string[] = []
-  ;(await fs.readdir(inputDirPath))
-    .filter(f => f.endsWith('.jsonl'))
-    .map(f => {
-      const table = f.substr(0, f.length - '.jsonl'.length)
-      if (onlyTables && !onlyTables.has(table)) return // skip table
+  ;(await fs.readdir(inputDirPath)).forEach(f => {
+    let table: string
+    let gzip = false
 
-      sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
-      return table
-    })
-    .filter(Boolean)
-    .forEach(table => tables.push(table!))
-  ;(await fs.readdir(inputDirPath))
-    .filter(f => f.endsWith('.jsonl.gz'))
-    .map(f => {
-      const table = f.substr(0, f.length - '.jsonl.gz'.length)
-      if (onlyTables && !onlyTables.has(table)) return // skip table
+    if (f.endsWith('.jsonl')) {
+      table = f.substr(0, f.length - '.jsonl'.length)
+    } else if (f.endsWith('.jsonl.gz')) {
+      table = f.substr(0, f.length - '.jsonl.gz'.length)
+      gzip = true
+    } else {
+      return
+    }
 
-      sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
-      return table
-    })
-    .forEach(table => {
-      tables!.push(table!)
-      tablesToGzip.add(table!)
-    })
+    if (onlyTables && !onlyTables.has(table)) return // skip table
+
+    tables.push(table)
+    if (gzip) tablesToGzip.add(table)
+    sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
+  })
 
   const sizeStrByTable = _mapValues(sizeByTable, b => hb(b))
 
