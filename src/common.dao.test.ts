@@ -1,6 +1,6 @@
 import { ErrorMode } from '@naturalcycles/js-lib'
 import { _pipeline, writableForEach } from '@naturalcycles/nodejs-lib'
-import { InMemoryDB } from './adapter/inMemory.db'
+import { InMemoryDB } from './adapter/inmemory/inMemory.db'
 import { CommonDao, CommonDaoLogLevel } from './common.dao'
 import { CommonDaoStreamOptions } from './db.model'
 import {

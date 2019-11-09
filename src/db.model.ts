@@ -8,6 +8,7 @@ import {
   verSchema,
 } from '@naturalcycles/nodejs-lib'
 import { Merge } from 'type-fest'
+import { CommonDB } from './common.db'
 
 /**
  * All properties default to undefined.
@@ -145,3 +146,19 @@ export const savedDBEntitySchema = objectSchema<SavedDBEntity>({
   updated: unixTimestampSchema,
   _ver: verSchema.optional(),
 })
+
+/**
+ * Interface for a module (lib) that implements CommonDB.
+ *
+ * Example:
+ *
+ * const lib: CommonDBModule = require('mysql-lib')
+ * const db = lib.getDB()
+ */
+export interface CommonDBAdapter {
+  /**
+   * @param cfg was read from SECRET_DB${i} by secret('SECRET_DB${i}') method and passed there.
+   * It's a string that can contain e.g JSON.stringified configuration object (depends on the adapter).
+   */
+  getDBAdapter(cfg?: string): CommonDB
+}

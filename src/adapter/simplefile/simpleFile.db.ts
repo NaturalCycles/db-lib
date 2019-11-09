@@ -2,24 +2,25 @@ import { by, sortObjectDeep } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
-import { CommonDB } from '../common.db'
+import { CommonDB } from '../../common.db'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   RunQueryResult,
   SavedDBEntity,
-} from '../db.model'
-import { DBQuery } from '../dbQuery'
-import { CommonSchema } from '../schema/common.schema'
-import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
-import { queryInMemory } from './inMemory.db'
+} from '../../db.model'
+import { DBQuery } from '../../dbQuery'
+import { CommonSchema } from '../../schema/common.schema'
+import { CommonSchemaGenerator } from '../../schema/commonSchemaGenerator'
+import { queryInMemory } from '../inmemory/inMemory.db'
 
 export interface SimpleFileDBCfg {
   /**
    * Absolute path, please.
+   * @default to `${process.cwd()}/tmp/storage`
    */
-  storageDir: string
+  storageDir?: string
 
   /**
    * @default true
@@ -49,8 +50,9 @@ export interface SimpleFileDBCfg {
 // const log = Debug('nc:db-lib:file')
 
 export class SimpleFileDB implements CommonDB {
-  constructor(cfg: SimpleFileDBCfg) {
+  constructor(cfg: SimpleFileDBCfg = {}) {
     this.cfg = {
+      storageDir: `${process.cwd()}/tmp/storage`,
       ndjson: false,
       ext: cfg.ndjson ? 'jsonl' : 'json',
       ...cfg,
@@ -58,7 +60,7 @@ export class SimpleFileDB implements CommonDB {
       sortObjects: cfg.sortObjects !== false, // default true
     }
 
-    fs.ensureDirSync(cfg.storageDir)
+    fs.ensureDirSync(this.cfg.storageDir)
   }
 
   cfg!: Required<SimpleFileDBCfg>

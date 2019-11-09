@@ -1,7 +1,7 @@
-import { CacheDB, CacheDBCfg } from './adapter/cache.db'
-import { InMemoryDB, queryInMemory } from './adapter/inMemory.db'
-import { NoOpDB } from './adapter/noop.db'
-import { SimpleFileDB, SimpleFileDBCfg } from './adapter/simpleFile.db'
+import { CacheDB, CacheDBCfg } from './adapter/cachedb/cache.db'
+import { InMemoryDB, queryInMemory } from './adapter/inmemory/inMemory.db'
+import { NoOpDB } from './adapter/noop/noop.db'
+import { SimpleFileDB, SimpleFileDBCfg } from './adapter/simplefile/simpleFile.db'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
 import {
@@ -10,6 +10,7 @@ import {
   CommonDaoCreateOptions,
   CommonDaoOptions,
   CommonDaoSaveOptions,
+  CommonDBAdapter,
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
@@ -33,6 +34,7 @@ import {
   DBQueryOrder,
   RunnableDBQuery,
 } from './dbQuery'
+import { getDB } from './getDB'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -131,4 +133,6 @@ export {
   DATA_TYPE,
   CommonSchemaGeneratorCfg,
   CommonSchemaGenerator,
+  CommonDBAdapter,
+  getDB,
 }

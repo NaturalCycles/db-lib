@@ -1,5 +1,5 @@
 import { createTestItemsDBM, TEST_TABLE } from '..'
-import { InMemoryDB } from '../adapter/inMemory.db'
+import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { tmpDir } from '../test/paths.cnst'
 import { dbPipelineBackup } from './dbPipelineBackup'
 

@@ -1,15 +1,15 @@
 import { Debug, IDebugger, readableFromArray } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
-import { CommonDB } from '../common.db'
+import { CommonDB } from '../../common.db'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   RunQueryResult,
   SavedDBEntity,
-} from '../db.model'
-import { DBQuery } from '../dbQuery'
-import { CommonSchema } from '../schema/common.schema'
+} from '../../db.model'
+import { DBQuery } from '../../dbQuery'
+import { CommonSchema } from '../../schema/common.schema'
 
 export interface CacheDBCfg {
   name: string

@@ -6,11 +6,11 @@ import {
   CommonDBSaveOptions,
   RunQueryResult,
   SavedDBEntity,
-} from '../db.model'
-import { DBQuery, DBQueryFilterOperator } from '../dbQuery'
-import { CommonDB } from '../index'
-import { CommonSchema } from '../schema/common.schema'
-import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
+} from '../../db.model'
+import { DBQuery, DBQueryFilterOperator } from '../../dbQuery'
+import { CommonDB } from '../../index'
+import { CommonSchema } from '../../index'
+import { CommonSchemaGenerator } from '../../index'
 
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
