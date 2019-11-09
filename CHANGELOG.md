@@ -1,3 +1,10 @@
+# [3.8.0](https://github.com/NaturalCycles/db-lib/compare/v3.7.2...v3.8.0) (2019-11-09)
+
+
+### Features
+
+* CommonDB.createTable(), CommonDao.createTable() ([0d3b2df](https://github.com/NaturalCycles/db-lib/commit/0d3b2dfe9e78b5e78b94d70d5dd996796c70cb65))
+
 ## [3.7.2](https://github.com/NaturalCycles/db-lib/compare/v3.7.1...v3.7.2) (2019-11-08)
 
 
