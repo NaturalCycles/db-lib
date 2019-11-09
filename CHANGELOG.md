@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/NaturalCycles/db-lib/compare/v3.8.1...v3.9.0) (2019-11-09)
+
+
+### Features
+
+* getDB(index) function ([00a24b0](https://github.com/NaturalCycles/db-lib/commit/00a24b0c03f4cf7dbc577bf1b1d2b7d6194d01e9))
+
 ## [3.8.1](https://github.com/NaturalCycles/db-lib/compare/v3.8.0...v3.8.1) (2019-11-09)
 
 
