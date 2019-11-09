@@ -48,7 +48,10 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   // DELETE ALL initially
   test('deleteByIds test items', async () => {
     const { records } = await db.runQuery(queryAll().select([]))
-    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+    await db.deleteByIds(
+      TEST_TABLE,
+      records.map(i => i.id),
+    )
   })
 
   // QUERY empty
@@ -156,6 +159,9 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   test('cleanup', async () => {
     // CLEAN UP
     const { records } = await db.runQuery(queryAll().select([]))
-    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+    await db.deleteByIds(
+      TEST_TABLE,
+      records.map(i => i.id),
+    )
   })
 }

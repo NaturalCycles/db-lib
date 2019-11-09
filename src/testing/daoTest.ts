@@ -51,7 +51,10 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
       .query()
       .select([])
       .runQuery<ObjectWithId>()
-    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+    await db.deleteByIds(
+      TEST_TABLE,
+      records.map(i => i.id),
+    )
   })
 
   // QUERY empty
@@ -177,6 +180,9 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
       .query()
       .select([])
       .runQuery()
-    await db.deleteByIds(TEST_TABLE, records.map(i => i.id))
+    await db.deleteByIds(
+      TEST_TABLE,
+      records.map(i => i.id),
+    )
   })
 }

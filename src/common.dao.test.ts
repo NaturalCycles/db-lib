@@ -73,24 +73,20 @@ test('should propagate pipe errors', async () => {
   // THROW_IMMEDIATELY
   results = []
   await expect(
-    dao
-      .query()
-      .streamQueryForEach(r => void results.push(r), {
-        ...opt,
-        errorMode: ErrorMode.THROW_IMMEDIATELY,
-      }),
+    dao.query().streamQueryForEach(r => void results.push(r), {
+      ...opt,
+      errorMode: ErrorMode.THROW_IMMEDIATELY,
+    }),
   ).rejects.toThrow('error_from_parseNaturalId')
   expect(results).toEqual([])
 
   // THROW_AGGREGATED
   results = []
   await expect(
-    dao
-      .query()
-      .streamQueryForEach(r => void results.push(r), {
-        ...opt,
-        errorMode: ErrorMode.THROW_AGGREGATED,
-      }),
+    dao.query().streamQueryForEach(r => void results.push(r), {
+      ...opt,
+      errorMode: ErrorMode.THROW_AGGREGATED,
+    }),
   ).rejects.toThrow('error_from_parseNaturalId')
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
