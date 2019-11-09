@@ -1,3 +1,10 @@
+## [3.8.1](https://github.com/NaturalCycles/db-lib/compare/v3.8.0...v3.8.1) (2019-11-09)
+
+
+### Bug Fixes
+
+* export ([5e5e8b9](https://github.com/NaturalCycles/db-lib/commit/5e5e8b9e255ca61495513d5ef930ee663224e61e))
+
 # [3.8.0](https://github.com/NaturalCycles/db-lib/compare/v3.7.2...v3.8.0) (2019-11-09)
 
 
