@@ -32,6 +32,12 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   db: CommonDB
 
   /**
+   * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
+   * All parent directories will be created.
+   */
+  inputDirPath: string
+
+  /**
    * List of tables to dump. If undefined - will dump all files that end with .jsonl (or .jsonl.gz) extension.
    */
   tables?: string[]
@@ -71,10 +77,11 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   sinceUpdated?: number
 
   /**
-   * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
-   * All parent directories will be created.
+   * @default false
+   * If true - will read ${table}.schema.json files and recreate tables before importing.
+   * Caution! Will do `drop table if exists`!!!
    */
-  inputDirPath: string
+  recreateTables?: boolean
 
   /**
    * Optionally you can provide mapper that is going to run for each table.
@@ -113,6 +120,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     saveOptionsPerTable = {},
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
+    recreateTables = false,
   } = opt
   const strict = errorMode !== ErrorMode.SUPPRESS
   const onlyTables = opt.tables && new Set(opt.tables)
@@ -152,6 +160,21 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   const sizeStrByTable = _mapValues(sizeByTable, b => hb(b))
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n`, sizeStrByTable)
+
+  // const schemaByTable: Record<string, CommonSchema> = {}
+
+  if (recreateTables) {
+    await pMap(tables, async table => {
+      const schemaFilePath = `${inputDirPath}/${table}.schema.json`
+      if (!fs.existsSync(schemaFilePath)) {
+        console.warn(`${schemaFilePath} does not exist!`)
+        return
+      }
+
+      const schema = await fs.readJson(schemaFilePath)
+      await db.createTable(schema, { dropIfExists: true })
+    })
+  }
 
   await pMap(
     tables,

@@ -2,7 +2,7 @@ import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
-import { ObjectWithId, TestItemBM } from '../index'
+import { getTestItemSchema, ObjectWithId, TestItemBM } from '../index'
 import { CommonDBTestOptions } from './dbTest'
 import {
   createTestItemsBM,
@@ -39,6 +39,11 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     ...i,
     updated: expect.any(Number),
   }))
+
+  // CREATE TABLE, DROP
+  test('createTable, dropIfExists=true', async () => {
+    await dao.createTable(getTestItemSchema(), { dropIfExists: true })
+  })
 
   // DELETE ALL initially
   test('deleteByIds test items', async () => {

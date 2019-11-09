@@ -47,5 +47,6 @@ runScript(async () => {
   await dbPipelineRestore({
     db: fileDB3,
     inputDirPath: backupDir,
+    recreateTables: true,
   })
 })

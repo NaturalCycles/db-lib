@@ -46,6 +46,8 @@ export interface CommonDaoStreamOptions
   errorMode?: ErrorMode
 }
 
+export interface CommonDaoCreateOptions extends CommonDBCreateOptions {}
+
 /**
  * All properties default to undefined.
  */
@@ -69,6 +71,14 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
 }
 
 export interface CommonDBStreamOptions extends CommonDBOptions {}
+
+export interface CommonDBCreateOptions extends CommonDBOptions {
+  /**
+   * @default false
+   * Caution! If set to true - will actually DROP the table!
+   */
+  dropIfExists?: boolean
+}
 
 export interface RunQueryResult<T> {
   records: T[]

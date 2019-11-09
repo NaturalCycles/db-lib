@@ -16,6 +16,7 @@ import { since } from '@naturalcycles/time-lib'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
+  CommonDaoCreateOptions,
   CommonDaoOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamOptions,
@@ -709,6 +710,10 @@ export class CommonDao<
 
   async getTableSchema(): Promise<CommonSchema> {
     return this.cfg.db.getTableSchema<DBM>(this.cfg.table)
+  }
+
+  async createTable(schema: CommonSchema, opt?: CommonDaoCreateOptions): Promise<void> {
+    await this.cfg.db.createTable(schema, opt)
   }
 
   protected logResult(started: number, op: string, res: any): void {

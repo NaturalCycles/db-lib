@@ -3,7 +3,13 @@ import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  RunQueryResult,
+  SavedDBEntity,
+} from '../db.model'
 import { DBQuery } from '../dbQuery'
 import { CommonSchema } from '../schema/common.schema'
 import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
@@ -123,6 +129,12 @@ export class SimpleFileDB implements CommonDB {
   async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
     const rows = Object.values(await this.getTable<DBM>(table))
     return CommonSchemaGenerator.generateFromRows<DBM>({ table }, rows)
+  }
+
+  async createTable(schema: CommonSchema, opt: CommonDBCreateOptions = {}): Promise<void> {
+    if (opt.dropIfExists || !this.cache[schema.table]) {
+      await this.saveTable(schema.table, {})
+    }
   }
 
   async getByIds<DBM extends SavedDBEntity>(

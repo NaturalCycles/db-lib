@@ -1,6 +1,12 @@
 import { readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  RunQueryResult,
+  SavedDBEntity,
+} from '../db.model'
 import { DBQuery } from '../dbQuery'
 import { CommonSchema } from '../schema/common.schema'
 
@@ -13,39 +19,41 @@ export class NoOpDB implements CommonDB {
     return { table, fields: [] }
   }
 
-  async deleteByIds(table: string, ids: string[], opts?: CommonDBOptions): Promise<number> {
+  async createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void> {}
+
+  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
     return 0
   }
 
-  async deleteByQuery(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
+  async deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
     return 0
   }
 
   async getByIds<DBM extends SavedDBEntity>(
     table: string,
     ids: string[],
-    opts?: CommonDBOptions,
+    opt?: CommonDBOptions,
   ): Promise<DBM[]> {
     return []
   }
 
   async resetCache(): Promise<void> {}
 
-  async runQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
+  async runQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
     return { records: [] }
   }
 
-  async runQueryCount(q: DBQuery, opts?: CommonDBOptions): Promise<number> {
+  async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
     return 0
   }
 
   async saveBatch<DBM extends SavedDBEntity>(
     table: string,
     dbms: DBM[],
-    opts?: CommonDBSaveOptions,
+    opt?: CommonDBSaveOptions,
   ): Promise<void> {}
 
-  streamQuery<OUT>(q: DBQuery, opts?: CommonDBOptions): ReadableTyped<OUT> {
+  streamQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): ReadableTyped<OUT> {
     return readableFromArray([])
   }
 }

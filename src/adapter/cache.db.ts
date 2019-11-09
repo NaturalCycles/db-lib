@@ -1,7 +1,13 @@
 import { Debug, IDebugger, readableFromArray } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
 import { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  RunQueryResult,
+  SavedDBEntity,
+} from '../db.model'
 import { DBQuery } from '../dbQuery'
 import { CommonSchema } from '../schema/common.schema'
 
@@ -68,6 +74,16 @@ export class CacheDB implements CommonDB {
 
   async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
     return await this.cfg.downstreamDB.getTableSchema<DBM>(table)
+  }
+
+  async createTable(schema: CommonSchema, opt: CommonDBCreateOptions = {}): Promise<void> {
+    if (!opt.onlyCache && !this.cfg.onlyCache) {
+      await this.cfg.downstreamDB.createTable(schema, opt)
+    }
+
+    if (!opt.skipCache && !this.cfg.skipCache) {
+      await this.cfg.cacheDB.createTable(schema, opt)
+    }
   }
 
   async getByIds<DBM extends SavedDBEntity>(

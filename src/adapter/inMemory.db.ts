@@ -1,6 +1,12 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { Debug, readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDBOptions, CommonDBSaveOptions, RunQueryResult, SavedDBEntity } from '../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  RunQueryResult,
+  SavedDBEntity,
+} from '../db.model'
 import { DBQuery, DBQueryFilterOperator } from '../dbQuery'
 import { CommonDB } from '../index'
 import { CommonSchema } from '../schema/common.schema'
@@ -44,6 +50,14 @@ export class InMemoryDB implements CommonDB {
       { table },
       Object.values(this.data[table] || {}),
     )
+  }
+
+  async createTable(schema: CommonSchema, opt: CommonDBCreateOptions = {}): Promise<void> {
+    if (opt.dropIfExists) {
+      this.data[schema.table] = {}
+    } else {
+      this.data[schema.table] = this.data[schema.table] || {}
+    }
   }
 
   async getByIds<DBM extends SavedDBEntity>(

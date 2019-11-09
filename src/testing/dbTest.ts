@@ -2,7 +2,13 @@ import { _pick, _sortBy, pDelay, pMap } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
-import { createTestItemsDBM, TEST_TABLE, TestItemBM, TestItemDBM } from './test.model'
+import {
+  createTestItemsDBM,
+  getTestItemSchema,
+  TEST_TABLE,
+  TestItemBM,
+  TestItemDBM,
+} from './test.model'
 import { deepFreeze } from './test.util'
 
 /**
@@ -33,6 +39,11 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   const [item1] = items
 
   const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'all')
+
+  // CREATE TABLE, DROP
+  test('createTable, dropIfExists=true', async () => {
+    await db.createTable(getTestItemSchema(), { dropIfExists: true })
+  })
 
   // DELETE ALL initially
   test('deleteByIds test items', async () => {

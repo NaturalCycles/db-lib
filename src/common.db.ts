@@ -1,5 +1,6 @@
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
+  CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
@@ -21,6 +22,12 @@ export interface CommonDB {
   getTables(): Promise<string[]>
 
   getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>>
+
+  /**
+   * Will do like `create table ...` for mysql.
+   * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
+   */
+  createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void>
 
   // GET
   /**
