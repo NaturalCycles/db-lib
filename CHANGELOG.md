@@ -1,3 +1,11 @@
+# [3.10.0](https://github.com/NaturalCycles/db-lib/compare/v3.9.0...v3.10.0) (2020-01-27)
+
+
+### Features
+
+* deps ([dd03ef2](https://github.com/NaturalCycles/db-lib/commit/dd03ef2d8604ec0e1fcacbb123ad28a3cff29d45))
+* swapped .jsonl to .ndjson everywhere ([3ea51b4](https://github.com/NaturalCycles/db-lib/commit/3ea51b40bc92924a9f6a81c28af917e72cfa7633))
+
 # [3.9.0](https://github.com/NaturalCycles/db-lib/compare/v3.8.1...v3.9.0) (2019-11-09)
 
 
