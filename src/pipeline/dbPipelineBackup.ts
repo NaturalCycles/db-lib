@@ -59,7 +59,7 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   sinceUpdated?: number
 
   /**
-   * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
+   * Directory path to store dumped files. Will create `${tableName}.ndjson` (or .ndjson.gz if gzip=true) files.
    * All parent directories will be created.
    * @default to process.cwd()
    */
@@ -165,7 +165,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         q = q.filter('updated', '>=', sinceUpdated)
       }
 
-      const filePath = `${outputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
+      const filePath = `${outputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
       const schemaFilePath = `${outputDirPath}/${table}.schema.json`
 
       if (protectFromOverwrite && (await fs.pathExists(filePath))) {

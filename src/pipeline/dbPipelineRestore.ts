@@ -32,13 +32,13 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   db: CommonDB
 
   /**
-   * Directory path to store dumped files. Will create `${tableName}.jsonl` (or .jsonl.gz if gzip=true) files.
+   * Directory path to store dumped files. Will create `${tableName}.ndjson` (or .ndjson.gz if gzip=true) files.
    * All parent directories will be created.
    */
   inputDirPath: string
 
   /**
-   * List of tables to dump. If undefined - will dump all files that end with .jsonl (or .jsonl.gz) extension.
+   * List of tables to dump. If undefined - will dump all files that end with .ndjson (or .ndjson.gz) extension.
    */
   tables?: string[]
 
@@ -141,10 +141,10 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     let table: string
     let gzip = false
 
-    if (f.endsWith('.jsonl')) {
-      table = f.substr(0, f.length - '.jsonl'.length)
-    } else if (f.endsWith('.jsonl.gz')) {
-      table = f.substr(0, f.length - '.jsonl.gz'.length)
+    if (f.endsWith('.ndjson')) {
+      table = f.substr(0, f.length - '.ndjson'.length)
+    } else if (f.endsWith('.ndjson.gz')) {
+      table = f.substr(0, f.length - '.ndjson.gz'.length)
       gzip = true
     } else {
       return
@@ -180,7 +180,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     tables,
     async table => {
       const gzip = tablesToGzip.has(table)
-      const filePath = `${inputDirPath}/${table}.jsonl` + (gzip ? '.gz' : '')
+      const filePath = `${inputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
       const saveOptions: CommonDBSaveOptions = saveOptionsPerTable[table] || {}
 
       const started = Date.now()

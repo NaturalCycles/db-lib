@@ -42,7 +42,7 @@ export interface SimpleFileDBCfg {
 
   /**
    * @default `json`
-   * @default `jsonl` if ndjson=true
+   * @default `ndjson` if ndjson=true
    */
   ext?: string
 }
@@ -54,7 +54,7 @@ export class SimpleFileDB implements CommonDB {
     this.cfg = {
       storageDir: `${process.cwd()}/tmp/storage`,
       ndjson: false,
-      ext: cfg.ndjson ? 'jsonl' : 'json',
+      ext: cfg.ndjson ? 'ndjson' : 'json',
       ...cfg,
       prettyJson: cfg.prettyJson !== false, // default true
       sortObjects: cfg.sortObjects !== false, // default true
