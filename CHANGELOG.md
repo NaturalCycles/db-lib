@@ -1,3 +1,10 @@
+## [3.10.1](https://github.com/NaturalCycles/db-lib/compare/v3.10.0...v3.10.1) (2020-01-28)
+
+
+### Bug Fixes
+
+* dbPipelineBackup flattenArrayOutput=true by default ([1c479a7](https://github.com/NaturalCycles/db-lib/commit/1c479a79c28e3f4200fcbf7fb07310dd6b606492))
+
 # [3.10.0](https://github.com/NaturalCycles/db-lib/compare/v3.9.0...v3.10.0) (2020-01-27)
 
 
