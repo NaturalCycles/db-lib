@@ -198,6 +198,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         }),
         transformMap(mapperPerTable[table] || passthroughMapper, {
           errorMode,
+          flattenArrayOutput: true,
           ...transformMapOptions,
           metric: table,
         }),

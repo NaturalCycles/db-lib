@@ -140,6 +140,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
         }),
         transformMap(mapper, {
           errorMode,
+          flattenArrayOutput: true,
           ...transformMapOptions,
           metric: table,
         }),

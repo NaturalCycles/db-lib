@@ -205,6 +205,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         ...(sinceUpdated ? [transformFilter<SavedDBEntity>(r => r.updated >= sinceUpdated)] : []),
         transformMap(mapperPerTable[table] || passthroughMapper, {
           errorMode,
+          flattenArrayOutput: true,
           ...transformMapOptions,
           metric: table,
         }),
