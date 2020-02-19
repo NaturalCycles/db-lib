@@ -1,3 +1,10 @@
+## [3.10.2](https://github.com/NaturalCycles/db-lib/compare/v3.10.1...v3.10.2) (2020-02-19)
+
+
+### Bug Fixes
+
+* deps, lint ([b35ec64](https://github.com/NaturalCycles/db-lib/commit/b35ec64a50fab95075c8c5fec84e2c0eff40cf3b))
+
 ## [3.10.1](https://github.com/NaturalCycles/db-lib/compare/v3.10.0...v3.10.1) (2020-01-28)
 
 
