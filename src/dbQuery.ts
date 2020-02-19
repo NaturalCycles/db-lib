@@ -1,4 +1,4 @@
-import { _truncate, Mapper } from '@naturalcycles/js-lib'
+import { Mapper, _truncate } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDao } from './common.dao'
 import {

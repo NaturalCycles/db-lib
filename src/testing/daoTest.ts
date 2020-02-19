@@ -1,4 +1,4 @@
-import { _pick, _sortBy, pDelay } from '@naturalcycles/js-lib'
+import { pDelay, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
@@ -6,10 +6,10 @@ import { getTestItemSchema, ObjectWithId, TestItemBM } from '../index'
 import { CommonDBTestOptions } from './dbTest'
 import {
   createTestItemsBM,
-  TEST_TABLE,
   testItemBMSchema,
   testItemDBMSchema,
   testItemTMSchema,
+  TEST_TABLE,
 } from './test.model'
 import { deepFreeze } from './test.util'
 

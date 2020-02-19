@@ -1,6 +1,5 @@
 import { AppError, ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
 import {
-  _pipeline,
   boldWhite,
   dimWhite,
   grey,
@@ -12,6 +11,7 @@ import {
   transformTap,
   transformToNDJson,
   yellow,
+  _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'

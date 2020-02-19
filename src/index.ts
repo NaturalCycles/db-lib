@@ -55,13 +55,13 @@ import {
   createTestItemsBM,
   createTestItemsDBM,
   getTestItemSchema,
-  TEST_TABLE,
   TestItemBM,
   testItemBMSchema,
   TestItemDBM,
   testItemDBMSchema,
   TestItemTM,
   testItemTMSchema,
+  TEST_TABLE,
 } from './testing/test.model'
 
 export {

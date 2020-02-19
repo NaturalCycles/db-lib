@@ -1,17 +1,17 @@
 import { ErrorMode } from '@naturalcycles/js-lib'
-import { _pipeline, writableForEach } from '@naturalcycles/nodejs-lib'
+import { writableForEach, _pipeline } from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from './adapter/inmemory/inMemory.db'
 import { CommonDao, CommonDaoLogLevel } from './common.dao'
 import { CommonDaoStreamOptions } from './db.model'
 import {
   createTestItemsBM,
-  TEST_TABLE,
   TestItemBM,
   testItemBMSchema,
   TestItemDBM,
   testItemDBMSchema,
   TestItemTM,
   testItemTMSchema,
+  TEST_TABLE,
 } from './testing/test.model'
 
 let throwError = false
