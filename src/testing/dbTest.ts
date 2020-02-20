@@ -1,4 +1,4 @@
-import { pDelay, pMap, _pick, _sortBy } from '@naturalcycles/js-lib'
+import { filterObject, pDelay, pMap, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
@@ -24,6 +24,9 @@ export interface CommonDBTestOptions {
    * Time in milliseconds to wait for eventual consistency to propagate.
    */
   eventualConsistencyDelay?: number
+
+  allowExtraPropertiesInResponse?: boolean
+  allowBooleansAsUndefined?: boolean
 }
 
 export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): void {
@@ -85,7 +88,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   test('getByIds all items', async () => {
     let records = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
     if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(items)
+    expectMatch(items, records, opt)
   })
 
   // QUERY
@@ -93,7 +96,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     let { records } = await db.runQuery(queryAll())
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(items)
+    expectMatch(items, records, opt)
   })
 
   test('query even=true', async () => {
@@ -104,7 +107,11 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     )
     let { records } = await db.runQuery(q)
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(items.filter(i => i.even))
+    expectMatch(
+      items.filter(i => i.even),
+      records,
+      opt,
+    )
   })
 
   if (!allowQueryUnsorted) {
@@ -119,7 +126,11 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
     let { records } = await db.runQuery(q)
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(items.map(item => _pick(item, ['id'])))
+    expectMatch(
+      items.map(item => _pick(item, ['id'])),
+      records,
+      opt,
+    )
   })
 
   test('runQueryCount should return 3', async () => {
@@ -131,7 +142,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
     let records = await streamMapToArray(db.streamQuery(queryAll()))
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(items)
+    expectMatch(items, records, opt)
   })
 
   // getTables
@@ -164,4 +175,16 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
       records.map(i => i.id),
     )
   })
+}
+
+export function expectMatch(expected: any, actual: any, opt: CommonDBTestOptions): void {
+  if (opt.allowBooleansAsUndefined) {
+    expected = filterObject(expected, (_k, v) => v !== false)
+  }
+
+  if (opt.allowExtraPropertiesInResponse) {
+    expect(actual).toMatchObject(expected)
+  } else {
+    expect(actual).toEqual(expected)
+  }
 }

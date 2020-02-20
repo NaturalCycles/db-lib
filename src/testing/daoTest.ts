@@ -3,7 +3,7 @@ import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
 import { getTestItemSchema, ObjectWithId, TestItemBM } from '../index'
-import { CommonDBTestOptions } from './dbTest'
+import { CommonDBTestOptions, expectMatch } from './dbTest'
 import {
   createTestItemsBM,
   testItemBMSchema,
@@ -82,14 +82,14 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   // SAVE
   test('saveBatch test items', async () => {
     const itemsSaved = await dao.saveBatch(items)
-    expect(itemsSaved).toEqual(expectedItems)
+    expectMatch(expectedItems, itemsSaved, opt)
   })
 
   // GET not empty
   test('getByIds all items', async () => {
     let records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
     if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems)
+    expectMatch(expectedItems, records, opt)
   })
 
   // QUERY
@@ -97,7 +97,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     let records = await dao.query().runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems)
+    expectMatch(expectedItems, records, opt)
   })
 
   test('query even=true', async () => {
@@ -106,7 +106,11 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
       .filter('even', '=', true)
       .runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems.filter(i => i.even))
+    expectMatch(
+      expectedItems.filter(i => i.even),
+      records,
+      opt,
+    )
   })
 
   if (!allowQueryUnsorted) {
@@ -115,7 +119,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
         .query('desc')
         .order('k1', true)
         .runQuery()
-      expect(records).toEqual([...expectedItems].reverse())
+      expectMatch([...expectedItems].reverse(), records, opt)
     })
   }
 
@@ -125,7 +129,11 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
       .select([])
       .runQuery<ObjectWithId>()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems.map(item => _pick(item, ['id'])))
+    expectMatch(
+      expectedItems.map(item => _pick(item, ['id'])),
+      records,
+      opt,
+    )
   })
 
   test('runQueryCount should return 3', async () => {
@@ -138,14 +146,14 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     await dao.query().streamQueryForEach(bm => void records.push(bm))
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems)
+    expectMatch(expectedItems, records, opt)
   })
 
   test('streamQuery all', async () => {
     let records = await streamMapToArray(dao.query().streamQuery())
 
     if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expect(records).toEqual(expectedItems)
+    expectMatch(expectedItems, records, opt)
   })
 
   test('streamQueryIdsForEach all', async () => {
@@ -153,14 +161,22 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     await dao.query().streamQueryIdsForEach(id => void ids.push(id))
 
     if (allowStreamQueryToBeUnsorted) ids = ids.sort()
-    expect(ids).toEqual(expectedItems.map(i => i.id))
+    expectMatch(
+      expectedItems.map(i => i.id),
+      ids,
+      opt,
+    )
   })
 
   test('streamQueryIds all', async () => {
     let ids = await streamMapToArray(dao.query().streamQueryIds())
 
     if (allowStreamQueryToBeUnsorted) ids = ids.sort()
-    expect(ids).toEqual(expectedItems.map(i => i.id))
+    expectMatch(
+      expectedItems.map(i => i.id),
+      ids,
+      opt,
+    )
   })
 
   // DELETE BY
