@@ -179,7 +179,9 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
 export function expectMatch(expected: any, actual: any, opt: CommonDBTestOptions): void {
   if (opt.allowBooleansAsUndefined) {
-    expected = filterObject(expected, (_k, v) => v !== false)
+    expected = (Array.isArray(expected) ? expected : [expected]).map(r =>
+      filterObject(r, (_k, v) => v !== false),
+    )
   }
 
   if (opt.allowExtraPropertiesInResponse) {
