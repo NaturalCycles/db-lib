@@ -1,3 +1,10 @@
+# [3.11.0](https://github.com/NaturalCycles/db-lib/compare/v3.10.2...v3.11.0) (2020-02-20)
+
+
+### Features
+
+* **db-test:** allowExtraPropertiesInResponse, allowBooleansAsUndefined ([da8847e](https://github.com/NaturalCycles/db-lib/commit/da8847e5e9af2b0593bc900d617e30eaf8b485b1))
+
 ## [3.10.2](https://github.com/NaturalCycles/db-lib/compare/v3.10.1...v3.10.2) (2020-02-19)
 
 
