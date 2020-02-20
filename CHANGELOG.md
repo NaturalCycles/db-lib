@@ -1,3 +1,10 @@
+## [3.11.1](https://github.com/NaturalCycles/db-lib/compare/v3.11.0...v3.11.1) (2020-02-20)
+
+
+### Bug Fixes
+
+* **db-test:** expectMatch ([072938f](https://github.com/NaturalCycles/db-lib/commit/072938fe93cdbcedf4087f459e2f992b6e0214dc))
+
 # [3.11.0](https://github.com/NaturalCycles/db-lib/compare/v3.10.2...v3.11.0) (2020-02-20)
 
 
