@@ -1,3 +1,15 @@
+# [3.12.0](https://github.com/NaturalCycles/db-lib/compare/v3.11.1...v3.12.0) (2020-02-26)
+
+
+### Bug Fixes
+
+* export as DBLibError.DB_RECORD_REQUIRED ([ee963e1](https://github.com/NaturalCycles/db-lib/commit/ee963e1f18aece5663c030feff7c4fab3319d2dc))
+
+
+### Features
+
+* requireById to throw DB_RECORD_REQUIRED AppError ([8e0bfa5](https://github.com/NaturalCycles/db-lib/commit/8e0bfa5db9b895849fd93700a6d20101156bace1))
+
 ## [3.11.1](https://github.com/NaturalCycles/db-lib/compare/v3.11.0...v3.11.1) (2020-02-20)
 
 
