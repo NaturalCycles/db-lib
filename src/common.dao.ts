@@ -1,4 +1,4 @@
-import { ErrorMode, Mapper, _truncate } from '@naturalcycles/js-lib'
+import { AppError, ErrorMode, Mapper, _truncate } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -13,6 +13,7 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
+import { DB_RECORD_REQUIRED } from './cnst'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
@@ -225,7 +226,13 @@ export class CommonDao<
 
   async requireById(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
     const r = await this.getById(id, opt)
-    if (!r) throw new Error(`DB record required, but not found: ${this.cfg.table}.${id}`)
+    if (!r) {
+      throw new AppError(`DB record required, but not found: ${this.cfg.table}.${id}`, {
+        code: DB_RECORD_REQUIRED,
+        table: this.cfg.table,
+        id,
+      })
+    }
     return r
   }
 
