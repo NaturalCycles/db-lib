@@ -13,7 +13,6 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { since } from '@naturalcycles/time-lib'
-import { DB_RECORD_REQUIRED } from './cnst'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,
@@ -28,6 +27,7 @@ import {
   SavedDBEntity,
 } from './db.model'
 import { DBQuery, RunnableDBQuery } from './dbQuery'
+import { DBLibError } from './index'
 import { CommonSchema } from './schema/common.schema'
 
 export enum CommonDaoLogLevel {
@@ -228,7 +228,7 @@ export class CommonDao<
     const r = await this.getById(id, opt)
     if (!r) {
       throw new AppError(`DB record required, but not found: ${this.cfg.table}.${id}`, {
-        code: DB_RECORD_REQUIRED,
+        code: DBLibError.DB_RECORD_REQUIRED,
         table: this.cfg.table,
         id,
       })

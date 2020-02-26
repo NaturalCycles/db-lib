@@ -2,7 +2,7 @@ import { CacheDB, CacheDBCfg } from './adapter/cachedb/cache.db'
 import { InMemoryDB, queryInMemory } from './adapter/inmemory/inMemory.db'
 import { NoOpDB } from './adapter/noop/noop.db'
 import { SimpleFileDB, SimpleFileDBCfg } from './adapter/simplefile/simpleFile.db'
-import { DB_RECORD_REQUIRED } from './cnst'
+import { DBLibError } from './cnst'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
 import {
@@ -136,5 +136,5 @@ export {
   CommonSchemaGenerator,
   CommonDBAdapter,
   getDB,
-  DB_RECORD_REQUIRED,
+  DBLibError,
 }
