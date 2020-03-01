@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/NaturalCycles/db-lib/compare/v3.12.0...v3.13.0) (2020-03-01)
+
+
+### Features
+
+* deps ([b0df3d1](https://github.com/NaturalCycles/db-lib/commit/b0df3d1030feba93c830637d92ccc0372baacac6))
+
 # [3.12.0](https://github.com/NaturalCycles/db-lib/compare/v3.11.1...v3.12.0) (2020-02-26)
 
 
