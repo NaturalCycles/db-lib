@@ -2,7 +2,7 @@
   "name": "@naturalcycles/db-lib",
   "scripts": {},
   "dependencies": {
-    "@naturalcycles/js-lib": "^8.2.1",
+    "@naturalcycles/js-lib": "^9.0.0",
     "@naturalcycles/nodejs-lib": "^7.0.0",
     "@naturalcycles/time-lib": "^1.4.3",
     "fs-extra": "^8.1.0",
