@@ -1,3 +1,10 @@
+# [3.14.0](https://github.com/NaturalCycles/db-lib/compare/v3.13.0...v3.14.0) (2020-03-16)
+
+
+### Features
+
+* CommonDaoOptions.raw, skipConversion ([f8ba2ef](https://github.com/NaturalCycles/db-lib/commit/f8ba2ef33f405868f6a9a1432c00c97e8c0702fc))
+
 # [3.13.0](https://github.com/NaturalCycles/db-lib/compare/v3.12.0...v3.13.0) (2020-03-01)
 
 
