@@ -14,7 +14,33 @@ import { CommonDB } from './common.db'
  * All properties default to undefined.
  */
 export interface CommonDaoOptions extends CommonDBOptions {
+  /**
+   * If true - will ignore the validation result, but will STILL DO the validation step, which will DO conversion
+   * (according to Joi schema).
+   *
+   * Set skipConversion=true (or raw=true) to bypass conversion step as well (e.g for performance reasons).
+   *
+   * @default false
+   */
   skipValidation?: boolean
+
+  /**
+   * If true - will SKIP the joi validation AND conversion steps alltogether. To improve performance of DAO.
+   *
+   * @default false
+   */
+  skipConversion?: boolean
+
+  /**
+   * If true - will SKIP ANY transformation/processing, will return DB objects as they are. Will also skip created/updated/id
+   * generation.
+   *
+   * Useful for performance/streaming/pipelines.
+   *
+   * @default false
+   */
+  raw?: boolean
+
   throwOnError?: boolean
   preserveUpdatedCreated?: boolean
 
