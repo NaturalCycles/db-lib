@@ -513,14 +513,14 @@
     rimraf "^2.5.2"
 
 "@naturalcycles/dev-lib@^10.0.0":
-  version "10.4.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-10.4.0.tgz#81a42c9164a5558d62148648f41253a377048e39"
-  integrity sha512-/OM6vUl88flf5IkCcoUCeJxoqTeD36gEKO08j5W8vAleCg+MEPwMRiHl1C/yljj84I21YlJbaemiwkWsfxUc6w==
+  version "10.5.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-10.5.1.tgz#734dddb047acee8efdf7a878f89c472cab4eb0ba"
+  integrity sha512-cjOB6oJsxI1Ni3ot7UXC65JkHzycA9ycO5sOA2JaYSOns4yyKgqT/uLazVEZ35pbQFNZoXFko3RF+F+Ic/ZyZA==
   dependencies:
     "@commitlint/cli" "^8.0.0"
     "@commitlint/config-conventional" "^8.0.0"
     "@naturalcycles/fs-lib" "^2.0.0"
-    "@naturalcycles/js-lib" "^9.0.0"
+    "@naturalcycles/js-lib" "^10.0.0"
     "@naturalcycles/nodejs-lib" "^7.0.0"
     "@naturalcycles/time-lib" "^1.5.0"
     "@types/fs-extra" "^8.0.0"
@@ -559,18 +559,23 @@
     move-file "^1.2.0"
     yargs "^15.1.0"
 
+"@naturalcycles/js-lib@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-10.0.0.tgz#4221e18fe2fc767514c8736f67f7a45129ce8152"
+  integrity sha512-uUyBRX9chqQda3o20VOzO/ub14/N1R2fw0kUuSfDo1U49sJ9cYc0K8CCe4n4EhcOKE9W1I21vbSHuTr+v4TUaw==
+
 "@naturalcycles/js-lib@^9.0.0":
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-9.0.1.tgz#2f473d1cc3c845c5ba3ac5e957cd8966586a1b72"
   integrity sha512-J9MKoelRZ+WDfoz2Ee80YMpkFItOWhRLbIntd0YVU2RhLnmY0divIkGXiXoVAHGiFFMl+WvGKpprEcxeaCCxAQ==
 
 "@naturalcycles/nodejs-lib@^7.0.0":
-  version "7.23.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-7.23.0.tgz#da4265f3d84ee14669edee415ba8a024df8191ba"
-  integrity sha512-SoDFttMt39lKbgD42MMz3MHerhx1XFrjzqfGKq6Cg+gAyLaXanI4B0R6Gwk6LfUFuWPyftMfe0cHBAsCmQGvag==
+  version "7.23.1"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-7.23.1.tgz#8be2dc5b2903abc3fbc70d05fc3f0a154582af34"
+  integrity sha512-jDWVCwIPB0hWvTOEymMWu1aLW0b5ejnCPTlvGjzMupRuEe3daKXR8t28jvnPR/nEvZX4Ml1ObczkJIyVkBVxsw==
   dependencies:
     "@hapi/joi" "^15.0.2"
-    "@naturalcycles/js-lib" "^9.0.0"
+    "@naturalcycles/js-lib" "^10.0.0"
     "@naturalcycles/time-lib" "^1.0.0"
     "@types/hapi__joi" "^15.0.1"
     "@types/lru-cache" "^5.1.0"
