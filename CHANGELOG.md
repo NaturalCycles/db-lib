@@ -1,3 +1,10 @@
+## [3.14.1](https://github.com/NaturalCycles/db-lib/compare/v3.14.0...v3.14.1) (2020-03-16)
+
+
+### Bug Fixes
+
+* bump js-lib ([7b14691](https://github.com/NaturalCycles/db-lib/commit/7b146919002ffb986d7a49b4f96b254c961967dd))
+
 # [3.14.0](https://github.com/NaturalCycles/db-lib/compare/v3.13.0...v3.14.0) (2020-03-16)
 
 
