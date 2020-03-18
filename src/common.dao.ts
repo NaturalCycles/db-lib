@@ -173,10 +173,11 @@ export class CommonDao<
   async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | undefined> {
     if (!id) return
     const op = `getById(${id})`
-    const started = this.logStarted(op)
-    const [dbm] = await this.cfg.db.getByIds<DBM>(this.cfg.table, [id])
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
-    this.logResult(started, op, bm)
+    this.logResult(started, op, bm, table)
     return bm
   }
 
@@ -197,45 +198,49 @@ export class CommonDao<
   async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | undefined> {
     if (!id) return
     const op = `getByIdAsDBM(${id})`
-    const started = this.logStarted(op)
-    let [dbm] = await this.cfg.db.getByIds<DBM>(this.cfg.table, [id])
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    let [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (!opt.raw) {
       dbm = this.anyToDBM(dbm, opt)
     }
-    this.logResult(started, op, dbm)
+    this.logResult(started, op, dbm, table)
     return dbm
   }
 
   async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | undefined> {
     if (!id) return
     const op = `getByIdAsTM(${id})`
-    const started = this.logStarted(op)
-    const [dbm] = await this.cfg.db.getByIds<DBM>(this.cfg.table, [id])
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (opt.raw) {
-      this.logResult(started, op, dbm)
+      this.logResult(started, op, dbm, table)
       return dbm as any
     }
     const bm = await this.dbmToBM(dbm, opt)
     const tm = await this.bmToTM(bm, opt)
-    this.logResult(started, op, tm)
+    this.logResult(started, op, tm, table)
     return tm
   }
 
   async getByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
-    const started = this.logStarted(op)
-    const dbms = await this.cfg.db.getByIds<DBM>(this.cfg.table, ids)
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
     const bms = opt.raw ? (dbms as any) : await this.dbmsToBM(dbms, opt)
-    this.logResult(started, op, bms)
+    this.logResult(started, op, bms, table)
     return bms
   }
 
-  async requireById(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+  async requireById(id: string, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
     const r = await this.getById(id, opt)
     if (!r) {
-      throw new AppError(`DB record required, but not found: ${this.cfg.table}.${id}`, {
+      const table = opt.table || this.cfg.table
+      throw new AppError(`DB record required, but not found: ${table}.${id}`, {
         code: DBLibError.DB_RECORD_REQUIRED,
-        table: this.cfg.table,
+        table,
         id,
       })
     }
@@ -276,11 +281,11 @@ export class CommonDao<
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQuery(${q.pretty()})`
-    const started = this.logStarted(op)
+    const started = this.logStarted(op, q.table)
     const { records, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
     const bms = partialQuery || opt.raw ? (records as any[]) : await this.dbmsToBM(records, opt)
-    this.logResult(started, op, bms)
+    this.logResult(started, op, bms, q.table)
     return {
       records: bms,
       ...queryResult,
@@ -297,20 +302,20 @@ export class CommonDao<
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQueryAsDBM(${q.pretty()})`
-    const started = this.logStarted(op)
+    const started = this.logStarted(op, q.table)
     const { records, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
     const dbms = partialQuery || opt.raw ? records : this.anyToDBMs(records, opt)
-    this.logResult(started, op, dbms)
+    this.logResult(started, op, dbms, q.table)
     return { records: (dbms as any) as OUT[], ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<number> {
+  async runQueryCount(q: DBQuery<BM, DBM, TM>, opt: CommonDaoOptions = {}): Promise<number> {
     const op = `runQueryCount(${q.pretty()})`
-    const started = this.logStarted(op)
+    const started = this.logStarted(op, q.table)
     const count = await this.cfg.db.runQueryCount(q, opt)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
     }
     return count
   }
@@ -325,7 +330,7 @@ export class CommonDao<
 
     const partialQuery = !!q._selectedFieldNames
     const op = `streamQueryForEach(${q.pretty()})`
-    const started = this.logStarted(op, true)
+    const started = this.logStarted(op, q.table, true)
     let count = 0
 
     await _pipeline([
@@ -344,7 +349,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
     }
   }
 
@@ -358,7 +363,7 @@ export class CommonDao<
 
     const partialQuery = !!q._selectedFieldNames
     const op = `streamQueryAsDBMForEach(${q.pretty()})`
-    const started = this.logStarted(op, true)
+    const started = this.logStarted(op, q.table, true)
     let count = 0
 
     await _pipeline([
@@ -373,7 +378,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
     }
   }
 
@@ -450,7 +455,7 @@ export class CommonDao<
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const op = `streamQueryIdsForEach(${q.pretty()})`
-    const started = this.logStarted(op, true)
+    const started = this.logStarted(op, q.table, true)
     let count = 0
 
     await _pipeline([
@@ -465,7 +470,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${this.cfg.table}.${op}: ${count} id(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} id(s) in ${since(started)}`)
     }
   }
 
@@ -484,13 +489,14 @@ export class CommonDao<
   async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     const dbm = await this.bmToDBM(bm, opt) // does assignIdCreatedUpdated
     const op = `save(${dbm.id})`
-    const started = this.logSaveStarted(op, bm)
-    await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
+    const table = opt.table || this.cfg.table
+    const started = this.logSaveStarted(op, bm, table)
+    await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
     const savedBM = await this.dbmToBM(dbm, opt)
-    this.logSaveResult(started, op)
+    this.logSaveResult(started, op, table)
     return savedBM
   }
 
@@ -501,12 +507,13 @@ export class CommonDao<
       dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
     }
     const op = `saveAsDBM(${dbm.id})`
-    const started = this.logSaveStarted(op, dbm)
-    await this.cfg.db.saveBatch(this.cfg.table, [dbm], {
+    const table = opt.table || this.cfg.table
+    const started = this.logSaveStarted(op, dbm, table)
+    await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
-    this.logSaveResult(started, op)
+    this.logSaveResult(started, op, table)
     return dbm
   }
 
@@ -519,13 +526,14 @@ export class CommonDao<
         .join(', '),
       50,
     )})`
-    const started = this.logSaveStarted(op, bms)
-    await this.cfg.db.saveBatch(this.cfg.table, dbms, {
+    const table = opt.table || this.cfg.table
+    const started = this.logSaveStarted(op, bms, table)
+    await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
     const savedBMs = await this.dbmsToBM(dbms, opt)
-    this.logSaveResult(started, op)
+    this.logSaveResult(started, op, table)
     return savedBMs
   }
 
@@ -540,14 +548,15 @@ export class CommonDao<
         .join(', '),
       50,
     )})`
-    const started = this.logSaveStarted(op, dbms)
+    const table = opt.table || this.cfg.table
+    const started = this.logSaveStarted(op, dbms, table)
 
-    await this.cfg.db.saveBatch(this.cfg.table, dbms, {
+    await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
 
-    this.logSaveResult(started, op)
+    this.logSaveResult(started, op, table)
     return dbms
   }
 
@@ -555,28 +564,30 @@ export class CommonDao<
   /**
    * @returns number of deleted items
    */
-  async deleteById(id?: string): Promise<number> {
+  async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     const op = `deleteById(${id})`
-    const started = this.logStarted(op)
-    const ids = await this.cfg.db.deleteByIds(this.cfg.table, [id])
-    this.logSaveResult(started, op)
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const ids = await this.cfg.db.deleteByIds(table, [id])
+    this.logSaveResult(started, op, table)
     return ids
   }
 
-  async deleteByIds(ids: string[]): Promise<number> {
+  async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
     const op = `deleteByIds(${ids.join(', ')})`
-    const started = this.logStarted(op)
-    const deletedIds = await this.cfg.db.deleteByIds(this.cfg.table, ids)
-    this.logSaveResult(started, op)
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const deletedIds = await this.cfg.db.deleteByIds(table, ids)
+    this.logSaveResult(started, op, table)
     return deletedIds
   }
 
   async deleteByQuery(q: DBQuery, opt?: CommonDaoOptions): Promise<number> {
     const op = `deleteByQuery(${q.pretty()})`
-    const started = this.logStarted(op)
+    const started = this.logStarted(op, q.table)
     const ids = await this.cfg.db.deleteByQuery(q, opt)
-    this.logSaveResult(started, op)
+    this.logSaveResult(started, op, q.table)
     return ids
   }
 
@@ -704,11 +715,8 @@ export class CommonDao<
     }
 
     // This will Convert and Validate
-    const { value, error } = getValidationResult<IN, OUT>(
-      obj,
-      schema,
-      this.cfg.table + (modelType || ''),
-    )
+    const table = opt.table || this.cfg.table
+    const { value, error } = getValidationResult<IN, OUT>(obj, schema, table + (modelType || ''))
 
     // If we care about validation and there's an error
     if (error && !opt.skipValidation) {
@@ -737,7 +745,7 @@ export class CommonDao<
     await this.cfg.db.createTable(schema, opt)
   }
 
-  protected logResult(started: number, op: string, res: any): void {
+  protected logResult(started: number, op: string, res: any, table: string): void {
     if (!this.cfg.logLevel) return
 
     let logRes: any
@@ -757,24 +765,24 @@ export class CommonDao<
       logRes = `undefined`
     }
 
-    log(...[`<< ${this.cfg.table}.${op}: ${logRes} in ${since(started)}`].concat(args))
+    log(...[`<< ${table}.${op}: ${logRes} in ${since(started)}`].concat(args))
   }
 
-  protected logSaveResult(started: number, op: string): void {
+  protected logSaveResult(started: number, op: string, table: string): void {
     if (!this.cfg.logLevel) return
-    log(`<< ${this.cfg.table}.${op} in ${since(started)}`)
+    log(`<< ${table}.${op} in ${since(started)}`)
   }
 
-  protected logStarted(op: string, force = false): number {
+  protected logStarted(op: string, table: string, force = false): number {
     if (this.cfg.logStarted || force) {
-      log(`>> ${this.cfg.table}.${op}`)
+      log(`>> ${table}.${op}`)
     }
     return Date.now()
   }
 
-  protected logSaveStarted(op: string, items: any): number {
+  protected logSaveStarted(op: string, items: any, table: string): number {
     if (this.cfg.logStarted) {
-      const args: any[] = [`>> ${this.cfg.table}.${op}`]
+      const args: any[] = [`>> ${table}.${op}`]
       if (Array.isArray(items)) {
         if (items.length && this.cfg.logLevel! >= CommonDaoLogLevel.DATA_FULL) {
           args.push('\n', ...items.slice(0, 10))

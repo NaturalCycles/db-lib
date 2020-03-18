@@ -50,6 +50,13 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * There is additional validation applied AFTER Anonymization, so your anonymization implementation should keep the object valid.
    */
   anonymize?: boolean
+
+  /**
+   * Allows to override the Table that this Dao is connected to, only in the context of this call.
+   *
+   * Useful e.g in AirtableDB where you can have one Dao to control multiple tables.
+   */
+  table?: string
 }
 
 /**
