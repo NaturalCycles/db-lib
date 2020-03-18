@@ -1,3 +1,10 @@
+# [3.15.0](https://github.com/NaturalCycles/db-lib/compare/v3.14.1...v3.15.0) (2020-03-18)
+
+
+### Features
+
+* CommonDaoOptions.table (override table) ([5f71c8f](https://github.com/NaturalCycles/db-lib/commit/5f71c8f20aa6d8a3ed1d29be8da1b810ee8ae4d2))
+
 ## [3.14.1](https://github.com/NaturalCycles/db-lib/compare/v3.14.0...v3.14.1) (2020-03-16)
 
 
