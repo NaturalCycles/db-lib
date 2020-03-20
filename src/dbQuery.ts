@@ -4,6 +4,7 @@ import { CommonDao } from './common.dao'
 import {
   BaseDBEntity,
   CommonDaoOptions,
+  CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
   RunQueryResult,
   Saved,
@@ -194,14 +195,14 @@ export class RunnableDBQuery<
 
   async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
     mapper: Mapper<OUT, void>,
-    opt?: CommonDaoStreamOptions,
+    opt?: CommonDaoStreamForEachOptions,
   ): Promise<void> {
     await this.dao.streamQueryForEach<IN, OUT>(this, mapper, opt)
   }
 
   async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
     mapper: Mapper<OUT, void>,
-    opt?: CommonDaoStreamOptions,
+    opt?: CommonDaoStreamForEachOptions,
   ): Promise<void> {
     await this.dao.streamQueryAsDBMForEach<IN, OUT>(this, mapper, opt)
   }
@@ -224,7 +225,7 @@ export class RunnableDBQuery<
 
   async streamQueryIdsForEach(
     mapper: Mapper<string, void>,
-    opt?: CommonDaoStreamOptions,
+    opt?: CommonDaoStreamForEachOptions,
   ): Promise<void> {
     await this.dao.streamQueryIdsForEach(this, mapper, opt)
   }
