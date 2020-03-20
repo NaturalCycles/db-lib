@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/NaturalCycles/db-lib/compare/v3.15.0...v3.15.1) (2020-03-20)
+
+
+### Bug Fixes
+
+* CommonDaoStreamOptions extended wrong interface ([8c7fda4](https://github.com/NaturalCycles/db-lib/commit/8c7fda44137c22d7f6ac4bc68ab29e7effd6acda))
+
 # [3.15.0](https://github.com/NaturalCycles/db-lib/compare/v3.14.1...v3.15.0) (2020-03-18)
 
 
