@@ -8,12 +8,15 @@
 
 # Supported databases
 
+- [x] InMemoryDB
+- [x] SimpleFileDB (persistence in local json files)
 - [x] [datastore-lib](https://github.com/NaturalCycles/datastore-lib) (GCP Datastore, or Firestore
       in Datastore mode)
 - [x] [firestore-lib](https://github.com/NaturalCycles/firestore-lib) (Firestore in Native mode)
 - [x] [mysql-lib](https://github.com/NaturalCycles/mysql-lib) (MySQL)
-- [x] redis-lib
-- [x] mongo-lib
+- [x] [redis-lib](https://github.com/NaturalCycles/redis-lib) (Redis)
+- [x] [mongo-lib](https://github.com/NaturalCycles/mongo-lib) (MongoDB)
+- [x] [airtable-lib](https://github.com/NaturalCycles/airtable-lib) (Airtable)
 
 # Features
 
@@ -53,7 +56,7 @@ Concerns of CommonDao:
 
 # Packaging
 
-- `engines.node >= 10.13`: Latest Node.js LTS
-- `main: dist/index.js`: commonjs, es2018
+- `engines.node >= LTS`
+- `main: dist/index.js`: commonjs, es2019
 - `types: dist/index.d.ts`: typescript types
 - `/src` folder with source `*.ts` files included
