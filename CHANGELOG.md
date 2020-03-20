@@ -1,3 +1,15 @@
+# [3.16.0](https://github.com/NaturalCycles/db-lib/compare/v3.15.3...v3.16.0) (2020-03-20)
+
+
+### Bug Fixes
+
+* remove DBQuery.name argument as it wasn't used ([0bd3e41](https://github.com/NaturalCycles/db-lib/commit/0bd3e4167b1eb52da24121789a8739b2351986cb))
+
+
+### Features
+
+* CommonDao.query table argument ([94613d3](https://github.com/NaturalCycles/db-lib/commit/94613d32a9f6b0b70c1da74e20d3ddc125f87166))
+
 ## [3.15.3](https://github.com/NaturalCycles/db-lib/compare/v3.15.2...v3.15.3) (2020-03-20)
 
 
