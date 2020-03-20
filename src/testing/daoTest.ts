@@ -102,7 +102,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   test('query even=true', async () => {
     let records = await dao
-      .query('only even')
+      .query()
       .filter('even', '=', true)
       .runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
@@ -116,7 +116,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   if (!allowQueryUnsorted) {
     test('query order by k1 desc', async () => {
       const records = await dao
-        .query('desc')
+        .query()
         .order('k1', true)
         .runQuery()
       expectMatch([...expectedItems].reverse(), records, opt)

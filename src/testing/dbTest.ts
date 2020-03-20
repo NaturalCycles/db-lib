@@ -41,7 +41,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   deepFreeze(items)
   const [item1] = items
 
-  const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'all')
+  const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE)
 
   // CREATE TABLE, DROP
   test('createTable, dropIfExists=true', async () => {
@@ -100,11 +100,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
   })
 
   test('query even=true', async () => {
-    const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'only even').filter(
-      'even',
-      '=',
-      true,
-    )
+    const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).filter('even', '=', true)
     let { records } = await db.runQuery(q)
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expectMatch(
@@ -116,7 +112,7 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   if (!allowQueryUnsorted) {
     test('query order by k1 desc', async () => {
-      const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE, 'desc').order('k1', true)
+      const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).order('k1', true)
       const { records } = await db.runQuery(q)
       expect(records).toEqual([...items].reverse())
     })

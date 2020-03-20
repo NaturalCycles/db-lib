@@ -51,7 +51,7 @@ export class DBQuery<
   DBM extends SavedDBEntity = Saved<BM>,
   TM = BM
 > {
-  constructor(public table: string, public name?: string) {}
+  constructor(public table: string) {}
 
   _filters: DBQueryFilter[] = []
   _limitValue = 0 // 0 means "no limit"
@@ -129,9 +129,9 @@ export class DBQuery<
   prettyConditions(): string[] {
     const tokens = []
 
-    if (this.name) {
-      tokens.push(`"${this.name}"`)
-    }
+    // if (this.name) {
+    //   tokens.push(`"${this.name}"`)
+    // }
 
     if (this._selectedFieldNames) {
       tokens.push(`select(${this._selectedFieldNames.join(',')})`)
@@ -169,8 +169,8 @@ export class RunnableDBQuery<
   DBM extends SavedDBEntity,
   TM
 > extends DBQuery<BM, DBM, TM> {
-  constructor(public dao: CommonDao<BM, DBM, TM>, name?: string) {
-    super(dao.cfg.table, name)
+  constructor(public dao: CommonDao<BM, DBM, TM>) {
+    super(dao.cfg.table)
   }
 
   async runQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<OUT[]> {

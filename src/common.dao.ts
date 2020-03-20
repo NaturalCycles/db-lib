@@ -268,8 +268,8 @@ export class CommonDao<
   }
 
   // QUERY
-  query(name?: string): RunnableDBQuery<BM, DBM, TM> {
-    return new RunnableDBQuery<BM, DBM, TM>(this, name)
+  query(): RunnableDBQuery<BM, DBM, TM> {
+    return new RunnableDBQuery<BM, DBM, TM>(this)
   }
 
   async runQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<OUT[]> {
