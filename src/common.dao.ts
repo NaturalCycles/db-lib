@@ -19,6 +19,7 @@ import {
   CommonDaoCreateOptions,
   CommonDaoOptions,
   CommonDaoSaveOptions,
+  CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
   DBModelType,
   ObjectWithId,
@@ -323,7 +324,7 @@ export class CommonDao<
   async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
     mapper: Mapper<OUT, void>,
-    opt: CommonDaoStreamOptions = {},
+    opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
@@ -356,7 +357,7 @@ export class CommonDao<
   async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
     q: DBQuery<BM, DBM, TM>,
     mapper: Mapper<OUT, void>,
-    opt: CommonDaoStreamOptions = {},
+    opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     if (opt.skipValidation === undefined) opt.skipValidation = true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
@@ -449,7 +450,7 @@ export class CommonDao<
   async streamQueryIdsForEach(
     q: DBQuery<BM, DBM>,
     mapper: Mapper<string, void>,
-    opt: CommonDaoStreamOptions = {},
+    opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
