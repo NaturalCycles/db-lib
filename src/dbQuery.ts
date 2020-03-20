@@ -169,8 +169,11 @@ export class RunnableDBQuery<
   DBM extends SavedDBEntity,
   TM
 > extends DBQuery<BM, DBM, TM> {
-  constructor(public dao: CommonDao<BM, DBM, TM>) {
-    super(dao.cfg.table)
+  /**
+   * Pass `table` to override table.
+   */
+  constructor(public dao: CommonDao<BM, DBM, TM>, table?: string) {
+    super(table || dao.cfg.table)
   }
 
   async runQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<OUT[]> {

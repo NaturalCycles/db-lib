@@ -268,8 +268,11 @@ export class CommonDao<
   }
 
   // QUERY
-  query(): RunnableDBQuery<BM, DBM, TM> {
-    return new RunnableDBQuery<BM, DBM, TM>(this)
+  /**
+   * Pass `table` to override table
+   */
+  query(table?: string): RunnableDBQuery<BM, DBM, TM> {
+    return new RunnableDBQuery<BM, DBM, TM>(this, table)
   }
 
   async runQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<OUT[]> {
