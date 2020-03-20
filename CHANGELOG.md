@@ -1,3 +1,10 @@
+## [3.15.3](https://github.com/NaturalCycles/db-lib/compare/v3.15.2...v3.15.3) (2020-03-20)
+
+
+### Bug Fixes
+
+* CommonDaoStreamForEachOptions for DBQuery ([c5631f2](https://github.com/NaturalCycles/db-lib/commit/c5631f217aa81dc8fb7e01f716ff5590db0320d7))
+
 ## [3.15.2](https://github.com/NaturalCycles/db-lib/compare/v3.15.1...v3.15.2) (2020-03-20)
 
 
