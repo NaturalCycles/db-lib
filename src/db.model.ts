@@ -2,7 +2,6 @@ import { ErrorMode } from '@naturalcycles/js-lib'
 import {
   objectSchema,
   stringSchema,
-  TransformLogProgressOptions,
   TransformMapOptions,
   unixTimestampSchema,
   verSchema,
@@ -64,10 +63,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
  */
 export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
 
-export interface CommonDaoStreamOptions
-  extends CommonDaoOptions,
-    TransformMapOptions,
-    TransformLogProgressOptions {
+export interface CommonDaoStreamOptions extends CommonDaoOptions, TransformMapOptions {
   /**
    * @default true (for streams)
    */
