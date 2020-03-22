@@ -47,10 +47,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // DELETE ALL initially
   test('deleteByIds test items', async () => {
-    const records = await dao
-      .query()
-      .select([])
-      .runQuery<ObjectWithId>()
+    const records = await dao.query().select([]).runQuery<ObjectWithId>()
     await db.deleteByIds(
       TEST_TABLE,
       records.map(i => i.id),
@@ -101,10 +98,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   })
 
   test('query even=true', async () => {
-    let records = await dao
-      .query()
-      .filter('even', '=', true)
-      .runQuery()
+    let records = await dao.query().filter('even', '=', true).runQuery()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expectMatch(
       expectedItems.filter(i => i.even),
@@ -115,19 +109,13 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   if (!allowQueryUnsorted) {
     test('query order by k1 desc', async () => {
-      const records = await dao
-        .query()
-        .order('k1', true)
-        .runQuery()
+      const records = await dao.query().order('k1', true).runQuery()
       expectMatch([...expectedItems].reverse(), records, opt)
     })
   }
 
   test('projection query with only ids', async () => {
-    let records = await dao
-      .query()
-      .select([])
-      .runQuery<ObjectWithId>()
+    let records = await dao.query().select([]).runQuery<ObjectWithId>()
     if (allowQueryUnsorted) records = _sortBy(records, 'id')
     expectMatch(
       expectedItems.map(item => _pick(item, ['id'])),
@@ -181,10 +169,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   // DELETE BY
   test('deleteByQuery even=false', async () => {
-    const deleted = await dao
-      .query()
-      .filter('even', '=', false)
-      .deleteByQuery()
+    const deleted = await dao.query().filter('even', '=', false).deleteByQuery()
     expect(deleted).toBe(items.filter(item => !item.even).length)
     if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
     expect(await dao.query().runQueryCount()).toBe(1)
@@ -192,10 +177,7 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
 
   test('cleanup', async () => {
     // CLEAN UP
-    const records = await dao
-      .query()
-      .select([])
-      .runQuery()
+    const records = await dao.query().select([]).runQuery()
     await db.deleteByIds(
       TEST_TABLE,
       records.map(i => i.id),
