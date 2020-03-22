@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/NaturalCycles/db-lib/compare/v3.16.0...v3.17.0) (2020-03-22)
+
+
+### Features
+
+* bump nodejs-lib (joi 17) ([294e5cc](https://github.com/NaturalCycles/db-lib/commit/294e5cc2ed20705a9e8f68fa0cfea37c1640351d))
+
 # [3.16.0](https://github.com/NaturalCycles/db-lib/compare/v3.15.3...v3.16.0) (2020-03-20)
 
 
