@@ -186,7 +186,7 @@ export class CommonDao<
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
-    return this.create(bmToCreate, opt)
+    return this.create({ ...bmToCreate, id }, opt)
   }
 
   async getByIdOrEmpty(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
@@ -537,7 +537,8 @@ export class CommonDao<
 
   async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
     const dbm =
-      (await this.getByIdAsDBM(id, opt)) || ((this.create(patch as BM, opt) as any) as DBM)
+      (await this.getByIdAsDBM(id, opt)) ||
+      ((this.create({ ...patch, id } as BM, opt) as any) as DBM)
 
     return await this.saveAsDBM(
       {
