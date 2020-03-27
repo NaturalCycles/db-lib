@@ -1,3 +1,10 @@
+# [3.18.0](https://github.com/NaturalCycles/db-lib/compare/v3.17.0...v3.18.0) (2020-03-27)
+
+
+### Features
+
+* CommonDao.patch(id: string, patch: Partial<BM>): BM ([eb42b72](https://github.com/NaturalCycles/db-lib/commit/eb42b72c5fb4520c9887a5103816d139ac41bbc6))
+
 # [3.17.0](https://github.com/NaturalCycles/db-lib/compare/v3.16.0...v3.17.0) (2020-03-22)
 
 
