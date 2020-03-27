@@ -196,6 +196,13 @@ export class CommonDao<
     return this.create({ id } as BM, opt)
   }
 
+  async getByIdAsDBMOrEmpty(id: string, opt?: CommonDaoOptions): Promise<DBM> {
+    const dbm = await this.getByIdAsDBM(id, opt)
+    if (dbm) return dbm
+
+    return this.create({ id } as BM, opt) as any
+  }
+
   async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | undefined> {
     if (!id) return
     const op = `getByIdAsDBM(${id})`
@@ -511,7 +518,9 @@ export class CommonDao<
   }
 
   /**
-   * Loads the record by id (MUST exist, otherwise error will be thrown).
+   * Loads the record by id.
+   * Creates the record (via this.create()) if it doesn't exist
+   * (this will cause a validation error if Patch has not enough data for the record to be valid).
    * Saves (as fast as possible) with the Patch applied.
    *
    * Convenience method to replace 3 operations (loading+patching+saving) with one.
@@ -519,7 +528,7 @@ export class CommonDao<
   async patch(id: string, patch: Partial<BM>, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     return await this.save(
       {
-        ...(await this.requireById(id, opt)),
+        ...(await this.getByIdOrCreate(id, patch as BM, opt)),
         ...patch,
       } as BM,
       opt,
@@ -527,9 +536,12 @@ export class CommonDao<
   }
 
   async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+    const dbm =
+      (await this.getByIdAsDBM(id, opt)) || ((this.create(patch as BM, opt) as any) as DBM)
+
     return await this.saveAsDBM(
       {
-        ...(await this.requireByIdAsDBM(id, opt)),
+        ...dbm,
         ...patch,
       },
       opt,
