@@ -238,14 +238,26 @@ export class CommonDao<
   async requireById(id: string, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
     const r = await this.getById(id, opt)
     if (!r) {
-      const table = opt.table || this.cfg.table
-      throw new AppError(`DB record required, but not found: ${table}.${id}`, {
-        code: DBLibError.DB_RECORD_REQUIRED,
-        table,
-        id,
-      })
+      this.throwRequiredError(id, opt)
     }
     return r
+  }
+
+  async requireByIdAsDBM(id: string, opt: CommonDaoOptions = {}): Promise<DBM> {
+    const r = await this.getByIdAsDBM(id, opt)
+    if (!r) {
+      this.throwRequiredError(id, opt)
+    }
+    return r
+  }
+
+  private throwRequiredError(id: string, opt: CommonDaoOptions): never {
+    const table = opt.table || this.cfg.table
+    throw new AppError(`DB record required, but not found: ${table}.${id}`, {
+      code: DBLibError.DB_RECORD_REQUIRED,
+      table,
+      id,
+    })
   }
 
   async getBy(by: string, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
@@ -496,6 +508,32 @@ export class CommonDao<
     const savedBM = await this.dbmToBM(dbm, opt)
     this.logSaveResult(started, op, table)
     return savedBM
+  }
+
+  /**
+   * Loads the record by id (MUST exist, otherwise error will be thrown).
+   * Saves (as fast as possible) with the Patch applied.
+   *
+   * Convenience method to replace 3 operations (loading+patching+saving) with one.
+   */
+  async patch(id: string, patch: Partial<BM>, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
+    return await this.save(
+      {
+        ...(await this.requireById(id, opt)),
+        ...patch,
+      } as BM,
+      opt,
+    )
+  }
+
+  async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+    return await this.saveAsDBM(
+      {
+        ...(await this.requireByIdAsDBM(id, opt)),
+        ...patch,
+      },
+      opt,
+    )
   }
 
   async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
