@@ -1,3 +1,10 @@
+## [3.18.1](https://github.com/NaturalCycles/db-lib/compare/v3.18.0...v3.18.1) (2020-03-27)
+
+
+### Bug Fixes
+
+* CommonDao.patch is forgiving to non-existing records ([fa97568](https://github.com/NaturalCycles/db-lib/commit/fa975681bc1e7991dd82db699a3a813985ebb1b4))
+
 # [3.18.0](https://github.com/NaturalCycles/db-lib/compare/v3.17.0...v3.18.0) (2020-03-27)
 
 
