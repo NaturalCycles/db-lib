@@ -1,3 +1,10 @@
+## [3.18.2](https://github.com/NaturalCycles/db-lib/compare/v3.18.1...v3.18.2) (2020-03-27)
+
+
+### Bug Fixes
+
+* correctly pass id in CommonDao.getByIdOrCreate ([a7a3009](https://github.com/NaturalCycles/db-lib/commit/a7a3009349696120ff937719386bd02129a468cf))
+
 ## [3.18.1](https://github.com/NaturalCycles/db-lib/compare/v3.18.0...v3.18.1) (2020-03-27)
 
 
