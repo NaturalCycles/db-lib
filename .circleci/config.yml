@@ -23,6 +23,7 @@ workflows:
               only: master
       - tools/build-job
       - tools/test-job
+      - tools/test-leaks-job
 
   nightly-workflow:
     triggers:
@@ -33,3 +34,4 @@ workflows:
               only: master
     jobs:
       - tools/nightly-job
+      - tools/test-leaks-job
