@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/NaturalCycles/db-lib/compare/v3.18.4...v3.19.0) (2020-03-31)
+
+
+### Features
+
+* validation schemas, exported from /validation ([68cc1fe](https://github.com/NaturalCycles/db-lib/commit/68cc1fe42baa4215fbffe55465a7f952de1de484))
+
 ## [3.18.4](https://github.com/NaturalCycles/db-lib/compare/v3.18.3...v3.18.4) (2020-03-31)
 
 
