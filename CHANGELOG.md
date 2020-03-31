@@ -1,3 +1,16 @@
+# [4.0.0](https://github.com/NaturalCycles/db-lib/compare/v3.19.0...v4.0.0) (2020-03-31)
+
+
+### Features
+
+* DBQuery.fromPlainObject ([0604626](https://github.com/NaturalCycles/db-lib/commit/0604626dfe201ac6cfa046f4b9891fa08b9a01f7))
+* export test utils as /testing ([77b0075](https://github.com/NaturalCycles/db-lib/commit/77b0075a3a4c0ab8a8b6b6722cb082281cd104e3))
+
+
+### BREAKING CHANGES
+
+* ^^^
+
 # [3.19.0](https://github.com/NaturalCycles/db-lib/compare/v3.18.4...v3.19.0) (2020-03-31)
 
 
