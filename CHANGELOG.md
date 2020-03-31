@@ -1,3 +1,10 @@
+## [3.18.4](https://github.com/NaturalCycles/db-lib/compare/v3.18.3...v3.18.4) (2020-03-31)
+
+
+### Bug Fixes
+
+* using native Readable.from() instead of readableFromArray() ([2de0d99](https://github.com/NaturalCycles/db-lib/commit/2de0d997ded9dd80b71b2073084370015be5a978))
+
 ## [3.18.3](https://github.com/NaturalCycles/db-lib/compare/v3.18.2...v3.18.3) (2020-03-31)
 
 
