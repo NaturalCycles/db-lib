@@ -53,6 +53,14 @@ export class DBQuery<
 > {
   constructor(public table: string) {}
 
+  static fromPlainObject<
+    BM extends BaseDBEntity = any,
+    DBM extends SavedDBEntity = Saved<BM>,
+    TM = BM
+  >(obj: Partial<DBQuery> & { table: string }): DBQuery<BM, DBM, TM> {
+    return Object.assign(new DBQuery<BM, DBM, TM>(obj.table), obj)
+  }
+
   _filters: DBQueryFilter[] = []
   _limitValue = 0 // 0 means "no limit"
   _offsetValue = 0 // 0 means "no offset"
