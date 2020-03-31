@@ -1,5 +1,6 @@
 import { memoFn } from '@naturalcycles/js-lib'
-import { secretOptional, white, yellow } from '@naturalcycles/nodejs-lib'
+import { secretOptional } from '@naturalcycles/nodejs-lib'
+import { white, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { CommonDB } from './common.db'
 import { CommonDBAdapter } from './db.model'
 

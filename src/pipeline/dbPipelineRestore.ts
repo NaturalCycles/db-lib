@@ -1,8 +1,5 @@
 import { ErrorMode, Mapper, passthroughMapper, pMap, _mapValues } from '@naturalcycles/js-lib'
 import {
-  boldWhite,
-  dimWhite,
-  grey,
   hb,
   NDJsonStats,
   transformBuffer,
@@ -16,9 +13,9 @@ import {
   transformSplit,
   transformTap,
   writableForEach,
-  yellow,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
+import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { createUnzip } from 'zlib'

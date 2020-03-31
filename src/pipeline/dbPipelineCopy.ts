@@ -1,8 +1,5 @@
 import { ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
 import {
-  boldWhite,
-  dimWhite,
-  grey,
   NDJsonStats,
   transformBuffer,
   transformLogProgress,
@@ -11,9 +8,9 @@ import {
   TransformMapOptions,
   transformTap,
   writableForEach,
-  yellow,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
+import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { dayjs } from '@naturalcycles/time-lib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../db.model'
