@@ -5,9 +5,10 @@ DEBUG=nc* yarn tsn ./scripts/ndjsonTest.script.ts
  */
 
 import { runScript } from '@naturalcycles/nodejs-lib/dist/script'
-import { createTestItemsDBM, dbPipelineBackup, SimpleFileDB, TEST_TABLE } from '../src'
+import { dbPipelineBackup, SimpleFileDB } from '../src'
 import { dbPipelineCopy, dbPipelineRestore } from '../src'
 import { tmpDir } from '../src/test/paths.cnst'
+import { createTestItemsDBM, TEST_TABLE } from '../src/testing'
 
 runScript(async () => {
   const fileDB1 = new SimpleFileDB({

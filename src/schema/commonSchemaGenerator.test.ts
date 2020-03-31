@@ -1,4 +1,4 @@
-import { createTestItemsDBM, getTestItemSchema, TEST_TABLE } from '..'
+import { createTestItemsDBM, getTestItemSchema, TEST_TABLE } from '../testing'
 import { CommonSchemaGenerator } from './commonSchemaGenerator'
 
 test('testItems', () => {

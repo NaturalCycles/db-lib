@@ -1,6 +1,6 @@
-import { createTestItemsDBM, TEST_TABLE } from '..'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { tmpDir } from '../test/paths.cnst'
+import { createTestItemsDBM, TEST_TABLE } from '../testing'
 import { dbPipelineBackup } from './dbPipelineBackup'
 
 test('dbPipelineSaveToNDJson', async () => {

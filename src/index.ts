@@ -50,22 +50,6 @@ import { dbPipelineCopy, DBPipelineCopyOptions } from './pipeline/dbPipelineCopy
 import { dbPipelineRestore, DBPipelineRestoreOptions } from './pipeline/dbPipelineRestore'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './schema/common.schema'
 import { CommonSchemaGenerator, CommonSchemaGeneratorCfg } from './schema/commonSchemaGenerator'
-import { runCommonDaoTest } from './testing/daoTest'
-import { CommonDBTestOptions, runCommonDBTest } from './testing/dbTest'
-import {
-  createTestItemBM,
-  createTestItemDBM,
-  createTestItemsBM,
-  createTestItemsDBM,
-  getTestItemSchema,
-  TestItemBM,
-  testItemBMSchema,
-  TestItemDBM,
-  testItemDBMSchema,
-  TestItemTM,
-  testItemTMSchema,
-  TEST_TABLE,
-} from './testing/test.model'
 
 export {
   DBQuery,
@@ -111,22 +95,6 @@ export {
   NoOpDB,
   SimpleFileDB,
   SimpleFileDBCfg,
-  // Testing
-  TEST_TABLE,
-  createTestItemDBM,
-  createTestItemBM,
-  createTestItemsDBM,
-  createTestItemsBM,
-  TestItemDBM,
-  TestItemBM,
-  TestItemTM,
-  testItemDBMSchema,
-  testItemBMSchema,
-  testItemTMSchema,
-  getTestItemSchema,
-  runCommonDBTest,
-  runCommonDaoTest,
-  CommonDBTestOptions,
   dbPipelineBackup,
   DBPipelineBackupOptions,
   dbPipelineRestore,
