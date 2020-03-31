@@ -1,5 +1,6 @@
 import { _pick } from '@naturalcycles/js-lib'
-import { Debug, readableFromArray, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { Debug, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { Readable } from 'stream'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -121,7 +122,7 @@ export class InMemoryDB implements CommonDB {
     q: DBQuery<any, DBM>,
     opt?: CommonDBOptions,
   ): ReadableTyped<OUT> {
-    return readableFromArray(queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
+    return Readable.from(queryInMemory<DBM, OUT>(q, Object.values(this.data[q.table] || {})))
   }
 }
 

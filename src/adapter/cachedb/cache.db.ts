@@ -1,4 +1,4 @@
-import { Debug, IDebugger, readableFromArray } from '@naturalcycles/nodejs-lib'
+import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
 import { CommonDB } from '../../common.db'
 import {
@@ -249,7 +249,7 @@ export class CacheDB implements CommonDB {
       return stream
     }
 
-    if (opt.skipCache || this.cfg.skipCache) return readableFromArray([])
+    if (opt.skipCache || this.cfg.skipCache) return Readable.from([])
 
     const stream = this.cfg.cacheDB.streamQuery<DBM>(q, opt)
 
