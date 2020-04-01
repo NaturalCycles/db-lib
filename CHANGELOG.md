@@ -1,3 +1,10 @@
+# [4.3.0](https://github.com/NaturalCycles/db-lib/compare/v4.2.0...v4.3.0) (2020-04-01)
+
+
+### Features
+
+* refactor CommonDBTestOptions ([c4b174b](https://github.com/NaturalCycles/db-lib/commit/c4b174b687b6387f6cac9622c222aaa3e6f5ffe7))
+
 # [4.2.0](https://github.com/NaturalCycles/db-lib/compare/v4.1.0...v4.2.0) (2020-04-01)
 
 
