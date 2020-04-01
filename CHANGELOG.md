@@ -1,3 +1,10 @@
+## [4.4.2](https://github.com/NaturalCycles/db-lib/compare/v4.4.1...v4.4.2) (2020-04-01)
+
+
+### Bug Fixes
+
+* experiment with package.json "exports" ([3b937a3](https://github.com/NaturalCycles/db-lib/commit/3b937a36cba2f0e481f9618d800dcb3583e9b4e9))
+
 ## [4.4.1](https://github.com/NaturalCycles/db-lib/compare/v4.4.0...v4.4.1) (2020-04-01)
 
 
