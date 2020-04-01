@@ -1,4 +1,4 @@
-import { InMemoryDB, queryInMemory } from './adapter/inmemory/inMemory.db'
+import { InMemoryDB, InMemoryDBCfg, queryInMemory } from './adapter/inmemory/inMemory.db'
 import { DBLibError } from './cnst'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
@@ -83,6 +83,7 @@ export {
   createdUpdatedFields,
   createdUpdatedIdFields,
   idField,
+  InMemoryDBCfg,
   InMemoryDB,
   queryInMemory,
   serializeJsonField,
