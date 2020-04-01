@@ -1,3 +1,10 @@
+# [4.4.0](https://github.com/NaturalCycles/db-lib/compare/v4.3.0...v4.4.0) (2020-04-01)
+
+
+### Features
+
+* CommonDaoCfg.readOnly ([f092665](https://github.com/NaturalCycles/db-lib/commit/f092665e68e6afbdc6212be48217a309811f6289))
+
 # [4.3.0](https://github.com/NaturalCycles/db-lib/compare/v4.2.0...v4.3.0) (2020-04-01)
 
 
