@@ -109,7 +109,6 @@ export function runCommonDaoTest(
   // GET not empty
   test('getByIds all items', async () => {
     const records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-    // if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
     expectMatch(expectedItems, records, quirks)
   })
 
@@ -118,14 +117,14 @@ export function runCommonDaoTest(
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let records = await dao.query().runQuery()
-      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      records = _sortBy(records, 'id')
       expectMatch(expectedItems, records, quirks)
     })
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
         let records = await dao.query().filter('even', '=', true).runQuery()
-        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        records = _sortBy(records, 'id')
         expectMatch(
           expectedItems.filter(i => i.even),
           records,
@@ -144,7 +143,7 @@ export function runCommonDaoTest(
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
         let records = await dao.query().select([]).runQuery<ObjectWithId>()
-        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        records = _sortBy(records, 'id')
         expectMatch(
           expectedItems.map(item => _pick(item, ['id'])),
           records,
@@ -164,22 +163,21 @@ export function runCommonDaoTest(
       let records: TestItemBM[] = []
       await dao.query().streamQueryForEach(bm => void records.push(bm))
 
-      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      records = _sortBy(records, 'id')
       expectMatch(expectedItems, records, quirks)
     })
 
     test('streamQuery all', async () => {
       let records = await streamMapToArray(dao.query().streamQuery())
 
-      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      records = _sortBy(records, 'id')
       expectMatch(expectedItems, records, quirks)
     })
 
     test('streamQueryIdsForEach all', async () => {
       let ids: string[] = []
       await dao.query().streamQueryIdsForEach(id => void ids.push(id))
-
-      if (!dbQueryOrder) ids = ids.sort()
+      ids = ids.sort()
       expectMatch(
         expectedItems.map(i => i.id),
         ids,
@@ -189,8 +187,7 @@ export function runCommonDaoTest(
 
     test('streamQueryIds all', async () => {
       let ids = await streamMapToArray(dao.query().streamQueryIds())
-
-      if (!dbQueryOrder) ids = ids.sort()
+      ids = ids.sort()
       expectMatch(
         expectedItems.map(i => i.id),
         ids,

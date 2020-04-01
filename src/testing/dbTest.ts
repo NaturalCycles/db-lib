@@ -139,7 +139,6 @@ export function runCommonDBTest(
   // GET not empty
   test('getByIds all items', async () => {
     const records = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
-    // if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
     expectMatch(items, records, quirks)
   })
 
@@ -148,7 +147,7 @@ export function runCommonDBTest(
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let { records } = await db.runQuery(queryAll())
-      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      records = _sortBy(records, 'id') // because query doesn't specify order here
       expectMatch(items, records, quirks)
     })
 
@@ -169,7 +168,7 @@ export function runCommonDBTest(
       test('query order by k1 desc', async () => {
         const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).order('k1', true)
         const { records } = await db.runQuery(q)
-        expect(records).toEqual([...items].reverse())
+        expectMatch([...items].reverse(), records, quirks)
       })
     }
 
@@ -177,7 +176,7 @@ export function runCommonDBTest(
       test('projection query with only ids', async () => {
         const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
         let { records } = await db.runQuery(q)
-        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        records = _sortBy(records, 'id') // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['id'])),
           records,
@@ -196,7 +195,7 @@ export function runCommonDBTest(
     test('streamQuery all', async () => {
       let records = await streamMapToArray(db.streamQuery(queryAll()))
 
-      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      records = _sortBy(records, 'id') // cause order is not specified in DBQuery
       expectMatch(items, records, quirks)
     })
   }
@@ -245,6 +244,9 @@ export function expectMatch(
   actual: any,
   quirks: CommonDBImplementationQuirks,
 ): void {
+  // const expectedSorted = sortObjectDeep(expected)
+  // const actualSorted = sortObjectDeep(actual)
+
   if (quirks.allowBooleansAsUndefined) {
     expected = (Array.isArray(expected) ? expected : [expected]).map(r =>
       filterObject(r, (_k, v) => v !== false),
