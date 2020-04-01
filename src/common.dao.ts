@@ -51,6 +51,12 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity
   excludeFromIndexes?: string[]
 
   /**
+   * @default to false
+   * Set to true to limit DB writing (will throw an error is such case).
+   */
+  readOnly?: boolean
+
+  /**
    * @default OPERATIONS
    */
   logLevel?: CommonDaoLogLevel
@@ -265,6 +271,18 @@ export class CommonDao<
       table,
       id,
     })
+  }
+
+  /**
+   * Throws if readOnly is true
+   */
+  private requireWriteAccess(): void {
+    if (this.cfg.readOnly) {
+      throw new AppError(DBLibError.DAO_IS_READ_ONLY, {
+        code: DBLibError.DAO_IS_READ_ONLY,
+        table: this.cfg.table,
+      })
+    }
   }
 
   async getBy(by: string, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
@@ -504,6 +522,7 @@ export class CommonDao<
 
   // SAVE
   async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
+    this.requireWriteAccess()
     const dbm = await this.bmToDBM(bm, opt) // does assignIdCreatedUpdated
     const op = `save(${dbm.id})`
     const table = opt.table || this.cfg.table
@@ -550,6 +569,7 @@ export class CommonDao<
   }
 
   async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+    this.requireWriteAccess()
     // assigning id in case it misses the id
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
@@ -567,6 +587,7 @@ export class CommonDao<
   }
 
   async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
+    this.requireWriteAccess()
     const dbms = await this.bmsToDBM(bms, opt)
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
@@ -587,6 +608,7 @@ export class CommonDao<
   }
 
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
+    this.requireWriteAccess()
     if (!opt.raw) {
       dbms = this.anyToDBMs(dbms, opt)
     }
@@ -615,6 +637,7 @@ export class CommonDao<
    */
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
+    this.requireWriteAccess()
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -624,6 +647,7 @@ export class CommonDao<
   }
 
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
+    this.requireWriteAccess()
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -633,6 +657,7 @@ export class CommonDao<
   }
 
   async deleteByQuery(q: DBQuery, opt?: CommonDaoOptions): Promise<number> {
+    this.requireWriteAccess()
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const ids = await this.cfg.db.deleteByQuery(q, opt)
@@ -791,6 +816,7 @@ export class CommonDao<
   }
 
   async createTable(schema: CommonSchema, opt?: CommonDaoCreateOptions): Promise<void> {
+    this.requireWriteAccess()
     await this.cfg.db.createTable(schema, opt)
   }
 
