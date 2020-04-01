@@ -1,29 +1,28 @@
 /*
 
-DEBUG=nc* yarn tsn ./scripts/ndjsonTest.script.ts
+DEBUG=nc* yarn tsn ndjsonTest.script.ts
 
  */
 
 import { runScript } from '@naturalcycles/nodejs-lib/dist/script'
-import { dbPipelineBackup, dbPipelineCopy, dbPipelineRestore } from '../src'
-import { SimpleFileDB } from '../src/adapter/simplefile'
+import { dbPipelineBackup, dbPipelineCopy, dbPipelineRestore, InMemoryDB } from '../src'
 import { tmpDir } from '../src/test/paths.cnst'
 import { createTestItemsDBM, TEST_TABLE } from '../src/testing'
 
 runScript(async () => {
-  const fileDB1 = new SimpleFileDB({
-    storageDir: `${tmpDir}/storage1`,
-    ndjson: true,
+  const fileDB1 = new InMemoryDB({
+    // persistenceEnabled: true,
+    // persistentStoragePath: `${tmpDir}/storage1`,
   })
 
-  const fileDB2 = new SimpleFileDB({
-    storageDir: `${tmpDir}/storage2`,
-    ndjson: true,
+  const fileDB2 = new InMemoryDB({
+    // persistenceEnabled: true,
+    // persistentStoragePath: `${tmpDir}/storage2`,
   })
 
-  const fileDB3 = new SimpleFileDB({
-    storageDir: `${tmpDir}/storage3`,
-    ndjson: true,
+  const fileDB3 = new InMemoryDB({
+    // persistenceEnabled: true,
+    // persistentStoragePath: `${tmpDir}/storage3`,
   })
 
   const items = createTestItemsDBM(30)
