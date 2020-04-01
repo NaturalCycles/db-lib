@@ -1,3 +1,11 @@
+# [4.2.0](https://github.com/NaturalCycles/db-lib/compare/v4.1.0...v4.2.0) (2020-04-01)
+
+
+### Features
+
+* InMemoryDB now supports disk persistence! ([2c96715](https://github.com/NaturalCycles/db-lib/commit/2c967158f0468677388b92602b920ad41ed293eb))
+* InMemoryDBCfg.tablesPrefix (namespacing feature) ([a1f55db](https://github.com/NaturalCycles/db-lib/commit/a1f55db8f630ef7f0c102efbb205187723a4a433))
+
 # [4.1.0](https://github.com/NaturalCycles/db-lib/compare/v4.0.0...v4.1.0) (2020-04-01)
 
 
