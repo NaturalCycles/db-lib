@@ -12,6 +12,8 @@ import { DBQuery } from '../../dbQuery'
 import { CommonSchema } from '../../schema/common.schema'
 
 export class NoOpDB implements CommonDB {
+  async ping(): Promise<void> {}
+
   async getTables(): Promise<string[]> {
     return []
   }

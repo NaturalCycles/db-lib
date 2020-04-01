@@ -1,5 +1,5 @@
 import { loadSecretsFromEnv } from '@naturalcycles/nodejs-lib'
-import { NoOpDB } from '../..'
+import { NoOpDB } from '.'
 import { getDB } from '../../getDB'
 
 test('getDB())', async () => {

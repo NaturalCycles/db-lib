@@ -1,7 +1,4 @@
-import { CacheDB, CacheDBCfg } from './adapter/cachedb/cache.db'
 import { InMemoryDB, queryInMemory } from './adapter/inmemory/inMemory.db'
-import { NoOpDB } from './adapter/noop/noop.db'
-import { SimpleFileDB, SimpleFileDBCfg } from './adapter/simplefile/simpleFile.db'
 import { DBLibError } from './cnst'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
@@ -90,11 +87,6 @@ export {
   queryInMemory,
   serializeJsonField,
   deserializeJsonField,
-  CacheDBCfg,
-  CacheDB,
-  NoOpDB,
-  SimpleFileDB,
-  SimpleFileDBCfg,
   dbPipelineBackup,
   DBPipelineBackupOptions,
   dbPipelineRestore,

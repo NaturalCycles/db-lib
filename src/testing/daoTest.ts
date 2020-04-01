@@ -41,6 +41,10 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
     updated: expect.any(Number),
   }))
 
+  test('ping', async () => {
+    await dao.ping()
+  })
+
   // CREATE TABLE, DROP
   test('createTable, dropIfExists=true', async () => {
     await dao.createTable(getTestItemSchema(), { dropIfExists: true })

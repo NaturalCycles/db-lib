@@ -794,6 +794,13 @@ export class CommonDao<
     await this.cfg.db.createTable(schema, opt)
   }
 
+  /**
+   * Proxy to this.cfg.db.ping
+   */
+  async ping(): Promise<void> {
+    await this.cfg.db.ping()
+  }
+
   protected logResult(started: number, op: string, res: any, table: string): void {
     if (!this.cfg.logLevel) return
 

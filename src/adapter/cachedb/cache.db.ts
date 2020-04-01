@@ -60,6 +60,10 @@ export class CacheDB implements CommonDB {
 
   log!: IDebugger
 
+  async ping(): Promise<void> {
+    await Promise.all([this.cfg.cacheDB.ping(), this.cfg.downstreamDB.ping()])
+  }
+
   /**
    * Resets InMemory DB data
    */

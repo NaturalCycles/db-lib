@@ -54,6 +54,19 @@ Concerns of CommonDao:
 - `nc:db-lib:commondao`
 - `nc:db-lib:inmemorydb`
 
+# Exports
+
+- `/` root
+- `/adapter/cachedb`
+- `/adapter/noop`
+- `/adapter/simplefile`
+- `/testing`
+  - dbTest
+  - daoTest
+  - Test models, utils, etc
+- `/validation`
+  - Joi validation schemas for DBQuery, CommonDBOptions, CommonSchema, etc
+
 # Packaging
 
 - `engines.node >= LTS`

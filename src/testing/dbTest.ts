@@ -43,6 +43,10 @@ export function runCommonDBTest(db: CommonDB, opt: CommonDBTestOptions = {}): vo
 
   const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE)
 
+  test('ping', async () => {
+    await db.ping()
+  })
+
   // CREATE TABLE, DROP
   test('createTable, dropIfExists=true', async () => {
     await db.createTable(getTestItemSchema(), { dropIfExists: true })

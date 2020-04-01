@@ -29,6 +29,8 @@ export class InMemoryDB implements CommonDB {
   // Table > id > row
   data: Record<string, Record<string, any>> = {}
 
+  async ping(): Promise<void> {}
+
   /**
    * Resets InMemory DB data
    */

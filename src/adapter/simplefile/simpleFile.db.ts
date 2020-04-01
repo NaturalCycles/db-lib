@@ -67,6 +67,8 @@ export class SimpleFileDB implements CommonDB {
 
   cache: Record<string, Record<string, any>> = {}
 
+  async ping(): Promise<void> {}
+
   async resetCache(table?: string): Promise<void> {
     if (table) {
       await this.saveTable(table, {})

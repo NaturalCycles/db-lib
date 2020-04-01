@@ -17,6 +17,14 @@ export interface CommonDB {
   resetCache(table?: string): Promise<void>
 
   /**
+   * Checks that connection/credentials/etc is ok.
+   * Also acts as a "warmup request" for a DB.
+   * It SHOULD fail if DB setup is wrong (e.g on wrong credentials).
+   * It SHOULD succeed if e.g getByIds(['nonExistingKey']) doesn't throw.
+   */
+  ping(): Promise<void>
+
+  /**
    * Return all tables (table names) available in this DB.
    */
   getTables(): Promise<string[]>
