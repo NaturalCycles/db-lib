@@ -1,3 +1,10 @@
+## [4.4.1](https://github.com/NaturalCycles/db-lib/compare/v4.4.0...v4.4.1) (2020-04-01)
+
+
+### Bug Fixes
+
+* dbTest, daoTest ([ddfa1f0](https://github.com/NaturalCycles/db-lib/commit/ddfa1f0c36bee414fa14a3e3ca84b461efd9c747))
+
 # [4.4.0](https://github.com/NaturalCycles/db-lib/compare/v4.3.0...v4.4.0) (2020-04-01)
 
 
