@@ -1,4 +1,5 @@
-import { InMemoryDB, InMemoryDBCfg, queryInMemory } from './adapter/inmemory/inMemory.db'
+import { InMemoryDB, InMemoryDBCfg } from './adapter/inmemory/inMemory.db'
+import { queryInMemory } from './adapter/inmemory/queryInMemory'
 import { DBLibError } from './cnst'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'

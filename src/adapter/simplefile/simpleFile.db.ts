@@ -2,6 +2,7 @@ import { by, sortObjectDeep } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
+import { queryInMemory } from '../..'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBCreateOptions,
@@ -13,7 +14,6 @@ import {
 import { DBQuery } from '../../dbQuery'
 import { CommonSchema } from '../../schema/common.schema'
 import { CommonSchemaGenerator } from '../../schema/commonSchemaGenerator'
-import { queryInMemory } from '../inmemory/inMemory.db'
 
 export interface SimpleFileDBCfg {
   /**

@@ -1,7 +1,19 @@
-import { _pick } from '@naturalcycles/js-lib'
-import { Debug, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { by, pMap, sortObjectDeep, StringMap, _pick } from '@naturalcycles/js-lib'
+import {
+  Debug,
+  ReadableTyped,
+  transformJsonParse,
+  transformSplit,
+  transformToNDJson,
+  writablePushToArray,
+  _pipeline,
+} from '@naturalcycles/nodejs-lib'
+import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
+import { since } from '@naturalcycles/time-lib'
+import * as fs from 'fs-extra'
 import { Readable } from 'stream'
-import { CommonDB } from '../..'
+import { createGzip, createUnzip } from 'zlib'
+import { CommonDB, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import {
@@ -11,7 +23,7 @@ import {
   RunQueryResult,
   SavedDBEntity,
 } from '../../db.model'
-import { DBQuery, DBQueryFilterOperator } from '../../dbQuery'
+import { DBQuery } from '../../dbQuery'
 
 export interface InMemoryDBCfg {
   /**
@@ -22,16 +34,27 @@ export interface InMemoryDBCfg {
    * Reset cache respects this prefix (won't touch other namespaces!)
    */
   tablesPrefix: string
-}
 
-type FilterFn = (v: any, val: any) => boolean
-const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
-  '=': (v, val) => v === val,
-  '<': (v, val) => v < val,
-  '<=': (v, val) => v <= val,
-  '>': (v, val) => v > val,
-  '>=': (v, val) => v >= val,
-  in: (v, val) => ((val as any[]) || []).includes(v),
+  /**
+   * @default false
+   *
+   * Set to true to enable disk persistence (!).
+   */
+  persistenceEnabled: boolean
+
+  /**
+   * @default ./tmp/inmemorydb
+   *
+   * Will store one ndjson file per table.
+   * Will only flush on demand (see .flushToDisk() and .restoreFromDisk() methods).
+   * Even if persistence is enabled - nothing is flushed or restored automatically.
+   */
+  persistentStoragePath: string
+
+  /**
+   * @default true
+   */
+  persistZip: boolean
 }
 
 const log = Debug('nc:db-lib:inmemorydb')
@@ -41,14 +64,25 @@ export class InMemoryDB implements CommonDB {
     this.cfg = {
       // defaults
       tablesPrefix: '',
+      persistenceEnabled: false,
+      persistZip: true,
+      persistentStoragePath: './tmp/inmemorydb',
       ...cfg,
     }
   }
 
   cfg: InMemoryDBCfg
 
-  // Table > id > row
-  data: Record<string, Record<string, any>> = {}
+  // data[table][id] > {id: 'a', created: ... }
+  data: StringMap<StringMap<SavedDBEntity>> = {}
+
+  /**
+   * Returns internal "Data snapshot".
+   * Deterministic - jsonSorted.
+   */
+  getDataSnapshot(): StringMap<StringMap<SavedDBEntity>> {
+    return sortObjectDeep(this.data)
+  }
 
   async ping(): Promise<void> {}
 
@@ -72,12 +106,9 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<DBM>(_table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<DBM extends SavedDBEntity>(_table: string): Promise<CommonSchema<DBM>> {
     const table = this.cfg.tablesPrefix + _table
-    return CommonSchemaGenerator.generateFromRows<DBM>(
-      { table },
-      Object.values(this.data[table] || {}),
-    )
+    return CommonSchemaGenerator.generateFromRows({ table }, Object.values(this.data[table] || {}))
   }
 
   async createTable(schema: CommonSchema, opt: CommonDBCreateOptions = {}): Promise<void> {
@@ -96,7 +127,7 @@ export class InMemoryDB implements CommonDB {
   ): Promise<DBM[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
-    return ids.map(id => this.data[table][id]).filter(Boolean)
+    return ids.map(id => this.data[table][id]).filter(Boolean) as DBM[]
   }
 
   async saveBatch<DBM extends SavedDBEntity>(
@@ -134,7 +165,7 @@ export class InMemoryDB implements CommonDB {
     opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
-    const rows = queryInMemory<DBM>(q, Object.values(this.data[table] || {}))
+    const rows = queryInMemory(q, Object.values(this.data[table] || {}) as DBM[])
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
@@ -144,7 +175,7 @@ export class InMemoryDB implements CommonDB {
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     const table = this.cfg.tablesPrefix + q.table
-    return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {})) }
+    return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {}) as DBM[]) }
   }
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
@@ -157,58 +188,81 @@ export class InMemoryDB implements CommonDB {
     opt?: CommonDBOptions,
   ): ReadableTyped<OUT> {
     const table = this.cfg.tablesPrefix + q.table
-    return Readable.from(queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {})))
+    return Readable.from(queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {}) as DBM[]))
   }
-}
 
-// Important: q.table is not used in this function, so tablesPrefix is not needed.
-// But should be careful here..
-export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
-  q: DBQuery<any, DBM>,
-  rows: DBM[] = [],
-): OUT[] {
-  // .filter
-  rows = q._filters.reduce((rows, filter) => {
-    return rows.filter(row => {
-      const fn = FILTER_FNS[filter.op]
-      if (!fn) throw new Error(`InMemoryDB query filter op not supported: ${filter.op}`)
-      return fn(row[filter.name], filter.val)
+  /**
+   * Flushes all tables (all namespaces) at once.
+   */
+  async flushToDisk(): Promise<void> {
+    if (!this.cfg.persistenceEnabled) {
+      throw new Error('flushToDisk() called but persistenceEnabled=false')
+    }
+    const { persistentStoragePath, persistZip } = this.cfg
+
+    const started = Date.now()
+
+    await fs.emptyDir(persistentStoragePath)
+
+    const transformZip = persistZip ? [createGzip()] : []
+    let tables = 0
+
+    // infinite concurrency for now
+    await pMap(Object.keys(this.data), async table => {
+      const rows = Object.values(this.data[table])
+      if (rows.length === 0) return // 0 rows
+
+      tables++
+      const fname = `${persistentStoragePath}/${table}.ndjson${persistZip ? '.gz' : ''}`
+
+      await _pipeline([
+        Readable.from(rows),
+        transformToNDJson(),
+        ...transformZip,
+        fs.createWriteStream(fname),
+      ])
     })
-  }, rows)
 
-  // .select(fieldNames)
-  if (q._selectedFieldNames) {
-    rows = rows.map(
-      row =>
-        _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : (['id'] as any)) as DBM,
-    )
+    log(`flushToDisk took ${dimGrey(since(started))} to save ${yellow(tables)} tables`)
   }
 
-  // todo: only one order is supported (first)
-  const [order] = q._orders
-  if (order) {
-    const { name, descending } = order
-    rows = rows.sort((a, b) => {
-      // tslint:disable-next-line:triple-equals
-      if (a[name] == b[name]) return 0
+  /**
+   * Restores all tables (all namespaces) at once.
+   */
+  async restoreFromDisk(): Promise<void> {
+    if (!this.cfg.persistentStoragePath) {
+      throw new Error('restoreFromDisk() called but persistenceEnabled=false')
+    }
+    const { persistentStoragePath } = this.cfg
 
-      if (descending) {
-        return a[name] < b[name] ? 1 : -1
-      } else {
-        return a[name] > b[name] ? 1 : -1
-      }
+    const started = Date.now()
+
+    await fs.ensureDir(persistentStoragePath)
+
+    this.data = {} // empty it in the beginning!
+
+    const files = (await fs.readdir(persistentStoragePath)).filter(f => f.includes('.ndjson'))
+
+    // infinite concurrency for now
+    await pMap(files, async file => {
+      const fname = `${persistentStoragePath}/${file}`
+      const [table] = file.split('.ndjson')
+
+      const transformUnzip = file.endsWith('.gz') ? [createUnzip()] : []
+
+      const rows: any[] = []
+
+      await _pipeline([
+        fs.createReadStream(fname),
+        ...transformUnzip,
+        transformSplit(), // splits by \n
+        transformJsonParse(),
+        writablePushToArray(rows),
+      ])
+
+      this.data[table] = by(rows, r => r.id)
     })
-  }
 
-  // .offset()
-  if (q._offsetValue) {
-    rows = rows.slice(q._offsetValue)
+    log(`restoreFromDisk took ${dimGrey(since(started))} to read ${yellow(files.length)} tables`)
   }
-
-  // .limit()
-  if (q._limitValue) {
-    rows = rows.slice(0, Math.min(q._limitValue, rows.length))
-  }
-
-  return (rows as any) as OUT[]
 }
