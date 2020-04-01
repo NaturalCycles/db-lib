@@ -1,5 +1,9 @@
 import { runCommonDaoTest } from './daoTest'
-import { CommonDBTestOptions, runCommonDBTest } from './dbTest'
+import {
+  CommonDBImplementationFeatures,
+  CommonDBImplementationQuirks,
+  runCommonDBTest,
+} from './dbTest'
 import {
   createTestItemBM,
   createTestItemDBM,
@@ -31,5 +35,6 @@ export {
   getTestItemSchema,
   runCommonDBTest,
   runCommonDaoTest,
-  CommonDBTestOptions,
+  CommonDBImplementationFeatures,
+  CommonDBImplementationQuirks,
 }

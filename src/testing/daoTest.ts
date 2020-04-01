@@ -4,7 +4,7 @@ import { getTestItemSchema, TestItemBM } from '.'
 import { ObjectWithId } from '..'
 import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
-import { CommonDBTestOptions, expectMatch } from './dbTest'
+import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
   createTestItemsBM,
   testItemBMSchema,
@@ -14,7 +14,11 @@ import {
 } from './test.model'
 import { deepFreeze } from './test.util'
 
-export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): void {
+export function runCommonDaoTest(
+  db: CommonDB,
+  features: CommonDBImplementationFeatures = {},
+  quirks: CommonDBImplementationQuirks = {},
+): void {
   const dao = new CommonDao({
     table: TEST_TABLE,
     db,
@@ -26,11 +30,22 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   })
 
   const {
-    allowQueryUnsorted,
-    allowGetByIdsUnsorted,
-    allowStreamQueryToBeUnsorted,
-    eventualConsistencyDelay,
-  } = opt
+    querying = true,
+    // tableSchemas = true,
+    createTable = true,
+    dbQueryFilter = true,
+    // dbQueryFilterIn = true,
+    dbQueryOrder = true,
+    dbQuerySelectFields = true,
+    streaming = true,
+    strongConsistency = true,
+  } = features
+
+  const {
+    // allowExtraPropertiesInResponse,
+    // allowBooleansAsUndefined,
+  } = quirks
+  const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
 
   const items = createTestItemsBM(3)
   deepFreeze(items)
@@ -46,25 +61,29 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   })
 
   // CREATE TABLE, DROP
-  test('createTable, dropIfExists=true', async () => {
-    await dao.createTable(getTestItemSchema(), { dropIfExists: true })
-  })
+  if (createTable) {
+    test('createTable, dropIfExists=true', async () => {
+      await dao.createTable(getTestItemSchema(), { dropIfExists: true })
+    })
+  }
 
-  // DELETE ALL initially
-  test('deleteByIds test items', async () => {
-    const records = await dao.query().select([]).runQuery<ObjectWithId>()
-    await db.deleteByIds(
-      TEST_TABLE,
-      records.map(i => i.id),
-    )
-  })
+  if (querying) {
+    // DELETE ALL initially
+    test('deleteByIds test items', async () => {
+      const records = await dao.query().select([]).runQuery<ObjectWithId>()
+      await db.deleteByIds(
+        TEST_TABLE,
+        records.map(i => i.id),
+      )
+    })
 
-  // QUERY empty
-  test('runQuery(all), runQueryCount should return empty', async () => {
-    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-    expect(await dao.query().runQuery()).toEqual([])
-    expect(await dao.query().runQueryCount()).toEqual(0)
-  })
+    // QUERY empty
+    test('runQuery(all), runQueryCount should return empty', async () => {
+      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
+      expect(await dao.query().runQuery()).toEqual([])
+      expect(await dao.query().runQueryCount()).toEqual(0)
+    })
+  }
 
   // GET empty
   test('getByIds(item1.id) should return empty', async () => {
@@ -84,108 +103,118 @@ export function runCommonDaoTest(db: CommonDB, opt: CommonDBTestOptions = {}): v
   // SAVE
   test('saveBatch test items', async () => {
     const itemsSaved = await dao.saveBatch(items)
-    expectMatch(expectedItems, itemsSaved, opt)
+    expectMatch(expectedItems, itemsSaved, quirks)
   })
 
   // GET not empty
   test('getByIds all items', async () => {
-    let records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-    if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
-    expectMatch(expectedItems, records, opt)
+    const records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
+    // if (allowGetByIdsUnsorted) records = _sortBy(records, 'id')
+    expectMatch(expectedItems, records, quirks)
   })
 
   // QUERY
-  test('runQuery(all) should return all items', async () => {
-    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-    let records = await dao.query().runQuery()
-    if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expectMatch(expectedItems, records, opt)
-  })
+  if (querying) {
+    test('runQuery(all) should return all items', async () => {
+      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
+      let records = await dao.query().runQuery()
+      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      expectMatch(expectedItems, records, quirks)
+    })
 
-  test('query even=true', async () => {
-    let records = await dao.query().filter('even', '=', true).runQuery()
-    if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expectMatch(
-      expectedItems.filter(i => i.even),
-      records,
-      opt,
-    )
-  })
+    if (dbQueryFilter) {
+      test('query even=true', async () => {
+        let records = await dao.query().filter('even', '=', true).runQuery()
+        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        expectMatch(
+          expectedItems.filter(i => i.even),
+          records,
+          quirks,
+        )
+      })
+    }
 
-  if (!allowQueryUnsorted) {
-    test('query order by k1 desc', async () => {
-      const records = await dao.query().order('k1', true).runQuery()
-      expectMatch([...expectedItems].reverse(), records, opt)
+    if (dbQueryOrder) {
+      test('query order by k1 desc', async () => {
+        const records = await dao.query().order('k1', true).runQuery()
+        expectMatch([...expectedItems].reverse(), records, quirks)
+      })
+    }
+
+    if (dbQuerySelectFields) {
+      test('projection query with only ids', async () => {
+        let records = await dao.query().select([]).runQuery<ObjectWithId>()
+        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        expectMatch(
+          expectedItems.map(item => _pick(item, ['id'])),
+          records,
+          quirks,
+        )
+      })
+    }
+
+    test('runQueryCount should return 3', async () => {
+      expect(await dao.query().runQueryCount()).toBe(3)
     })
   }
 
-  test('projection query with only ids', async () => {
-    let records = await dao.query().select([]).runQuery<ObjectWithId>()
-    if (allowQueryUnsorted) records = _sortBy(records, 'id')
-    expectMatch(
-      expectedItems.map(item => _pick(item, ['id'])),
-      records,
-      opt,
-    )
-  })
-
-  test('runQueryCount should return 3', async () => {
-    expect(await dao.query().runQueryCount()).toBe(3)
-  })
-
   // STREAM
-  test('streamQueryForEach all', async () => {
-    let records: TestItemBM[] = []
-    await dao.query().streamQueryForEach(bm => void records.push(bm))
+  if (streaming) {
+    test('streamQueryForEach all', async () => {
+      let records: TestItemBM[] = []
+      await dao.query().streamQueryForEach(bm => void records.push(bm))
 
-    if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expectMatch(expectedItems, records, opt)
-  })
+      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      expectMatch(expectedItems, records, quirks)
+    })
 
-  test('streamQuery all', async () => {
-    let records = await streamMapToArray(dao.query().streamQuery())
+    test('streamQuery all', async () => {
+      let records = await streamMapToArray(dao.query().streamQuery())
 
-    if (allowStreamQueryToBeUnsorted) records = _sortBy(records, 'id')
-    expectMatch(expectedItems, records, opt)
-  })
+      if (!dbQueryOrder) records = _sortBy(records, 'id')
+      expectMatch(expectedItems, records, quirks)
+    })
 
-  test('streamQueryIdsForEach all', async () => {
-    let ids: string[] = []
-    await dao.query().streamQueryIdsForEach(id => void ids.push(id))
+    test('streamQueryIdsForEach all', async () => {
+      let ids: string[] = []
+      await dao.query().streamQueryIdsForEach(id => void ids.push(id))
 
-    if (allowStreamQueryToBeUnsorted) ids = ids.sort()
-    expectMatch(
-      expectedItems.map(i => i.id),
-      ids,
-      opt,
-    )
-  })
+      if (!dbQueryOrder) ids = ids.sort()
+      expectMatch(
+        expectedItems.map(i => i.id),
+        ids,
+        quirks,
+      )
+    })
 
-  test('streamQueryIds all', async () => {
-    let ids = await streamMapToArray(dao.query().streamQueryIds())
+    test('streamQueryIds all', async () => {
+      let ids = await streamMapToArray(dao.query().streamQueryIds())
 
-    if (allowStreamQueryToBeUnsorted) ids = ids.sort()
-    expectMatch(
-      expectedItems.map(i => i.id),
-      ids,
-      opt,
-    )
-  })
+      if (!dbQueryOrder) ids = ids.sort()
+      expectMatch(
+        expectedItems.map(i => i.id),
+        ids,
+        quirks,
+      )
+    })
+  }
 
   // DELETE BY
-  test('deleteByQuery even=false', async () => {
-    const deleted = await dao.query().filter('even', '=', false).deleteByQuery()
-    expect(deleted).toBe(items.filter(item => !item.even).length)
-    if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-    expect(await dao.query().runQueryCount()).toBe(1)
-  })
+  if (querying) {
+    test('deleteByQuery even=false', async () => {
+      const deleted = await dao.query().filter('even', '=', false).deleteByQuery()
+      expect(deleted).toBe(items.filter(item => !item.even).length)
+      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
+      expect(await dao.query().runQueryCount()).toBe(1)
+    })
 
-  test('cleanup', async () => {
-    // CLEAN UP
-    const records = await dao.query().select([]).runQuery()
-    await db.deleteByIds(
-      TEST_TABLE,
-      records.map(i => i.id),
-    )
-  })
+    test('cleanup', async () => {
+      // CLEAN UP
+      const records = await dao.query().select([]).runQuery()
+      await db.deleteByIds(
+        TEST_TABLE,
+        records.map(i => i.id),
+      )
+    })
+  }
 }
