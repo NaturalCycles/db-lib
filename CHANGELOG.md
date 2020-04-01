@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/NaturalCycles/db-lib/compare/v4.0.0...v4.1.0) (2020-04-01)
+
+
+### Features
+
+* CommonDB.ping(), export adapters separately ([5b98697](https://github.com/NaturalCycles/db-lib/commit/5b9869713f720598515cc63983bc44a726f1d481))
+
 # [4.0.0](https://github.com/NaturalCycles/db-lib/compare/v3.19.0...v4.0.0) (2020-03-31)
 
 
