@@ -25,6 +25,13 @@
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "dist/index.js",
+    "./testing": "dist/testing/index.js",
+    "./validation": "dist/validation/index.js",
+    "./adapter/cachedb": "dist/adapter/cachedb/index.js",
+    "./adapter/noop": "dist/adapter/noop/index.js"
+  },
   "publishConfig": {
     "access": "public"
   },
@@ -49,6 +56,7 @@
     "firestore",
     "mysql"
   ],
+  "type": "commonjs",
   "author": "Natural Cycles Team",
   "license": "MIT"
 }

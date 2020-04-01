@@ -59,7 +59,6 @@ Concerns of CommonDao:
 - `/` root
 - `/adapter/cachedb`
 - `/adapter/noop`
-- `/adapter/simplefile`
 - `/testing`
   - dbTest
   - daoTest
