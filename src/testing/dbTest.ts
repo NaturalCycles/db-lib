@@ -187,7 +187,7 @@ export function runCommonDBTest(
       test('projection query without ids', async () => {
         const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select(['k1'])
         let { records } = await db.runQuery(q)
-        records = _sortBy(records, 'id') // cause order is not specified
+        records = _sortBy(records, 'k1') // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['k1'])),
           records,
