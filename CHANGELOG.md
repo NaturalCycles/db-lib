@@ -1,3 +1,10 @@
+## [4.4.3](https://github.com/NaturalCycles/db-lib/compare/v4.4.2...v4.4.3) (2020-04-11)
+
+
+### Bug Fixes
+
+* projection queries don't default to ['id'] now ([ca076c3](https://github.com/NaturalCycles/db-lib/commit/ca076c30275779eb04e7c3958eaee3fa9463cec4))
+
 ## [4.4.2](https://github.com/NaturalCycles/db-lib/compare/v4.4.1...v4.4.2) (2020-04-01)
 
 
