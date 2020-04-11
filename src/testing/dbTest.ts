@@ -101,7 +101,7 @@ export function runCommonDBTest(
   if (querying) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
-      const { records } = await db.runQuery(queryAll().select([]))
+      const { records } = await db.runQuery(queryAll().select(['id']))
       await db.deleteByIds(
         TEST_TABLE,
         records.map(i => i.id),
@@ -251,7 +251,7 @@ export function runCommonDBTest(
   if (querying) {
     test('cleanup', async () => {
       // CLEAN UP
-      const { records } = await db.runQuery(queryAll().select([]))
+      const { records } = await db.runQuery(queryAll().select(['id']))
       await db.deleteByIds(
         TEST_TABLE,
         records.map(i => i.id),

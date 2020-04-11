@@ -70,7 +70,7 @@ export function runCommonDaoTest(
   if (querying) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
-      const records = await dao.query().select([]).runQuery<ObjectWithId>()
+      const records = await dao.query().select(['id']).runQuery<ObjectWithId>()
       await db.deleteByIds(
         TEST_TABLE,
         records.map(i => i.id),
@@ -207,7 +207,7 @@ export function runCommonDaoTest(
 
     test('cleanup', async () => {
       // CLEAN UP
-      const records = await dao.query().select([]).runQuery()
+      const records = await dao.query().select(['id']).runQuery()
       await db.deleteByIds(
         TEST_TABLE,
         records.map(i => i.id),
