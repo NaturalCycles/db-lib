@@ -29,10 +29,7 @@ export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
 
   // .select(fieldNames)
   if (q._selectedFieldNames) {
-    rows = rows.map(
-      row =>
-        _pick(row, q._selectedFieldNames!.length ? q._selectedFieldNames : (['id'] as any)) as DBM,
-    )
+    rows = rows.map(row => _pick(row, q._selectedFieldNames as any[]))
   }
 
   // todo: only one order is supported (first)

@@ -174,11 +174,32 @@ export function runCommonDBTest(
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
+        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select(['id'])
         let { records } = await db.runQuery(q)
         records = _sortBy(records, 'id') // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['id'])),
+          records,
+          quirks,
+        )
+      })
+
+      test('projection query without ids', async () => {
+        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select(['k1'])
+        let { records } = await db.runQuery(q)
+        records = _sortBy(records, 'id') // cause order is not specified
+        expectMatch(
+          items.map(item => _pick(item, ['k1'])),
+          records,
+          quirks,
+        )
+      })
+
+      test('projection query empty fields (edge case)', async () => {
+        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
+        const { records } = await db.runQuery(q)
+        expectMatch(
+          items.map(() => ({})),
           records,
           quirks,
         )

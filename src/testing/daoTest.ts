@@ -142,7 +142,7 @@ export function runCommonDaoTest(
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
-        let records = await dao.query().select([]).runQuery<ObjectWithId>()
+        let records = await dao.query().select(['id']).runQuery<ObjectWithId>()
         records = _sortBy(records, 'id')
         expectMatch(
           expectedItems.map(item => _pick(item, ['id'])),
