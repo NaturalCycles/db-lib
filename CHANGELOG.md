@@ -1,3 +1,10 @@
+## [4.4.4](https://github.com/NaturalCycles/db-lib/compare/v4.4.3...v4.4.4) (2020-04-11)
+
+
+### Bug Fixes
+
+* dbTest select(['id']) ([ef98126](https://github.com/NaturalCycles/db-lib/commit/ef98126c044fdf8c71aef1ec4b28c5009f99052b))
+
 ## [4.4.3](https://github.com/NaturalCycles/db-lib/compare/v4.4.2...v4.4.3) (2020-04-11)
 
 
