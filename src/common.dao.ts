@@ -1,4 +1,4 @@
-import { AppError, ErrorMode, Mapper, _truncate } from '@naturalcycles/js-lib'
+import { AppError, ErrorMode, Mapper, since, _truncate } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -12,7 +12,6 @@ import {
   writableForEach,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
-import { since } from '@naturalcycles/time-lib'
 import { CommonDB } from './common.db'
 import {
   BaseDBEntity,

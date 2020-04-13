@@ -1,6 +1,5 @@
-import { ErrorMode, Mapper, passthroughMapper, pMap, _mapValues } from '@naturalcycles/js-lib'
+import { ErrorMode, hb, Mapper, passthroughMapper, pMap, _mapValues } from '@naturalcycles/js-lib'
 import {
-  hb,
   NDJsonStats,
   transformBuffer,
   transformFilter,
