@@ -1,4 +1,4 @@
-import { AppError, ErrorMode, Mapper, since, _truncate } from '@naturalcycles/js-lib'
+import { AppError, ErrorMode, Mapper, _since, _truncate } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -349,7 +349,7 @@ export class CommonDao<
     const started = this.logStarted(op, q.table)
     const count = await this.cfg.db.runQueryCount(q, opt)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
     return count
   }
@@ -383,7 +383,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
   }
 
@@ -412,7 +412,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
   }
 
@@ -504,7 +504,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} id(s) in ${since(started)}`)
+      log(`<< ${q.table}.${op}: ${count} id(s) in ${_since(started)}`)
     }
   }
 
@@ -846,12 +846,12 @@ export class CommonDao<
       logRes = `undefined`
     }
 
-    log(...[`<< ${table}.${op}: ${logRes} in ${since(started)}`].concat(args))
+    log(...[`<< ${table}.${op}: ${logRes} in ${_since(started)}`].concat(args))
   }
 
   protected logSaveResult(started: number, op: string, table: string): void {
     if (!this.cfg.logLevel) return
-    log(`<< ${table}.${op} in ${since(started)}`)
+    log(`<< ${table}.${op} in ${_since(started)}`)
   }
 
   protected logStarted(op: string, table: string, force = false): number {

@@ -1,4 +1,4 @@
-import { AppError, ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
+import { AppError, ErrorMode, Mapper, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformLogProgress,
@@ -193,7 +193,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
           ...opt,
           metric: table,
         }),
-        transformMap(mapperPerTable[table] || passthroughMapper, {
+        transformMap(mapperPerTable[table] || _passthroughMapper, {
           errorMode,
           flattenArrayOutput: true,
           ...transformMapOptions,

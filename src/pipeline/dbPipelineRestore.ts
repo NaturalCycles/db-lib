@@ -1,4 +1,4 @@
-import { ErrorMode, hb, Mapper, passthroughMapper, pMap, _mapValues } from '@naturalcycles/js-lib'
+import { ErrorMode, Mapper, pMap, _hb, _mapValues, _passthroughMapper } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -153,7 +153,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
   })
 
-  const sizeStrByTable = _mapValues(sizeByTable, b => hb(b))
+  const sizeStrByTable = _mapValues(sizeByTable, b => _hb(b))
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n`, sizeStrByTable)
 
@@ -184,7 +184,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
 
       const sizeBytes = sizeByTable[table]
 
-      console.log(`<< ${grey(filePath)} ${dimWhite(hb(sizeBytes))} started...`)
+      console.log(`<< ${grey(filePath)} ${dimWhite(_hb(sizeBytes))} started...`)
 
       await _pipeline([
         fs.createReadStream(filePath),
@@ -199,7 +199,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         }),
         transformLimit(limit),
         ...(sinceUpdated ? [transformFilter<SavedDBEntity>(r => r.updated >= sinceUpdated)] : []),
-        transformMap(mapperPerTable[table] || passthroughMapper, {
+        transformMap(mapperPerTable[table] || _passthroughMapper, {
           errorMode,
           flattenArrayOutput: true,
           ...transformMapOptions,

@@ -1,4 +1,4 @@
-import { by, pMap, since, sortObjectDeep, StringMap } from '@naturalcycles/js-lib'
+import { pMap, StringMap, _by, _since, _sortObjectDeep } from '@naturalcycles/js-lib'
 import {
   Debug,
   ReadableTyped,
@@ -80,7 +80,7 @@ export class InMemoryDB implements CommonDB {
    * Deterministic - jsonSorted.
    */
   getDataSnapshot(): StringMap<StringMap<SavedDBEntity>> {
-    return sortObjectDeep(this.data)
+    return _sortObjectDeep(this.data)
   }
 
   async ping(): Promise<void> {}
@@ -222,7 +222,7 @@ export class InMemoryDB implements CommonDB {
       ])
     })
 
-    log(`flushToDisk took ${dimGrey(since(started))} to save ${yellow(tables)} tables`)
+    log(`flushToDisk took ${dimGrey(_since(started))} to save ${yellow(tables)} tables`)
   }
 
   /**
@@ -259,9 +259,9 @@ export class InMemoryDB implements CommonDB {
         writablePushToArray(rows),
       ])
 
-      this.data[table] = by(rows, r => r.id)
+      this.data[table] = _by(rows, r => r.id)
     })
 
-    log(`restoreFromDisk took ${dimGrey(since(started))} to read ${yellow(files.length)} tables`)
+    log(`restoreFromDisk took ${dimGrey(_since(started))} to read ${yellow(files.length)} tables`)
   }
 }

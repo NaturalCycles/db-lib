@@ -1,4 +1,4 @@
-import { ErrorMode, Mapper, passthroughMapper, pMap } from '@naturalcycles/js-lib'
+import { ErrorMode, Mapper, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -121,7 +121,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
       }
 
       const saveOptions: CommonDBSaveOptions = saveOptionsPerTable[table] || {}
-      const mapper = mapperPerTable[table] || passthroughMapper
+      const mapper = mapperPerTable[table] || _passthroughMapper
 
       const stream = dbInput.streamQuery(q)
 

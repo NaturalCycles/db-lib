@@ -1,4 +1,4 @@
-import { memoFn } from '@naturalcycles/js-lib'
+import { _memoFn } from '@naturalcycles/js-lib'
 import { secretOptional } from '@naturalcycles/nodejs-lib'
 import { white, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { CommonDB } from './common.db'
@@ -17,7 +17,7 @@ export function getDB(index = 1): CommonDB {
 }
 
 // Extra function to provide index=1 as default (since memo doesn't work well with default arguments)
-const _getDB = memoFn((index: number) => {
+const _getDB = _memoFn((index: number) => {
   const libName = process.env[`DB${index}`]
 
   if (!libName) {

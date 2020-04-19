@@ -1,7 +1,7 @@
 /**
  * Class that helps to generate CommonSchema by processing ALL rows through it.
  */
-import { ErrorMode, filterUndefinedValues } from '@naturalcycles/js-lib'
+import { ErrorMode, _filterUndefinedValues } from '@naturalcycles/js-lib'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './common.schema'
 
 export interface CommonSchemaGeneratorCfg {
@@ -102,7 +102,7 @@ export class CommonSchemaGenerator<T = any> {
 
     // todo: recursively merge/compare array/object schemas
 
-    return filterUndefinedValues({
+    return _filterUndefinedValues({
       ...newField,
       type,
       minLen,

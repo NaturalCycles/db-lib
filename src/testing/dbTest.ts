@@ -1,4 +1,4 @@
-import { filterObject, pDelay, pMap, _pick, _sortBy } from '@naturalcycles/js-lib'
+import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
@@ -270,7 +270,7 @@ export function expectMatch(
 
   if (quirks.allowBooleansAsUndefined) {
     expected = (Array.isArray(expected) ? expected : [expected]).map(r =>
-      filterObject(r, (_k, v) => v !== false),
+      _filterObject(r, (_k, v) => v !== false),
     )
   }
 
