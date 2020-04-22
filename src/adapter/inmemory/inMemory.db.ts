@@ -126,7 +126,7 @@ export class InMemoryDB implements CommonDB {
   ): Promise<DBM[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
-    return ids.map(id => this.data[table][id]).filter(Boolean) as DBM[]
+    return ids.map(id => this.data[table]![id]).filter(Boolean) as DBM[]
   }
 
   async saveBatch<DBM extends SavedDBEntity>(
@@ -142,7 +142,7 @@ export class InMemoryDB implements CommonDB {
         log.warn({ dbms })
         throw new Error(`InMemoryDB: id doesn't exist for record`)
       }
-      this.data[table][dbm.id] = dbm
+      this.data[table]![dbm.id] = dbm
     })
   }
 
@@ -152,8 +152,8 @@ export class InMemoryDB implements CommonDB {
 
     return ids
       .map(id => {
-        const exists = !!this.data[table][id]
-        delete this.data[table][id]
+        const exists = !!this.data[table]![id]
+        delete this.data[table]![id]
         if (exists) return id
       })
       .filter(Boolean).length
@@ -179,7 +179,7 @@ export class InMemoryDB implements CommonDB {
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
-    return queryInMemory(q, Object.values(this.data[table] || {})).length
+    return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
@@ -208,7 +208,7 @@ export class InMemoryDB implements CommonDB {
 
     // infinite concurrency for now
     await pMap(Object.keys(this.data), async table => {
-      const rows = Object.values(this.data[table])
+      const rows = Object.values(this.data[table]!)
       if (rows.length === 0) return // 0 rows
 
       tables++
