@@ -22,7 +22,8 @@ workflows:
             branches:
               only: master
       - tools/build-job
-      - tools/test-job
+      - tools/test-job:
+          CC_TEST_REPORTER_ID: 59622194cc44d91d2d1d239dffbe6af31e8cb985e6e6369c0743b67ad2cc8713
       - tools/test-leaks-job
 
   nightly-workflow:
