@@ -1,3 +1,10 @@
+## [4.4.8](https://github.com/NaturalCycles/db-lib/compare/v4.4.7...v4.4.8) (2020-04-22)
+
+
+### Bug Fixes
+
+* deps ([92dfdd7](https://github.com/NaturalCycles/db-lib/commit/92dfdd706f483cf48729c8261e64d42f58203897))
+
 ## [4.4.7](https://github.com/NaturalCycles/db-lib/compare/v4.4.6...v4.4.7) (2020-04-19)
 
 
