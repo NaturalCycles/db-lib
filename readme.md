@@ -232,22 +232,22 @@ Object that defines "DB Query".
 
 ```typescript
 // Simplest query - "get all" query
-const q = new DBQuery('table1')
+new DBQuery('table1')
 
 // where type = "cat"
-const q = new DBQuery('table1').filter('type', '=', 'cat')
+new DBQuery('table1').filter('type', '=', 'cat')
 
 // OR
-const q = new DBQuery('table1').filterEq('type', 'cat')
+new DBQuery('table1').filterEq('type', 'cat')
 
 // Where updated > 2019-01-17
-const q = new DBQuery('table1').filter('updated', '>', '2019-01-17')
+new DBQuery('table1').filter('updated', '>', '2019-01-17')
 
 // order by 'name'
-const q = new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name')
+new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name')
 
 // order by 'name' in descending order
-const q = new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name', true)
+new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name', true)
 ```
 
 Features:
