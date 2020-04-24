@@ -523,8 +523,10 @@ export class CommonDao<
   async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
     const dbm = await this.bmToDBM(bm, opt) // does assignIdCreatedUpdated
-    const op = `save(${dbm.id})`
     const table = opt.table || this.cfg.table
+    const idWasGenerated = !bm.id
+    if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+    const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
@@ -533,6 +535,21 @@ export class CommonDao<
     const savedBM = await this.dbmToBM(dbm, opt)
     this.logSaveResult(started, op, table)
     return savedBM
+  }
+
+  /**
+   * Mutates id if needed
+   */
+  private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
+    // todo: retry N times
+    const [existing] = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
+    if (existing) {
+      throw new AppError(DBLibError.NON_UNIQUE_ID, {
+        code: DBLibError.NON_UNIQUE_ID,
+        id: dbm.id,
+        table,
+      })
+    }
   }
 
   /**
@@ -569,13 +586,16 @@ export class CommonDao<
 
   async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
     this.requireWriteAccess()
+    const table = opt.table || this.cfg.table
+
     // assigning id in case it misses the id
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
+      const idWasGenerated = !dbm.id
       dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
+      if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     }
     const op = `saveAsDBM(${dbm.id})`
-    const table = opt.table || this.cfg.table
     const started = this.logSaveStarted(op, dbm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
@@ -587,7 +607,9 @@ export class CommonDao<
 
   async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
     this.requireWriteAccess()
+    const table = opt.table || this.cfg.table
     const dbms = await this.bmsToDBM(bms, opt)
+    if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
         .slice(0, 10)
@@ -595,7 +617,6 @@ export class CommonDao<
         .join(', '),
       50,
     )})`
-    const table = opt.table || this.cfg.table
     const started = this.logSaveStarted(op, bms, table)
     await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
@@ -608,8 +629,10 @@ export class CommonDao<
 
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
     this.requireWriteAccess()
+    const table = opt.table || this.cfg.table
     if (!opt.raw) {
       dbms = this.anyToDBMs(dbms, opt)
+      if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
@@ -618,7 +641,6 @@ export class CommonDao<
         .join(', '),
       50,
     )})`
-    const table = opt.table || this.cfg.table
     const started = this.logSaveStarted(op, dbms, table)
 
     await this.cfg.db.saveBatch(table, dbms, {

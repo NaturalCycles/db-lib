@@ -62,7 +62,18 @@ export interface CommonDaoOptions extends CommonDBOptions {
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {}
+export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {
+  /**
+   * @default false
+   *
+   * True would make sure that auto-generated id (only auto-generated, not passed!) is unique (not already present in DB).
+   * If id is already present - auto-generator will retry auto-generating it few times, until it finds unused id.
+   * If failed X times - will throw an error.
+   *
+   * Only applies to auto-generated ids! Does not apply to passed id.
+   */
+  ensureUniqueId?: boolean
+}
 
 export interface CommonDaoStreamForEachOptions
   extends CommonDaoStreamOptions,
