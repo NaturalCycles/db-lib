@@ -1,3 +1,10 @@
+# [4.5.0](https://github.com/NaturalCycles/db-lib/compare/v4.4.8...v4.5.0) (2020-04-24)
+
+
+### Features
+
+* CommonDaoSaveOptions.ensureUniqueId option ([544884c](https://github.com/NaturalCycles/db-lib/commit/544884c0d5b09fd43f2a278f08eeaf1afcc8371d))
+
 ## [4.4.8](https://github.com/NaturalCycles/db-lib/compare/v4.4.7...v4.4.8) (2020-04-22)
 
 
