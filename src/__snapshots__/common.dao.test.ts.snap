@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`patch 1`] = `
+Object {
+  "created": 1529539200,
+  "id": "123456",
+  "k1": "k111",
+  "updated": 1529539200,
+}
+`;

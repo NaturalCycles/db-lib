@@ -1,3 +1,4 @@
+import { mockTime } from '@naturalcycles/dev-lib/dist/testing'
 import { ErrorMode } from '@naturalcycles/js-lib'
 import { writableForEach, _pipeline } from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from './adapter/inmemory/inMemory.db'
@@ -32,19 +33,24 @@ class TestItemDao extends CommonDao<TestItemBM, TestItemDBM, TestItemTM> {
   }
 }
 
+const db = new InMemoryDB()
+
+const dao = new TestItemDao({
+  table: TEST_TABLE,
+  db,
+  dbmSchema: testItemDBMSchema,
+  bmSchema: testItemBMSchema,
+  tmSchema: testItemTMSchema,
+  // logStarted: true,
+  logLevel: CommonDaoLogLevel.OPERATIONS,
+})
+
+beforeEach(async () => {
+  await db.resetCache()
+  mockTime()
+})
+
 test('should propagate pipe errors', async () => {
-  const db = new InMemoryDB()
-
-  const dao = new TestItemDao({
-    table: TEST_TABLE,
-    db,
-    dbmSchema: testItemDBMSchema,
-    bmSchema: testItemBMSchema,
-    tmSchema: testItemTMSchema,
-    // logStarted: true,
-    logLevel: CommonDaoLogLevel.OPERATIONS,
-  })
-
   const items = createTestItemsBM(20)
 
   await dao.saveBatch(items, {
@@ -94,4 +100,17 @@ test('should propagate pipe errors', async () => {
   results = []
   await _pipeline([dao.query().streamQuery(opt), writableForEach(r => void results.push(r))])
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
+})
+
+test('patch', async () => {
+  const id = '123456'
+  const r = await dao.patch(id, {
+    k1: 'k111',
+  })
+
+  const r2 = await dao.getById(id)
+
+  expect(r.id).toBe(id)
+  expect(r2).toEqual(r)
+  expect(r).toMatchSnapshot()
 })
