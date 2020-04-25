@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/NaturalCycles/db-lib/compare/v4.5.0...v5.0.0) (2020-04-25)
+
+
+### Performance Improvements
+
+* CommonDao perf improvements ([7f88173](https://github.com/NaturalCycles/db-lib/commit/7f8817309bcf69329f8236c40efd19d2c3df8600))
+
+
+### BREAKING CHANGES
+
+* ^^^
+
 # [4.5.0](https://github.com/NaturalCycles/db-lib/compare/v4.4.8...v4.5.0) (2020-04-24)
 
 
