@@ -9,6 +9,7 @@
     "type-fest": "^0.13.1"
   },
   "devDependencies": {
+    "@naturalcycles/bench-lib": "^1.0.0",
     "@naturalcycles/dev-lib": "^10.0.0",
     "@types/node": "^13.5.0",
     "jest": "^25.1.0",

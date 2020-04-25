@@ -25,7 +25,7 @@ class TestItemDao extends CommonDao<TestItemBM, TestItemDBM, TestItemTM> {
     return {}
   }
 
-  async beforeDBMToBM(dbm: TestItemDBM): Promise<TestItemBM> {
+  beforeDBMToBM(dbm: TestItemDBM): TestItemBM {
     // if(throwError && dbm.id === 'id4') throw new Error('error_from_beforeDBMToBM')
 
     return {
