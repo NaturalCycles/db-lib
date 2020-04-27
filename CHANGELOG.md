@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/NaturalCycles/db-lib/compare/v5.0.0...v5.1.0) (2020-04-27)
+
+
+### Features
+
+* CommonDao.getByIdsAsDBM ([f0be8f1](https://github.com/NaturalCycles/db-lib/commit/f0be8f1be4a5ab39b7be548da0fe0ffe0e39f9a0))
+
 # [5.0.0](https://github.com/NaturalCycles/db-lib/compare/v4.5.0...v5.0.0) (2020-04-25)
 
 
