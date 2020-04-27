@@ -247,6 +247,15 @@ export class CommonDao<
     return bms
   }
 
+  async getByIdsAsDBM(ids: string[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
+    const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
+    const table = opt.table || this.cfg.table
+    const started = this.logStarted(op, table)
+    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
+    this.logResult(started, op, dbms, table)
+    return dbms
+  }
+
   async requireById(id: string, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
     const r = await this.getById(id, opt)
     if (!r) {
