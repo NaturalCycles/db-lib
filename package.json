@@ -14,7 +14,7 @@
     "@types/node": "^13.5.0",
     "jest": "^25.1.0",
     "patch-package": "^6.2.1",
-    "weak-napi": "^1.0.3"
+    "weak-napi": "^2.0.0"
   },
   "files": [
     "dist",
