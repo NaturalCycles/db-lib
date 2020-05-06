@@ -1,3 +1,10 @@
+## [5.1.1](https://github.com/NaturalCycles/db-lib/compare/v5.1.0...v5.1.1) (2020-05-06)
+
+
+### Bug Fixes
+
+* more relaxed typing around CreatedUpdatedId ([fce16b5](https://github.com/NaturalCycles/db-lib/commit/fce16b5d714a65e0de5015276e5a43dd359a12fc))
+
 # [5.1.0](https://github.com/NaturalCycles/db-lib/compare/v5.0.0...v5.1.0) (2020-04-27)
 
 
