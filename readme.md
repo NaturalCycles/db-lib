@@ -298,6 +298,7 @@ Passing empty array will actually return an array of empty objects (documented e
 # Exports
 
 - `/` root
+- `/adapter/file`
 - `/adapter/cachedb`
 - `/adapter/noop`
 - `/testing`
