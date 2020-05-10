@@ -1,3 +1,10 @@
+# [5.2.0](https://github.com/NaturalCycles/db-lib/compare/v5.1.1...v5.2.0) (2020-05-10)
+
+
+### Features
+
+* FileDB, FileDBPersistencePlugin ([517a5ff](https://github.com/NaturalCycles/db-lib/commit/517a5ff63bc385d121bd459a1a7ceb15682513a6))
+
 ## [5.1.1](https://github.com/NaturalCycles/db-lib/compare/v5.1.0...v5.1.1) (2020-05-06)
 
 
