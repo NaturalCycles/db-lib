@@ -15,4 +15,10 @@ export interface FileDBCfg {
    * @default undefined, which means "insertion order"
    */
   sortOnSave?: DBQueryOrder
+
+  /**
+   * @default false
+   * If true - will run `sortObjectDeep()` on each object to achieve deterministic sort
+   */
+  sortObjects?: boolean
 }
