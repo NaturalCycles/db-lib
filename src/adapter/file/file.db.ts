@@ -1,4 +1,4 @@
-import { _by, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
+import { _by, _deepEquals, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
 import { readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { queryInMemory } from '../..'
 import { CommonSchema } from '../..'
@@ -50,17 +50,28 @@ export class FileDB implements CommonDB {
     dbms: DBM[],
     opt?: CommonDBSaveOptions,
   ): Promise<void> {
+    if (!dbms.length) return // save some api calls
+
     // 1. Load the whole file from gh
     const byId = _by(await this.cfg.plugin.loadFile<DBM>(table), r => r.id)
 
     // 2. Merge with new data (using ids)
-    dbms.forEach(dbm => (byId[dbm.id] = dbm))
+    let saved = 0
+    dbms.forEach(dbm => {
+      if (!_deepEquals(byId[dbm.id], dbm)) {
+        byId[dbm.id] = dbm
+        saved++
+      }
+    })
 
-    // 3. Sort the result, if needed
-    const rows = this.sortDBMs(Object.values(byId))
+    // Only save if there are changed rows
+    if (saved > 0) {
+      // 3. Sort the result, if needed
+      const rows = this.sortDBMs(Object.values(byId))
 
-    // 4. Save the whole file
-    await this.cfg.plugin.saveFile(table, rows)
+      // 4. Save the whole file
+      await this.cfg.plugin.saveFile(table, rows)
+    }
   }
 
   async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
@@ -95,6 +106,8 @@ export class FileDB implements CommonDB {
     ids: string[],
     opt?: CommonDBOptions,
   ): Promise<number> {
+    if (!ids.length) return 0
+
     let deleted = 0
     let dbms = (await this.cfg.plugin.loadFile<DBM>(table)).filter(dbm => {
       if (ids.includes(dbm.id)) {
@@ -124,9 +137,10 @@ export class FileDB implements CommonDB {
       deleted++
     })
 
-    const dbms = this.sortDBMs(Object.values(byId))
-
-    await this.cfg.plugin.saveFile(q.table, dbms)
+    if (deleted > 0) {
+      const dbms = this.sortDBMs(Object.values(byId))
+      await this.cfg.plugin.saveFile(q.table, dbms)
+    }
 
     return deleted
   }
