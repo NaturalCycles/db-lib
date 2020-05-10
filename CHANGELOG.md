@@ -1,3 +1,10 @@
+# [5.3.0](https://github.com/NaturalCycles/db-lib/compare/v5.2.0...v5.3.0) (2020-05-10)
+
+
+### Features
+
+* FileDBCfg.sortObjects ([d6dc4b4](https://github.com/NaturalCycles/db-lib/commit/d6dc4b4e61682d82cc50b5c6f27a391a0c35ef1b))
+
 # [5.2.0](https://github.com/NaturalCycles/db-lib/compare/v5.1.1...v5.2.0) (2020-05-10)
 
 
