@@ -1,3 +1,10 @@
+## [5.3.1](https://github.com/NaturalCycles/db-lib/compare/v5.3.0...v5.3.1) (2020-05-10)
+
+
+### Bug Fixes
+
+* optimize FileDB ([2118995](https://github.com/NaturalCycles/db-lib/commit/2118995e26f4e72413f86379d9802a28aaf6b606))
+
 # [5.3.0](https://github.com/NaturalCycles/db-lib/compare/v5.2.0...v5.3.0) (2020-05-10)
 
 
