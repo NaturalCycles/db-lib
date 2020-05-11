@@ -26,7 +26,14 @@ import { FileDBCfg } from './file.db.model'
  * Each save operation saves *whole* file to the persistence layer.
  */
 export class FileDB implements CommonDB {
-  constructor(public cfg: FileDBCfg) {}
+  constructor(cfg: FileDBCfg) {
+    this.cfg = {
+      sortObjects: true,
+      ...cfg,
+    }
+  }
+
+  public cfg!: FileDBCfg
 
   async ping(): Promise<void> {
     await this.cfg.plugin.ping()

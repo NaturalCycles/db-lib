@@ -17,7 +17,7 @@ export interface FileDBCfg {
   sortOnSave?: DBQueryOrder
 
   /**
-   * @default false
+   * @default true
    * If true - will run `sortObjectDeep()` on each object to achieve deterministic sort
    */
   sortObjects?: boolean
