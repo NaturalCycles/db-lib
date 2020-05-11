@@ -1,3 +1,11 @@
+## [5.3.2](https://github.com/NaturalCycles/db-lib/compare/v5.3.1...v5.3.2) (2020-05-11)
+
+
+### Bug Fixes
+
+* deps ([ea9bfde](https://github.com/NaturalCycles/db-lib/commit/ea9bfde8a53d1c2584711f4385effa9f52e9c9cb))
+* FileDBCfg.sortObjects default to true ([3704d68](https://github.com/NaturalCycles/db-lib/commit/3704d68c5c0792f7e2a6a4e02c4e15a12fa7761d))
+
 ## [5.3.1](https://github.com/NaturalCycles/db-lib/compare/v5.3.0...v5.3.1) (2020-05-10)
 
 
