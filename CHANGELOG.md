@@ -1,3 +1,10 @@
+# [5.4.0](https://github.com/NaturalCycles/db-lib/compare/v5.3.2...v5.4.0) (2020-05-17)
+
+
+### Features
+
+* CommonTimeSeriesDao (experimental) ([71aec62](https://github.com/NaturalCycles/db-lib/commit/71aec6232c8d9c9408a6ba9949edf072f1f37f21))
+
 ## [5.3.2](https://github.com/NaturalCycles/db-lib/compare/v5.3.1...v5.3.2) (2020-05-11)
 
 
