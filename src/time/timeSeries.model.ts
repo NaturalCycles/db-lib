@@ -1,0 +1,34 @@
+import { CommonDB } from '../common.db'
+
+export interface CommonTimeSeriesDaoCfg {
+  db: CommonDB
+}
+
+/**
+ * First number: unix timestamp in milliseconds
+ * Second number: value
+ * null in the second position means "absense of value" (may exist in _RAW table)
+ */
+export type TimeSeriesDataPoint = [number, number | null]
+
+export interface TimeSeriesDBM {
+  id: number
+  ts: number
+  v: number | null
+}
+
+export interface TimeSeriesQuery {
+  series: string
+
+  /**
+   * Unix timestamp in milliseconds
+   */
+  fromIncl?: number
+
+  /**
+   * Unix timestamp in milliseconds
+   */
+  toExcl?: number
+
+  minStep?: 'second' | 'minute' | 'hour' | 'day' | 'month' | 'year'
+}
