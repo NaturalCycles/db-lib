@@ -1,3 +1,10 @@
+# [5.5.0](https://github.com/NaturalCycles/db-lib/compare/v5.4.0...v5.5.0) (2020-05-23)
+
+
+### Features
+
+* FileDB logging ([9b06478](https://github.com/NaturalCycles/db-lib/commit/9b06478d10a7dd95adbec5cf0aaf31268791f731))
+
 # [5.4.0](https://github.com/NaturalCycles/db-lib/compare/v5.3.2...v5.4.0) (2020-05-17)
 
 
