@@ -6,6 +6,8 @@ import {
   TimeSeriesQuery,
 } from './timeSeries.model'
 
+const _TIMESERIES_RAW = '_TIMESERIES_RAW'
+
 /**
  * TimeSeries DB implemtation based on provided CommonDB database.
  * Turns any CommonDB database into TimeSeries DB. Kind of.
@@ -19,7 +21,7 @@ export class CommonTimeSeriesDao {
 
   async getSeries(): Promise<string[]> {
     return (await this.cfg.db.getTables())
-      .map(t => /TIMESERIES_(.*)_RAW/.exec(t)?.[1] as string)
+      .map(t => /^(.*)_TIMESERIES_RAW$/.exec(t)?.[1] as string)
       .filter(Boolean)
   }
 
@@ -36,7 +38,7 @@ export class CommonTimeSeriesDao {
       v,
     }))
 
-    await this.cfg.db.saveBatch(`TIMESERIES_${series}_RAW`, dbms as any)
+    await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, dbms as any)
   }
 
   async deleteById(series: string, tsMillis: number): Promise<void> {
@@ -52,7 +54,7 @@ export class CommonTimeSeriesDao {
   }
 
   async query(q: TimeSeriesQuery): Promise<TimeSeriesDataPoint[]> {
-    const dbq = new DBQuery(`TIMESERIES_${q.series}_RAW`).order('ts')
+    const dbq = new DBQuery(`${q.series}${_TIMESERIES_RAW}`).order('ts')
     if (q.fromIncl) dbq.filter('ts', '>=', q.fromIncl)
     if (q.toExcl) dbq.filter('ts', '<', q.toExcl)
 

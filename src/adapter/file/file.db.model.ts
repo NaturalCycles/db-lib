@@ -21,4 +21,14 @@ export interface FileDBCfg {
    * If true - will run `sortObjectDeep()` on each object to achieve deterministic sort
    */
   sortObjects?: boolean
+
+  /**
+   * @default false
+   */
+  logStarted?: boolean
+
+  /**
+   * @default true
+   */
+  logFinished?: boolean
 }

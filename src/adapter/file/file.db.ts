@@ -1,5 +1,5 @@
-import { _by, _deepEquals, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
-import { readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { _by, _deepEquals, _since, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
+import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
@@ -15,6 +15,8 @@ import {
 import { DBQuery } from '../../dbQuery'
 import { FileDBCfg } from './file.db.model'
 
+const log = Debug('nc:db-lib:filedb')
+
 /**
  * Provides barebone implementation for "whole file" based CommonDB.
  * "whole file" means that the persistence layer doesn't allow any querying,
@@ -29,6 +31,7 @@ export class FileDB implements CommonDB {
   constructor(cfg: FileDBCfg) {
     this.cfg = {
       sortObjects: true,
+      logFinished: true,
       ...cfg,
     }
   }
@@ -40,7 +43,10 @@ export class FileDB implements CommonDB {
   }
 
   async getTables(): Promise<string[]> {
-    return await this.cfg.plugin.getTables()
+    const started = this.logStarted('getTables()')
+    const tables = await this.cfg.plugin.getTables()
+    this.logFinished(started, `getTables() ${tables.length} tables`)
+    return tables
   }
 
   async getByIds<DBM extends SavedDBEntity>(
@@ -48,7 +54,7 @@ export class FileDB implements CommonDB {
     ids: string[],
     opt?: CommonDBOptions,
   ): Promise<DBM[]> {
-    const byId = _by(await this.cfg.plugin.loadFile<DBM>(table), r => r.id)
+    const byId = _by(await this.loadFile<DBM>(table), r => r.id)
     return ids.map(id => byId[id]).filter(Boolean)
   }
 
@@ -60,7 +66,7 @@ export class FileDB implements CommonDB {
     if (!dbms.length) return // save some api calls
 
     // 1. Load the whole file from gh
-    const byId = _by(await this.cfg.plugin.loadFile<DBM>(table), r => r.id)
+    const byId = _by(await this.loadFile<DBM>(table), r => r.id)
 
     // 2. Merge with new data (using ids)
     let saved = 0
@@ -73,11 +79,8 @@ export class FileDB implements CommonDB {
 
     // Only save if there are changed rows
     if (saved > 0) {
-      // 3. Sort the result, if needed
-      const rows = this.sortDBMs(Object.values(byId))
-
-      // 4. Save the whole file
-      await this.cfg.plugin.saveFile(table, rows)
+      // 3. Save the whole file
+      await this.saveFile(table, Object.values(byId))
     }
   }
 
@@ -86,12 +89,12 @@ export class FileDB implements CommonDB {
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return {
-      records: queryInMemory(q, await this.cfg.plugin.loadFile<DBM>(q.table)),
+      records: queryInMemory(q, await this.loadFile<DBM>(q.table)),
     }
   }
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
-    return (await this.cfg.plugin.loadFile(q.table)).length
+    return (await this.loadFile(q.table)).length
   }
 
   streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
@@ -116,7 +119,7 @@ export class FileDB implements CommonDB {
     if (!ids.length) return 0
 
     let deleted = 0
-    let dbms = (await this.cfg.plugin.loadFile<DBM>(table)).filter(dbm => {
+    const dbms = (await this.loadFile<DBM>(table)).filter(dbm => {
       if (ids.includes(dbm.id)) {
         deleted++
         return false
@@ -125,8 +128,7 @@ export class FileDB implements CommonDB {
     })
 
     if (deleted > 0) {
-      dbms = this.sortDBMs(dbms)
-      await this.cfg.plugin.saveFile(table, dbms)
+      await this.saveFile(table, dbms)
     }
 
     return deleted
@@ -136,7 +138,7 @@ export class FileDB implements CommonDB {
     q: DBQuery<any, DBM>,
     opt?: CommonDBOptions,
   ): Promise<number> {
-    const byId = _by(await this.cfg.plugin.loadFile<DBM>(q.table), r => r.id)
+    const byId = _by(await this.loadFile<DBM>(q.table), r => r.id)
 
     let deleted = 0
     queryInMemory(q, Object.values(byId)).forEach(dbm => {
@@ -145,8 +147,7 @@ export class FileDB implements CommonDB {
     })
 
     if (deleted > 0) {
-      const dbms = this.sortDBMs(Object.values(byId))
-      await this.cfg.plugin.saveFile(q.table, dbms)
+      await this.saveFile(q.table, Object.values(byId))
     }
 
     return deleted
@@ -159,8 +160,27 @@ export class FileDB implements CommonDB {
   async resetCache(table?: string): Promise<void> {}
 
   async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
-    const dbms = await this.cfg.plugin.loadFile(table)
+    const dbms = await this.loadFile(table)
     return CommonSchemaGenerator.generateFromRows({ table }, dbms)
+  }
+
+  // wrapper, to handle logging
+  private async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+    const started = this.logStarted(`loadFile(${table})`)
+    const dbms = await this.cfg.plugin.loadFile<DBM>(table)
+    this.logFinished(started, `loadFile(${table}) ${dbms.length} records`)
+    return dbms
+  }
+
+  // wrapper, to handle logging, sorting rows before saving
+  private async saveFile<DBM extends SavedDBEntity>(table: string, dbms: DBM[]): Promise<void> {
+    // Sort the records, if needed
+    const rows = this.sortDBMs(dbms)
+
+    const op = `saveFile(${table}) ${rows.length} records`
+    const started = this.logStarted(op)
+    await this.cfg.plugin.saveFile<DBM>(table, rows)
+    this.logFinished(started, op)
   }
 
   /**
@@ -177,5 +197,17 @@ export class FileDB implements CommonDB {
     }
 
     return dbms
+  }
+
+  private logStarted(op: string): number {
+    if (this.cfg.logStarted) {
+      log(`>> ${op}`)
+    }
+    return Date.now()
+  }
+
+  private logFinished(started: number, op: string): void {
+    if (!this.cfg.logFinished) return
+    log(`<< ${op} in ${_since(started)}`)
   }
 }
