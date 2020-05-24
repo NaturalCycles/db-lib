@@ -5,8 +5,8 @@ import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
+  ObjectWithId,
   RunQueryResult,
-  SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
 import { DBTransaction } from '../../dbTransaction'
@@ -77,7 +77,7 @@ export class CacheDB implements CommonDB {
     return await this.cfg.downstreamDB.getTables()
   }
 
-  async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<DBM extends ObjectWithId>(table: string): Promise<CommonSchema<DBM>> {
     return await this.cfg.downstreamDB.getTableSchema<DBM>(table)
   }
 
@@ -91,7 +91,7 @@ export class CacheDB implements CommonDB {
     }
   }
 
-  async getByIds<DBM extends SavedDBEntity>(
+  async getByIds<DBM extends ObjectWithId>(
     table: string,
     ids: string[],
     opt: CommonDBOptions = {},
@@ -160,7 +160,7 @@ export class CacheDB implements CommonDB {
     return deletedIds
   }
 
-  async saveBatch<DBM extends SavedDBEntity>(
+  async saveBatch<DBM extends ObjectWithId>(
     table: string,
     dbms: DBM[],
     opt: CommonDBSaveOptions = {},
@@ -189,8 +189,8 @@ export class CacheDB implements CommonDB {
     }
   }
 
-  async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  async runQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt: CommonDBOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
@@ -233,10 +233,7 @@ export class CacheDB implements CommonDB {
     return count
   }
 
-  streamQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<any, DBM>,
-    opt: CommonDBSaveOptions = {},
-  ): Readable {
+  streamQuery<DBM extends ObjectWithId>(q: DBQuery<DBM>, opt: CommonDBSaveOptions = {}): Readable {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const stream = this.cfg.downstreamDB.streamQuery<DBM>(q, opt)
 

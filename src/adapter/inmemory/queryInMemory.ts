@@ -1,5 +1,5 @@
 import { _pick } from '@naturalcycles/js-lib'
-import { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import { DBQuery, DBQueryFilterOperator } from '../../dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
@@ -14,8 +14,8 @@ const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
 
 // Important: q.table is not used in this function, so tablesPrefix is not needed.
 // But should be careful here..
-export function queryInMemory<DBM extends SavedDBEntity, OUT = DBM>(
-  q: DBQuery<any, DBM>,
+export function queryInMemory<DBM extends ObjectWithId, OUT = DBM>(
+  q: DBQuery<DBM>,
   rows: DBM[] = [],
 ): OUT[] {
   // .filter

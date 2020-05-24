@@ -1,11 +1,11 @@
-import type { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import type { DBQueryOrder } from '../../dbQuery'
 import type { DBSaveBatchOperation } from '../../dbTransaction'
 
 export interface FileDBPersistencePlugin {
   ping(): Promise<void>
   getTables(): Promise<string[]>
-  loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]>
+  loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]>
   saveFiles(ops: DBSaveBatchOperation[]): Promise<void>
 }
 

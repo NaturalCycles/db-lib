@@ -1,5 +1,5 @@
 import { StringMap, _by } from '@naturalcycles/js-lib'
-import { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import { DBSaveBatchOperation } from '../../dbTransaction'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -7,7 +7,7 @@ import { FileDBPersistencePlugin } from './file.db.model'
  * Mostly useful for testing.
  */
 export class InMemoryPersistencePlugin implements FileDBPersistencePlugin {
-  data: StringMap<StringMap<SavedDBEntity>> = {}
+  data: StringMap<StringMap<ObjectWithId>> = {}
 
   async ping(): Promise<void> {}
 
@@ -15,7 +15,7 @@ export class InMemoryPersistencePlugin implements FileDBPersistencePlugin {
     return Object.keys(this.data)
   }
 
-  async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
     return Object.values(this.data[table] || ({} as any))
   }
 

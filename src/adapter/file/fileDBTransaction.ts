@@ -1,5 +1,5 @@
 import { pMap, StringMap, _by, _uniq } from '@naturalcycles/js-lib'
-import { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import { DBSaveBatchOperation, DBTransaction } from '../../dbTransaction'
 import { FileDB } from './file.db'
 
@@ -15,7 +15,7 @@ export class FileDBTransaction extends DBTransaction {
     const tables = _uniq(this._ops.map(o => o.table))
 
     // 1. Load all tables data (concurrently)
-    const data: StringMap<StringMap<SavedDBEntity>> = {}
+    const data: StringMap<StringMap<ObjectWithId>> = {}
 
     await pMap(
       tables,

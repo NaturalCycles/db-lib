@@ -9,7 +9,7 @@ import {
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
-import { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import { DBSaveBatchOperation } from '../../dbTransaction'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -47,7 +47,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       .map(f => f.split('.ndjson')[0])
   }
 
-  async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
@@ -73,7 +73,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
     await pMap(ops, async op => await this.saveFile(op.table, op.dbms), { concurrency: 16 })
   }
 
-  async saveFile<DBM extends SavedDBEntity>(table: string, dbms: DBM[]): Promise<void> {
+  async saveFile<DBM extends ObjectWithId>(table: string, dbms: DBM[]): Promise<void> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`

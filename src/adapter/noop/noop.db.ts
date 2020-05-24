@@ -5,8 +5,8 @@ import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
+  ObjectWithId,
   RunQueryResult,
-  SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
 import { DBTransaction } from '../../dbTransaction'
@@ -33,7 +33,7 @@ export class NoOpDB implements CommonDB {
     return 0
   }
 
-  async getByIds<DBM extends SavedDBEntity>(
+  async getByIds<DBM extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -51,7 +51,7 @@ export class NoOpDB implements CommonDB {
     return 0
   }
 
-  async saveBatch<DBM extends SavedDBEntity>(
+  async saveBatch<DBM extends ObjectWithId>(
     table: string,
     dbms: DBM[],
     opt?: CommonDBSaveOptions,

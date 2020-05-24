@@ -314,13 +314,13 @@ export class CommonDao<
     return new RunnableDBQuery<BM, DBM, TM>(this, table)
   }
 
-  async runQuery<OUT = Saved<BM>>(q: DBQuery<BM, DBM, TM>, opt?: CommonDaoOptions): Promise<OUT[]> {
+  async runQuery<OUT = Saved<BM>>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
     const { records } = await this.runQueryExtended<OUT>(q, opt)
     return records
   }
 
   async runQueryExtended<OUT = Saved<BM>>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQuery(${q.pretty()})`
@@ -335,13 +335,13 @@ export class CommonDao<
     }
   }
 
-  async runQueryAsDBM<OUT = DBM>(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
+  async runQueryAsDBM<OUT = DBM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
     const { records } = await this.runQueryExtendedAsDBM<OUT>(q, opt)
     return records
   }
 
   async runQueryExtendedAsDBM<OUT = DBM>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQueryAsDBM(${q.pretty()})`
@@ -353,7 +353,7 @@ export class CommonDao<
     return { records: (dbms as any) as OUT[], ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery<BM, DBM, TM>, opt: CommonDaoOptions = {}): Promise<number> {
+  async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const count = await this.cfg.db.runQueryCount(q, opt)
@@ -364,7 +364,7 @@ export class CommonDao<
   }
 
   async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     mapper: Mapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
@@ -398,7 +398,7 @@ export class CommonDao<
   }
 
   async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     mapper: Mapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
@@ -430,7 +430,7 @@ export class CommonDao<
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
   streamQueryAsDBM<OUT = DBM>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     opt: CommonDaoStreamOptions = {},
   ): ReadableTyped<OUT> {
     opt.skipValidation = opt.skipValidation !== false // default true
@@ -453,7 +453,7 @@ export class CommonDao<
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
   streamQuery<OUT = Saved<BM>>(
-    q: DBQuery<BM, DBM, TM>,
+    q: DBQuery<DBM>,
     opt: CommonDaoStreamOptions = {},
   ): ReadableTyped<OUT> {
     opt.skipValidation = opt.skipValidation !== false // default true
@@ -476,12 +476,12 @@ export class CommonDao<
     )
   }
 
-  async queryIds(q: DBQuery<BM, DBM>, opt?: CommonDaoOptions): Promise<string[]> {
+  async queryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<string[]> {
     const { records } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
     return records.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<BM, DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
+  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -494,7 +494,7 @@ export class CommonDao<
   }
 
   async streamQueryIdsForEach(
-    q: DBQuery<BM, DBM>,
+    q: DBQuery<DBM>,
     mapper: Mapper<string, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {

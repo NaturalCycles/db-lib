@@ -12,7 +12,7 @@ import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
-import { CommonDB, queryInMemory } from '../..'
+import { CommonDB, ObjectWithId, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import {
@@ -20,7 +20,6 @@ import {
   CommonDBOptions,
   CommonDBSaveOptions,
   RunQueryResult,
-  SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
 import { DBTransaction } from '../../dbTransaction'
@@ -74,13 +73,13 @@ export class InMemoryDB implements CommonDB {
   cfg: InMemoryDBCfg
 
   // data[table][id] > {id: 'a', created: ... }
-  data: StringMap<StringMap<SavedDBEntity>> = {}
+  data: StringMap<StringMap<ObjectWithId>> = {}
 
   /**
    * Returns internal "Data snapshot".
    * Deterministic - jsonSorted.
    */
-  getDataSnapshot(): StringMap<StringMap<SavedDBEntity>> {
+  getDataSnapshot(): StringMap<StringMap<ObjectWithId>> {
     return _sortObjectDeep(this.data)
   }
 
@@ -106,7 +105,7 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<DBM extends SavedDBEntity>(_table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<DBM extends ObjectWithId>(_table: string): Promise<CommonSchema<DBM>> {
     const table = this.cfg.tablesPrefix + _table
     return CommonSchemaGenerator.generateFromRows({ table }, Object.values(this.data[table] || {}))
   }
@@ -120,7 +119,7 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<DBM extends SavedDBEntity>(
+  async getByIds<DBM extends ObjectWithId>(
     _table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -130,7 +129,7 @@ export class InMemoryDB implements CommonDB {
     return ids.map(id => this.data[table]![id]).filter(Boolean) as DBM[]
   }
 
-  async saveBatch<DBM extends SavedDBEntity>(
+  async saveBatch<DBM extends ObjectWithId>(
     _table: string,
     dbms: DBM[],
     opt?: CommonDBSaveOptions,
@@ -160,8 +159,8 @@ export class InMemoryDB implements CommonDB {
       .filter(Boolean).length
   }
 
-  async deleteByQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<any, DBM>,
+  async deleteByQuery<DBM extends ObjectWithId>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
@@ -170,8 +169,8 @@ export class InMemoryDB implements CommonDB {
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  async runQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     const table = this.cfg.tablesPrefix + q.table
@@ -183,8 +182,8 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
-  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): ReadableTyped<OUT> {
     const table = this.cfg.tablesPrefix + q.table

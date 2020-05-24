@@ -2,13 +2,7 @@ import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-l
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../dbQuery'
-import {
-  createTestItemsDBM,
-  getTestItemSchema,
-  TestItemBM,
-  TestItemDBM,
-  TEST_TABLE,
-} from './test.model'
+import { createTestItemsDBM, getTestItemSchema, TestItemDBM, TEST_TABLE } from './test.model'
 import { deepFreeze } from './test.util'
 
 export interface CommonDBImplementationFeatures {
@@ -85,7 +79,7 @@ export function runCommonDBTest(
   deepFreeze(items)
   const [item1] = items
 
-  const queryAll = () => new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE)
+  const queryAll = () => new DBQuery<TestItemDBM>(TEST_TABLE)
 
   test('ping', async () => {
     await db.ping()
@@ -153,7 +147,7 @@ export function runCommonDBTest(
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).filter('even', '=', true)
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', true)
         let { records } = await db.runQuery(q)
         if (!dbQueryOrder) records = _sortBy(records, 'id')
         expectMatch(
@@ -166,7 +160,7 @@ export function runCommonDBTest(
 
     if (dbQueryOrder) {
       test('query order by k1 desc', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).order('k1', true)
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).order('k1', true)
         const { records } = await db.runQuery(q)
         expectMatch([...items].reverse(), records, quirks)
       })
@@ -174,7 +168,7 @@ export function runCommonDBTest(
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select(['id'])
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['id'])
         let { records } = await db.runQuery(q)
         records = _sortBy(records, 'id') // cause order is not specified
         expectMatch(
@@ -185,7 +179,7 @@ export function runCommonDBTest(
       })
 
       test('projection query without ids', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select(['k1'])
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['k1'])
         let { records } = await db.runQuery(q)
         records = _sortBy(records, 'k1') // cause order is not specified
         expectMatch(
@@ -196,7 +190,7 @@ export function runCommonDBTest(
       })
 
       test('projection query empty fields (edge case)', async () => {
-        const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).select([])
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).select([])
         const { records } = await db.runQuery(q)
         expectMatch(
           items.map(() => ({})),
@@ -238,7 +232,7 @@ export function runCommonDBTest(
   // DELETE BY
   if (querying && dbQueryFilter) {
     test('deleteByQuery even=false', async () => {
-      const q = new DBQuery<TestItemBM, TestItemDBM>(TEST_TABLE).filter('even', '=', false)
+      const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
       const deleted = await db.deleteByQuery(q)
       expect(deleted).toBe(items.filter(item => !item.even).length)
 

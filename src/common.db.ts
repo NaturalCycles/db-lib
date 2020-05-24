@@ -4,8 +4,8 @@ import {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
+  ObjectWithId,
   RunQueryResult,
-  SavedDBEntity,
 } from './db.model'
 import { DBQuery } from './dbQuery'
 import { DBTransaction } from './dbTransaction'
@@ -30,7 +30,7 @@ export interface CommonDB {
    */
   getTables(): Promise<string[]>
 
-  getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>>
+  getTableSchema<DBM extends ObjectWithId>(table: string): Promise<CommonSchema<DBM>>
 
   /**
    * Will do like `create table ...` for mysql.
@@ -43,7 +43,7 @@ export interface CommonDB {
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds<DBM extends SavedDBEntity>(
+  getByIds<DBM extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -55,20 +55,20 @@ export interface CommonDB {
    *
    * DBM is included in generics, so it infer OUT from DBQuery<DBM>
    */
-  runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  runQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>>
 
   runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<OUT>
 
   // SAVE
-  saveBatch<DBM extends SavedDBEntity>(
+  saveBatch<DBM extends ObjectWithId>(
     table: string,
     dbms: DBM[],
     opt?: CommonDBSaveOptions,

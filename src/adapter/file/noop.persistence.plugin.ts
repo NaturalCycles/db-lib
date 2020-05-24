@@ -1,4 +1,4 @@
-import { SavedDBEntity } from '../../db.model'
+import { ObjectWithId } from '../../db.model'
 import { DBSaveBatchOperation } from '../../dbTransaction'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -9,7 +9,7 @@ export class NoopPersistencePlugin implements FileDBPersistencePlugin {
     return []
   }
 
-  async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
     return []
   }
 

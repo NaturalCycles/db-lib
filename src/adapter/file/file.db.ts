@@ -1,6 +1,6 @@
 import { _by, _deepEquals, _since, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { DBSaveBatchOperation, queryInMemory } from '../..'
+import { DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import { CommonDB } from '../../common.db'
@@ -10,7 +10,6 @@ import {
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   RunQueryResult,
-  SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
 import { FileDBCfg } from './file.db.model'
@@ -50,7 +49,7 @@ export class FileDB implements CommonDB {
     return tables
   }
 
-  async getByIds<DBM extends SavedDBEntity>(
+  async getByIds<DBM extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -59,7 +58,7 @@ export class FileDB implements CommonDB {
     return ids.map(id => byId[id]).filter(Boolean)
   }
 
-  async saveBatch<DBM extends SavedDBEntity>(
+  async saveBatch<DBM extends ObjectWithId>(
     table: string,
     dbms: DBM[],
     opt?: CommonDBSaveOptions,
@@ -85,8 +84,8 @@ export class FileDB implements CommonDB {
     }
   }
 
-  async runQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  async runQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return {
@@ -98,8 +97,8 @@ export class FileDB implements CommonDB {
     return (await this.loadFile(q.table)).length
   }
 
-  streamQuery<DBM extends SavedDBEntity, OUT = DBM>(
-    q: DBQuery<any, DBM>,
+  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
+    q: DBQuery<DBM>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<OUT> {
     const readable = readableCreate<DBM>()
@@ -112,7 +111,7 @@ export class FileDB implements CommonDB {
     return readable
   }
 
-  async deleteByIds<DBM extends SavedDBEntity>(
+  async deleteByIds<DBM extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -135,8 +134,8 @@ export class FileDB implements CommonDB {
     return deleted
   }
 
-  async deleteByQuery<DBM extends SavedDBEntity>(
-    q: DBQuery<any, DBM>,
+  async deleteByQuery<DBM extends ObjectWithId>(
+    q: DBQuery<DBM>,
     opt?: CommonDBOptions,
   ): Promise<number> {
     const byId = _by(await this.loadFile<DBM>(q.table), r => r.id)
@@ -164,13 +163,13 @@ export class FileDB implements CommonDB {
   // no-op
   async resetCache(table?: string): Promise<void> {}
 
-  async getTableSchema<DBM extends SavedDBEntity>(table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<DBM extends ObjectWithId>(table: string): Promise<CommonSchema<DBM>> {
     const dbms = await this.loadFile(table)
     return CommonSchemaGenerator.generateFromRows({ table }, dbms)
   }
 
   // wrapper, to handle logging
-  async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
     const started = this.logStarted(`loadFile(${table})`)
     const dbms = await this.cfg.plugin.loadFile<DBM>(table)
     this.logFinished(started, `loadFile(${table}) ${dbms.length} records`)
@@ -178,7 +177,7 @@ export class FileDB implements CommonDB {
   }
 
   // wrapper, to handle logging, sorting rows before saving
-  async saveFile<DBM extends SavedDBEntity>(table: string, _dbms: DBM[]): Promise<void> {
+  async saveFile<DBM extends ObjectWithId>(table: string, _dbms: DBM[]): Promise<void> {
     // Sort the records, if needed
     const dbms = this.sortDBMs(_dbms)
 

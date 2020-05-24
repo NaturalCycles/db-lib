@@ -1,5 +1,5 @@
 import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, SavedDBEntity } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, ObjectWithId } from './db.model'
 
 /**
  * DB Transaction has 2 concerns:
@@ -12,11 +12,7 @@ export class DBTransaction {
 
   _ops: DBOperation[] = []
 
-  saveBatch<DBM extends SavedDBEntity>(
-    table: string,
-    dbms: DBM[],
-    opt?: CommonDBSaveOptions,
-  ): this {
+  saveBatch<DBM extends ObjectWithId>(table: string, dbms: DBM[], opt?: CommonDBSaveOptions): this {
     this._ops.push({
       type: 'saveBatch',
       table,
@@ -59,7 +55,7 @@ export class DBTransaction {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<DBM extends SavedDBEntity = any> {
+export interface DBSaveBatchOperation<DBM extends ObjectWithId = any> {
   type: 'saveBatch'
   table: string
   dbms: DBM[]
