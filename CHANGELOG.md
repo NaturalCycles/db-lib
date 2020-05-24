@@ -1,3 +1,10 @@
+# [6.1.0](https://github.com/NaturalCycles/db-lib/compare/v6.0.0...v6.1.0) (2020-05-24)
+
+
+### Features
+
+* FileDBTransaction, FileDBPersistencePlugin.saveFiles ([eb25024](https://github.com/NaturalCycles/db-lib/commit/eb250247b595e97c274b3e0df1cc04a5d458d997))
+
 # [6.0.0](https://github.com/NaturalCycles/db-lib/compare/v5.5.0...v6.0.0) (2020-05-24)
 
 
