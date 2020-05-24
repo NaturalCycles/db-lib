@@ -1,6 +1,6 @@
 import { _by, _deepEquals, _since, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { queryInMemory } from '../..'
+import { DBSaveBatchOperation, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import { CommonDB } from '../../common.db'
@@ -13,8 +13,8 @@ import {
   SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
-import { DBTransaction } from '../../dbTransaction'
 import { FileDBCfg } from './file.db.model'
+import { FileDBTransaction } from './fileDBTransaction'
 
 const log = Debug('nc:db-lib:filedb')
 
@@ -154,8 +154,8 @@ export class FileDB implements CommonDB {
     return deleted
   }
 
-  transaction(): DBTransaction {
-    return this.cfg.plugin.transaction(this)
+  transaction(): FileDBTransaction {
+    return new FileDBTransaction(this)
   }
 
   // no-op
@@ -170,7 +170,7 @@ export class FileDB implements CommonDB {
   }
 
   // wrapper, to handle logging
-  private async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
+  async loadFile<DBM extends SavedDBEntity>(table: string): Promise<DBM[]> {
     const started = this.logStarted(`loadFile(${table})`)
     const dbms = await this.cfg.plugin.loadFile<DBM>(table)
     this.logFinished(started, `loadFile(${table}) ${dbms.length} records`)
@@ -178,20 +178,27 @@ export class FileDB implements CommonDB {
   }
 
   // wrapper, to handle logging, sorting rows before saving
-  private async saveFile<DBM extends SavedDBEntity>(table: string, dbms: DBM[]): Promise<void> {
+  async saveFile<DBM extends SavedDBEntity>(table: string, _dbms: DBM[]): Promise<void> {
     // Sort the records, if needed
-    const rows = this.sortDBMs(dbms)
+    const dbms = this.sortDBMs(_dbms)
 
-    const op = `saveFile(${table}) ${rows.length} records`
+    const op = `saveFile(${table}) ${dbms.length} records`
     const started = this.logStarted(op)
-    await this.cfg.plugin.saveFile<DBM>(table, rows)
+    await this.cfg.plugin.saveFiles([{ type: 'saveBatch', table, dbms }])
+    this.logFinished(started, op)
+  }
+
+  async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
+    const op = `saveFiles: ${ops.map(o => `${o.table} (${o.dbms.length})`).join(', ')}`
+    const started = this.logStarted(op)
+    await this.cfg.plugin.saveFiles(ops)
     this.logFinished(started, op)
   }
 
   /**
    * Mutates
    */
-  private sortDBMs<DBM>(dbms: DBM[]): DBM[] {
+  sortDBMs<DBM>(dbms: DBM[]): DBM[] {
     if (this.cfg.sortOnSave) {
       _sortBy(dbms, this.cfg.sortOnSave.name, true)
       if (this.cfg.sortOnSave.descending) dbms.reverse() // mutates

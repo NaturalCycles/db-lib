@@ -1,3 +1,4 @@
+import { pMap } from '@naturalcycles/js-lib'
 import {
   transformJsonParse,
   transformSplit,
@@ -9,8 +10,7 @@ import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
 import { SavedDBEntity } from '../../db.model'
-import { DBTransaction } from '../../dbTransaction'
-import { FileDB } from './file.db'
+import { DBSaveBatchOperation } from '../../dbTransaction'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 export interface LocalFilePersistencePluginCfg {
@@ -69,6 +69,10 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
     return rows
   }
 
+  async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
+    await pMap(ops, async op => await this.saveFile(op.table, op.dbms), { concurrency: 16 })
+  }
+
   async saveFile<DBM extends SavedDBEntity>(table: string, dbms: DBM[]): Promise<void> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
@@ -81,9 +85,5 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       ...transformZip,
       fs.createWriteStream(filePath),
     ])
-  }
-
-  transaction(db: FileDB): DBTransaction {
-    return new DBTransaction(db)
   }
 }

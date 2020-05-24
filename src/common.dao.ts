@@ -875,6 +875,12 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
+  // todo: logging
+  // todo: bmToDBM, etc. How?
+  // transaction(): DBTransaction {
+  //   return this.cfg.db.transaction()
+  // }
+
   protected logResult(started: number, op: string, res: any, table: string): void {
     if (!this.cfg.logLevel) return
 

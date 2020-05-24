@@ -50,6 +50,8 @@ export class DBTransaction {
         await this.db.saveBatch(op.table, op.dbms, op.opt)
       } else if (op.type === 'deleteByIds') {
         await this.db.deleteByIds(op.table, op.ids, op.opt)
+      } else {
+        throw new Error(`DBOperation not supported: ${op!.type}`)
       }
     }
   }
