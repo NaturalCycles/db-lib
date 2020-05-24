@@ -1,3 +1,10 @@
+# [6.2.0](https://github.com/NaturalCycles/db-lib/compare/v6.1.0...v6.2.0) (2020-05-24)
+
+
+### Features
+
+* CommonTimeSeriesDao.saveBatchInTransaction ([2236f1e](https://github.com/NaturalCycles/db-lib/commit/2236f1e4892227ee4ba376bef882a033f7d8912b))
+
 # [6.1.0](https://github.com/NaturalCycles/db-lib/compare/v6.0.0...v6.1.0) (2020-05-24)
 
 
