@@ -4,13 +4,16 @@ import {
   TimeSeriesDataPoint,
   TimeSeriesDBM,
   TimeSeriesQuery,
+  TimeSeriesSaveBatchOp,
 } from './timeSeries.model'
 
 const _TIMESERIES_RAW = '_TIMESERIES_RAW'
 
 /**
- * TimeSeries DB implemtation based on provided CommonDB database.
+ * TimeSeries DB implementation based on provided CommonDB database.
  * Turns any CommonDB database into TimeSeries DB. Kind of.
+ *
+ * Experimental.
  */
 export class CommonTimeSeriesDao {
   constructor(public cfg: CommonTimeSeriesDaoCfg) {}
@@ -25,6 +28,7 @@ export class CommonTimeSeriesDao {
       .filter(Boolean)
   }
 
+  // convenience method
   async save(series: string, tsMillis: number, value: number): Promise<void> {
     await this.saveBatch(series, [[tsMillis, value]])
   }
@@ -39,6 +43,27 @@ export class CommonTimeSeriesDao {
     }))
 
     await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, dbms as any)
+  }
+
+  /**
+   * All ops are executed as a single CommonDB Transaction.
+   */
+  async saveBatchInTransaction(ops: TimeSeriesSaveBatchOp[]): Promise<void> {
+    if (!ops.length) return
+
+    const tx = this.cfg.db.transaction()
+
+    ops.forEach(op => {
+      const dbms: TimeSeriesDBM[] = op.dataPoints.map(([ts, v]) => ({
+        id: ts,
+        ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
+        v,
+      }))
+
+      tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, dbms as any)
+    })
+
+    await tx.commit()
   }
 
   async deleteById(series: string, tsMillis: number): Promise<void> {
