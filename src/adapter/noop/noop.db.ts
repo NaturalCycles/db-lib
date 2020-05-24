@@ -9,6 +9,7 @@ import {
   SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
+import { DBTransaction } from '../../dbTransaction'
 import { CommonSchema } from '../../schema/common.schema'
 
 export class NoOpDB implements CommonDB {
@@ -58,5 +59,9 @@ export class NoOpDB implements CommonDB {
 
   streamQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): ReadableTyped<OUT> {
     return Readable.from([])
+  }
+
+  transaction(): DBTransaction {
+    return new DBTransaction(this)
   }
 }

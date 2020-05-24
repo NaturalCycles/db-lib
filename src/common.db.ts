@@ -8,6 +8,7 @@ import {
   SavedDBEntity,
 } from './db.model'
 import { DBQuery } from './dbQuery'
+import { DBTransaction } from './dbTransaction'
 import { CommonSchema } from './schema/common.schema'
 
 export interface CommonDB {
@@ -81,4 +82,9 @@ export interface CommonDB {
   deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number>
 
   deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number>
+
+  // TRANSACTION
+  transaction(): DBTransaction
+
+  // commitTransaction(tx: DBTransaction): Promise<void>
 }

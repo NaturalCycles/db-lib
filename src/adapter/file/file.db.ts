@@ -13,6 +13,7 @@ import {
   SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
+import { DBTransaction } from '../../dbTransaction'
 import { FileDBCfg } from './file.db.model'
 
 const log = Debug('nc:db-lib:filedb')
@@ -151,6 +152,10 @@ export class FileDB implements CommonDB {
     }
 
     return deleted
+  }
+
+  transaction(): DBTransaction {
+    return this.cfg.plugin.transaction(this)
   }
 
   // no-op

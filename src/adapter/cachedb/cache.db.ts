@@ -9,6 +9,7 @@ import {
   SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
+import { DBTransaction } from '../../dbTransaction'
 import { CommonSchema } from '../../schema/common.schema'
 
 export interface CacheDBCfg {
@@ -296,5 +297,9 @@ export class CacheDB implements CommonDB {
     }
 
     return deletedIds
+  }
+
+  transaction(): DBTransaction {
+    return new DBTransaction(this)
   }
 }

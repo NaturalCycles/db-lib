@@ -1,5 +1,7 @@
 import { StringMap, _by } from '@naturalcycles/js-lib'
 import { SavedDBEntity } from '../../db.model'
+import { DBTransaction } from '../../dbTransaction'
+import { FileDB } from './file.db'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 /**
@@ -20,5 +22,9 @@ export class InMemoryPersistencePlugin implements FileDBPersistencePlugin {
 
   async saveFile<DBM extends SavedDBEntity>(table: string, dbms: DBM[]): Promise<void> {
     this.data[table] = _by(dbms, dbm => dbm.id)
+  }
+
+  transaction(db: FileDB): DBTransaction {
+    return new DBTransaction(db)
   }
 }

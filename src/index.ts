@@ -35,6 +35,12 @@ import {
   DBQueryOrder,
   RunnableDBQuery,
 } from './dbQuery'
+import {
+  DBDeleteByIdsOperation,
+  DBOperation,
+  DBSaveBatchOperation,
+  DBTransaction,
+} from './dbTransaction'
 import { getDB } from './getDB'
 import {
   createdUpdatedFields,
@@ -103,4 +109,8 @@ export {
   CommonDBAdapter,
   getDB,
   DBLibError,
+  DBTransaction,
+  DBOperation,
+  DBSaveBatchOperation,
+  DBDeleteByIdsOperation,
 }

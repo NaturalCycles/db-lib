@@ -23,6 +23,7 @@ import {
   SavedDBEntity,
 } from '../../db.model'
 import { DBQuery } from '../../dbQuery'
+import { DBTransaction } from '../../dbTransaction'
 
 export interface InMemoryDBCfg {
   /**
@@ -188,6 +189,10 @@ export class InMemoryDB implements CommonDB {
   ): ReadableTyped<OUT> {
     const table = this.cfg.tablesPrefix + q.table
     return Readable.from(queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {}) as DBM[]))
+  }
+
+  transaction(): DBTransaction {
+    return new DBTransaction(this)
   }
 
   /**

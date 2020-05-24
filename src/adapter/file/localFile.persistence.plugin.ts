@@ -9,6 +9,8 @@ import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
 import { SavedDBEntity } from '../../db.model'
+import { DBTransaction } from '../../dbTransaction'
+import { FileDB } from './file.db'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 export interface LocalFilePersistencePluginCfg {
@@ -79,5 +81,9 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       ...transformZip,
       fs.createWriteStream(filePath),
     ])
+  }
+
+  transaction(db: FileDB): DBTransaction {
+    return new DBTransaction(db)
   }
 }
