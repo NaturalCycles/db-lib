@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/NaturalCycles/db-lib/compare/v5.5.0...v6.0.0) (2020-05-24)
+
+
+### Features
+
+* DBTransaction (experimental) ([ea2dc64](https://github.com/NaturalCycles/db-lib/commit/ea2dc64a5284ffd6d507a98f25c8799fa3c022a5))
+
+
+### BREAKING CHANGES
+
+* ^^^
+
 # [5.5.0](https://github.com/NaturalCycles/db-lib/compare/v5.4.0...v5.5.0) (2020-05-23)
 
 
