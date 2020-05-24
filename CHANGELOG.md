@@ -1,3 +1,10 @@
+## [6.2.1](https://github.com/NaturalCycles/db-lib/compare/v6.2.0...v6.2.1) (2020-05-24)
+
+
+### Bug Fixes
+
+* logging ([56e5747](https://github.com/NaturalCycles/db-lib/commit/56e574722dfaddc7cd1598936bc29353aa70f5b1))
+
 # [6.2.0](https://github.com/NaturalCycles/db-lib/compare/v6.1.0...v6.2.0) (2020-05-24)
 
 
