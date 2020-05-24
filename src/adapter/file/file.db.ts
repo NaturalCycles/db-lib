@@ -172,7 +172,7 @@ export class FileDB implements CommonDB {
   async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
     const started = this.logStarted(`loadFile(${table})`)
     const dbms = await this.cfg.plugin.loadFile<DBM>(table)
-    this.logFinished(started, `loadFile(${table}) ${dbms.length} records`)
+    this.logFinished(started, `loadFile(${table}) ${dbms.length} record(s)`)
     return dbms
   }
 
@@ -181,14 +181,16 @@ export class FileDB implements CommonDB {
     // Sort the records, if needed
     const dbms = this.sortDBMs(_dbms)
 
-    const op = `saveFile(${table}) ${dbms.length} records`
+    const op = `saveFile(${table}) ${dbms.length} record(s)`
     const started = this.logStarted(op)
     await this.cfg.plugin.saveFiles([{ type: 'saveBatch', table, dbms }])
     this.logFinished(started, op)
   }
 
   async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
-    const op = `saveFiles: ${ops.map(o => `${o.table} (${o.dbms.length})`).join(', ')}`
+    const op = `saveFiles ${ops.length} op(s):\n${ops
+      .map(o => `${o.table} (${o.dbms.length})`)
+      .join('\n')}`
     const started = this.logStarted(op)
     await this.cfg.plugin.saveFiles(ops)
     this.logFinished(started, op)
