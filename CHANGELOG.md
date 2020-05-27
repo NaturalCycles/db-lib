@@ -1,3 +1,10 @@
+## [6.2.2](https://github.com/NaturalCycles/db-lib/compare/v6.2.1...v6.2.2) (2020-05-27)
+
+
+### Bug Fixes
+
+* package.json exports had wrong syntax ([37d5fa7](https://github.com/NaturalCycles/db-lib/commit/37d5fa71229cf49ecb0583f9d3dde585457b65ce))
+
 ## [6.2.1](https://github.com/NaturalCycles/db-lib/compare/v6.2.0...v6.2.1) (2020-05-24)
 
 
