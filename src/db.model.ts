@@ -7,20 +7,7 @@ import {
 import { Merge } from 'type-fest'
 import { CommonDB } from './common.db'
 
-/**
- * All properties default to undefined.
- */
-export interface CommonDBOptions {
-  /**
-   * @default false
-   */
-  skipCache?: boolean
-
-  /**
-   * @default false
-   */
-  onlyCache?: boolean
-}
+export interface CommonDBOptions {}
 
 /**
  * All properties default to undefined.

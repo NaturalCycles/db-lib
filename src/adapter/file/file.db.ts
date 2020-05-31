@@ -160,9 +160,6 @@ export class FileDB implements CommonDB {
   // no-op
   async createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void> {}
 
-  // no-op
-  async resetCache(table?: string): Promise<void> {}
-
   async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>> {
     const rows = await this.loadFile(table)
     return CommonSchemaGenerator.generateFromRows({ table }, rows)

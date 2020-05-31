@@ -41,8 +41,6 @@ export class NoOpDB implements CommonDB {
     return []
   }
 
-  async resetCache(): Promise<void> {}
-
   async runQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
     return { rows: [] }
   }
