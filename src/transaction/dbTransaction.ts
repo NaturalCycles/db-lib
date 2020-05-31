@@ -7,20 +7,22 @@ import type { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model
 export class DBTransaction {
   public ops: DBOperation[] = []
 
-  saveBatch<ROW extends ObjectWithId = any>(table: string, rows: ROW[]): void {
+  saveBatch<ROW extends ObjectWithId = any>(table: string, rows: ROW[]): this {
     this.ops.push({
       type: 'saveBatch',
       table,
       rows,
     })
+    return this
   }
 
-  deleteByIds(table: string, ids: string[]): void {
+  deleteByIds(table: string, ids: string[]): this {
     this.ops.push({
       type: 'deleteByIds',
       table,
       ids,
     })
+    return this
   }
 }
 
