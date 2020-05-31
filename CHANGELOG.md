@@ -1,3 +1,17 @@
+# [7.0.0](https://github.com/NaturalCycles/db-lib/compare/v6.2.2...v7.0.0) (2020-05-31)
+
+
+### Code Refactoring
+
+* CommonDB.commitTransaction method ([573cd2a](https://github.com/NaturalCycles/db-lib/commit/573cd2ab0daf11cc0ad189f3e402be2749e3713b))
+* DBM => ROW, record => row ([8a5954d](https://github.com/NaturalCycles/db-lib/commit/8a5954dacd9ef5e8873943a543ee692876548f43))
+
+
+### BREAKING CHANGES
+
+* ^^^
+* ^^^
+
 ## [6.2.2](https://github.com/NaturalCycles/db-lib/compare/v6.2.1...v6.2.2) (2020-05-27)
 
 
