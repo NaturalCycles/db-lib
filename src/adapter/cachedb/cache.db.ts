@@ -1,10 +1,10 @@
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
+import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
 import { ObjectWithId, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
 import { CommonSchema } from '../../schema/common.schema'
-import { DBTransaction } from '../../transaction/dbTransaction'
 import {
   CacheDBCfg,
   CacheDBCreateOptions,
@@ -18,8 +18,9 @@ import {
  *
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
-export class CacheDB implements CommonDB {
+export class CacheDB extends BaseCommonDB implements CommonDB {
   constructor(public cfg: CacheDBCfg) {
+    super()
     this.log = Debug(`nc:db-lib:${cfg.name}`)
   }
 
@@ -259,9 +260,5 @@ export class CacheDB implements CommonDB {
     }
 
     return deletedIds
-  }
-
-  transaction(): DBTransaction {
-    return new DBTransaction(this)
   }
 }

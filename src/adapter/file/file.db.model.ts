@@ -1,6 +1,5 @@
-import { ObjectWithId } from '../../db.model'
+import { DBSaveBatchOperation, ObjectWithId } from '../../db.model'
 import type { DBQueryOrder } from '../../query/dbQuery'
-import type { DBSaveBatchOperation } from '../../transaction/dbTransaction'
 
 export interface FileDBPersistencePlugin {
   ping(): Promise<void>

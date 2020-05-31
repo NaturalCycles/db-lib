@@ -1,18 +1,23 @@
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
-import { CommonDB } from '../../common.db'
+import { CommonDB } from './common.db'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   ObjectWithId,
   RunQueryResult,
-} from '../../db.model'
-import { DBQuery } from '../../query/dbQuery'
-import { CommonSchema } from '../../schema/common.schema'
-import { DBTransaction } from '../../transaction/dbTransaction'
+} from './db.model'
+import { DBQuery } from './query/dbQuery'
+import { CommonSchema } from './schema/common.schema'
+import { DBTransaction } from './transaction/dbTransaction'
+import { commitDBTransactionSimple } from './transaction/dbTransaction.util'
 
-export class NoOpDB implements CommonDB {
+/**
+ * No-op implementation of CommonDB interface.
+ * To be extended by actual implementations.
+ */
+export class BaseCommonDB implements CommonDB {
   async ping(): Promise<void> {}
 
   async getTables(): Promise<string[]> {
@@ -33,15 +38,15 @@ export class NoOpDB implements CommonDB {
     return 0
   }
 
-  async getByIds<DBM extends ObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
-  ): Promise<DBM[]> {
+  ): Promise<ROW[]> {
     return []
   }
 
-  async runQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
+  async runQuery<ROW>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<ROW>> {
     return { rows: [] }
   }
 
@@ -55,11 +60,15 @@ export class NoOpDB implements CommonDB {
     opt?: CommonDBSaveOptions,
   ): Promise<void> {}
 
-  streamQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): ReadableTyped<OUT> {
+  streamQuery<ROW>(q: DBQuery, opt?: CommonDBOptions): ReadableTyped<ROW> {
     return Readable.from([])
   }
 
-  transaction(): DBTransaction {
-    return new DBTransaction(this)
+  /**
+   * Naive implementation.
+   * To be extended.
+   */
+  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+    await commitDBTransactionSimple(this, tx, opt)
   }
 }

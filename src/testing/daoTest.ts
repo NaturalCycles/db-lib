@@ -70,10 +70,10 @@ export function runCommonDaoTest(
   if (querying) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
-      const records = await dao.query().select(['id']).runQuery<ObjectWithId>()
+      const rows = await dao.query().select(['id']).runQuery<ObjectWithId>()
       await db.deleteByIds(
         TEST_TABLE,
-        records.map(i => i.id),
+        rows.map(i => i.id),
       )
     })
 
@@ -108,26 +108,26 @@ export function runCommonDaoTest(
 
   // GET not empty
   test('getByIds all items', async () => {
-    const records = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-    expectMatch(expectedItems, records, quirks)
+    const rows = await dao.getByIds(items.map(i => i.id).concat('abcd'))
+    expectMatch(expectedItems, rows, quirks)
   })
 
   // QUERY
   if (querying) {
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-      let records = await dao.query().runQuery()
-      records = _sortBy(records, 'id')
-      expectMatch(expectedItems, records, quirks)
+      let rows = await dao.query().runQuery()
+      rows = _sortBy(rows, 'id')
+      expectMatch(expectedItems, rows, quirks)
     })
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
-        let records = await dao.query().filter('even', '=', true).runQuery()
-        records = _sortBy(records, 'id')
+        let rows = await dao.query().filter('even', '=', true).runQuery()
+        rows = _sortBy(rows, 'id')
         expectMatch(
           expectedItems.filter(i => i.even),
-          records,
+          rows,
           quirks,
         )
       })
@@ -135,18 +135,18 @@ export function runCommonDaoTest(
 
     if (dbQueryOrder) {
       test('query order by k1 desc', async () => {
-        const records = await dao.query().order('k1', true).runQuery()
-        expectMatch([...expectedItems].reverse(), records, quirks)
+        const rows = await dao.query().order('k1', true).runQuery()
+        expectMatch([...expectedItems].reverse(), rows, quirks)
       })
     }
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
-        let records = await dao.query().select(['id']).runQuery<ObjectWithId>()
-        records = _sortBy(records, 'id')
+        let rows = await dao.query().select(['id']).runQuery<ObjectWithId>()
+        rows = _sortBy(rows, 'id')
         expectMatch(
           expectedItems.map(item => _pick(item, ['id'])),
-          records,
+          rows,
           quirks,
         )
       })
@@ -160,18 +160,18 @@ export function runCommonDaoTest(
   // STREAM
   if (streaming) {
     test('streamQueryForEach all', async () => {
-      let records: TestItemBM[] = []
-      await dao.query().streamQueryForEach(bm => void records.push(bm))
+      let rows: TestItemBM[] = []
+      await dao.query().streamQueryForEach(bm => void rows.push(bm))
 
-      records = _sortBy(records, 'id')
-      expectMatch(expectedItems, records, quirks)
+      rows = _sortBy(rows, 'id')
+      expectMatch(expectedItems, rows, quirks)
     })
 
     test('streamQuery all', async () => {
-      let records = await streamMapToArray(dao.query().streamQuery())
+      let rows = await streamMapToArray(dao.query().streamQuery())
 
-      records = _sortBy(records, 'id')
-      expectMatch(expectedItems, records, quirks)
+      rows = _sortBy(rows, 'id')
+      expectMatch(expectedItems, rows, quirks)
     })
 
     test('streamQueryIdsForEach all', async () => {
@@ -207,10 +207,10 @@ export function runCommonDaoTest(
 
     test('cleanup', async () => {
       // CLEAN UP
-      const records = await dao.query().select(['id']).runQuery()
+      const rows = await dao.query().select(['id']).runQuery()
       await db.deleteByIds(
         TEST_TABLE,
-        records.map(i => i.id),
+        rows.map(i => i.id),
       )
     })
   }

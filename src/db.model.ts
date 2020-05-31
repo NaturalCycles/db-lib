@@ -31,6 +31,20 @@ export interface RunQueryResult<T> {
   endCursor?: string
 }
 
+export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
+
+export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
+  type: 'saveBatch'
+  table: string
+  rows: ROW[]
+}
+
+export interface DBDeleteByIdsOperation {
+  type: 'deleteByIds'
+  table: string
+  ids: string[]
+}
+
 export enum DBRelation {
   ONE_TO_ONE = 'ONE_TO_ONE',
   ONE_TO_MANY = 'ONE_TO_MANY',

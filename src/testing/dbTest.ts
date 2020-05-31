@@ -132,8 +132,8 @@ export function runCommonDBTest(
 
   // GET not empty
   test('getByIds all items', async () => {
-    const records = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
-    expectMatch(items, records, quirks)
+    const rows = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
+    expectMatch(items, rows, quirks)
   })
 
   // QUERY
@@ -208,10 +208,10 @@ export function runCommonDBTest(
   // STREAM
   if (streaming) {
     test('streamQuery all', async () => {
-      let records = await streamMapToArray(db.streamQuery(queryAll()))
+      let rows = await streamMapToArray(db.streamQuery(queryAll()))
 
-      records = _sortBy(records, 'id') // cause order is not specified in DBQuery
-      expectMatch(items, records, quirks)
+      rows = _sortBy(rows, 'id') // cause order is not specified in DBQuery
+      expectMatch(items, rows, quirks)
     })
   }
 

@@ -1,3 +1,5 @@
+import { DBTransaction } from '..'
+import { ObjectWithId } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
 import {
   CommonTimeSeriesDaoCfg,
@@ -36,34 +38,34 @@ export class CommonTimeSeriesDao {
   async saveBatch(series: string, dataPoints: TimeSeriesDataPoint[]): Promise<void> {
     if (!dataPoints.length) return
 
-    const rows: TimeSeriesRow[] = dataPoints.map(([ts, v]) => ({
-      id: ts,
+    const rows: ObjectWithId[] = dataPoints.map(([ts, v]) => ({
+      id: String(ts), // Convert Number id into String id, as per CommonDB
       ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
       v,
     }))
 
-    await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, rows as any)
+    await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, rows)
   }
 
   /**
    * All ops are executed as a single CommonDB Transaction.
    */
-  async saveBatchInTransaction(ops: TimeSeriesSaveBatchOp[]): Promise<void> {
+  async commitTransaction(ops: TimeSeriesSaveBatchOp[]): Promise<void> {
     if (!ops.length) return
 
-    const tx = this.cfg.db.transaction()
+    const tx = new DBTransaction()
 
     ops.forEach(op => {
-      const rows: TimeSeriesRow[] = op.dataPoints.map(([ts, v]) => ({
-        id: ts,
+      const rows: ObjectWithId[] = op.dataPoints.map(([ts, v]) => ({
+        id: String(ts), // Convert Number id into String id, as per CommonDB
         ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
         v,
       }))
 
-      tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, rows as any)
+      tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, rows)
     })
 
-    await tx.commit()
+    await this.cfg.db.commitTransaction(tx)
   }
 
   async deleteById(series: string, tsMillis: number): Promise<void> {

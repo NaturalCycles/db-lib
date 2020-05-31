@@ -9,8 +9,7 @@ import {
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
-import { ObjectWithId } from '../../db.model'
-import { DBSaveBatchOperation } from '../../transaction/dbTransaction'
+import { DBSaveBatchOperation, ObjectWithId } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 export interface LocalFilePersistencePluginCfg {

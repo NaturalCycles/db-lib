@@ -1,19 +1,27 @@
-import { _by, _deepEquals, _since, _sortBy, _sortObjectDeep } from '@naturalcycles/js-lib'
+import {
+  pMap,
+  StringMap,
+  _by,
+  _deepEquals,
+  _since,
+  _sortBy,
+  _sortObjectDeep,
+  _uniq,
+} from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
+import { BaseCommonDB, DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import { CommonDB } from '../../common.db'
 import {
-  CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   RunQueryResult,
 } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
+import { DBTransaction } from '../../transaction/dbTransaction'
 import { FileDBCfg } from './file.db.model'
-import { FileDBTransaction } from './fileDBTransaction'
 
 const log = Debug('nc:db-lib:filedb')
 
@@ -27,8 +35,9 @@ const log = Debug('nc:db-lib:filedb')
  * Each load/query operation loads *whole* file from the persitence layer.
  * Each save operation saves *whole* file to the persistence layer.
  */
-export class FileDB implements CommonDB {
+export class FileDB extends BaseCommonDB implements CommonDB {
   constructor(cfg: FileDBCfg) {
+    super()
     this.cfg = {
       sortObjects: true,
       logFinished: true,
@@ -82,6 +91,50 @@ export class FileDB implements CommonDB {
       // 3. Save the whole file
       await this.saveFile(table, Object.values(byId))
     }
+  }
+
+  /**
+   * Implementation is optimized for loading/saving _whole files_.
+   */
+  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+    // data[table][id] => row
+    const data: StringMap<StringMap<ObjectWithId>> = {}
+
+    // 1. Load all tables data (concurrently)
+    const tables = _uniq(tx.ops.map(o => o.table))
+
+    await pMap(
+      tables,
+      async table => {
+        const rows = await this.loadFile(table)
+        data[table] = _by(rows, r => r.id)
+      },
+      { concurrency: 16 },
+    )
+
+    // 2. Apply ops one by one (in order)
+    tx.ops.forEach(op => {
+      if (op.type === 'deleteByIds') {
+        op.ids.forEach(id => delete data[op.table]![id])
+      } else if (op.type === 'saveBatch') {
+        op.rows.forEach(r => (data[op.table]![r.id] = r))
+      } else {
+        throw new Error(`DBOperation not supported: ${op!.type}`)
+      }
+    })
+
+    // 3. Sort, turn it into ops
+    // Not filtering empty arrays, cause it's already filtered in this.saveFiles()
+    const ops: DBSaveBatchOperation[] = Object.keys(data).map(table => {
+      return {
+        type: 'saveBatch',
+        table,
+        rows: this.sortRows(Object.values(data[table]!)),
+      }
+    })
+
+    // 4. Save all files
+    await this.saveFiles(ops)
   }
 
   async runQuery<ROW extends ObjectWithId, OUT = ROW>(
@@ -153,13 +206,6 @@ export class FileDB implements CommonDB {
     return deleted
   }
 
-  transaction(): FileDBTransaction {
-    return new FileDBTransaction(this)
-  }
-
-  // no-op
-  async createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void> {}
-
   async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>> {
     const rows = await this.loadFile(table)
     return CommonSchemaGenerator.generateFromRows({ table }, rows)
@@ -175,6 +221,8 @@ export class FileDB implements CommonDB {
 
   // wrapper, to handle logging, sorting rows before saving
   async saveFile<ROW extends ObjectWithId>(table: string, _rows: ROW[]): Promise<void> {
+    // if (!_rows.length) return // NO, it should be able to save file with 0 rows!
+
     // Sort the rows, if needed
     const rows = this.sortRows(_rows)
 
@@ -185,9 +233,9 @@ export class FileDB implements CommonDB {
   }
 
   async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
-    const op = `saveFiles ${ops.length} op(s):\n${ops
-      .map(o => `${o.table} (${o.rows.length})`)
-      .join('\n')}`
+    if (!ops.length) return
+    const op =
+      `saveFiles ${ops.length} op(s):\n` + ops.map(o => `${o.table} (${o.rows.length})`).join('\n')
     const started = this.logStarted(op)
     await this.cfg.plugin.saveFiles(ops)
     this.logFinished(started, op)

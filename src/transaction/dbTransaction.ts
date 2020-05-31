@@ -1,70 +1,39 @@
-import { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, ObjectWithId } from '../db.model'
+import type { CommonDB } from '../common.db'
+import type { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
 
 /**
- * DB Transaction has 2 concerns:
- *
- * 1. Group/buffer multiple operations to be executed "at once" (batch execution).
- * 2. All-or-nothing execution. If at least 1 operation fails - whole "transaction" is rolled back as if it never happened.
+ * Convenience class that stores the list of DBOperations and provides a fluent API to add them.
  */
 export class DBTransaction {
-  constructor(public db: CommonDB) {}
+  public ops: DBOperation[] = []
 
-  _ops: DBOperation[] = []
-
-  saveBatch<ROW extends ObjectWithId>(table: string, rows: ROW[], opt?: CommonDBSaveOptions): this {
-    this._ops.push({
+  saveBatch<ROW extends ObjectWithId = any>(table: string, rows: ROW[]): void {
+    this.ops.push({
       type: 'saveBatch',
       table,
       rows,
-      opt,
     })
-
-    return this
   }
 
-  deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): this {
-    this._ops.push({
+  deleteByIds(table: string, ids: string[]): void {
+    this.ops.push({
       type: 'deleteByIds',
       table,
       ids,
-      opt,
     })
-
-    return this
-  }
-
-  /**
-   * Default implementation will simply replay all operations in the right order
-   * with concurrency of 1 (serially).
-   *
-   * Override this method in your CommonDB implementation to support "native" DB transactions.
-   */
-  async commit(): Promise<void> {
-    for await (const op of this._ops) {
-      if (op.type === 'saveBatch') {
-        await this.db.saveBatch(op.table, op.rows, op.opt)
-      } else if (op.type === 'deleteByIds') {
-        await this.db.deleteByIds(op.table, op.ids, op.opt)
-      } else {
-        throw new Error(`DBOperation not supported: ${op!.type}`)
-      }
-    }
   }
 }
 
-export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
+/**
+ * Extends DBTransaction by providing a convenient `commit` method that delegates
+ * to CommonDB.commitTransaction().
+ */
+export class RunnableDBTransaction extends DBTransaction {
+  constructor(public db: CommonDB) {
+    super()
+  }
 
-export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
-  type: 'saveBatch'
-  table: string
-  rows: ROW[]
-  opt?: CommonDBSaveOptions
-}
-
-export interface DBDeleteByIdsOperation {
-  type: 'deleteByIds'
-  table: string
-  ids: string[]
-  opt?: CommonDBOptions
+  async commit(opt?: CommonDBSaveOptions): Promise<void> {
+    await this.db.commitTransaction(this, opt)
+  }
 }

@@ -12,7 +12,7 @@ import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
-import { CommonDB, ObjectWithId, queryInMemory } from '../..'
+import { CommonDB, DBTransaction, ObjectWithId, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
 import {
@@ -22,7 +22,6 @@ import {
   RunQueryResult,
 } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
-import { DBTransaction } from '../../transaction/dbTransaction'
 
 export interface InMemoryDBCfg {
   /**
@@ -190,8 +189,16 @@ export class InMemoryDB implements CommonDB {
     return Readable.from(queryInMemory<ROW, OUT>(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
-  transaction(): DBTransaction {
-    return new DBTransaction(this)
+  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+    for await (const op of tx.ops) {
+      if (op.type === 'saveBatch') {
+        await this.saveBatch(op.table, op.rows, opt)
+      } else if (op.type === 'deleteByIds') {
+        await this.deleteByIds(op.table, op.ids, opt)
+      } else {
+        throw new Error(`DBOperation not supported: ${op!.type}`)
+      }
+    }
   }
 
   /**

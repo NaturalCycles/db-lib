@@ -1,5 +1,4 @@
-import { ObjectWithId } from '../../db.model'
-import { DBSaveBatchOperation } from '../../transaction/dbTransaction'
+import { DBSaveBatchOperation, ObjectWithId } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 export class NoopPersistencePlugin implements FileDBPersistencePlugin {

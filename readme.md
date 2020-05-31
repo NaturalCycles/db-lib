@@ -300,7 +300,6 @@ Passing empty array will actually return an array of empty objects (documented e
 - `/` root
 - `/adapter/file`
 - `/adapter/cachedb`
-- `/adapter/noop`
 - `/testing`
   - dbTest
   - daoTest

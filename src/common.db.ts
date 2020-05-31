@@ -79,7 +79,9 @@ export interface CommonDB {
   deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
   // TRANSACTION
-  transaction(): DBTransaction
-
-  // commitTransaction(tx: DBTransaction): Promise<void>
+  /**
+   * Should be implemented as a Transaction (best effort), which means that
+   * either ALL or NONE of the operations should be applied.
+   */
+  commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void>
 }

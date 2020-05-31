@@ -1,5 +1,6 @@
 import { InMemoryDB, InMemoryDBCfg } from './adapter/inmemory/inMemory.db'
 import { queryInMemory } from './adapter/inmemory/queryInMemory'
+import { BaseCommonDB } from './base.common.db'
 import { DBLibError } from './cnst'
 import { CommonDB } from './common.db'
 import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './commondao/common.dao'
@@ -21,8 +22,11 @@ import {
   CreatedUpdated,
   CreatedUpdatedId,
   CreatedUpdatedVer,
+  DBDeleteByIdsOperation,
   DBModelType,
+  DBOperation,
   DBRelation,
+  DBSaveBatchOperation,
   ObjectWithId,
   RunQueryResult,
   Saved,
@@ -50,12 +54,8 @@ import {
 } from './query/dbQuery'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './schema/common.schema'
 import { CommonSchemaGenerator, CommonSchemaGeneratorCfg } from './schema/commonSchemaGenerator'
-import {
-  DBDeleteByIdsOperation,
-  DBOperation,
-  DBSaveBatchOperation,
-  DBTransaction,
-} from './transaction/dbTransaction'
+import { DBTransaction, RunnableDBTransaction } from './transaction/dbTransaction'
+import { commitDBTransactionSimple, mergeDBOperations } from './transaction/dbTransaction.util'
 
 export {
   DBQuery,
@@ -111,8 +111,12 @@ export {
   CommonDBAdapter,
   getDB,
   DBLibError,
-  DBTransaction,
+  BaseCommonDB,
   DBOperation,
   DBSaveBatchOperation,
   DBDeleteByIdsOperation,
+  DBTransaction,
+  RunnableDBTransaction,
+  mergeDBOperations,
+  commitDBTransactionSimple,
 }

@@ -3,5 +3,4 @@ test('should not leak memory', () => {
   require('./validation')
   require('./testing')
   require('./adapter/cachedb')
-  require('./adapter/noop')
 })
