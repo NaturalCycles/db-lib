@@ -2,8 +2,8 @@ import { DBQuery } from '../query/dbQuery'
 import {
   CommonTimeSeriesDaoCfg,
   TimeSeriesDataPoint,
-  TimeSeriesDBM,
   TimeSeriesQuery,
+  TimeSeriesRow,
   TimeSeriesSaveBatchOp,
 } from './timeSeries.model'
 
@@ -13,7 +13,7 @@ const _TIMESERIES_RAW = '_TIMESERIES_RAW'
  * TimeSeries DB implementation based on provided CommonDB database.
  * Turns any CommonDB database into TimeSeries DB. Kind of.
  *
- * Experimental.
+ * @experimental
  */
 export class CommonTimeSeriesDao {
   constructor(public cfg: CommonTimeSeriesDaoCfg) {}
@@ -36,13 +36,13 @@ export class CommonTimeSeriesDao {
   async saveBatch(series: string, dataPoints: TimeSeriesDataPoint[]): Promise<void> {
     if (!dataPoints.length) return
 
-    const dbms: TimeSeriesDBM[] = dataPoints.map(([ts, v]) => ({
+    const rows: TimeSeriesRow[] = dataPoints.map(([ts, v]) => ({
       id: ts,
       ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
       v,
     }))
 
-    await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, dbms as any)
+    await this.cfg.db.saveBatch(`${series}${_TIMESERIES_RAW}`, rows as any)
   }
 
   /**
@@ -54,13 +54,13 @@ export class CommonTimeSeriesDao {
     const tx = this.cfg.db.transaction()
 
     ops.forEach(op => {
-      const dbms: TimeSeriesDBM[] = op.dataPoints.map(([ts, v]) => ({
+      const rows: TimeSeriesRow[] = op.dataPoints.map(([ts, v]) => ({
         id: ts,
         ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
         v,
       }))
 
-      tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, dbms as any)
+      tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, rows as any)
     })
 
     await tx.commit()
@@ -83,11 +83,11 @@ export class CommonTimeSeriesDao {
     if (q.fromIncl) dbq.filter('ts', '>=', q.fromIncl)
     if (q.toExcl) dbq.filter('ts', '<', q.toExcl)
 
-    const { records } = await this.cfg.db.runQuery<any, TimeSeriesDBM>(dbq)
+    const { rows } = await this.cfg.db.runQuery<any, TimeSeriesRow>(dbq)
 
     // todo: query from aggregated tables when step is above 'hour'
 
-    return records
+    return rows
       .filter(r => r.v !== null && r.v !== undefined) // can be 0
       .map(r => [r.ts, r.v])
   }

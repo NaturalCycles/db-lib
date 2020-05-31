@@ -15,13 +15,13 @@ export class InMemoryPersistencePlugin implements FileDBPersistencePlugin {
     return Object.keys(this.data)
   }
 
-  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
+  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
     return Object.values(this.data[table] || ({} as any))
   }
 
   async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
     ops.forEach(op => {
-      this.data[op.table] = _by(op.dbms, dbm => dbm.id)
+      this.data[op.table] = _by(op.rows, r => r.id)
     })
   }
 }

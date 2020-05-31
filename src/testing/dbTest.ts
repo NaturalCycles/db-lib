@@ -95,17 +95,17 @@ export function runCommonDBTest(
   if (querying) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
-      const { records } = await db.runQuery(queryAll().select(['id']))
+      const { rows } = await db.runQuery(queryAll().select(['id']))
       await db.deleteByIds(
         TEST_TABLE,
-        records.map(i => i.id),
+        rows.map(i => i.id),
       )
     })
 
     // QUERY empty
     test('runQuery(all), runQueryCount should return empty', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-      expect((await db.runQuery(queryAll())).records).toEqual([])
+      expect((await db.runQuery(queryAll())).rows).toEqual([])
       expect(await db.runQueryCount(queryAll())).toEqual(0)
     })
   }
@@ -140,19 +140,19 @@ export function runCommonDBTest(
   if (querying) {
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
-      let { records } = await db.runQuery(queryAll())
-      records = _sortBy(records, 'id') // because query doesn't specify order here
-      expectMatch(items, records, quirks)
+      let { rows } = await db.runQuery(queryAll())
+      rows = _sortBy(rows, 'id') // because query doesn't specify order here
+      expectMatch(items, rows, quirks)
     })
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', true)
-        let { records } = await db.runQuery(q)
-        if (!dbQueryOrder) records = _sortBy(records, 'id')
+        let { rows } = await db.runQuery(q)
+        if (!dbQueryOrder) rows = _sortBy(rows, 'id')
         expectMatch(
           items.filter(i => i.even),
-          records,
+          rows,
           quirks,
         )
       })
@@ -161,40 +161,40 @@ export function runCommonDBTest(
     if (dbQueryOrder) {
       test('query order by k1 desc', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).order('k1', true)
-        const { records } = await db.runQuery(q)
-        expectMatch([...items].reverse(), records, quirks)
+        const { rows } = await db.runQuery(q)
+        expectMatch([...items].reverse(), rows, quirks)
       })
     }
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['id'])
-        let { records } = await db.runQuery(q)
-        records = _sortBy(records, 'id') // cause order is not specified
+        let { rows } = await db.runQuery(q)
+        rows = _sortBy(rows, 'id') // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['id'])),
-          records,
+          rows,
           quirks,
         )
       })
 
       test('projection query without ids', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['k1'])
-        let { records } = await db.runQuery(q)
-        records = _sortBy(records, 'k1') // cause order is not specified
+        let { rows } = await db.runQuery(q)
+        rows = _sortBy(rows, 'k1') // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['k1'])),
-          records,
+          rows,
           quirks,
         )
       })
 
       test('projection query empty fields (edge case)', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select([])
-        const { records } = await db.runQuery(q)
+        const { rows } = await db.runQuery(q)
         expectMatch(
           items.map(() => ({})),
-          records,
+          rows,
           quirks,
         )
       })
@@ -245,10 +245,10 @@ export function runCommonDBTest(
   if (querying) {
     test('cleanup', async () => {
       // CLEAN UP
-      const { records } = await db.runQuery(queryAll().select(['id']))
+      const { rows } = await db.runQuery(queryAll().select(['id']))
       await db.deleteByIds(
         TEST_TABLE,
-        records.map(i => i.id),
+        rows.map(i => i.id),
       )
     })
   }

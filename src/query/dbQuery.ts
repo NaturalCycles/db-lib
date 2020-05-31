@@ -39,13 +39,13 @@ export interface DBQueryOrder {
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<DBM extends ObjectWithId = any> {
+export class DBQuery<ROW extends ObjectWithId = any> {
   constructor(public table: string) {}
 
-  static fromPlainObject<DBM extends ObjectWithId = any>(
+  static fromPlainObject<ROW extends ObjectWithId = any>(
     obj: Partial<DBQuery> & { table: string },
-  ): DBQuery<DBM> {
-    return Object.assign(new DBQuery<DBM>(obj.table), obj)
+  ): DBQuery<ROW> {
+    return Object.assign(new DBQuery<ROW>(obj.table), obj)
   }
 
   _filters: DBQueryFilter[] = []
@@ -105,8 +105,8 @@ export class DBQuery<DBM extends ObjectWithId = any> {
     return this
   }
 
-  clone(): DBQuery<DBM> {
-    return Object.assign(new DBQuery<DBM>(this.table), {
+  clone(): DBQuery<ROW> {
+    return Object.assign(new DBQuery<ROW>(this.table), {
       _filters: [...this._filters],
       _limitValue: this._limitValue,
       _offsetValue: this._offsetValue,

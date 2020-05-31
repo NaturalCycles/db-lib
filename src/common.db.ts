@@ -30,7 +30,7 @@ export interface CommonDB {
    */
   getTables(): Promise<string[]>
 
-  getTableSchema<DBM extends ObjectWithId>(table: string): Promise<CommonSchema<DBM>>
+  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.
@@ -43,34 +43,34 @@ export interface CommonDB {
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds<DBM extends ObjectWithId>(
+  getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
-  ): Promise<DBM[]>
+  ): Promise<ROW[]>
 
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    *
-   * DBM is included in generics, so it infer OUT from DBQuery<DBM>
+   * ROW is included in generics, so it infer OUT from DBQuery<ROW>
    */
-  runQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  runQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>>
 
   runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<OUT>
 
   // SAVE
-  saveBatch<DBM extends ObjectWithId>(
+  saveBatch<ROW extends ObjectWithId>(
     table: string,
-    dbms: DBM[],
+    rows: ROW[],
     opt?: CommonDBSaveOptions,
   ): Promise<void>
 

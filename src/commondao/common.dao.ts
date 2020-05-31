@@ -276,8 +276,8 @@ export class CommonDao<
 
   private throwRequiredError(id: string, opt: CommonDaoOptions): never {
     const table = opt.table || this.cfg.table
-    throw new AppError(`DB record required, but not found: ${table}.${id}`, {
-      code: DBLibError.DB_RECORD_REQUIRED,
+    throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+      code: DBLibError.DB_ROW_REQUIRED,
       table,
       id,
     })
@@ -317,8 +317,8 @@ export class CommonDao<
   }
 
   async runQuery<OUT = Saved<BM>>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
-    const { records } = await this.runQueryExtended<OUT>(q, opt)
-    return records
+    const { rows } = await this.runQueryExtended<OUT>(q, opt)
+    return rows
   }
 
   async runQueryExtended<OUT = Saved<BM>>(
@@ -327,19 +327,19 @@ export class CommonDao<
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
-    const { records, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
+    const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    const bms = partialQuery || opt.raw ? (records as any[]) : this.dbmsToBM(records, opt)
+    const bms = partialQuery || opt.raw ? (rows as any[]) : this.dbmsToBM(rows, opt)
     this.logResult(started, op, bms, q.table)
     return {
-      records: bms,
+      rows: bms,
       ...queryResult,
     }
   }
 
   async runQueryAsDBM<OUT = DBM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
-    const { records } = await this.runQueryExtendedAsDBM<OUT>(q, opt)
-    return records
+    const { rows } = await this.runQueryExtendedAsDBM<OUT>(q, opt)
+    return rows
   }
 
   async runQueryExtendedAsDBM<OUT = DBM>(
@@ -348,11 +348,11 @@ export class CommonDao<
   ): Promise<RunQueryResult<OUT>> {
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
-    const { records, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
+    const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    const dbms = partialQuery || opt.raw ? records : this.anyToDBMs(records, opt)
+    const dbms = partialQuery || opt.raw ? rows : this.anyToDBMs(rows, opt)
     this.logResult(started, op, dbms, q.table)
-    return { records: (dbms as any) as OUT[], ...queryResult }
+    return { rows: (dbms as any) as OUT[], ...queryResult }
   }
 
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
@@ -479,8 +479,8 @@ export class CommonDao<
   }
 
   async queryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<string[]> {
-    const { records } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
-    return records.map(r => r.id)
+    const { rows } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
+    return rows.map(r => r.id)
   }
 
   streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
@@ -573,9 +573,9 @@ export class CommonDao<
   }
 
   /**
-   * Loads the record by id.
-   * Creates the record (via this.create()) if it doesn't exist
-   * (this will cause a validation error if Patch has not enough data for the record to be valid).
+   * Loads the row by id.
+   * Creates the row (via this.create()) if it doesn't exist
+   * (this will cause a validation error if Patch has not enough data for the row to be valid).
    * Saves (as fast as possible) with the Patch applied.
    *
    * Convenience method to replace 3 operations (loading+patching+saving) with one.

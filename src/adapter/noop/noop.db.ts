@@ -19,7 +19,7 @@ export class NoOpDB implements CommonDB {
     return []
   }
 
-  async getTableSchema<DBM>(table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<ROW>(table: string): Promise<CommonSchema<ROW>> {
     return { table, fields: [] }
   }
 
@@ -44,16 +44,16 @@ export class NoOpDB implements CommonDB {
   async resetCache(): Promise<void> {}
 
   async runQuery<OUT>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<OUT>> {
-    return { records: [] }
+    return { rows: [] }
   }
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
     return 0
   }
 
-  async saveBatch<DBM extends ObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     table: string,
-    dbms: DBM[],
+    rows: ROW[],
     opt?: CommonDBSaveOptions,
   ): Promise<void> {}
 

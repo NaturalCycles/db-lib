@@ -40,7 +40,7 @@ export interface CommonDBCreateOptions extends CommonDBOptions {
 }
 
 export interface RunQueryResult<T> {
-  records: T[]
+  rows: T[]
   endCursor?: string
 }
 

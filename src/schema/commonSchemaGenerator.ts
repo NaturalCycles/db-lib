@@ -1,6 +1,3 @@
-/**
- * Class that helps to generate CommonSchema by processing ALL rows through it.
- */
 import { ErrorMode, _filterUndefinedValues } from '@naturalcycles/js-lib'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './common.schema'
 
@@ -28,14 +25,17 @@ export interface CommonSchemaGeneratorCfg {
 
 const LOCAL_DATE_PATTERN = new RegExp(/[0-9]{4}-[01][0-9]-[0-3][0-9]/)
 
-export class CommonSchemaGenerator<T = any> {
+/**
+ * Class that helps to generate CommonSchema by processing ALL rows through it.
+ */
+export class CommonSchemaGenerator<ROW = any> {
   constructor(public cfg: CommonSchemaGeneratorCfg) {}
 
   private fieldByName: Record<string, CommonSchemaField> = {}
   private nullableFields = new Set<string>()
   // private fieldsWithMultipleTypes: Record<string, DATA_TYPE[]> = {}
 
-  add(row: T): void {
+  add(row: ROW): void {
     if (!row) return // safety
 
     Object.entries(row).forEach(([fieldName, value]) => {
@@ -171,7 +171,7 @@ export class CommonSchemaGenerator<T = any> {
     return { name, type: DATA_TYPE.UNKNOWN }
   }
 
-  generate(): CommonSchema<T> {
+  generate(): CommonSchema<ROW> {
     // set nullability
     Object.keys(this.fieldByName).forEach(fieldName => {
       if (!this.nullableFields.has(fieldName)) {
@@ -192,7 +192,7 @@ export class CommonSchemaGenerator<T = any> {
     }
   }
 
-  static generateFromRows<T>(cfg: CommonSchemaGeneratorCfg, rows: T[] = []): CommonSchema<T> {
+  static generateFromRows<ROW>(cfg: CommonSchemaGeneratorCfg, rows: ROW[] = []): CommonSchema<ROW> {
     const gen = new CommonSchemaGenerator(cfg)
     rows.forEach(r => gen.add(r))
     return gen.generate()

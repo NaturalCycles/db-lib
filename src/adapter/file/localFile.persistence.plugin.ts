@@ -47,7 +47,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       .map(f => f.split('.ndjson')[0])
   }
 
-  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
+  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
@@ -56,7 +56,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
 
     const transformUnzip = this.cfg.gzip ? [createUnzip()] : []
 
-    const rows: DBM[] = []
+    const rows: ROW[] = []
 
     await _pipeline([
       fs.createReadStream(filePath),
@@ -70,17 +70,17 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   }
 
   async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
-    await pMap(ops, async op => await this.saveFile(op.table, op.dbms), { concurrency: 16 })
+    await pMap(ops, async op => await this.saveFile(op.table, op.rows), { concurrency: 16 })
   }
 
-  async saveFile<DBM extends ObjectWithId>(table: string, dbms: DBM[]): Promise<void> {
+  async saveFile<ROW extends ObjectWithId>(table: string, rows: ROW[]): Promise<void> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
     const transformZip = this.cfg.gzip ? [createGzip()] : []
 
     await _pipeline([
-      Readable.from(dbms),
+      Readable.from(rows),
       transformToNDJson(),
       ...transformZip,
       fs.createWriteStream(filePath),

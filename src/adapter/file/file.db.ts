@@ -49,30 +49,30 @@ export class FileDB implements CommonDB {
     return tables
   }
 
-  async getByIds<DBM extends ObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
-  ): Promise<DBM[]> {
-    const byId = _by(await this.loadFile<DBM>(table), r => r.id)
+  ): Promise<ROW[]> {
+    const byId = _by(await this.loadFile<ROW>(table), r => r.id)
     return ids.map(id => byId[id]).filter(Boolean)
   }
 
-  async saveBatch<DBM extends ObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     table: string,
-    dbms: DBM[],
+    rows: ROW[],
     opt?: CommonDBSaveOptions,
   ): Promise<void> {
-    if (!dbms.length) return // save some api calls
+    if (!rows.length) return // save some api calls
 
     // 1. Load the whole file from gh
-    const byId = _by(await this.loadFile<DBM>(table), r => r.id)
+    const byId = _by(await this.loadFile<ROW>(table), r => r.id)
 
     // 2. Merge with new data (using ids)
     let saved = 0
-    dbms.forEach(dbm => {
-      if (!_deepEquals(byId[dbm.id], dbm)) {
-        byId[dbm.id] = dbm
+    rows.forEach(r => {
+      if (!_deepEquals(byId[r.id], r)) {
+        byId[r.id] = r
         saved++
       }
     })
@@ -84,12 +84,12 @@ export class FileDB implements CommonDB {
     }
   }
 
-  async runQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  async runQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     return {
-      records: queryInMemory(q, await this.loadFile<DBM>(q.table)),
+      rows: queryInMemory(q, await this.loadFile<ROW>(q.table)),
     }
   }
 
@@ -97,21 +97,21 @@ export class FileDB implements CommonDB {
     return (await this.loadFile(q.table)).length
   }
 
-  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<OUT> {
-    const readable = readableCreate<DBM>()
+    const readable = readableCreate<ROW>()
 
-    void this.runQuery(q, opt).then(({ records }) => {
-      records.forEach(r => readable.push(r))
+    void this.runQuery(q, opt).then(({ rows }) => {
+      rows.forEach(r => readable.push(r))
       readable.push(null) // done
     })
 
     return readable
   }
 
-  async deleteByIds<DBM extends ObjectWithId>(
+  async deleteByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -119,8 +119,8 @@ export class FileDB implements CommonDB {
     if (!ids.length) return 0
 
     let deleted = 0
-    const dbms = (await this.loadFile<DBM>(table)).filter(dbm => {
-      if (ids.includes(dbm.id)) {
+    const rows = (await this.loadFile<ROW>(table)).filter(r => {
+      if (ids.includes(r.id)) {
         deleted++
         return false
       }
@@ -128,21 +128,21 @@ export class FileDB implements CommonDB {
     })
 
     if (deleted > 0) {
-      await this.saveFile(table, dbms)
+      await this.saveFile(table, rows)
     }
 
     return deleted
   }
 
-  async deleteByQuery<DBM extends ObjectWithId>(
-    q: DBQuery<DBM>,
+  async deleteByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<number> {
-    const byId = _by(await this.loadFile<DBM>(q.table), r => r.id)
+    const byId = _by(await this.loadFile<ROW>(q.table), r => r.id)
 
     let deleted = 0
-    queryInMemory(q, Object.values(byId)).forEach(dbm => {
-      delete byId[dbm.id]
+    queryInMemory(q, Object.values(byId)).forEach(r => {
+      delete byId[r.id]
       deleted++
     })
 
@@ -163,33 +163,33 @@ export class FileDB implements CommonDB {
   // no-op
   async resetCache(table?: string): Promise<void> {}
 
-  async getTableSchema<DBM extends ObjectWithId>(table: string): Promise<CommonSchema<DBM>> {
-    const dbms = await this.loadFile(table)
-    return CommonSchemaGenerator.generateFromRows({ table }, dbms)
+  async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>> {
+    const rows = await this.loadFile(table)
+    return CommonSchemaGenerator.generateFromRows({ table }, rows)
   }
 
   // wrapper, to handle logging
-  async loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]> {
+  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
     const started = this.logStarted(`loadFile(${table})`)
-    const dbms = await this.cfg.plugin.loadFile<DBM>(table)
-    this.logFinished(started, `loadFile(${table}) ${dbms.length} record(s)`)
-    return dbms
+    const rows = await this.cfg.plugin.loadFile<ROW>(table)
+    this.logFinished(started, `loadFile(${table}) ${rows.length} row(s)`)
+    return rows
   }
 
   // wrapper, to handle logging, sorting rows before saving
-  async saveFile<DBM extends ObjectWithId>(table: string, _dbms: DBM[]): Promise<void> {
-    // Sort the records, if needed
-    const dbms = this.sortDBMs(_dbms)
+  async saveFile<ROW extends ObjectWithId>(table: string, _rows: ROW[]): Promise<void> {
+    // Sort the rows, if needed
+    const rows = this.sortRows(_rows)
 
-    const op = `saveFile(${table}) ${dbms.length} record(s)`
+    const op = `saveFile(${table}) ${rows.length} row(s)`
     const started = this.logStarted(op)
-    await this.cfg.plugin.saveFiles([{ type: 'saveBatch', table, dbms }])
+    await this.cfg.plugin.saveFiles([{ type: 'saveBatch', table, rows }])
     this.logFinished(started, op)
   }
 
   async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
     const op = `saveFiles ${ops.length} op(s):\n${ops
-      .map(o => `${o.table} (${o.dbms.length})`)
+      .map(o => `${o.table} (${o.rows.length})`)
       .join('\n')}`
     const started = this.logStarted(op)
     await this.cfg.plugin.saveFiles(ops)
@@ -199,17 +199,17 @@ export class FileDB implements CommonDB {
   /**
    * Mutates
    */
-  sortDBMs<DBM>(dbms: DBM[]): DBM[] {
+  sortRows<ROW>(rows: ROW[]): ROW[] {
     if (this.cfg.sortOnSave) {
-      _sortBy(dbms, this.cfg.sortOnSave.name, true)
-      if (this.cfg.sortOnSave.descending) dbms.reverse() // mutates
+      _sortBy(rows, this.cfg.sortOnSave.name, true)
+      if (this.cfg.sortOnSave.descending) rows.reverse() // mutates
     }
 
     if (this.cfg.sortObjects) {
-      return _sortObjectDeep(dbms)
+      return _sortObjectDeep(rows)
     }
 
-    return dbms
+    return rows
   }
 
   private logStarted(op: string): number {

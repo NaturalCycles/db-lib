@@ -5,7 +5,7 @@ import type { DBSaveBatchOperation } from '../../transaction/dbTransaction'
 export interface FileDBPersistencePlugin {
   ping(): Promise<void>
   getTables(): Promise<string[]>
-  loadFile<DBM extends ObjectWithId>(table: string): Promise<DBM[]>
+  loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]>
   saveFiles(ops: DBSaveBatchOperation[]): Promise<void>
 }
 

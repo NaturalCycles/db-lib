@@ -105,7 +105,7 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<DBM extends ObjectWithId>(_table: string): Promise<CommonSchema<DBM>> {
+  async getTableSchema<ROW extends ObjectWithId>(_table: string): Promise<CommonSchema<ROW>> {
     const table = this.cfg.tablesPrefix + _table
     return CommonSchemaGenerator.generateFromRows({ table }, Object.values(this.data[table] || {}))
   }
@@ -119,30 +119,30 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<DBM extends ObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     _table: string,
     ids: string[],
     opt?: CommonDBOptions,
-  ): Promise<DBM[]> {
+  ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
-    return ids.map(id => this.data[table]![id]).filter(Boolean) as DBM[]
+    return ids.map(id => this.data[table]![id]).filter(Boolean) as ROW[]
   }
 
-  async saveBatch<DBM extends ObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     _table: string,
-    dbms: DBM[],
+    rows: ROW[],
     opt?: CommonDBSaveOptions,
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
 
-    dbms.forEach(dbm => {
-      if (!dbm.id) {
-        log.warn({ dbms })
-        throw new Error(`InMemoryDB: id doesn't exist for record`)
+    rows.forEach(r => {
+      if (!r.id) {
+        log.warn({ rows })
+        throw new Error(`InMemoryDB: id doesn't exist for row`)
       }
-      this.data[table]![dbm.id] = dbm
+      this.data[table]![r.id] = r
     })
   }
 
@@ -159,22 +159,22 @@ export class InMemoryDB implements CommonDB {
       .filter(Boolean).length
   }
 
-  async deleteByQuery<DBM extends ObjectWithId>(
-    q: DBQuery<DBM>,
+  async deleteByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
-    const rows = queryInMemory(q, Object.values(this.data[table] || {}) as DBM[])
+    const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
     const ids = rows.map(r => r.id)
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  async runQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<OUT>> {
     const table = this.cfg.tablesPrefix + q.table
-    return { records: queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {}) as DBM[]) }
+    return { rows: queryInMemory<ROW, OUT>(q, Object.values(this.data[table] || {}) as ROW[]) }
   }
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
@@ -182,12 +182,12 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
-  streamQuery<DBM extends ObjectWithId, OUT = DBM>(
-    q: DBQuery<DBM>,
+  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+    q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): ReadableTyped<OUT> {
     const table = this.cfg.tablesPrefix + q.table
-    return Readable.from(queryInMemory<DBM, OUT>(q, Object.values(this.data[table] || {}) as DBM[]))
+    return Readable.from(queryInMemory<ROW, OUT>(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
   transaction(): DBTransaction {

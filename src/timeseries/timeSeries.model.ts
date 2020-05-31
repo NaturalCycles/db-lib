@@ -11,7 +11,7 @@ export interface CommonTimeSeriesDaoCfg {
  */
 export type TimeSeriesDataPoint = [number, number | null]
 
-export interface TimeSeriesDBM {
+export interface TimeSeriesRow {
   id: number
   ts: number
   v: number | null

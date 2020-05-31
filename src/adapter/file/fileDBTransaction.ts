@@ -20,8 +20,8 @@ export class FileDBTransaction extends DBTransaction {
     await pMap(
       tables,
       async table => {
-        const dbms = await this.db.loadFile(table)
-        data[table] = _by(dbms, dbm => dbm.id)
+        const rows = await this.db.loadFile(table)
+        data[table] = _by(rows, r => r.id)
       },
       { concurrency: 16 },
     )
@@ -31,7 +31,7 @@ export class FileDBTransaction extends DBTransaction {
       if (op.type === 'deleteByIds') {
         op.ids.forEach(id => delete data[op.table]![id])
       } else if (op.type === 'saveBatch') {
-        op.dbms.forEach(dbm => (data[op.table]![dbm.id] = dbm))
+        op.rows.forEach(r => (data[op.table]![r.id] = r))
       } else {
         throw new Error(`DBOperation not supported: ${op!.type}`)
       }
@@ -42,7 +42,7 @@ export class FileDBTransaction extends DBTransaction {
       return {
         type: 'saveBatch',
         table,
-        dbms: this.db.sortDBMs(Object.values(data[table]!)),
+        rows: this.db.sortRows(Object.values(data[table]!)),
       }
     })
 

@@ -1,4 +1,4 @@
-export interface CommonSchema<T = any> {
+export interface CommonSchema<ROW = any> {
   /**
    * Name of the Table
    */

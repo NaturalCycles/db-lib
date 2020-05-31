@@ -14,9 +14,9 @@ const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
 
 // Important: q.table is not used in this function, so tablesPrefix is not needed.
 // But should be careful here..
-export function queryInMemory<DBM extends ObjectWithId, OUT = DBM>(
-  q: DBQuery<DBM>,
-  rows: DBM[] = [],
+export function queryInMemory<ROW extends ObjectWithId, OUT = ROW>(
+  q: DBQuery<ROW>,
+  rows: ROW[] = [],
 ): OUT[] {
   // .filter
   rows = q._filters.reduce((rows, filter) => {

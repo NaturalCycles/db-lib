@@ -12,11 +12,11 @@ export class DBTransaction {
 
   _ops: DBOperation[] = []
 
-  saveBatch<DBM extends ObjectWithId>(table: string, dbms: DBM[], opt?: CommonDBSaveOptions): this {
+  saveBatch<ROW extends ObjectWithId>(table: string, rows: ROW[], opt?: CommonDBSaveOptions): this {
     this._ops.push({
       type: 'saveBatch',
       table,
-      dbms,
+      rows,
       opt,
     })
 
@@ -43,7 +43,7 @@ export class DBTransaction {
   async commit(): Promise<void> {
     for await (const op of this._ops) {
       if (op.type === 'saveBatch') {
-        await this.db.saveBatch(op.table, op.dbms, op.opt)
+        await this.db.saveBatch(op.table, op.rows, op.opt)
       } else if (op.type === 'deleteByIds') {
         await this.db.deleteByIds(op.table, op.ids, op.opt)
       } else {
@@ -55,10 +55,10 @@ export class DBTransaction {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<DBM extends ObjectWithId = any> {
+export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
   type: 'saveBatch'
   table: string
-  dbms: DBM[]
+  rows: ROW[]
   opt?: CommonDBSaveOptions
 }
 
