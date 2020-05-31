@@ -1,7 +1,7 @@
 import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
-import { DBQuery } from '../dbQuery'
+import { DBQuery } from '../query/dbQuery'
 import { createTestItemsDBM, getTestItemSchema, TestItemDBM, TEST_TABLE } from './test.model'
 import { deepFreeze } from './test.util'
 

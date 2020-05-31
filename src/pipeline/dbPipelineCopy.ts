@@ -14,7 +14,7 @@ import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dis
 import { dayjs } from '@naturalcycles/time-lib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../db.model'
-import { DBQuery } from '../dbQuery'
+import { DBQuery } from '../query/dbQuery'
 
 export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
   dbInput: CommonDB

@@ -11,7 +11,7 @@ import {
   CommonDBStreamOptions,
   RunQueryResult,
 } from '../../db.model'
-import { DBQuery } from '../../dbQuery'
+import { DBQuery } from '../../query/dbQuery'
 import { FileDBCfg } from './file.db.model'
 import { FileDBTransaction } from './fileDBTransaction'
 

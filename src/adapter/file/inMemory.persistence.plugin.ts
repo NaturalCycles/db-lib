@@ -1,6 +1,6 @@
 import { StringMap, _by } from '@naturalcycles/js-lib'
 import { ObjectWithId } from '../../db.model'
-import { DBSaveBatchOperation } from '../../dbTransaction'
+import { DBSaveBatchOperation } from '../../transaction/dbTransaction'
 import { FileDBPersistencePlugin } from './file.db.model'
 
 /**

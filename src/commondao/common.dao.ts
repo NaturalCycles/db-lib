@@ -12,23 +12,25 @@ import {
   writableForEach,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from './common.db'
+import { CommonDB } from '../common.db'
 import {
   BaseDBEntity,
-  CommonDaoCreateOptions,
-  CommonDaoOptions,
-  CommonDaoSaveOptions,
-  CommonDaoStreamForEachOptions,
-  CommonDaoStreamOptions,
   DBModelType,
   ObjectWithId,
   RunQueryResult,
   Saved,
   SavedDBEntity,
-} from './db.model'
-import { DBQuery, RunnableDBQuery } from './dbQuery'
-import { DBLibError } from './index'
-import { CommonSchema } from './schema/common.schema'
+} from '../db.model'
+import { DBLibError } from '../index'
+import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
+import { CommonSchema } from '../schema/common.schema'
+import {
+  CommonDaoCreateOptions,
+  CommonDaoOptions,
+  CommonDaoSaveOptions,
+  CommonDaoStreamForEachOptions,
+  CommonDaoStreamOptions,
+} from './common.dao.model'
 
 export enum CommonDaoLogLevel {
   /**

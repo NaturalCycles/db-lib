@@ -1,16 +1,18 @@
 import { InMemoryDB, InMemoryDBCfg } from './adapter/inmemory/inMemory.db'
 import { queryInMemory } from './adapter/inmemory/queryInMemory'
 import { DBLibError } from './cnst'
-import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './common.dao'
 import { CommonDB } from './common.db'
+import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './commondao/common.dao'
 import {
-  BaseDBEntity,
-  baseDBEntitySchema,
   CommonDaoCreateOptions,
   CommonDaoOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
+} from './commondao/common.dao.model'
+import {
+  BaseDBEntity,
+  baseDBEntitySchema,
   CommonDBAdapter,
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -28,19 +30,6 @@ import {
   savedDBEntitySchema,
   Unsaved,
 } from './db.model'
-import {
-  DBQuery,
-  DBQueryFilter,
-  DBQueryFilterOperator,
-  DBQueryOrder,
-  RunnableDBQuery,
-} from './dbQuery'
-import {
-  DBDeleteByIdsOperation,
-  DBOperation,
-  DBSaveBatchOperation,
-  DBTransaction,
-} from './dbTransaction'
 import { getDB } from './getDB'
 import {
   createdUpdatedFields,
@@ -52,8 +41,21 @@ import {
 import { dbPipelineBackup, DBPipelineBackupOptions } from './pipeline/dbPipelineBackup'
 import { dbPipelineCopy, DBPipelineCopyOptions } from './pipeline/dbPipelineCopy'
 import { dbPipelineRestore, DBPipelineRestoreOptions } from './pipeline/dbPipelineRestore'
+import {
+  DBQuery,
+  DBQueryFilter,
+  DBQueryFilterOperator,
+  DBQueryOrder,
+  RunnableDBQuery,
+} from './query/dbQuery'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './schema/common.schema'
 import { CommonSchemaGenerator, CommonSchemaGeneratorCfg } from './schema/commonSchemaGenerator'
+import {
+  DBDeleteByIdsOperation,
+  DBOperation,
+  DBSaveBatchOperation,
+  DBTransaction,
+} from './transaction/dbTransaction'
 
 export {
   DBQuery,

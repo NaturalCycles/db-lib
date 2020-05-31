@@ -1,10 +1,8 @@
 import { mockTime } from '@naturalcycles/dev-lib/dist/testing'
 import { ErrorMode, _omit } from '@naturalcycles/js-lib'
 import { writableForEach, _pipeline } from '@naturalcycles/nodejs-lib'
-import { InMemoryDB } from './adapter/inmemory/inMemory.db'
-import { DBLibError } from './cnst'
-import { CommonDao, CommonDaoLogLevel } from './common.dao'
-import { CommonDaoSaveOptions, CommonDaoStreamOptions } from './db.model'
+import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
+import { DBLibError } from '../cnst'
 import {
   createTestItemsBM,
   TestItemBM,
@@ -14,7 +12,9 @@ import {
   TestItemTM,
   testItemTMSchema,
   TEST_TABLE,
-} from './testing/test.model'
+} from '../testing/test.model'
+import { CommonDao, CommonDaoLogLevel } from './common.dao'
+import { CommonDaoSaveOptions, CommonDaoStreamOptions } from './common.dao.model'
 
 let throwError = false
 

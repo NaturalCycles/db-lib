@@ -1,4 +1,4 @@
-import { DBQuery } from '../dbQuery'
+import { DBQuery } from '../query/dbQuery'
 import {
   CommonTimeSeriesDaoCfg,
   TimeSeriesDataPoint,

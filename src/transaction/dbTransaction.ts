@@ -1,5 +1,5 @@
-import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, ObjectWithId } from './db.model'
+import { CommonDB } from '../common.db'
+import { CommonDBOptions, CommonDBSaveOptions, ObjectWithId } from '../db.model'
 
 /**
  * DB Transaction has 2 concerns:

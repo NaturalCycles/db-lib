@@ -1,16 +1,8 @@
 import { Mapper, _truncate } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDao } from './common.dao'
-import {
-  BaseDBEntity,
-  CommonDaoOptions,
-  CommonDaoStreamForEachOptions,
-  CommonDaoStreamOptions,
-  ObjectWithId,
-  RunQueryResult,
-  Saved,
-  SavedDBEntity,
-} from './db.model'
+import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions } from '..'
+import { CommonDao } from '../commondao/common.dao'
+import { BaseDBEntity, ObjectWithId, RunQueryResult, Saved, SavedDBEntity } from '../db.model'
 
 export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
 

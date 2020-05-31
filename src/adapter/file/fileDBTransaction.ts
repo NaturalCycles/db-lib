@@ -1,6 +1,6 @@
 import { pMap, StringMap, _by, _uniq } from '@naturalcycles/js-lib'
 import { ObjectWithId } from '../../db.model'
-import { DBSaveBatchOperation, DBTransaction } from '../../dbTransaction'
+import { DBSaveBatchOperation, DBTransaction } from '../../transaction/dbTransaction'
 import { FileDB } from './file.db'
 
 /**

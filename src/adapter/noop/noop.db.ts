@@ -8,9 +8,9 @@ import {
   ObjectWithId,
   RunQueryResult,
 } from '../../db.model'
-import { DBQuery } from '../../dbQuery'
-import { DBTransaction } from '../../dbTransaction'
+import { DBQuery } from '../../query/dbQuery'
 import { CommonSchema } from '../../schema/common.schema'
+import { DBTransaction } from '../../transaction/dbTransaction'
 
 export class NoOpDB implements CommonDB {
   async ping(): Promise<void> {}

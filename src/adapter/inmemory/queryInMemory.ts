@@ -1,6 +1,6 @@
 import { _pick } from '@naturalcycles/js-lib'
 import { ObjectWithId } from '../../db.model'
-import { DBQuery, DBQueryFilterOperator } from '../../dbQuery'
+import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {

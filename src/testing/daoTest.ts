@@ -2,8 +2,8 @@ import { pDelay, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { getTestItemSchema, TestItemBM } from '.'
 import { ObjectWithId } from '..'
-import { CommonDao, CommonDaoLogLevel } from '../common.dao'
 import { CommonDB } from '../common.db'
+import { CommonDao, CommonDaoLogLevel } from '../commondao/common.dao'
 import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
   createTestItemsBM,
