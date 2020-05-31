@@ -1,3 +1,10 @@
+## [7.0.1](https://github.com/NaturalCycles/db-lib/compare/v7.0.0...v7.0.1) (2020-05-31)
+
+
+### Bug Fixes
+
+* dbTransaction fluent api ([1e7f25d](https://github.com/NaturalCycles/db-lib/commit/1e7f25de09649b96e9d7cc47dc85f5715008b1c2))
+
 # [7.0.0](https://github.com/NaturalCycles/db-lib/compare/v6.2.2...v7.0.0) (2020-05-31)
 
 
