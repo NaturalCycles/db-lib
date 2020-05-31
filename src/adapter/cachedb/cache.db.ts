@@ -68,10 +68,11 @@ export class CacheDB implements CommonDB {
   /**
    * Resets InMemory DB data
    */
-  async resetCache(table?: string): Promise<void> {
-    this.log(`resetCache ${table || 'all'}`)
-    await this.cfg.cacheDB.resetCache(table)
-  }
+  // This method is no longer in the public API. Call it just on the InMemoryDB if needed.
+  // async resetCache(table?: string): Promise<void> {
+  //   this.log(`resetCache ${table || 'all'}`)
+  //   await this.cfg.cacheDB.resetCache(table)
+  // }
 
   async getTables(): Promise<string[]> {
     return await this.cfg.downstreamDB.getTables()

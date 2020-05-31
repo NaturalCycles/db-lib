@@ -13,11 +13,6 @@ import { DBTransaction } from './transaction/dbTransaction'
 
 export interface CommonDB {
   /**
-   * If table not specified - reset all DB tables.
-   */
-  resetCache(table?: string): Promise<void>
-
-  /**
    * Checks that connection/credentials/etc is ok.
    * Also acts as a "warmup request" for a DB.
    * It SHOULD fail if DB setup is wrong (e.g on wrong credentials).
