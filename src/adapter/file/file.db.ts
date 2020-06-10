@@ -9,6 +9,7 @@ import {
   _uniq,
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
 import { BaseCommonDB, DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
 import { CommonSchema } from '../..'
 import { CommonSchemaGenerator } from '../..'
@@ -266,6 +267,6 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   private logFinished(started: number, op: string): void {
     if (!this.cfg.logFinished) return
-    log(`<< ${op} in ${_since(started)}`)
+    log(`<< ${op} ${dimGrey(`in ${_since(started)}`)}`)
   }
 }
