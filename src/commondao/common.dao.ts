@@ -118,8 +118,8 @@ export class CommonDao<
   /**
    * To be extended
    */
-  beforeCreate(bm: BM): BM {
-    return bm
+  beforeCreate(bm: Partial<BM>): BM {
+    return bm as BM
   }
 
   /**
@@ -165,7 +165,7 @@ export class CommonDao<
   }
 
   // CREATE
-  create(input: BM, opt: CommonDaoOptions = {}): Saved<BM> {
+  create(input: Partial<BM>, opt: CommonDaoOptions = {}): Saved<BM> {
     if (opt.throwOnError === undefined) {
       opt.throwOnError = this.cfg.throwOnDaoCreateObject
     }
@@ -189,7 +189,11 @@ export class CommonDao<
     return bm
   }
 
-  async getByIdOrCreate(id: string, bmToCreate: BM, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+  async getByIdOrCreate(
+    id: string,
+    bmToCreate: Partial<BM>,
+    opt?: CommonDaoOptions,
+  ): Promise<Saved<BM>> {
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
@@ -200,14 +204,14 @@ export class CommonDao<
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
-    return this.create({ id } as BM, opt)
+    return this.create({ id } as Partial<BM>, opt)
   }
 
   async getByIdAsDBMOrEmpty(id: string, opt?: CommonDaoOptions): Promise<DBM> {
     const dbm = await this.getByIdAsDBM(id, opt)
     if (dbm) return dbm
 
-    return this.create({ id } as BM, opt) as any
+    return this.create({ id } as Partial<BM>, opt) as any
   }
 
   async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | undefined> {
@@ -593,7 +597,7 @@ export class CommonDao<
   async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
     const dbm =
       (await this.getByIdAsDBM(id, opt)) ||
-      ((this.create({ ...patch, id } as BM, opt) as any) as DBM)
+      ((this.create({ ...patch, id } as Partial<BM>, opt) as any) as DBM)
 
     return await this.saveAsDBM(
       {
