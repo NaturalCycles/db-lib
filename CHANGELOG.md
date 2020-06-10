@@ -1,3 +1,10 @@
+## [7.0.2](https://github.com/NaturalCycles/db-lib/compare/v7.0.1...v7.0.2) (2020-06-10)
+
+
+### Bug Fixes
+
+* CommonDao to use Partial<BM> for create() ([6c07a2c](https://github.com/NaturalCycles/db-lib/commit/6c07a2cd08f4e7f7a442aa54d1d7c7eada80ab6b))
+
 ## [7.0.1](https://github.com/NaturalCycles/db-lib/compare/v7.0.0...v7.0.1) (2020-05-31)
 
 
