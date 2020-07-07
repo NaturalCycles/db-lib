@@ -6,6 +6,7 @@ import {
   _since,
   _sortBy,
   _sortObjectDeep,
+  _stringMapValues,
   _uniq,
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
@@ -65,7 +66,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const byId = _by(await this.loadFile<ROW>(table), r => r.id)
-    return ids.map(id => byId[id]).filter(Boolean)
+    return ids.map(id => byId[id]!).filter(Boolean)
   }
 
   async saveBatch<ROW extends ObjectWithId>(
@@ -90,7 +91,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     // Only save if there are changed rows
     if (saved > 0) {
       // 3. Save the whole file
-      await this.saveFile(table, Object.values(byId))
+      await this.saveFile(table, _stringMapValues(byId))
     }
   }
 
@@ -195,13 +196,13 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     const byId = _by(await this.loadFile<ROW>(q.table), r => r.id)
 
     let deleted = 0
-    queryInMemory(q, Object.values(byId)).forEach(r => {
+    queryInMemory(q, _stringMapValues(byId)).forEach(r => {
       delete byId[r.id]
       deleted++
     })
 
     if (deleted > 0) {
-      await this.saveFile(q.table, Object.values(byId))
+      await this.saveFile(q.table, _stringMapValues(byId))
     }
 
     return deleted
