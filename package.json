@@ -3,7 +3,7 @@
   "scripts": {},
   "dependencies": {
     "@naturalcycles/js-lib": "^13.0.0",
-    "@naturalcycles/nodejs-lib": "^10.0.0",
+    "@naturalcycles/nodejs-lib": "^11.0.0",
     "@naturalcycles/time-lib": "^3.0.1",
     "fs-extra": "^9.0.0",
     "type-fest": "^0.16.0"
