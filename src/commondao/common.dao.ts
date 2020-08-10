@@ -71,6 +71,10 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity
    * @default false
    */
   throwOnEntityValidationError?: boolean
+
+  /**
+   * @default to throwOnEntityValidationError setting
+   */
   throwOnDaoCreateObject?: boolean
 
   /**

@@ -33,7 +33,14 @@ export interface CommonDaoOptions extends CommonDBOptions {
    */
   raw?: boolean
 
+  /**
+   * @default inherited from CommonDaoCfg.throwOnEntityValidationError
+   */
   throwOnError?: boolean
+
+  /**
+   * @default false
+   */
   preserveUpdatedCreated?: boolean
 
   /**
