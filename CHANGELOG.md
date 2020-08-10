@@ -1,3 +1,10 @@
+## [7.0.4](https://github.com/NaturalCycles/db-lib/compare/v7.0.3...v7.0.4) (2020-08-10)
+
+
+### Bug Fixes
+
+* deps ([99aa557](https://github.com/NaturalCycles/db-lib/commit/99aa557b8a588fbf243965594baaacaaca22de6a))
+
 ## [7.0.3](https://github.com/NaturalCycles/db-lib/compare/v7.0.2...v7.0.3) (2020-07-07)
 
 
