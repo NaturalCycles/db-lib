@@ -1,4 +1,11 @@
-import { ErrorMode, Mapper, pMap, _hb, _mapValues, _passthroughMapper } from '@naturalcycles/js-lib'
+import {
+  AsyncMapper,
+  ErrorMode,
+  pMap,
+  _hb,
+  _mapValues,
+  _passthroughMapper,
+} from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -84,7 +91,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
-  mapperPerTable?: Record<string, Mapper>
+  mapperPerTable?: Record<string, AsyncMapper>
 
   /**
    * You can alter default `transformMapOptions` here.
@@ -153,7 +160,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
   })
 
-  const sizeStrByTable = _mapValues(sizeByTable, b => _hb(b))
+  const sizeStrByTable = _mapValues(sizeByTable, (_k, b) => _hb(b))
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n`, sizeStrByTable)
 

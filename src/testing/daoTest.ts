@@ -117,14 +117,14 @@ export function runCommonDaoTest(
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let rows = await dao.query().runQuery()
-      rows = _sortBy(rows, 'id')
+      rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)
     })
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
         let rows = await dao.query().filter('even', '=', true).runQuery()
-        rows = _sortBy(rows, 'id')
+        rows = _sortBy(rows, r => r.id)
         expectMatch(
           expectedItems.filter(i => i.even),
           rows,
@@ -143,7 +143,7 @@ export function runCommonDaoTest(
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
         let rows = await dao.query().select(['id']).runQuery<ObjectWithId>()
-        rows = _sortBy(rows, 'id')
+        rows = _sortBy(rows, r => r.id)
         expectMatch(
           expectedItems.map(item => _pick(item, ['id'])),
           rows,
@@ -163,14 +163,14 @@ export function runCommonDaoTest(
       let rows: TestItemBM[] = []
       await dao.query().streamQueryForEach(bm => void rows.push(bm))
 
-      rows = _sortBy(rows, 'id')
+      rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)
     })
 
     test('streamQuery all', async () => {
       let rows = await streamMapToArray(dao.query().streamQuery())
 
-      rows = _sortBy(rows, 'id')
+      rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)
     })
 

@@ -1,4 +1,4 @@
-import { ErrorMode, Mapper, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
+import { AsyncMapper, ErrorMode, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -64,7 +64,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
-  mapperPerTable?: Record<string, Mapper>
+  mapperPerTable?: Record<string, AsyncMapper>
 
   /**
    * You can alter default `transformMapOptions` here.

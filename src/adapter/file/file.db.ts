@@ -248,7 +248,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
    */
   sortRows<ROW>(rows: ROW[]): ROW[] {
     if (this.cfg.sortOnSave) {
-      _sortBy(rows, this.cfg.sortOnSave.name, true)
+      _sortBy(rows, r => r[this.cfg.sortOnSave!.name], true)
       if (this.cfg.sortOnSave.descending) rows.reverse() // mutates
     }
 

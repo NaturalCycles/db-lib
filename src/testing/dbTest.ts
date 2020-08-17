@@ -141,7 +141,7 @@ export function runCommonDBTest(
     test('runQuery(all) should return all items', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let { rows } = await db.runQuery(queryAll())
-      rows = _sortBy(rows, 'id') // because query doesn't specify order here
+      rows = _sortBy(rows, r => r.id) // because query doesn't specify order here
       expectMatch(items, rows, quirks)
     })
 
@@ -149,7 +149,7 @@ export function runCommonDBTest(
       test('query even=true', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', true)
         let { rows } = await db.runQuery(q)
-        if (!dbQueryOrder) rows = _sortBy(rows, 'id')
+        if (!dbQueryOrder) rows = _sortBy(rows, r => r.id)
         expectMatch(
           items.filter(i => i.even),
           rows,
@@ -170,7 +170,7 @@ export function runCommonDBTest(
       test('projection query with only ids', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['id'])
         let { rows } = await db.runQuery(q)
-        rows = _sortBy(rows, 'id') // cause order is not specified
+        rows = _sortBy(rows, r => r.id) // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['id'])),
           rows,
@@ -181,7 +181,7 @@ export function runCommonDBTest(
       test('projection query without ids', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['k1'])
         let { rows } = await db.runQuery(q)
-        rows = _sortBy(rows, 'k1') // cause order is not specified
+        rows = _sortBy(rows, r => r.k1) // cause order is not specified
         expectMatch(
           items.map(item => _pick(item, ['k1'])),
           rows,
@@ -210,7 +210,7 @@ export function runCommonDBTest(
     test('streamQuery all', async () => {
       let rows = await streamMapToArray(db.streamQuery(queryAll()))
 
-      rows = _sortBy(rows, 'id') // cause order is not specified in DBQuery
+      rows = _sortBy(rows, r => r.id) // cause order is not specified in DBQuery
       expectMatch(items, rows, quirks)
     })
   }

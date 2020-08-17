@@ -1,4 +1,4 @@
-import { AppError, ErrorMode, Mapper, _pick, _since, _truncate } from '@naturalcycles/js-lib'
+import { AppError, AsyncMapper, ErrorMode, _pick, _since, _truncate } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -375,7 +375,7 @@ export class CommonDao<
 
   async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
     q: DBQuery<DBM>,
-    mapper: Mapper<OUT, void>,
+    mapper: AsyncMapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     opt.skipValidation = opt.skipValidation !== false // default true
@@ -409,7 +409,7 @@ export class CommonDao<
 
   async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
     q: DBQuery<DBM>,
-    mapper: Mapper<OUT, void>,
+    mapper: AsyncMapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     if (opt.skipValidation === undefined) opt.skipValidation = true
@@ -505,7 +505,7 @@ export class CommonDao<
 
   async streamQueryIdsForEach(
     q: DBQuery<DBM>,
-    mapper: Mapper<string, void>,
+    mapper: AsyncMapper<string, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
     opt.skipValidation = opt.skipValidation !== false // default true
