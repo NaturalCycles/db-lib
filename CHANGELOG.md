@@ -1,3 +1,10 @@
+# [7.1.0](https://github.com/NaturalCycles/db-lib/compare/v7.0.5...v7.1.0) (2020-08-28)
+
+
+### Features
+
+* CommonDao.save* now mutates the original object ([9d45b95](https://github.com/NaturalCycles/db-lib/commit/9d45b950abd2792bb17227f00010144b7b6381f3))
+
 ## [7.0.5](https://github.com/NaturalCycles/db-lib/compare/v7.0.4...v7.0.5) (2020-08-17)
 
 
