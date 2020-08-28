@@ -1,4 +1,4 @@
-import { pDelay, _pick, _sortBy } from '@naturalcycles/js-lib'
+import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { getTestItemSchema, TestItemBM } from '.'
 import { ObjectWithId } from '..'
@@ -12,7 +12,6 @@ import {
   testItemTMSchema,
   TEST_TABLE,
 } from './test.model'
-import { deepFreeze } from './test.util'
 
 export function runCommonDaoTest(
   db: CommonDB,
@@ -48,7 +47,8 @@ export function runCommonDaoTest(
   const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
 
   const items = createTestItemsBM(3)
-  deepFreeze(items)
+  const itemsClone = _deepCopy(items)
+  // deepFreeze(items) // mutation of id/created/updated is allowed now! (even expected)
   const [item1] = items
 
   const expectedItems = items.map(i => ({
@@ -103,6 +103,12 @@ export function runCommonDaoTest(
   // SAVE
   test('saveBatch test items', async () => {
     const itemsSaved = await dao.saveBatch(items)
+    expect(itemsSaved[0]).toBe(items[0]) // expect "same object" returned
+
+    // no unnecessary mutation
+    const { updated, ...clone } = itemsClone[0]
+    expect(items[0]).toMatchObject(clone)
+
     expectMatch(expectedItems, itemsSaved, quirks)
   })
 

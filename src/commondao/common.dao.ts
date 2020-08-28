@@ -174,7 +174,7 @@ export class CommonDao<
       opt.throwOnError = this.cfg.throwOnDaoCreateObject
     }
 
-    let bm = { ...this.beforeCreate(input) }
+    let bm = this.beforeCreate(input)
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // If no SCHEMA - return as is
@@ -531,21 +531,27 @@ export class CommonDao<
     }
   }
 
+  /**
+   * Mutates!
+   * "Returns", just to have a type of "Saved"
+   */
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
     const now = Math.floor(Date.now() / 1000)
 
-    return {
-      ...obj,
+    return Object.assign(obj, {
       id: obj.id || this.createId(obj),
       created: obj.created || obj.updated || now,
       updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
-    }
+    })
   }
 
   // SAVE
+  /**
+   * Mutates with id, created, updated
+   */
   async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
-    const dbm = this.bmToDBM(bm, opt) // does assignIdCreatedUpdated
+    const dbm = this.bmToDBM(bm, opt) // does assignIdCreatedUpdated, mutates
     const table = opt.table || this.cfg.table
     const idWasGenerated = !bm.id
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
@@ -555,14 +561,9 @@ export class CommonDao<
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
-    // optimization: no need to convert back again
-    // const savedBM = this.dbmToBM(dbm, opt)
-    const savedBM = {
-      ...bm,
-      ..._pick(dbm, ['id', 'created', 'updated']),
-    }
+
     this.logSaveResult(started, op, table)
-    return savedBM
+    return bm as Saved<BM>
   }
 
   /**
@@ -620,7 +621,7 @@ export class CommonDao<
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
       const idWasGenerated = !dbm.id
-      dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
+      this.assignIdCreatedUpdated(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     }
     const op = `saveAsDBM(${dbm.id})`
@@ -636,7 +637,7 @@ export class CommonDao<
   async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
-    const dbms = this.bmsToDBM(bms, opt)
+    const dbms = this.bmsToDBM(bms, opt) // does assignIdCreatedUpdated (mutates)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
@@ -646,20 +647,22 @@ export class CommonDao<
       50,
     )})`
     const started = this.logSaveStarted(op, bms, table)
+
     await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
       ...opt,
     })
-    const savedBMs = this.dbmsToBM(dbms, opt)
+
     this.logSaveResult(started, op, table)
-    return savedBMs
+
+    return bms as Saved<BM>[]
   }
 
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
     if (!opt.raw) {
-      dbms = this.anyToDBMs(dbms, opt)
+      dbms = this.anyToDBMs(dbms, opt) // does assignIdCreatedUpdated
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
@@ -750,11 +753,11 @@ export class CommonDao<
     // bm gets assigned to the new reference
     // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
-    // BM > DBM
-    let dbm = this.beforeBMToDBM(bm)
+    // Mutates
+    this.assignIdCreatedUpdated(bm, opt)
 
-    // Does not mutate
-    dbm = this.assignIdCreatedUpdated(dbm, opt) as DBM
+    // BM > DBM
+    const dbm = { ...this.beforeBMToDBM(bm) }
 
     // Validate/convert DBM
     return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
@@ -767,6 +770,8 @@ export class CommonDao<
 
   anyToDBM(dbm: DBM, opt: CommonDaoOptions = {}): DBM {
     if (!dbm) return undefined as any
+
+    this.assignIdCreatedUpdated(dbm, opt) // mutates
 
     dbm = { ...dbm, ...this.parseNaturalId(dbm.id) }
 

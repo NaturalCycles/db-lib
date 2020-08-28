@@ -165,7 +165,7 @@ await _pipeline([
 
 `saveBatch<DBM>(table: string, dbms: DBM[]): Promise<void>`
 
-Since CommonDB is a "minimal API", there's no save method for a single item, only for mutliple. Pass
+Since CommonDB is a "minimal API", there's no save method for a single item, only for multiple. Pass
 an array with single item to save just one item.
 
 ```typescript
