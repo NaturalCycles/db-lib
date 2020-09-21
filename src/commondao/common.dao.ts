@@ -1,4 +1,12 @@
-import { AppError, AsyncMapper, ErrorMode, _pick, _since, _truncate } from '@naturalcycles/js-lib'
+import {
+  AppError,
+  AsyncMapper,
+  ErrorMode,
+  _filterUndefinedValues,
+  _pick,
+  _since,
+  _truncate,
+} from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
@@ -840,6 +848,9 @@ export class CommonDao<
   ): OUT {
     // `raw` option completely bypasses any processing
     if (opt.raw) return (obj as any) as OUT
+
+    // Filter null and undefined values
+    obj = _filterUndefinedValues(obj as any)
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {

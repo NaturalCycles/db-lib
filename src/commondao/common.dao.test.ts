@@ -1,4 +1,4 @@
-import { mockTime } from '@naturalcycles/dev-lib/dist/testing'
+import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
 import { ErrorMode, _omit } from '@naturalcycles/js-lib'
 import { writableForEach, _pipeline } from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
@@ -147,4 +147,34 @@ test.skip('ensureUniqueId', async () => {
 
   // Emulate "retry" - should work now, cause mock only runs once
   await dao.save(item3, opt)
+})
+
+test('should strip null on load and save', async () => {
+  const r = await dao.save({
+    id: '123',
+    k1: 'k1',
+    k2: null as any,
+  })
+
+  // console.log(r)
+
+  // r is mutated with created/updated properties, but null values are intact
+  expect(r).toEqual({
+    id: '123',
+    k1: 'k1',
+    k2: null,
+    created: MOCK_TS_2018_06_21,
+    updated: MOCK_TS_2018_06_21,
+  })
+
+  const r2 = await dao.requireById('123')
+  // console.log(r2)
+
+  expect(r2).toEqual({
+    id: '123',
+    k1: 'k1',
+    // k2: null, // no k2!
+    created: MOCK_TS_2018_06_21,
+    updated: MOCK_TS_2018_06_21,
+  })
 })
