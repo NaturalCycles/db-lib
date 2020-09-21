@@ -79,7 +79,7 @@ export function runCommonDBTest(
   deepFreeze(items)
   const [item1] = items
 
-  const queryAll = () => new DBQuery<TestItemDBM>(TEST_TABLE)
+  const queryAll = () => DBQuery.create<TestItemDBM>(TEST_TABLE)
 
   test('ping', async () => {
     await db.ping()

@@ -1,7 +1,7 @@
 import { DBQuery } from './dbQuery'
 
 test('DBQuery', () => {
-  const q = new DBQuery('TestKind')
+  const q = DBQuery.create('TestKind')
   expect(q.table).toBe('TestKind')
   expect(q.prettyConditions()).toEqual([])
 })

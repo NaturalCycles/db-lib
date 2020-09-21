@@ -81,7 +81,7 @@ export class CommonTimeSeriesDao {
   }
 
   async query(q: TimeSeriesQuery): Promise<TimeSeriesDataPoint[]> {
-    const dbq = new DBQuery(`${q.series}${_TIMESERIES_RAW}`).order('ts')
+    const dbq = DBQuery.create(`${q.series}${_TIMESERIES_RAW}`).order('ts')
     if (q.fromIncl) dbq.filter('ts', '>=', q.fromIncl)
     if (q.toExcl) dbq.filter('ts', '<', q.toExcl)
 

@@ -20,7 +20,7 @@ different DBs.
 `DBQuery` allows to use the same _query syntax_ across different DBs! E.g:
 
 ```typescript
-const q = new DBQuery('table1')
+const q = DBQuery.create('table1')
   .filterEq('type', 'cat')
   .filter('updated', '>', '2019-01-17')
   .order('name', true)
@@ -122,7 +122,7 @@ Only returns items that are found, does not return undefined (absent) items.
 `runQuery<DBM>(q: DBQuery<DBM>): Promise<RunQueryResult<DBM>>`
 
 ```typescript
-const q = new DBQuery('table1').filterEq('type', 'cat').order('name', true) // desc
+const q = DBQuery.create('table1').filterEq('type', 'cat').order('name', true) // desc
 
 await db.runQuery(q)
 // { records: [ { ... }, { ... }, ... ] }
@@ -133,7 +133,7 @@ await db.runQuery(q)
 `runQueryCount(q: DBQuery): Promise<number>`
 
 ```typescript
-await db.runQuery(new DBQuery('table1'))
+await db.runQuery(DBQuery.create('table1'))
 // 5
 ```
 
@@ -147,7 +147,7 @@ Returns `ReadableTyped` (typed wrapper of Node.js
 Streams in Node.js support back-pressure by default (if piped properly by the consumer).
 
 ```typescript
-const q = new DBQuery('table1') // "return all items" query
+const q = DBQuery.create('table1') // "return all items" query
 
 await _pipeline([
   db.streamQuery(q),
@@ -175,7 +175,7 @@ const items = [
 ]
 
 await db.saveBatch('table1', items) // returns void
-await db.runQuery(new DBQuery('table1') // "get all" query
+await db.runQuery(DBQuery.create('table1') // "get all" query
 // [ { item1 }, { item2 } ]
 ```
 
@@ -197,7 +197,7 @@ await db.deleteByIds('table1', ['id1', 'id2'])
 Returns number of deleted items.
 
 ```typescript
-await db.deleteByQuery(new DBQuery('table1'))
+await db.deleteByQuery(DBQuery.create('table1'))
 // 2
 ```
 
@@ -232,22 +232,22 @@ Object that defines "DB Query".
 
 ```typescript
 // Simplest query - "get all" query
-new DBQuery('table1')
+DBQuery.create('table1')
 
 // where type = "cat"
-new DBQuery('table1').filter('type', '=', 'cat')
+DBQuery.create('table1').filter('type', '=', 'cat')
 
 // OR
-new DBQuery('table1').filterEq('type', 'cat')
+DBQuery.create('table1').filterEq('type', 'cat')
 
 // Where updated > 2019-01-17
-new DBQuery('table1').filter('updated', '>', '2019-01-17')
+DBQuery.create('table1').filter('updated', '>', '2019-01-17')
 
 // order by 'name'
-new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name')
+DBQuery.create('table1').filter('updated', '>', '2019-01-17').order('name')
 
 // order by 'name' in descending order
-new DBQuery('table1').filter('updated', '>', '2019-01-17').order('name', true)
+DBQuery.create('table1').filter('updated', '>', '2019-01-17').order('name', true)
 ```
 
 Features:

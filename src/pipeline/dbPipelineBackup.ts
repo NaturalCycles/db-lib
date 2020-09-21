@@ -156,7 +156,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
   await pMap(
     tables,
     async table => {
-      let q = new DBQuery(table).limit(limit)
+      let q = DBQuery.create(table).limit(limit)
 
       if (sinceUpdated) {
         q = q.filter('updated', '>=', sinceUpdated)

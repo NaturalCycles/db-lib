@@ -42,6 +42,13 @@ export interface DBQueryOrder {
 export class DBQuery<ROW extends ObjectWithId = any> {
   constructor(public table: string) {}
 
+  /**
+   * Convenience method.
+   */
+  static create<ROW extends ObjectWithId = any>(table: string): DBQuery<ROW> {
+    return new DBQuery(table)
+  }
+
   static fromPlainObject<ROW extends ObjectWithId = any>(
     obj: Partial<DBQuery> & { table: string },
   ): DBQuery<ROW> {
