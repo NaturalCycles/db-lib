@@ -1,3 +1,11 @@
+## [7.2.1](https://github.com/NaturalCycles/db-lib/compare/v7.2.0...v7.2.1) (2020-09-21)
+
+
+### Bug Fixes
+
+* CommonDao will keep removing null values ([89809bb](https://github.com/NaturalCycles/db-lib/commit/89809bb915b766f1f3e836ffac82a1d9ae6e2123))
+* InMemoryDB now does JSON parse/stringify now ([1d15017](https://github.com/NaturalCycles/db-lib/commit/1d15017a1c4c2a1ae2e2dc950a3218aea3f65f76))
+
 # [7.2.0](https://github.com/NaturalCycles/db-lib/compare/v7.1.0...v7.2.0) (2020-09-21)
 
 
