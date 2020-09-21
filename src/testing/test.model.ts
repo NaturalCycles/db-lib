@@ -1,5 +1,11 @@
 import { _range } from '@naturalcycles/js-lib'
-import { booleanSchema, numberSchema, objectSchema, stringSchema } from '@naturalcycles/nodejs-lib'
+import {
+  binarySchema,
+  booleanSchema,
+  numberSchema,
+  objectSchema,
+  stringSchema,
+} from '@naturalcycles/nodejs-lib'
 import { CommonSchema, CommonSchemaGenerator } from '..'
 import { BaseDBEntity, baseDBEntitySchema, Saved, savedDBEntitySchema } from '../db.model'
 
@@ -12,6 +18,7 @@ export interface TestItemBM extends BaseDBEntity {
   k2?: string
   k3?: number
   even?: boolean
+  b1?: Buffer
 }
 
 export interface TestItemDBM extends Saved<TestItemBM> {}
@@ -26,6 +33,7 @@ export const testItemBMSchema = objectSchema<TestItemBM>({
   k2: stringSchema.optional(),
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
+  b1: binarySchema.optional(),
 }).concat(baseDBEntitySchema)
 
 export const testItemDBMSchema = objectSchema<TestItemDBM>({
@@ -33,6 +41,7 @@ export const testItemDBMSchema = objectSchema<TestItemDBM>({
   k2: stringSchema.optional(),
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
+  b1: binarySchema.optional(),
 }).concat(savedDBEntitySchema)
 
 export const testItemTMSchema = objectSchema<TestItemTM>({

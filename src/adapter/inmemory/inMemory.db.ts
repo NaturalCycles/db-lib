@@ -1,5 +1,6 @@
 import { pMap, StringMap, _by, _since, _sortObjectDeep } from '@naturalcycles/js-lib'
 import {
+  bufferReviver,
   Debug,
   ReadableTyped,
   transformJsonParse,
@@ -142,15 +143,17 @@ export class InMemoryDB implements CommonDB {
         throw new Error(`InMemoryDB: id doesn't exist for row`)
       }
 
-      if (Buffer.isBuffer(r)) {
-        // special treatment for Buffers
-        this.data[table]![r.id] = r
-      } else {
-        // JSON parse/stringify (deep clone) is to:
-        // 1. Not store values "by reference" (avoid mutation bugs)
-        // 2. Simulate real DB that would do something like that in a transport layer anyway
-        this.data[table]![r.id] = JSON.parse(JSON.stringify(r))
-      }
+      // JSON parse/stringify (deep clone) is to:
+      // 1. Not store values "by reference" (avoid mutation bugs)
+      // 2. Simulate real DB that would do something like that in a transport layer anyway
+      this.data[table]![r.id] = JSON.parse(JSON.stringify(r), bufferReviver)
+
+      // special treatment for Buffers (assign them raw, without JSON parse/stringify)
+      // Object.entries(r).forEach(([k, v]) => {
+      //   if (Buffer.isBuffer(v)) {
+      //     this.data[table]![r.id]![k] = v
+      //   }
+      // })
     })
   }
 

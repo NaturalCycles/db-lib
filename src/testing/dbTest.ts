@@ -2,7 +2,13 @@ import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-l
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
-import { createTestItemsDBM, getTestItemSchema, TestItemDBM, TEST_TABLE } from './test.model'
+import {
+  createTestItemDBM,
+  createTestItemsDBM,
+  getTestItemSchema,
+  TestItemDBM,
+  TEST_TABLE,
+} from './test.model'
 import { deepFreeze } from './test.util'
 
 export interface CommonDBImplementationFeatures {
@@ -26,6 +32,8 @@ export interface CommonDBImplementationFeatures {
   strongConsistency?: boolean
 
   streaming?: boolean
+
+  bufferSupport?: boolean
 }
 
 /**
@@ -67,6 +75,7 @@ export function runCommonDBTest(
     dbQuerySelectFields = true,
     streaming = true,
     strongConsistency = true,
+    bufferSupport = true,
   } = features
 
   const {
@@ -239,6 +248,32 @@ export function runCommonDBTest(
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
 
       expect(await db.runQueryCount(queryAll())).toBe(1)
+    })
+  }
+
+  // BUFFER
+  if (bufferSupport) {
+    test('buffer support', async () => {
+      const s = 'helloWorld 1'
+      const b1 = Buffer.from(s)
+
+      const item = {
+        ...createTestItemDBM(1),
+        b1,
+      }
+      await db.saveBatch(TEST_TABLE, [item])
+      const [loaded] = await db.getByIds<TestItemDBM>(TEST_TABLE, [item.id])
+      const b1Loaded = loaded!.b1!
+      console.log({
+        b11: typeof b1,
+        b12: typeof b1Loaded,
+        l1: b1.length,
+        l2: b1Loaded.length,
+        b1,
+        b1Loaded,
+      })
+      expect(b1Loaded).toEqual(b1)
+      expect(b1Loaded.toString()).toBe(s)
     })
   }
 
