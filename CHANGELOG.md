@@ -1,3 +1,15 @@
+# [7.3.0](https://github.com/NaturalCycles/db-lib/compare/v7.2.1...v7.3.0) (2020-09-21)
+
+
+### Bug Fixes
+
+* InMemoryDB to not JSON.parse Buffer ([1c0e1c9](https://github.com/NaturalCycles/db-lib/commit/1c0e1c993c203d414f43759b68d2e74f01627f1a))
+
+
+### Features
+
+* dbTest with `bufferSupport` ([85d31c6](https://github.com/NaturalCycles/db-lib/commit/85d31c6d4c448126dd6ac7f75baef1ecd1097b9b))
+
 ## [7.2.1](https://github.com/NaturalCycles/db-lib/compare/v7.2.0...v7.2.1) (2020-09-21)
 
 
