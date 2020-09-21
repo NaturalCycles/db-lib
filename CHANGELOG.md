@@ -1,3 +1,15 @@
+# [7.2.0](https://github.com/NaturalCycles/db-lib/compare/v7.1.0...v7.2.0) (2020-09-21)
+
+
+### Bug Fixes
+
+* deps ([e092498](https://github.com/NaturalCycles/db-lib/commit/e0924982f78e19d4a3543f0dcf7a3e2b855bf0ef))
+
+
+### Features
+
+* DBQuery.create() convenience method ([5486834](https://github.com/NaturalCycles/db-lib/commit/548683444b97fd54cee100a4a92430f80e0f0216))
+
 # [7.1.0](https://github.com/NaturalCycles/db-lib/compare/v7.0.5...v7.1.0) (2020-08-28)
 
 
