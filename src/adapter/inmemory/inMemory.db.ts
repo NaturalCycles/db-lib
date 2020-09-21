@@ -142,10 +142,15 @@ export class InMemoryDB implements CommonDB {
         throw new Error(`InMemoryDB: id doesn't exist for row`)
       }
 
-      // JSON parse/stringify (deep clone) is to:
-      // 1. Not store values "by reference" (avoid mutation bugs)
-      // 2. Simulate real DB that would do something like that in a transport layer anyway
-      this.data[table]![r.id] = JSON.parse(JSON.stringify(r))
+      if (Buffer.isBuffer(r)) {
+        // special treatment for Buffers
+        this.data[table]![r.id] = r
+      } else {
+        // JSON parse/stringify (deep clone) is to:
+        // 1. Not store values "by reference" (avoid mutation bugs)
+        // 2. Simulate real DB that would do something like that in a transport layer anyway
+        this.data[table]![r.id] = JSON.parse(JSON.stringify(r))
+      }
     })
   }
 
