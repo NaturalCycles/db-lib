@@ -1,3 +1,17 @@
+# [8.0.0](https://github.com/NaturalCycles/db-lib/compare/v7.3.0...v8.0.0) (2020-10-12)
+
+
+### Features
+
+* CommonDao to use hooks instead of class extension ([405db38](https://github.com/NaturalCycles/db-lib/commit/405db3847b32ca32fb1d6d1211087f02064ab7f9))
+* CommonDao.getById returns null instead of undefined ([48f2fda](https://github.com/NaturalCycles/db-lib/commit/48f2fda288db2361531f9291d05b55c16419c55b))
+
+
+### BREAKING CHANGES
+
+* ^^^
+* ^^^
+
 # [7.3.0](https://github.com/NaturalCycles/db-lib/compare/v7.2.1...v7.3.0) (2020-09-21)
 
 
