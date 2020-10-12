@@ -1,4 +1,4 @@
-import { ErrorMode, _filterUndefinedValues } from '@naturalcycles/js-lib'
+import { ErrorMode, _filterNullish } from '@naturalcycles/js-lib'
 import { CommonSchema, CommonSchemaField, DATA_TYPE } from './common.schema'
 
 export interface CommonSchemaGeneratorCfg {
@@ -102,7 +102,7 @@ export class CommonSchemaGenerator<ROW = any> {
 
     // todo: recursively merge/compare array/object schemas
 
-    return _filterUndefinedValues({
+    return _filterNullish({
       ...newField,
       type,
       minLen,

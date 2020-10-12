@@ -3,10 +3,21 @@ import { queryInMemory } from './adapter/inmemory/queryInMemory'
 import { BaseCommonDB } from './base.common.db'
 import { DBLibError } from './cnst'
 import { CommonDB } from './common.db'
-import { CommonDao, CommonDaoCfg, CommonDaoLogLevel } from './commondao/common.dao'
+import { CommonDao } from './commondao/common.dao'
 import {
+  CommonDaoAnonymizeHook,
+  CommonDaoBeforeBMToDBMHook,
+  CommonDaoBeforeBMToTMHook,
+  CommonDaoBeforeCreateHook,
+  CommonDaoBeforeDBMToBMHook,
+  CommonDaoBeforeDBMValidateHook,
+  CommonDaoBeforeTMToBMHook,
+  CommonDaoCfg,
+  CommonDaoCreateIdHook,
   CommonDaoCreateOptions,
+  CommonDaoLogLevel,
   CommonDaoOptions,
+  CommonDaoParseNaturalIdHook,
   CommonDaoSaveOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
@@ -89,6 +100,15 @@ export {
   Unsaved,
   CommonDaoCfg,
   CommonDao,
+  CommonDaoCreateIdHook,
+  CommonDaoParseNaturalIdHook,
+  CommonDaoBeforeCreateHook,
+  CommonDaoBeforeDBMValidateHook,
+  CommonDaoBeforeDBMToBMHook,
+  CommonDaoBeforeBMToDBMHook,
+  CommonDaoBeforeTMToBMHook,
+  CommonDaoBeforeBMToTMHook,
+  CommonDaoAnonymizeHook,
   createdUpdatedFields,
   createdUpdatedIdFields,
   idField,

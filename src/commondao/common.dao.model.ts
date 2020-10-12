@@ -1,6 +1,96 @@
 import { ErrorMode } from '@naturalcycles/js-lib'
-import { TransformLogProgressOptions, TransformMapOptions } from '@naturalcycles/nodejs-lib'
-import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
+import {
+  JoiValidationError,
+  ObjectSchemaTyped,
+  TransformLogProgressOptions,
+  TransformMapOptions,
+} from '@naturalcycles/nodejs-lib'
+import { CommonDB } from '../common.db'
+import {
+  BaseDBEntity,
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  SavedDBEntity,
+} from '../db.model'
+
+// Hook DBM, BM, TM types should follow this exact order
+export type CommonDaoCreateIdHook<BM, DBM> = (obj: DBM | BM) => string
+export type CommonDaoParseNaturalIdHook<DBM> = (id: string) => Partial<DBM>
+export type CommonDaoBeforeCreateHook<BM> = (bm: Partial<BM>) => BM
+export type CommonDaoBeforeDBMValidateHook<DBM> = (dbm: DBM) => DBM
+export type CommonDaoBeforeDBMToBMHook<BM, DBM> = (dbm: DBM) => BM
+export type CommonDaoBeforeBMToDBMHook<BM, DBM> = (bm: BM) => DBM
+export type CommonDaoBeforeTMToBMHook<BM, TM> = (tm: TM) => BM
+export type CommonDaoBeforeBMToTMHook<BM, TM> = (bm: BM) => TM
+export type CommonDaoAnonymizeHook<DBM> = (dbm: DBM) => DBM
+
+interface CommonDaoHooks<BM, DBM, TM> {
+  createId: CommonDaoCreateIdHook<BM, DBM>
+  parseNaturalId: CommonDaoParseNaturalIdHook<DBM>
+  beforeCreate: CommonDaoBeforeCreateHook<BM>
+  beforeDBMValidate: CommonDaoBeforeDBMValidateHook<DBM>
+  beforeDBMToBM: CommonDaoBeforeDBMToBMHook<BM, DBM>
+  beforeBMToDBM: CommonDaoBeforeBMToDBMHook<BM, DBM>
+  beforeTMToBM: CommonDaoBeforeTMToBMHook<BM, TM>
+  beforeBMToTM: CommonDaoBeforeBMToTMHook<BM, TM>
+  anonymize: CommonDaoAnonymizeHook<DBM>
+}
+
+export enum CommonDaoLogLevel {
+  /**
+   * Same as undefined
+   */
+  NONE = 0,
+  OPERATIONS = 10,
+  DATA_SINGLE = 20,
+  DATA_FULL = 30,
+}
+
+export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity, TM> {
+  db: CommonDB
+  table: string
+  dbmSchema?: ObjectSchemaTyped<DBM>
+  bmSchema?: ObjectSchemaTyped<BM>
+  tmSchema?: ObjectSchemaTyped<TM>
+
+  excludeFromIndexes?: string[]
+
+  /**
+   * @default to false
+   * Set to true to limit DB writing (will throw an error is such case).
+   */
+  readOnly?: boolean
+
+  /**
+   * @default OPERATIONS
+   */
+  logLevel?: CommonDaoLogLevel
+
+  /**
+   * @default false
+   */
+  logStarted?: boolean
+
+  /**
+   * @default false
+   */
+  throwOnEntityValidationError?: boolean
+
+  /**
+   * @default to throwOnEntityValidationError setting
+   */
+  throwOnDaoCreateObject?: boolean
+
+  /**
+   * Called when validation error occurs.
+   * Called ONLY when error is NOT thrown (when throwOnEntityValidationError is off)
+   */
+  onValidationError?: (err: JoiValidationError) => any
+
+  // Hooks are designed with inspiration from got/ky interface
+  hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
+}
 
 /**
  * All properties default to undefined.

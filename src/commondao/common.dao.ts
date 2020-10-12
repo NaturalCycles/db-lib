@@ -2,15 +2,13 @@ import {
   AppError,
   AsyncMapper,
   ErrorMode,
-  _filterUndefinedValues,
-  _pick,
+  _filterNullish,
   _since,
   _truncate,
 } from '@naturalcycles/js-lib'
 import {
   Debug,
   getValidationResult,
-  JoiValidationError,
   ObjectSchemaTyped,
   ReadableTyped,
   stringId,
@@ -20,7 +18,6 @@ import {
   writableForEach,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from '../common.db'
 import {
   BaseDBEntity,
   DBModelType,
@@ -33,64 +30,14 @@ import { DBLibError } from '../index'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import { CommonSchema } from '../schema/common.schema'
 import {
+  CommonDaoCfg,
   CommonDaoCreateOptions,
+  CommonDaoLogLevel,
   CommonDaoOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
 } from './common.dao.model'
-
-export enum CommonDaoLogLevel {
-  /**
-   * Same as undefined
-   */
-  NONE = 0,
-  OPERATIONS = 10,
-  DATA_SINGLE = 20,
-  DATA_FULL = 30,
-}
-
-export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity, TM> {
-  db: CommonDB
-  table: string
-  dbmSchema?: ObjectSchemaTyped<DBM>
-  bmSchema?: ObjectSchemaTyped<BM>
-  tmSchema?: ObjectSchemaTyped<TM>
-
-  excludeFromIndexes?: string[]
-
-  /**
-   * @default to false
-   * Set to true to limit DB writing (will throw an error is such case).
-   */
-  readOnly?: boolean
-
-  /**
-   * @default OPERATIONS
-   */
-  logLevel?: CommonDaoLogLevel
-
-  /**
-   * @default false
-   */
-  logStarted?: boolean
-
-  /**
-   * @default false
-   */
-  throwOnEntityValidationError?: boolean
-
-  /**
-   * @default to throwOnEntityValidationError setting
-   */
-  throwOnDaoCreateObject?: boolean
-
-  /**
-   * Called when validation error occurs.
-   * Called ONLY when error is NOT thrown (when throwOnEntityValidationError is off)
-   */
-  onValidationError?: (err: JoiValidationError) => any
-}
 
 const log = Debug('nc:db-lib:commondao')
 
@@ -110,70 +57,19 @@ export class CommonDao<
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       ...cfg,
+      hooks: {
+        createId: () => stringId(),
+        parseNaturalId: () => ({}),
+        beforeCreate: bm => bm as BM,
+        beforeDBMValidate: dbm => dbm,
+        beforeDBMToBM: dbm => dbm as any,
+        beforeBMToDBM: bm => bm as any,
+        beforeTMToBM: tm => tm as any,
+        beforeBMToTM: bm => bm as any,
+        anonymize: dbm => dbm,
+        ...cfg.hooks,
+      },
     }
-  }
-
-  /**
-   * To be extended
-   */
-  createId(obj: DBM | BM): string {
-    return stringId()
-  }
-
-  /**
-   * To be extended
-   */
-  parseNaturalId(id: string): Partial<DBM> {
-    return {}
-  }
-
-  /**
-   * To be extended
-   */
-  beforeCreate(bm: Partial<BM>): BM {
-    return bm as BM
-  }
-
-  /**
-   * To be extended
-   */
-  beforeDBMValidate(dbm: DBM): DBM {
-    return dbm
-  }
-
-  /**
-   * To be extended
-   */
-  beforeDBMToBM(dbm: DBM): BM {
-    return dbm as any
-  }
-
-  /**
-   * To be extended
-   */
-  beforeBMToDBM(bm: BM): DBM {
-    return bm as any
-  }
-
-  /**
-   * To be extended
-   */
-  beforeTMToBM(tm: TM): BM {
-    return tm as any
-  }
-
-  /**
-   * To be extended
-   */
-  beforeBMToTM(bm: Saved<BM>): TM {
-    return bm as any
-  }
-
-  /**
-   * To be extended
-   */
-  anonymize(dbm: DBM): DBM {
-    return dbm
   }
 
   // CREATE
@@ -182,7 +78,7 @@ export class CommonDao<
       opt.throwOnError = this.cfg.throwOnDaoCreateObject
     }
 
-    let bm = this.beforeCreate(input)
+    let bm = this.cfg.hooks!.beforeCreate!(input)
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // If no SCHEMA - return as is
@@ -547,7 +443,7 @@ export class CommonDao<
     const now = Math.floor(Date.now() / 1000)
 
     return Object.assign(obj, {
-      id: obj.id || this.createId(obj),
+      id: obj.id || this.cfg.hooks!.createId!(obj),
       created: obj.created || obj.updated || now,
       updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
     })
@@ -732,14 +628,14 @@ export class CommonDao<
 
     // optimization: no need to run full joi DBM validation, cause BM validation will be run
     // const dbm = this.anyToDBM(_dbm, opt)
-    let dbm: DBM = { ..._dbm, ...this.parseNaturalId(_dbm.id) }
+    let dbm: DBM = { ..._dbm, ...this.cfg.hooks!.parseNaturalId!(_dbm.id) }
 
     if (opt.anonymize) {
-      dbm = this.anonymize(dbm)
+      dbm = this.cfg.hooks!.anonymize!(dbm)
     }
 
     // DBM > BM
-    const bm = this.beforeDBMToBM(dbm)
+    const bm = this.cfg.hooks!.beforeDBMToBM!(dbm)
 
     // Validate/convert BM
     return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
@@ -765,7 +661,7 @@ export class CommonDao<
     this.assignIdCreatedUpdated(bm, opt)
 
     // BM > DBM
-    const dbm = { ...this.beforeBMToDBM(bm) }
+    const dbm = { ...this.cfg.hooks!.beforeBMToDBM!(bm) }
 
     // Validate/convert DBM
     return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
@@ -781,10 +677,10 @@ export class CommonDao<
 
     this.assignIdCreatedUpdated(dbm, opt) // mutates
 
-    dbm = { ...dbm, ...this.parseNaturalId(dbm.id) }
+    dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id) }
 
     if (opt.anonymize) {
-      dbm = this.anonymize(dbm)
+      dbm = this.cfg.hooks!.anonymize!(dbm)
     }
 
     // Validate/convert DBM
@@ -804,7 +700,7 @@ export class CommonDao<
     // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // BM > TM
-    const tm = this.beforeBMToTM(bm)
+    const tm = this.cfg.hooks!.beforeBMToTM!(bm as BM)
 
     // Validate/convert DBM
     return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
@@ -824,7 +720,7 @@ export class CommonDao<
     // tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
 
     // TM > BM
-    const bm = this.beforeTMToBM(tm)
+    const bm = this.cfg.hooks!.beforeTMToBM!(tm)
 
     // Validate/convert BM
     return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opt)
@@ -850,11 +746,11 @@ export class CommonDao<
     if (opt.raw) return (obj as any) as OUT
 
     // Filter null and undefined values
-    obj = _filterUndefinedValues(obj as any)
+    obj = _filterNullish(obj as any)
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
-      obj = this.beforeDBMValidate(obj as any) as any
+      obj = this.cfg.hooks!.beforeDBMValidate!(obj as any) as any
     }
 
     // Return as is if no schema is passed or if `skipConversion` is set

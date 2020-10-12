@@ -1,9 +1,9 @@
 import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { getTestItemSchema, TestItemBM } from '.'
-import { ObjectWithId } from '..'
+import { CommonDaoLogLevel, ObjectWithId } from '..'
 import { CommonDB } from '../common.db'
-import { CommonDao, CommonDaoLogLevel } from '../commondao/common.dao'
+import { CommonDao } from '../commondao/common.dao'
 import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
   createTestItemsBM,

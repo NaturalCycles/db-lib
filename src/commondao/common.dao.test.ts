@@ -13,30 +13,14 @@ import {
   testItemTMSchema,
   TEST_TABLE,
 } from '../testing/test.model'
-import { CommonDao, CommonDaoLogLevel } from './common.dao'
-import { CommonDaoSaveOptions, CommonDaoStreamOptions } from './common.dao.model'
+import { CommonDao } from './common.dao'
+import { CommonDaoLogLevel, CommonDaoSaveOptions, CommonDaoStreamOptions } from './common.dao.model'
 
 let throwError = false
 
-class TestItemDao extends CommonDao<TestItemBM, TestItemDBM, TestItemTM> {
-  parseNaturalId(id: string): Partial<TestItemDBM> {
-    if (throwError && id === 'id3') throw new Error('error_from_parseNaturalId')
-
-    return {}
-  }
-
-  beforeDBMToBM(dbm: TestItemDBM): TestItemBM {
-    // if(throwError && dbm.id === 'id4') throw new Error('error_from_beforeDBMToBM')
-
-    return {
-      ...dbm,
-    }
-  }
-}
-
 const db = new InMemoryDB()
 
-const dao = new TestItemDao({
+const dao = new CommonDao<TestItemBM, TestItemDBM, TestItemTM>({
   table: TEST_TABLE,
   db,
   dbmSchema: testItemDBMSchema,
@@ -44,6 +28,20 @@ const dao = new TestItemDao({
   tmSchema: testItemTMSchema,
   // logStarted: true,
   logLevel: CommonDaoLogLevel.OPERATIONS,
+  hooks: {
+    parseNaturalId: id => {
+      if (throwError && id === 'id3') throw new Error('error_from_parseNaturalId')
+
+      return {}
+    },
+    beforeDBMToBM: dbm => {
+      // if(throwError && dbm.id === 'id4') throw new Error('error_from_beforeDBMToBM')
+
+      return {
+        ...dbm,
+      }
+    },
+  },
 })
 
 beforeEach(async () => {
