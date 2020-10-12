@@ -86,15 +86,15 @@ export class CommonDao<
   }
 
   // GET
-  async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | undefined> {
-    if (!id) return
+  async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
+    if (!id) return null
     const op = `getById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     const bm = opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)
     this.logResult(started, op, bm, table)
-    return bm
+    return bm || null
   }
 
   async getByIdOrCreate(
@@ -122,8 +122,8 @@ export class CommonDao<
     return this.create({ id } as Partial<BM>, opt) as any
   }
 
-  async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | undefined> {
-    if (!id) return
+  async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | null> {
+    if (!id) return null
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -132,23 +132,23 @@ export class CommonDao<
       dbm = this.anyToDBM(dbm, opt)
     }
     this.logResult(started, op, dbm, table)
-    return dbm
+    return dbm || null
   }
 
-  async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | undefined> {
-    if (!id) return
+  async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | null> {
+    if (!id) return null
     const op = `getByIdAsTM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (opt.raw) {
       this.logResult(started, op, dbm, table)
-      return dbm as any
+      return (dbm as any) || null
     }
     const bm = this.dbmToBM(dbm, opt)
     const tm = this.bmToTM(bm, opt)
     this.logResult(started, op, tm, table)
-    return tm
+    return tm || null
   }
 
   async getByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
@@ -211,9 +211,9 @@ export class CommonDao<
     return await this.query().filter(by, '=', value).limit(limit).runQuery(opt)
   }
 
-  async getOneBy(by: string, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | undefined> {
+  async getOneBy(by: string, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | null> {
     const [bm] = await this.query().filter(by, '=', value).limit(1).runQuery(opt)
-    return bm
+    return bm || null
   }
 
   async getAll(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {

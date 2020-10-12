@@ -89,7 +89,7 @@ export function runCommonDaoTest(
   test('getByIds(item1.id) should return empty', async () => {
     const [item1Loaded] = await dao.getByIds([item1.id])
     expect(item1Loaded).toBeUndefined()
-    expect(await dao.getById(item1.id)).toBeUndefined()
+    expect(await dao.getById(item1.id)).toBeNull()
   })
 
   test('getByIds([]) should return []', async () => {
