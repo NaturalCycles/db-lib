@@ -290,17 +290,17 @@ export function runCommonDBTest(
 }
 
 export function expectMatch(
-  expected: any,
-  actual: any,
+  expected: any[],
+  actual: any[],
   quirks: CommonDBImplementationQuirks,
 ): void {
   // const expectedSorted = sortObjectDeep(expected)
   // const actualSorted = sortObjectDeep(actual)
 
   if (quirks.allowBooleansAsUndefined) {
-    expected = (Array.isArray(expected) ? expected : [expected]).map(r =>
-      _filterObject(r, (_k, v) => v !== false),
-    )
+    expected = expected.map(r => {
+      return typeof r !== 'object' ? r : _filterObject(r, (_k, v) => v !== false)
+    })
   }
 
   if (quirks.allowExtraPropertiesInResponse) {
