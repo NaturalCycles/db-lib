@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/NaturalCycles/db-lib/compare/v8.0.0...v8.0.1) (2020-10-12)
+
+
+### Bug Fixes
+
+* daoTest with quirks.allowBooleansAsUndefined ([a2cfc74](https://github.com/NaturalCycles/db-lib/commit/a2cfc74397c84b478d2008e1c22ae699bec17fa3))
+
 # [8.0.0](https://github.com/NaturalCycles/db-lib/compare/v7.3.0...v8.0.0) (2020-10-12)
 
 
