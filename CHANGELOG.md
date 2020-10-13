@@ -1,3 +1,10 @@
+## [8.0.2](https://github.com/NaturalCycles/db-lib/compare/v8.0.1...v8.0.2) (2020-10-13)
+
+
+### Bug Fixes
+
+* allow null input in model.util function ([aae167d](https://github.com/NaturalCycles/db-lib/commit/aae167db9d3c84a717035be235524e1910bbeddc))
+
 ## [8.0.1](https://github.com/NaturalCycles/db-lib/compare/v8.0.0...v8.0.1) (2020-10-12)
 
 
