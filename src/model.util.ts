@@ -1,7 +1,9 @@
 import { stringId } from '@naturalcycles/nodejs-lib'
 import { CreatedUpdated, CreatedUpdatedId, ObjectWithId } from './db.model'
 
-export function createdUpdatedFields(existingObject?: Partial<CreatedUpdated>): CreatedUpdated {
+export function createdUpdatedFields(
+  existingObject?: Partial<CreatedUpdated> | null,
+): CreatedUpdated {
   const now = Math.floor(Date.now() / 1000)
   return {
     created: existingObject?.created || now,
@@ -10,7 +12,7 @@ export function createdUpdatedFields(existingObject?: Partial<CreatedUpdated>): 
 }
 
 export function createdUpdatedIdFields(
-  existingObject?: Partial<CreatedUpdatedId>,
+  existingObject?: Partial<CreatedUpdatedId> | null,
 ): CreatedUpdatedId {
   const now = Math.floor(Date.now() / 1000)
   return {
@@ -20,7 +22,7 @@ export function createdUpdatedIdFields(
   }
 }
 
-export function idField(existingObject?: Partial<CreatedUpdatedId>): ObjectWithId {
+export function idField(existingObject?: Partial<CreatedUpdatedId> | null): ObjectWithId {
   return {
     id: existingObject?.id || stringId(),
   }
