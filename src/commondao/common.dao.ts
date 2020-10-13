@@ -2,7 +2,7 @@ import {
   AppError,
   AsyncMapper,
   ErrorMode,
-  _filterNullish,
+  _filterNullishValues,
   _since,
   _truncate,
 } from '@naturalcycles/js-lib'
@@ -746,7 +746,7 @@ export class CommonDao<
     if (opt.raw) return (obj as any) as OUT
 
     // Filter null and undefined values
-    obj = _filterNullish(obj as any)
+    obj = _filterNullishValues(obj as any)
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
