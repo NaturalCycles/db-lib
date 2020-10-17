@@ -90,6 +90,12 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity
 
   // Hooks are designed with inspiration from got/ky interface
   hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
+
+  /**
+   * @default true
+   * Set to false to disable created/updated fields management.
+   */
+  createdUpdated?: boolean
 }
 
 /**

@@ -56,6 +56,7 @@ export class CommonDao<
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
+      createdUpdated: true,
       ...cfg,
       hooks: {
         createId: () => stringId(),
@@ -442,11 +443,16 @@ export class CommonDao<
   assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
     const now = Math.floor(Date.now() / 1000)
 
-    return Object.assign(obj, {
-      id: obj.id || this.cfg.hooks!.createId!(obj),
-      created: obj.created || obj.updated || now,
-      updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
-    })
+    obj.id = obj.id || this.cfg.hooks!.createId!(obj)
+
+    if (this.cfg.createdUpdated) {
+      Object.assign(obj, {
+        created: obj.created || obj.updated || now,
+        updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
+      })
+    }
+
+    return obj as Saved<T>
   }
 
   // SAVE
