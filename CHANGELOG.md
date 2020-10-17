@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/NaturalCycles/db-lib/compare/v8.0.3...v8.1.0) (2020-10-17)
+
+
+### Features
+
+* CommonDaoCfg.createdUpdated ([6c0224e](https://github.com/NaturalCycles/db-lib/commit/6c0224ef965ce89c9f85711ce75e940976193e12))
+
 ## [8.0.3](https://github.com/NaturalCycles/db-lib/compare/v8.0.2...v8.0.3) (2020-10-13)
 
 
