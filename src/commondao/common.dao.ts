@@ -238,6 +238,7 @@ export class CommonDao<
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
+    q.table = opt.table || q.table
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
@@ -259,6 +260,7 @@ export class CommonDao<
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<OUT>> {
+    q.table = opt.table || q.table
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
@@ -269,6 +271,7 @@ export class CommonDao<
   }
 
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+    q.table = opt.table || q.table
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const count = await this.cfg.db.runQueryCount(q, opt)
@@ -283,6 +286,7 @@ export class CommonDao<
     mapper: AsyncMapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
+    q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -317,6 +321,7 @@ export class CommonDao<
     mapper: AsyncMapper<OUT, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
+    q.table = opt.table || q.table
     if (opt.skipValidation === undefined) opt.skipValidation = true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -348,6 +353,7 @@ export class CommonDao<
     q: DBQuery<DBM>,
     opt: CommonDaoStreamOptions = {},
   ): ReadableTyped<OUT> {
+    q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -371,6 +377,7 @@ export class CommonDao<
     q: DBQuery<DBM>,
     opt: CommonDaoStreamOptions = {},
   ): ReadableTyped<OUT> {
+    q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -391,12 +398,14 @@ export class CommonDao<
     )
   }
 
-  async queryIds(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<string[]> {
+  async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<string[]> {
+    q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
     return rows.map(r => r.id)
   }
 
   streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
+    q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -413,6 +422,7 @@ export class CommonDao<
     mapper: AsyncMapper<string, void>,
     opt: CommonDaoStreamForEachOptions = {},
   ): Promise<void> {
+    q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
@@ -618,8 +628,9 @@ export class CommonDao<
     return deletedIds
   }
 
-  async deleteByQuery(q: DBQuery, opt?: CommonDaoOptions): Promise<number> {
+  async deleteByQuery(q: DBQuery, opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
+    q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     const ids = await this.cfg.db.deleteByQuery(q, opt)
