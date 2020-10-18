@@ -270,6 +270,29 @@ export class CommonDao<
     return { rows: (dbms as any) as OUT[], ...queryResult }
   }
 
+  async runQueryAsTM<OUT = TM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
+    const { rows } = await this.runQueryExtendedAsTM<OUT>(q, opt)
+    return rows
+  }
+
+  async runQueryExtendedAsTM<OUT = TM>(
+    q: DBQuery<DBM>,
+    opt: CommonDaoOptions = {},
+  ): Promise<RunQueryResult<OUT>> {
+    q.table = opt.table || q.table
+    const op = `runQueryAsTM(${q.pretty()})`
+    const started = this.logStarted(op, q.table)
+    const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
+    const partialQuery = !!q._selectedFieldNames
+    const tms =
+      partialQuery || opt.raw ? (rows as any[]) : this.bmsToTM(this.dbmsToBM(rows, opt), opt)
+    this.logResult(started, op, tms, q.table)
+    return {
+      rows: tms,
+      ...queryResult,
+    }
+  }
+
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
     q.table = opt.table || q.table
     const op = `runQueryCount(${q.pretty()})`

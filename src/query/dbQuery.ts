@@ -186,12 +186,20 @@ export class RunnableDBQuery<
     return await this.dao.runQueryAsDBM<OUT>(this, opt)
   }
 
+  async runQueryAsTM<OUT = TM>(opt?: CommonDaoOptions): Promise<OUT[]> {
+    return await this.dao.runQueryAsTM<OUT>(this, opt)
+  }
+
   async runQueryExtended<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
     return await this.dao.runQueryExtended<OUT>(this, opt)
   }
 
   async runQueryExtendedAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
     return await this.dao.runQueryExtendedAsDBM<OUT>(this, opt)
+  }
+
+  async runQueryExtendedAsTM<OUT = TM>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
+    return await this.dao.runQueryExtendedAsTM<OUT>(this, opt)
   }
 
   async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
