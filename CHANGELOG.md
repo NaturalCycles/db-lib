@@ -1,3 +1,10 @@
+# [8.2.0](https://github.com/NaturalCycles/db-lib/compare/v8.1.1...v8.2.0) (2020-10-18)
+
+
+### Features
+
+* CommonDao.runQueryAsTM() (was missing) ([f015f34](https://github.com/NaturalCycles/db-lib/commit/f015f348df63b986d628ec6e1aed5442afa25516))
+
 ## [8.1.1](https://github.com/NaturalCycles/db-lib/compare/v8.1.0...v8.1.1) (2020-10-18)
 
 
