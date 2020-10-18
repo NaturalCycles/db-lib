@@ -1,3 +1,10 @@
+## [8.1.1](https://github.com/NaturalCycles/db-lib/compare/v8.1.0...v8.1.1) (2020-10-18)
+
+
+### Bug Fixes
+
+* CommonDao opt.table support in more places ([7748f3a](https://github.com/NaturalCycles/db-lib/commit/7748f3a7d2db2246e41b9fb5053ac93bcb3ef2d5))
+
 # [8.1.0](https://github.com/NaturalCycles/db-lib/compare/v8.0.3...v8.1.0) (2020-10-17)
 
 
