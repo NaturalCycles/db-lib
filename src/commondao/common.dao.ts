@@ -209,11 +209,11 @@ export class CommonDao<
   }
 
   async getBy(by: string, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
-    return await this.query().filter(by, '=', value).limit(limit).runQuery(opt)
+    return await this.query().filter(by, '==', value).limit(limit).runQuery(opt)
   }
 
   async getOneBy(by: string, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | null> {
-    const [bm] = await this.query().filter(by, '=', value).limit(1).runQuery(opt)
+    const [bm] = await this.query().filter(by, '==', value).limit(1).runQuery(opt)
     return bm || null
   }
 

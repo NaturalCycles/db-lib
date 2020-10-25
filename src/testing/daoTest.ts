@@ -129,7 +129,7 @@ export function runCommonDaoTest(
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
-        let rows = await dao.query().filter('even', '=', true).runQuery()
+        let rows = await dao.query().filter('even', '==', true).runQuery()
         rows = _sortBy(rows, r => r.id)
         expectMatch(
           expectedItems.filter(i => i.even),
@@ -205,7 +205,7 @@ export function runCommonDaoTest(
   // DELETE BY
   if (querying) {
     test('deleteByQuery even=false', async () => {
-      const deleted = await dao.query().filter('even', '=', false).deleteByQuery()
+      const deleted = await dao.query().filter('even', '==', false).deleteByQuery()
       expect(deleted).toBe(items.filter(item => !item.even).length)
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect(await dao.query().runQueryCount()).toBe(1)

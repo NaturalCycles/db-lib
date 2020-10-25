@@ -235,7 +235,7 @@ Object that defines "DB Query".
 DBQuery.create('table1')
 
 // where type = "cat"
-DBQuery.create('table1').filter('type', '=', 'cat')
+DBQuery.create('table1').filter('type', '==', 'cat')
 
 // OR
 DBQuery.create('table1').filterEq('type', 'cat')

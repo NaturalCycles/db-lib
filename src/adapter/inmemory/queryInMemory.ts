@@ -4,12 +4,16 @@ import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
-  '=': (v, val) => v === val,
+  '==': (v, val) => v === val,
   '<': (v, val) => v < val,
   '<=': (v, val) => v <= val,
   '>': (v, val) => v > val,
   '>=': (v, val) => v >= val,
-  in: (v, val) => ((val as any[]) || []).includes(v),
+  in: (v, val?: any[]) => (val || []).includes(v),
+  'not-in': (v, val?: any[]) => !(val || []).includes(v),
+  'array-contains': (v?: any[], val?: any) => (v || []).includes(val),
+  'array-contains-any': (v?: any[], val?: any[]) =>
+    (v && val && v.some(item => val.includes(item))) || false,
 }
 
 // Important: q.table is not used in this function, so tablesPrefix is not needed.
@@ -20,11 +24,7 @@ export function queryInMemory<ROW extends ObjectWithId, OUT = ROW>(
 ): OUT[] {
   // .filter
   rows = q._filters.reduce((rows, filter) => {
-    return rows.filter(row => {
-      const fn = FILTER_FNS[filter.op]
-      if (!fn) throw new Error(`InMemoryDB query filter op not supported: ${filter.op}`)
-      return fn(row[filter.name], filter.val)
-    })
+    return rows.filter(row => FILTER_FNS[filter.op](row[filter.name], filter.val))
   }, rows)
 
   // .select(fieldNames)

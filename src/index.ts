@@ -60,6 +60,7 @@ import {
   DBQuery,
   DBQueryFilter,
   DBQueryFilterOperator,
+  DBQueryFilterOperatorValues,
   DBQueryOrder,
   RunnableDBQuery,
 } from './query/dbQuery'
@@ -71,6 +72,7 @@ import { commitDBTransactionSimple, mergeDBOperations } from './transaction/dbTr
 export {
   DBQuery,
   DBQueryFilterOperator,
+  DBQueryFilterOperatorValues,
   DBQueryFilter,
   DBQueryOrder,
   RunnableDBQuery,

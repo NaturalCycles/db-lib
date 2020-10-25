@@ -156,7 +156,7 @@ export function runCommonDBTest(
 
     if (dbQueryFilter) {
       test('query even=true', async () => {
-        const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', true)
+        const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '==', true)
         let { rows } = await db.runQuery(q)
         if (!dbQueryOrder) rows = _sortBy(rows, r => r.id)
         expectMatch(
@@ -241,7 +241,7 @@ export function runCommonDBTest(
   // DELETE BY
   if (querying && dbQueryFilter) {
     test('deleteByQuery even=false', async () => {
-      const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '=', false)
+      const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '==', false)
       const deleted = await db.deleteByQuery(q)
       expect(deleted).toBe(items.filter(item => !item.even).length)
 

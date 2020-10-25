@@ -4,7 +4,46 @@ import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions
 import { CommonDao } from '../commondao/common.dao'
 import { BaseDBEntity, ObjectWithId, RunQueryResult, Saved, SavedDBEntity } from '../db.model'
 
-export type DBQueryFilterOperator = '<' | '<=' | '=' | '>=' | '>' | 'in'
+/**
+ * Modeled after Firestore operators (WhereFilterOp type)
+ *
+ * As explained in https://firebase.google.com/docs/firestore/query-data/queries
+ *
+ * 'array-contains' applies to the field of type ARRAY, returns a doc if the array contains the given value,
+ * e.g .filter('languages', 'array-contains', 'en')
+ * where 'languages' can be e.g ['en', 'sv']
+ *
+ * 'in' applies to a non-ARRAY fields, but allows to pass multiple values to compare with, e.g:
+ * .filter('lang', 'in', ['en', 'sv'])
+ * will returns users that have EITHER en OR sv in their language
+ *
+ * 'array-contains-any' applies to ARRAY field and ARRAY of given arguments,
+ * works like an "intersection". Returns a document if intersection is not empty, e.g:
+ * .filter('languages', 'array-contains-any', ['en', 'sv'])
+ *
+ * You may also look at queryInMemory() for its implementation (it implements all those).
+ */
+export type DBQueryFilterOperator =
+  | '<'
+  | '<='
+  | '=='
+  | '>='
+  | '>'
+  | 'in'
+  | 'not-in'
+  | 'array-contains'
+  | 'array-contains-any'
+export const DBQueryFilterOperatorValues = [
+  '<',
+  '<=',
+  '==',
+  '>=',
+  '>',
+  'in',
+  'not-in',
+  'array-contains',
+  'array-contains-any',
+]
 
 export interface DBQueryFilter {
   name: string
@@ -75,7 +114,7 @@ export class DBQuery<ROW extends ObjectWithId = any> {
   }
 
   filterEq(name: string, val: any): this {
-    this._filters.push({ name, op: '=', val })
+    this._filters.push({ name, op: '==', val })
     return this
   }
 
