@@ -1,3 +1,10 @@
+# [8.3.0](https://github.com/NaturalCycles/db-lib/compare/v8.2.0...v8.3.0) (2020-10-25)
+
+
+### Features
+
+* more DBQueryFilterOperators for array fields ([d02f8e2](https://github.com/NaturalCycles/db-lib/commit/d02f8e2bb814b815a50a393ddf3da4cc9ff285e1))
+
 # [8.2.0](https://github.com/NaturalCycles/db-lib/compare/v8.1.1...v8.2.0) (2020-10-18)
 
 
