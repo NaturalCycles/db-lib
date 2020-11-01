@@ -143,7 +143,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     `>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...${sinceUpdatedStr}`,
   )
 
-  await fs.ensureDir(outputDirPath)
+  fs.ensureDirSync(outputDirPath)
 
   if (!tables) {
     tables = await db.getTables()

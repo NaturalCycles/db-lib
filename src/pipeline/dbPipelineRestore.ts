@@ -134,13 +134,13 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     `>> ${dimWhite('dbPipelineRestore')} started in ${grey(inputDirPath)}...${sinceUpdatedStr}`,
   )
 
-  await fs.ensureDir(inputDirPath)
+  fs.ensureDirSync(inputDirPath)
 
   const tablesToGzip = new Set<string>()
   const sizeByTable: Record<string, number> = {}
   const statsPerTable: Record<string, NDJsonStats> = {}
   const tables: string[] = []
-  ;(await fs.readdir(inputDirPath)).forEach(f => {
+  fs.readdirSync(inputDirPath).forEach(f => {
     let table: string
     let gzip = false
 
