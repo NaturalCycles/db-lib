@@ -1,3 +1,10 @@
+## [8.3.1](https://github.com/NaturalCycles/db-lib/compare/v8.3.0...v8.3.1) (2020-11-04)
+
+
+### Bug Fixes
+
+* CommonDao.streamQueryForEach* now report progress correctly ([b928dc1](https://github.com/NaturalCycles/db-lib/commit/b928dc13a93480306ab88246a76ed3d8616b0e35))
+
 # [8.3.0](https://github.com/NaturalCycles/db-lib/compare/v8.2.0...v8.3.0) (2020-10-25)
 
 
