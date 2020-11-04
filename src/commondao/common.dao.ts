@@ -3,6 +3,7 @@ import {
   AsyncMapper,
   ErrorMode,
   _filterNullishValues,
+  _passthroughPredicate,
   _since,
   _truncate,
 } from '@naturalcycles/js-lib'
@@ -15,7 +16,7 @@ import {
   transformLogProgress,
   transformMap,
   transformTap,
-  writableForEach,
+  writableVoid,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import {
@@ -327,11 +328,16 @@ export class CommonDao<
         opt,
       ),
       transformTap(() => count++),
+      transformMap<OUT, void>(mapper, {
+        ...opt,
+        predicate: _passthroughPredicate,
+      }),
+      // LogProgress should be AFTER the mapper, to be able to report correct stats
       transformLogProgress({
         metric: q.table,
         ...opt,
       }),
-      writableForEach<OUT>(mapper, opt),
+      writableVoid(),
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
@@ -357,11 +363,16 @@ export class CommonDao<
       this.cfg.db.streamQuery<any>(q, opt),
       transformMap<any, DBM>(dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)), opt),
       transformTap(() => count++),
-      transformLogProgress<DBM>({
+      transformMap<OUT, void>(mapper, {
+        ...opt,
+        predicate: _passthroughPredicate,
+      }),
+      // LogProgress should be AFTER the mapper, to be able to report correct stats
+      transformLogProgress({
         metric: q.table,
         ...opt,
       }),
-      writableForEach<OUT>(mapper, opt),
+      writableVoid(),
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
@@ -457,11 +468,16 @@ export class CommonDao<
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
       transformMap<ObjectWithId, string>(objectWithId => objectWithId.id, opt),
       transformTap(() => count++),
-      transformLogProgress<string>({
+      transformMap<string, void>(mapper, {
+        ...opt,
+        predicate: _passthroughPredicate,
+      }),
+      // LogProgress should be AFTER the mapper, to be able to report correct stats
+      transformLogProgress({
         metric: q.table,
         ...opt,
       }),
-      writableForEach<string>(mapper, opt),
+      writableVoid(),
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
