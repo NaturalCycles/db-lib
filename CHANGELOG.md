@@ -1,3 +1,10 @@
+# [8.5.0](https://github.com/NaturalCycles/db-lib/compare/v8.4.0...v8.5.0) (2020-11-05)
+
+
+### Features
+
+* make DBQuery generic required ([75c1c2b](https://github.com/NaturalCycles/db-lib/commit/75c1c2b1854d09affadbc7edd256fb73cf2259e9))
+
 # [8.4.0](https://github.com/NaturalCycles/db-lib/compare/v8.3.1...v8.4.0) (2020-11-05)
 
 
