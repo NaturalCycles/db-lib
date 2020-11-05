@@ -148,7 +148,10 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
+  async runQueryCount<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number> {
     return (await this.loadFile(q.table)).length
   }
 

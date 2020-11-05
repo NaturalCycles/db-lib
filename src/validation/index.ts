@@ -31,7 +31,7 @@ export const dbQueryOrderSchema = objectSchema<DBQueryOrder>({
   descending: booleanSchema.optional(),
 })
 
-export const dbQuerySchema = objectSchema<DBQuery>({
+export const dbQuerySchema = objectSchema<DBQuery<any>>({
   table: stringSchema,
   _filters: arraySchema(dbQueryFilterSchema).optional(),
   _limitValue: integerSchema.min(0).optional(),

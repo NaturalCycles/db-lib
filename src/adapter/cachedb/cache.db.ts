@@ -185,7 +185,10 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return { rows, ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery, opt: CacheDBOptions = {}): Promise<number> {
+  async runQueryCount<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt: CacheDBOptions = {},
+  ): Promise<number> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       return this.cfg.downstreamDB.runQueryCount(q, opt)
     }
@@ -235,7 +238,10 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return stream
   }
 
-  async deleteByQuery(q: DBQuery, opt: CacheDBOptions = {}): Promise<number> {
+  async deleteByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt: CacheDBOptions = {},
+  ): Promise<number> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteByQuery(q, opt)
 

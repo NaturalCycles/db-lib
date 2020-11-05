@@ -188,7 +188,10 @@ export class InMemoryDB implements CommonDB {
     return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]) }
   }
 
-  async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
+  async runQueryCount<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }

@@ -34,7 +34,10 @@ export class BaseCommonDB implements CommonDB {
     return 0
   }
 
-  async deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
+  async deleteByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number> {
     return 0
   }
 
@@ -46,11 +49,17 @@ export class BaseCommonDB implements CommonDB {
     return []
   }
 
-  async runQuery<ROW>(q: DBQuery, opt?: CommonDBOptions): Promise<RunQueryResult<ROW>> {
+  async runQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<RunQueryResult<ROW>> {
     return { rows: [] }
   }
 
-  async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
+  async runQueryCount<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number> {
     return 0
   }
 
@@ -60,7 +69,10 @@ export class BaseCommonDB implements CommonDB {
     opt?: CommonDBSaveOptions,
   ): Promise<void> {}
 
-  streamQuery<ROW>(q: DBQuery, opt?: CommonDBOptions): ReadableTyped<ROW> {
+  streamQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): ReadableTyped<ROW> {
     return Readable.from([])
   }
 

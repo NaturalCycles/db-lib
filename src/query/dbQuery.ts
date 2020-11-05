@@ -79,7 +79,7 @@ export interface DBQueryOrder {
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<ROW extends ObjectWithId = any> {
+export class DBQuery<ROW extends ObjectWithId> {
   constructor(public table: string) {}
 
   /**
@@ -90,7 +90,7 @@ export class DBQuery<ROW extends ObjectWithId = any> {
   }
 
   static fromPlainObject<ROW extends ObjectWithId = any>(
-    obj: Partial<DBQuery> & { table: string },
+    obj: Partial<DBQuery<ROW>> & { table: string },
   ): DBQuery<ROW> {
     return Object.assign(new DBQuery<ROW>(obj.table), obj)
   }

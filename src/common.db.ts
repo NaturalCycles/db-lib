@@ -53,7 +53,7 @@ export interface CommonDB {
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>>
 
-  runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
+  runQueryCount<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
 
   streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
@@ -74,7 +74,7 @@ export interface CommonDB {
    */
   deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number>
 
-  deleteByQuery(q: DBQuery, opt?: CommonDBOptions): Promise<number>
+  deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
 
   // TRANSACTION
   /**

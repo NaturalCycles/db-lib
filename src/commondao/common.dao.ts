@@ -666,7 +666,7 @@ export class CommonDao<BM extends Partial<ObjectWithId>, DBM extends ObjectWithI
     return deletedIds
   }
 
-  async deleteByQuery(q: DBQuery, opt: CommonDaoOptions = {}): Promise<number> {
+  async deleteByQuery(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
     q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
