@@ -1,3 +1,10 @@
+# [8.4.0](https://github.com/NaturalCycles/db-lib/compare/v8.3.1...v8.4.0) (2020-11-05)
+
+
+### Features
+
+* remove OUT generic from CommonDao, CommonDB ([c11ac92](https://github.com/NaturalCycles/db-lib/commit/c11ac9272e2dc8c763d3cab7e9d984ae8ac84fea))
+
 ## [8.3.1](https://github.com/NaturalCycles/db-lib/compare/v8.3.0...v8.3.1) (2020-11-04)
 
 
