@@ -1,3 +1,10 @@
+## [8.5.1](https://github.com/NaturalCycles/db-lib/compare/v8.5.0...v8.5.1) (2020-11-05)
+
+
+### Bug Fixes
+
+* infer default CommonDao DBM as Saved<BM> ([c2b40d5](https://github.com/NaturalCycles/db-lib/commit/c2b40d59c01283ad96974d9d2b564744d2634ace))
+
 # [8.5.0](https://github.com/NaturalCycles/db-lib/compare/v8.4.0...v8.5.0) (2020-11-05)
 
 
