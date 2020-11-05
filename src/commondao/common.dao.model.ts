@@ -7,11 +7,10 @@ import {
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import {
-  BaseDBEntity,
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
-  SavedDBEntity,
+  ObjectWithId,
 } from '../db.model'
 
 // Hook DBM, BM, TM types should follow this exact order
@@ -47,7 +46,7 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends SavedDBEntity, TM> {
+export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM> {
   db: CommonDB
   table: string
   dbmSchema?: ObjectSchemaTyped<DBM>
@@ -170,11 +169,13 @@ export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOpti
   ensureUniqueId?: boolean
 }
 
-export interface CommonDaoStreamForEachOptions
-  extends CommonDaoStreamOptions,
-    TransformLogProgressOptions {}
+export interface CommonDaoStreamForEachOptions<IN>
+  extends CommonDaoStreamOptions<IN, void>,
+    TransformLogProgressOptions<IN> {}
 
-export interface CommonDaoStreamOptions extends CommonDaoOptions, TransformMapOptions {
+export interface CommonDaoStreamOptions<IN, OUT = IN>
+  extends CommonDaoOptions,
+    TransformMapOptions<IN, OUT> {
   /**
    * @default true (for streams)
    */

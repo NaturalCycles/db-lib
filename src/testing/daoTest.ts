@@ -1,7 +1,7 @@
 import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
 import { streamMapToArray } from '@naturalcycles/nodejs-lib'
 import { getTestItemSchema, TestItemBM } from '.'
-import { CommonDaoLogLevel, ObjectWithId } from '..'
+import { CommonDaoLogLevel } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
 import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
@@ -70,7 +70,7 @@ export function runCommonDaoTest(
   if (querying) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
-      const rows = await dao.query().select(['id']).runQuery<ObjectWithId>()
+      const rows = await dao.query().select(['id']).runQuery()
       await db.deleteByIds(
         TEST_TABLE,
         rows.map(i => i.id),
@@ -148,7 +148,7 @@ export function runCommonDaoTest(
 
     if (dbQuerySelectFields) {
       test('projection query with only ids', async () => {
-        let rows = await dao.query().select(['id']).runQuery<ObjectWithId>()
+        let rows = await dao.query().select(['id']).runQuery()
         rows = _sortBy(rows, r => r.id)
         expectMatch(
           expectedItems.map(item => _pick(item, ['id'])),

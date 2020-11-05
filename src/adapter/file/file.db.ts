@@ -139,10 +139,10 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     await this.saveFiles(ops)
   }
 
-  async runQuery<ROW extends ObjectWithId, OUT = ROW>(
+  async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<ROW>> {
     return {
       rows: queryInMemory(q, await this.loadFile<ROW>(q.table)),
     }
@@ -152,10 +152,10 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return (await this.loadFile(q.table)).length
   }
 
-  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+  streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
-  ): ReadableTyped<OUT> {
+  ): ReadableTyped<ROW> {
     const readable = readableCreate<ROW>()
 
     void this.runQuery(q, opt).then(({ rows }) => {

@@ -1,9 +1,4 @@
-import {
-  objectSchema,
-  stringSchema,
-  unixTimestampSchema,
-  verSchema,
-} from '@naturalcycles/nodejs-lib'
+import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/nodejs-lib'
 import { Merge } from 'type-fest'
 import { CommonDB } from './common.db'
 
@@ -79,14 +74,14 @@ export interface BaseDBEntity {
   id?: string
   created?: number
   updated?: number
-  _ver?: number
+  // _ver?: number
 }
 
 export interface SavedDBEntity {
   id: string
   created: number
   updated: number
-  _ver?: number
+  // _ver?: number
 }
 
 export type Saved<E> = Merge<E, SavedDBEntity>
@@ -96,14 +91,14 @@ export const baseDBEntitySchema = objectSchema<BaseDBEntity>({
   id: stringSchema.optional(),
   created: unixTimestampSchema.optional(),
   updated: unixTimestampSchema.optional(),
-  _ver: verSchema.optional(),
+  // _ver: verSchema.optional(),
 })
 
 export const savedDBEntitySchema = objectSchema<SavedDBEntity>({
   id: stringSchema,
   created: unixTimestampSchema,
   updated: unixTimestampSchema,
-  _ver: verSchema.optional(),
+  // _ver: verSchema.optional(),
 })
 
 /**

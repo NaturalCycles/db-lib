@@ -155,12 +155,12 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  async runQuery<ROW extends ObjectWithId, OUT = ROW>(
+  async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<ROW>> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
-      const { rows, ...queryResult } = await this.cfg.downstreamDB.runQuery<ROW, OUT>(q, opt)
+      const { rows, ...queryResult } = await this.cfg.downstreamDB.runQuery(q, opt)
 
       if (this.cfg.logDownstream) {
         this.log(`${q.table}.runQuery ${rows.length} rows from downstream`)
@@ -176,7 +176,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
     if (opt.skipCache || this.cfg.skipCache) return { rows: [] }
 
-    const { rows, ...queryResult } = await this.cfg.cacheDB.runQuery<ROW, OUT>(q, opt)
+    const { rows, ...queryResult } = await this.cfg.cacheDB.runQuery(q, opt)
 
     if (this.cfg.logCached) {
       this.log(`${q.table}.runQuery ${rows.length} rows from cache`)

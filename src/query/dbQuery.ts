@@ -2,7 +2,7 @@ import { AsyncMapper, _truncate } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions } from '..'
 import { CommonDao } from '../commondao/common.dao'
-import { BaseDBEntity, ObjectWithId, RunQueryResult, Saved, SavedDBEntity } from '../db.model'
+import { ObjectWithId, RunQueryResult, Saved } from '../db.model'
 
 /**
  * Modeled after Firestore operators (WhereFilterOp type)
@@ -33,6 +33,7 @@ export type DBQueryFilterOperator =
   | 'not-in'
   | 'array-contains'
   | 'array-contains-any'
+
 export const DBQueryFilterOperatorValues = [
   '<',
   '<=',
@@ -206,8 +207,8 @@ export class DBQuery<ROW extends ObjectWithId = any> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends BaseDBEntity,
-  DBM extends SavedDBEntity,
+  BM extends Partial<ObjectWithId>,
+  DBM extends ObjectWithId,
   TM
 > extends DBQuery<DBM> {
   /**
@@ -217,67 +218,67 @@ export class RunnableDBQuery<
     super(table || dao.cfg.table)
   }
 
-  async runQuery<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<OUT[]> {
-    return await this.dao.runQuery<OUT>(this, opt)
+  async runQuery(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    return await this.dao.runQuery(this, opt)
   }
 
-  async runQueryAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Promise<OUT[]> {
-    return await this.dao.runQueryAsDBM<OUT>(this, opt)
+  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
+    return await this.dao.runQueryAsDBM(this, opt)
   }
 
-  async runQueryAsTM<OUT = TM>(opt?: CommonDaoOptions): Promise<OUT[]> {
-    return await this.dao.runQueryAsTM<OUT>(this, opt)
+  async runQueryAsTM(opt?: CommonDaoOptions): Promise<TM[]> {
+    return await this.dao.runQueryAsTM(this, opt)
   }
 
-  async runQueryExtended<OUT = Saved<BM>>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
-    return await this.dao.runQueryExtended<OUT>(this, opt)
+  async runQueryExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<BM>>> {
+    return await this.dao.runQueryExtended(this, opt)
   }
 
-  async runQueryExtendedAsDBM<OUT = DBM>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
-    return await this.dao.runQueryExtendedAsDBM<OUT>(this, opt)
+  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
+    return await this.dao.runQueryExtendedAsDBM(this, opt)
   }
 
-  async runQueryExtendedAsTM<OUT = TM>(opt?: CommonDaoOptions): Promise<RunQueryResult<OUT>> {
-    return await this.dao.runQueryExtendedAsTM<OUT>(this, opt)
+  async runQueryExtendedAsTM(opt?: CommonDaoOptions): Promise<RunQueryResult<TM>> {
+    return await this.dao.runQueryExtendedAsTM(this, opt)
   }
 
   async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
     return await this.dao.runQueryCount(this, opt)
   }
 
-  async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
-    mapper: AsyncMapper<OUT, void>,
-    opt?: CommonDaoStreamForEachOptions,
+  async streamQueryForEach(
+    mapper: AsyncMapper<Saved<BM>, void>,
+    opt?: CommonDaoStreamForEachOptions<Saved<BM>>,
   ): Promise<void> {
-    await this.dao.streamQueryForEach<IN, OUT>(this, mapper, opt)
+    await this.dao.streamQueryForEach(this, mapper, opt)
   }
 
-  async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
-    mapper: AsyncMapper<OUT, void>,
-    opt?: CommonDaoStreamForEachOptions,
+  async streamQueryAsDBMForEach(
+    mapper: AsyncMapper<DBM, void>,
+    opt?: CommonDaoStreamForEachOptions<DBM>,
   ): Promise<void> {
-    await this.dao.streamQueryAsDBMForEach<IN, OUT>(this, mapper, opt)
+    await this.dao.streamQueryAsDBMForEach(this, mapper, opt)
   }
 
-  streamQuery<OUT = Saved<BM>>(opt?: CommonDaoStreamOptions): ReadableTyped<OUT> {
-    return this.dao.streamQuery<OUT>(this, opt)
+  streamQuery(opt?: CommonDaoStreamOptions<DBM, Saved<BM>>): ReadableTyped<Saved<BM>> {
+    return this.dao.streamQuery(this, opt)
   }
 
-  streamQueryAsDBM<OUT = DBM>(opt?: CommonDaoStreamOptions): ReadableTyped<OUT> {
-    return this.dao.streamQueryAsDBM<OUT>(this, opt)
+  streamQueryAsDBM(opt?: CommonDaoStreamOptions<any, DBM>): ReadableTyped<DBM> {
+    return this.dao.streamQueryAsDBM(this, opt)
   }
 
   async queryIds(opt?: CommonDaoOptions): Promise<string[]> {
     return await this.dao.queryIds(this, opt)
   }
 
-  streamQueryIds(opt?: CommonDaoStreamOptions): ReadableTyped<string> {
+  streamQueryIds(opt?: CommonDaoStreamOptions<ObjectWithId, string>): ReadableTyped<string> {
     return this.dao.streamQueryIds(this, opt)
   }
 
   async streamQueryIdsForEach(
     mapper: AsyncMapper<string, void>,
-    opt?: CommonDaoStreamForEachOptions,
+    opt?: CommonDaoStreamForEachOptions<string>,
   ): Promise<void> {
     await this.dao.streamQueryIdsForEach(this, mapper, opt)
   }

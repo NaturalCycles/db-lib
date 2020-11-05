@@ -5,22 +5,19 @@ import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
 import {
   createTestItemsBM,
-  TestItemBM,
   testItemBMSchema,
-  TestItemDBM,
   testItemDBMSchema,
-  TestItemTM,
   testItemTMSchema,
   TEST_TABLE,
 } from '../testing/test.model'
 import { CommonDao } from './common.dao'
-import { CommonDaoLogLevel, CommonDaoSaveOptions, CommonDaoStreamOptions } from './common.dao.model'
+import { CommonDaoLogLevel, CommonDaoSaveOptions } from './common.dao.model'
 
 let throwError = false
 
 const db = new InMemoryDB()
 
-const dao = new CommonDao<TestItemBM, TestItemDBM, TestItemTM>({
+const dao = new CommonDao({
   table: TEST_TABLE,
   db,
   dbmSchema: testItemDBMSchema,
@@ -59,7 +56,7 @@ test('should propagate pipe errors', async () => {
 
   throwError = true
 
-  const opt: CommonDaoStreamOptions = {
+  const opt = {
     // logEvery: 1,
   }
 

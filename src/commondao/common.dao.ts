@@ -15,18 +15,12 @@ import {
   stringId,
   transformLogProgress,
   transformMap,
+  TransformMapOptions,
   transformTap,
   writableVoid,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
-import {
-  BaseDBEntity,
-  DBModelType,
-  ObjectWithId,
-  RunQueryResult,
-  Saved,
-  SavedDBEntity,
-} from '../db.model'
+import { DBModelType, ObjectWithId, RunQueryResult, Saved } from '../db.model'
 import { DBLibError } from '../index'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import { CommonSchema } from '../schema/common.schema'
@@ -49,11 +43,7 @@ const log = Debug('nc:db-lib:commondao')
  * BM = Backend model (optimized for API access)
  * TM = Transport model (optimized to be sent over the wire)
  */
-export class CommonDao<
-  BM extends BaseDBEntity = any,
-  DBM extends SavedDBEntity = Saved<BM>,
-  TM = BM
-> {
+export class CommonDao<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM = BM> {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
@@ -230,15 +220,15 @@ export class CommonDao<
     return new RunnableDBQuery<BM, DBM, TM>(this, table)
   }
 
-  async runQuery<OUT = Saved<BM>>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
-    const { rows } = await this.runQueryExtended<OUT>(q, opt)
+  async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    const { rows } = await this.runQueryExtended(q, opt)
     return rows
   }
 
-  async runQueryExtended<OUT = Saved<BM>>(
+  async runQueryExtended(
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<Saved<BM>>> {
     q.table = opt.table || q.table
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -252,15 +242,15 @@ export class CommonDao<
     }
   }
 
-  async runQueryAsDBM<OUT = DBM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
-    const { rows } = await this.runQueryExtendedAsDBM<OUT>(q, opt)
+  async runQueryAsDBM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<DBM[]> {
+    const { rows } = await this.runQueryExtendedAsDBM(q, opt)
     return rows
   }
 
-  async runQueryExtendedAsDBM<OUT = DBM>(
+  async runQueryExtendedAsDBM(
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<DBM>> {
     q.table = opt.table || q.table
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -268,18 +258,18 @@ export class CommonDao<
     const partialQuery = !!q._selectedFieldNames
     const dbms = partialQuery || opt.raw ? rows : this.anyToDBMs(rows, opt)
     this.logResult(started, op, dbms, q.table)
-    return { rows: (dbms as any) as OUT[], ...queryResult }
+    return { rows: dbms, ...queryResult }
   }
 
-  async runQueryAsTM<OUT = TM>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<OUT[]> {
-    const { rows } = await this.runQueryExtendedAsTM<OUT>(q, opt)
+  async runQueryAsTM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<TM[]> {
+    const { rows } = await this.runQueryExtendedAsTM(q, opt)
     return rows
   }
 
-  async runQueryExtendedAsTM<OUT = TM>(
+  async runQueryExtendedAsTM(
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<TM>> {
     q.table = opt.table || q.table
     const op = `runQueryAsTM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -305,10 +295,10 @@ export class CommonDao<
     return count
   }
 
-  async streamQueryForEach<IN = Saved<BM>, OUT = IN>(
+  async streamQueryForEach(
     q: DBQuery<DBM>,
-    mapper: AsyncMapper<OUT, void>,
-    opt: CommonDaoStreamForEachOptions = {},
+    mapper: AsyncMapper<Saved<BM>, void>,
+    opt: CommonDaoStreamForEachOptions<Saved<BM>> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
@@ -325,10 +315,10 @@ export class CommonDao<
       // transformMap<any, DBM>(dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)), opt),
       transformMap<DBM, Saved<BM>>(
         dbm => (partialQuery || opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)),
-        opt,
+        opt as TransformMapOptions<DBM, Saved<BM>>,
       ),
       transformTap(() => count++),
-      transformMap<OUT, void>(mapper, {
+      transformMap<Saved<BM>, void>(mapper, {
         ...opt,
         predicate: _passthroughPredicate,
       }),
@@ -345,10 +335,10 @@ export class CommonDao<
     }
   }
 
-  async streamQueryAsDBMForEach<IN = DBM, OUT = IN>(
+  async streamQueryAsDBMForEach(
     q: DBQuery<DBM>,
-    mapper: AsyncMapper<OUT, void>,
-    opt: CommonDaoStreamForEachOptions = {},
+    mapper: AsyncMapper<DBM, void>,
+    opt: CommonDaoStreamForEachOptions<DBM> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
     if (opt.skipValidation === undefined) opt.skipValidation = true
@@ -361,9 +351,12 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<any>(q, opt),
-      transformMap<any, DBM>(dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)), opt),
+      transformMap<any, DBM>(
+        dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)),
+        opt as TransformMapOptions<any, DBM>,
+      ),
       transformTap(() => count++),
-      transformMap<OUT, void>(mapper, {
+      transformMap<DBM, void>(mapper, {
         ...opt,
         predicate: _passthroughPredicate,
       }),
@@ -383,17 +376,17 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQueryAsDBM<OUT = DBM>(
+  streamQueryAsDBM(
     q: DBQuery<DBM>,
-    opt: CommonDaoStreamOptions = {},
-  ): ReadableTyped<OUT> {
+    opt: CommonDaoStreamOptions<any, DBM> = {},
+  ): ReadableTyped<DBM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
 
-    const stream = this.cfg.db.streamQuery<DBM, OUT>(q, opt)
+    const stream = this.cfg.db.streamQuery<DBM>(q, opt)
     if (partialQuery || opt.raw) return stream
 
     return stream.pipe(
@@ -407,10 +400,10 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQuery<OUT = Saved<BM>>(
+  streamQuery(
     q: DBQuery<DBM>,
-    opt: CommonDaoStreamOptions = {},
-  ): ReadableTyped<OUT> {
+    opt: CommonDaoStreamOptions<DBM, Saved<BM>> = {},
+  ): ReadableTyped<Saved<BM>> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
@@ -434,11 +427,14 @@ export class CommonDao<
 
   async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<string[]> {
     q.table = opt.table || q.table
-    const { rows } = await this.cfg.db.runQuery<DBM, ObjectWithId>(q.select(['id']), opt)
+    const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
     return rows.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
+  streamQueryIds(
+    q: DBQuery<DBM>,
+    opt: CommonDaoStreamOptions<ObjectWithId, string> = {},
+  ): ReadableTyped<string> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
@@ -454,7 +450,7 @@ export class CommonDao<
   async streamQueryIdsForEach(
     q: DBQuery<DBM>,
     mapper: AsyncMapper<string, void>,
-    opt: CommonDaoStreamForEachOptions = {},
+    opt: CommonDaoStreamForEachOptions<string> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
@@ -466,7 +462,10 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMap<ObjectWithId, string>(objectWithId => objectWithId.id, opt),
+      transformMap<ObjectWithId, string>(
+        objectWithId => objectWithId.id,
+        opt as TransformMapOptions<ObjectWithId, string>,
+      ),
       transformTap(() => count++),
       transformMap<string, void>(mapper, {
         ...opt,
@@ -496,12 +495,12 @@ export class CommonDao<
 
     if (this.cfg.createdUpdated) {
       Object.assign(obj, {
-        created: obj.created || obj.updated || now,
-        updated: opt.preserveUpdatedCreated && obj.updated ? obj.updated : now,
+        created: (obj as any).created || (obj as any).updated || now,
+        updated: opt.preserveUpdatedCreated && (obj as any).updated ? (obj as any).updated : now,
       })
     }
 
-    return obj as Saved<T>
+    return obj as any
   }
 
   // SAVE
@@ -522,7 +521,7 @@ export class CommonDao<
     })
 
     this.logSaveResult(started, op, table)
-    return bm as Saved<BM>
+    return bm as any
   }
 
   /**
@@ -551,9 +550,9 @@ export class CommonDao<
   async patch(id: string, patch: Partial<BM>, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     return await this.save(
       {
-        ...(await this.getByIdOrCreate(id, patch as BM, opt)),
+        ...(await this.getByIdOrCreate(id, patch, opt)),
         ...patch,
-      } as BM,
+      } as any,
       opt,
     )
   }
@@ -614,7 +613,7 @@ export class CommonDao<
 
     this.logSaveResult(started, op, table)
 
-    return bms as Saved<BM>[]
+    return bms as any[]
   }
 
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
@@ -756,7 +755,7 @@ export class CommonDao<
     // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // BM > TM
-    const tm = this.cfg.hooks!.beforeBMToTM!(bm as BM)
+    const tm = this.cfg.hooks!.beforeBMToTM!(bm as any)
 
     // Validate/convert DBM
     return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)

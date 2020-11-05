@@ -47,20 +47,18 @@ export interface CommonDB {
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
-   *
-   * ROW is included in generics, so it infer OUT from DBQuery<ROW>
    */
-  runQuery<ROW extends ObjectWithId, OUT = ROW>(
+  runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<OUT>>
+  ): Promise<RunQueryResult<ROW>>
 
   runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number>
 
-  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+  streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
-  ): ReadableTyped<OUT>
+  ): ReadableTyped<ROW>
 
   // SAVE
   saveBatch<ROW extends ObjectWithId>(

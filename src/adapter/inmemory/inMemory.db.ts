@@ -180,12 +180,12 @@ export class InMemoryDB implements CommonDB {
     return this.deleteByIds(q.table, ids)
   }
 
-  async runQuery<ROW extends ObjectWithId, OUT = ROW>(
+  async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<OUT>> {
+  ): Promise<RunQueryResult<ROW>> {
     const table = this.cfg.tablesPrefix + q.table
-    return { rows: queryInMemory<ROW, OUT>(q, Object.values(this.data[table] || {}) as ROW[]) }
+    return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]) }
   }
 
   async runQueryCount(q: DBQuery, opt?: CommonDBOptions): Promise<number> {
@@ -193,12 +193,12 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
-  streamQuery<ROW extends ObjectWithId, OUT = ROW>(
+  streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ): ReadableTyped<OUT> {
+  ): ReadableTyped<ROW> {
     const table = this.cfg.tablesPrefix + q.table
-    return Readable.from(queryInMemory<ROW, OUT>(q, Object.values(this.data[table] || {}) as ROW[]))
+    return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
   async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
