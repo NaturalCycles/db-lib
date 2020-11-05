@@ -43,7 +43,11 @@ const log = Debug('nc:db-lib:commondao')
  * BM = Backend model (optimized for API access)
  * TM = Transport model (optimized to be sent over the wire)
  */
-export class CommonDao<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM = BM> {
+export class CommonDao<
+  BM extends Partial<ObjectWithId>,
+  DBM extends ObjectWithId = Saved<BM>,
+  TM = BM
+> {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
