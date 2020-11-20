@@ -86,7 +86,7 @@ export function runCommonDBTest(
 
   const items = createTestItemsDBM(3)
   deepFreeze(items)
-  const [item1] = items
+  const item1 = items[0]!
 
   const queryAll = () => DBQuery.create<TestItemDBM>(TEST_TABLE)
 

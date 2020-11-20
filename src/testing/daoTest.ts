@@ -49,7 +49,7 @@ export function runCommonDaoTest(
   const items = createTestItemsBM(3)
   const itemsClone = _deepCopy(items)
   // deepFreeze(items) // mutation of id/created/updated is allowed now! (even expected)
-  const [item1] = items
+  const item1 = items[0]!
 
   const expectedItems = items.map(i => ({
     ...i,
@@ -106,7 +106,7 @@ export function runCommonDaoTest(
     expect(itemsSaved[0]).toBe(items[0]) // expect "same object" returned
 
     // no unnecessary mutation
-    const { updated, ...clone } = itemsClone[0]
+    const { updated, ...clone } = itemsClone[0]!
     expect(items[0]).toMatchObject(clone)
 
     expectMatch(expectedItems, itemsSaved, quirks)

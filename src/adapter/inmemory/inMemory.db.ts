@@ -271,7 +271,7 @@ export class InMemoryDB implements CommonDB {
     // infinite concurrency for now
     await pMap(files, async file => {
       const fname = `${persistentStoragePath}/${file}`
-      const [table] = file.split('.ndjson')
+      const table = file.split('.ndjson')[0]!
 
       const transformUnzip = file.endsWith('.gz') ? [createUnzip()] : []
 

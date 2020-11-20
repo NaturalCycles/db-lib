@@ -88,7 +88,7 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
-    const bm = opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)
+    const bm = opt.raw ? (dbm as any) : this.dbmToBM(dbm!, opt)
     this.logResult(started, op, bm, table)
     return bm || null
   }
@@ -125,7 +125,7 @@ export class CommonDao<
     const started = this.logStarted(op, table)
     let [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (!opt.raw) {
-      dbm = this.anyToDBM(dbm, opt)
+      dbm = this.anyToDBM(dbm!, opt)
     }
     this.logResult(started, op, dbm, table)
     return dbm || null
@@ -141,7 +141,7 @@ export class CommonDao<
       this.logResult(started, op, dbm, table)
       return (dbm as any) || null
     }
-    const bm = this.dbmToBM(dbm, opt)
+    const bm = this.dbmToBM(dbm!, opt)
     const tm = this.bmToTM(bm, opt)
     this.logResult(started, op, tm, table)
     return tm || null

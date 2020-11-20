@@ -44,7 +44,7 @@ export class CommonSchemaGenerator<ROW = any> {
         this.detectType(fieldName, value),
       )
 
-      if (this.fieldByName[fieldName].type === DATA_TYPE.NULL) {
+      if (this.fieldByName[fieldName]!.type === DATA_TYPE.NULL) {
         this.nullableFields.add(fieldName)
       }
     })
@@ -175,7 +175,7 @@ export class CommonSchemaGenerator<ROW = any> {
     // set nullability
     Object.keys(this.fieldByName).forEach(fieldName => {
       if (!this.nullableFields.has(fieldName)) {
-        this.fieldByName[fieldName].notNull = true
+        this.fieldByName[fieldName]!.notNull = true
       }
     })
 
@@ -188,7 +188,7 @@ export class CommonSchemaGenerator<ROW = any> {
 
     return {
       table,
-      fields: fieldNames.map(name => this.fieldByName[name]),
+      fields: fieldNames.map(name => this.fieldByName[name]!),
     }
   }
 

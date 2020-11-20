@@ -100,7 +100,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
 
     // return in right order
-    return ids.map(id => resultMap[id]).filter(Boolean)
+    return ids.map(id => resultMap[id]!).filter(Boolean)
   }
 
   async deleteByIds(table: string, ids: string[], opt: CacheDBOptions = {}): Promise<number> {

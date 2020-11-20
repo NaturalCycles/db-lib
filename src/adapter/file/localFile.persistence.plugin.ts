@@ -43,7 +43,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   async getTables(): Promise<string[]> {
     return (await fs.readdir(this.cfg.storagePath))
       .filter(f => f.includes('.ndjson'))
-      .map(f => f.split('.ndjson')[0])
+      .map(f => f.split('.ndjson')[0]!)
   }
 
   async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {

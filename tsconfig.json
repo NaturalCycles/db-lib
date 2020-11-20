@@ -1,9 +1,9 @@
 {
   "extends": "@naturalcycles/dev-lib/cfg/tsconfig.json",
   "compilerOptions": {
-    "lib": ["es2018"],
+    "noUncheckedIndexedAccess": true,
     "outDir": "dist"
   },
   "include": ["src"],
-  "exclude": ["**/__exclude", "**/@linked"]
+  "exclude": ["**/__exclude"]
 }
