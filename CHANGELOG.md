@@ -1,3 +1,10 @@
+## [8.5.2](https://github.com/NaturalCycles/db-lib/compare/v8.5.1...v8.5.2) (2020-11-20)
+
+
+### Bug Fixes
+
+* typescript@4.1, noUncheckedIndexedAccess=true ([b61a217](https://github.com/NaturalCycles/db-lib/commit/b61a217bd36a95f832deccc5049c424f573b5d54))
+
 ## [8.5.1](https://github.com/NaturalCycles/db-lib/compare/v8.5.0...v8.5.1) (2020-11-05)
 
 
