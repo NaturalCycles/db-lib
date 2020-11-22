@@ -1,3 +1,10 @@
+## [8.5.3](https://github.com/NaturalCycles/db-lib/compare/v8.5.2...v8.5.3) (2020-11-22)
+
+
+### Bug Fixes
+
+* CommonDao function overloads for "undefined-to-undefined contract" ([29f2a86](https://github.com/NaturalCycles/db-lib/commit/29f2a865645fd7e42994f5f29c79b2984d6a499e))
+
 ## [8.5.2](https://github.com/NaturalCycles/db-lib/compare/v8.5.1...v8.5.2) (2020-11-20)
 
 
