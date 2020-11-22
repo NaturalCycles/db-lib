@@ -82,6 +82,8 @@ export class CommonDao<
   }
 
   // GET
+  async getById(id: undefined): Promise<null>
+  async getById(id: string, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
   async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
     if (!id) return null
     const op = `getById(${id})`
@@ -118,6 +120,8 @@ export class CommonDao<
     return this.create({ id } as Partial<BM>, opt) as any
   }
 
+  async getByIdAsDBM(id: undefined): Promise<null>
+  async getByIdAsDBM(id: string, opt?: CommonDaoOptions): Promise<DBM | null>
   async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
@@ -131,6 +135,8 @@ export class CommonDao<
     return dbm || null
   }
 
+  async getByIdAsTM(id: undefined): Promise<null>
+  async getByIdAsTM(id: string, opt?: CommonDaoOptions): Promise<TM | null>
   async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | null> {
     if (!id) return null
     const op = `getByIdAsTM(${id})`
@@ -492,7 +498,9 @@ export class CommonDao<
    * Mutates!
    * "Returns", just to have a type of "Saved"
    */
-  assignIdCreatedUpdated<T extends DBM | BM>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
+  assignIdCreatedUpdated(obj: DBM, opt?: CommonDaoOptions): DBM
+  assignIdCreatedUpdated(obj: BM, opt?: CommonDaoOptions): Saved<BM>
+  assignIdCreatedUpdated(obj: DBM | BM, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
     obj.id = obj.id || this.cfg.hooks!.createId!(obj)
@@ -649,6 +657,8 @@ export class CommonDao<
   /**
    * @returns number of deleted items
    */
+  async deleteById(id: undefined, opt?: CommonDaoOptions): Promise<0>
+  async deleteById(id: string, opt?: CommonDaoOptions): Promise<number>
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
@@ -682,8 +692,10 @@ export class CommonDao<
 
   // CONVERSIONS
 
-  dbmToBM(_dbm: DBM, opt: CommonDaoOptions = {}): Saved<BM> {
-    if (!_dbm) return undefined as any
+  dbmToBM(_dbm: undefined, opt?: CommonDaoOptions): undefined
+  dbmToBM(_dbm: DBM, opt?: CommonDaoOptions): Saved<BM>
+  dbmToBM(_dbm?: DBM, opt: CommonDaoOptions = {}): Saved<BM> | undefined {
+    if (!_dbm) return
 
     // optimization: no need to run full joi DBM validation, cause BM validation will be run
     // const dbm = this.anyToDBM(_dbm, opt)
@@ -708,8 +720,10 @@ export class CommonDao<
    * Mutates object with properties: id, created, updated.
    * Returns DBM (new reference).
    */
-  bmToDBM(bm: BM, opt?: CommonDaoOptions): DBM {
-    if (bm === undefined) return undefined as any
+  bmToDBM(bm: undefined, opt?: CommonDaoOptions): undefined
+  bmToDBM(bm: BM, opt?: CommonDaoOptions): DBM
+  bmToDBM(bm?: BM, opt?: CommonDaoOptions): DBM | undefined {
+    if (bm === undefined) return
 
     // optimization: no need to run the BM validation, since DBM will be validated anyway
     // Validate/convert BM
@@ -731,8 +745,10 @@ export class CommonDao<
     return bms.map(bm => this.bmToDBM(bm, opt))
   }
 
-  anyToDBM(dbm: DBM, opt: CommonDaoOptions = {}): DBM {
-    if (!dbm) return undefined as any
+  anyToDBM(dbm: undefined, opt?: CommonDaoOptions): undefined
+  anyToDBM(dbm: any, opt?: CommonDaoOptions): DBM
+  anyToDBM(dbm?: DBM, opt: CommonDaoOptions = {}): DBM | undefined {
+    if (!dbm) return
 
     this.assignIdCreatedUpdated(dbm, opt) // mutates
 
@@ -750,8 +766,10 @@ export class CommonDao<
     return entities.map(entity => this.anyToDBM(entity, opt))
   }
 
-  bmToTM(bm: Saved<BM>, opt?: CommonDaoOptions): TM {
-    if (bm === undefined) return undefined as any
+  bmToTM(bm: undefined, opt?: CommonDaoOptions): TM | undefined
+  bmToTM(bm: Saved<BM>, opt?: CommonDaoOptions): TM
+  bmToTM(bm?: Saved<BM>, opt?: CommonDaoOptions): TM | undefined {
+    if (bm === undefined) return
 
     // optimization: 1 validation is enough
     // Validate/convert BM
@@ -770,8 +788,10 @@ export class CommonDao<
     return bms.map(bm => this.bmToTM(bm, opt))
   }
 
-  tmToBM(tm: TM, opt: CommonDaoOptions = {}): BM {
-    if (!tm) return undefined as any
+  tmToBM(tm: undefined, opt?: CommonDaoOptions): undefined
+  tmToBM(tm: TM, opt?: CommonDaoOptions): BM
+  tmToBM(tm?: TM, opt: CommonDaoOptions = {}): BM | undefined {
+    if (!tm) return
 
     // optimization: 1 validation is enough
     // Validate/convert TM

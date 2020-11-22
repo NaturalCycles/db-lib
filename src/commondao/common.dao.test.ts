@@ -47,6 +47,23 @@ beforeEach(async () => {
   mockTime()
 })
 
+test('common', async () => {
+  // This also tests type overloads (infers `null` if input is undefined)
+  // expect(await dao.getById()).toBeNull() // illegal
+  expect(await dao.getById(undefined)).toBeNull()
+  expect(await dao.getById('non-existing')).toBeNull()
+  expect(await dao.getByIdAsDBM(undefined)).toBeNull()
+  expect(await dao.getByIdAsDBM('123')).toBeNull()
+  expect(await dao.getByIdAsTM(undefined)).toBeNull()
+  expect(await dao.getByIdAsTM('123')).toBeNull()
+
+  expect(await dao.deleteById(undefined)).toBe(0)
+  expect(await dao.deleteById('123')).toBe(0)
+
+  expect(dao.anyToDBM(undefined)).toBeUndefined()
+  expect(dao.anyToDBM({})).toMatchObject({})
+})
+
 test('should propagate pipe errors', async () => {
   const items = createTestItemsBM(20)
 
