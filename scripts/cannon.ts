@@ -41,38 +41,38 @@ const dao = new CommonDao({
 })
 
 async function register1() {
-  const [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   return { item }
 }
 
 async function register2() {
-  const [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   await db.saveBatch(TEST_TABLE, [item])
   return { item }
 }
 
 async function register3() {
-  let [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item, { skipConversion: true })
   return { item }
 }
 
 async function register4() {
-  let [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item, { skipValidation: true })
   return { item }
 }
 
 async function registerFull() {
-  let [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item)
   return { item }
 }
 
 async function validate1() {
-  const [item] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   getValidationResult(item, testItemBMSchema)
 

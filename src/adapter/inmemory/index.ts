@@ -6,4 +6,4 @@ export function getDBAdapter(): CommonDB {
 }
 
 export // InMemoryDB, // no, otherwise it's double-exported, which can confuse IDEs
-{}
+ {}
