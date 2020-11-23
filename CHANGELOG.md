@@ -1,3 +1,10 @@
+## [8.5.4](https://github.com/NaturalCycles/db-lib/compare/v8.5.3...v8.5.4) (2020-11-23)
+
+
+### Bug Fixes
+
+* commondao function overloads ([cfb6b84](https://github.com/NaturalCycles/db-lib/commit/cfb6b846b673628069407f7ba594fcce4fc382e9))
+
 ## [8.5.3](https://github.com/NaturalCycles/db-lib/compare/v8.5.2...v8.5.3) (2020-11-22)
 
 
