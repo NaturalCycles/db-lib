@@ -82,8 +82,8 @@ export class CommonDao<
   }
 
   // GET
-  async getById(id: undefined): Promise<null>
-  async getById(id: string, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
+  async getById(id: undefined, opt?: CommonDaoOptions): Promise<null>
+  async getById(id?: string, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
   async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
     if (!id) return null
     const op = `getById(${id})`
@@ -120,8 +120,8 @@ export class CommonDao<
     return this.create({ id } as Partial<BM>, opt) as any
   }
 
-  async getByIdAsDBM(id: undefined): Promise<null>
-  async getByIdAsDBM(id: string, opt?: CommonDaoOptions): Promise<DBM | null>
+  async getByIdAsDBM(id: undefined, opt?: CommonDaoOptions): Promise<null>
+  async getByIdAsDBM(id?: string, opt?: CommonDaoOptions): Promise<DBM | null>
   async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
@@ -135,8 +135,8 @@ export class CommonDao<
     return dbm || null
   }
 
-  async getByIdAsTM(id: undefined): Promise<null>
-  async getByIdAsTM(id: string, opt?: CommonDaoOptions): Promise<TM | null>
+  async getByIdAsTM(id: undefined, opt?: CommonDaoOptions): Promise<null>
+  async getByIdAsTM(id?: string, opt?: CommonDaoOptions): Promise<TM | null>
   async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | null> {
     if (!id) return null
     const op = `getByIdAsTM(${id})`
@@ -658,7 +658,7 @@ export class CommonDao<
    * @returns number of deleted items
    */
   async deleteById(id: undefined, opt?: CommonDaoOptions): Promise<0>
-  async deleteById(id: string, opt?: CommonDaoOptions): Promise<number>
+  async deleteById(id?: string, opt?: CommonDaoOptions): Promise<number>
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
@@ -693,7 +693,7 @@ export class CommonDao<
   // CONVERSIONS
 
   dbmToBM(_dbm: undefined, opt?: CommonDaoOptions): undefined
-  dbmToBM(_dbm: DBM, opt?: CommonDaoOptions): Saved<BM>
+  dbmToBM(_dbm?: DBM, opt?: CommonDaoOptions): Saved<BM>
   dbmToBM(_dbm?: DBM, opt: CommonDaoOptions = {}): Saved<BM> | undefined {
     if (!_dbm) return
 
@@ -721,7 +721,7 @@ export class CommonDao<
    * Returns DBM (new reference).
    */
   bmToDBM(bm: undefined, opt?: CommonDaoOptions): undefined
-  bmToDBM(bm: BM, opt?: CommonDaoOptions): DBM
+  bmToDBM(bm?: BM, opt?: CommonDaoOptions): DBM
   bmToDBM(bm?: BM, opt?: CommonDaoOptions): DBM | undefined {
     if (bm === undefined) return
 
@@ -746,7 +746,7 @@ export class CommonDao<
   }
 
   anyToDBM(dbm: undefined, opt?: CommonDaoOptions): undefined
-  anyToDBM(dbm: any, opt?: CommonDaoOptions): DBM
+  anyToDBM(dbm?: any, opt?: CommonDaoOptions): DBM
   anyToDBM(dbm?: DBM, opt: CommonDaoOptions = {}): DBM | undefined {
     if (!dbm) return
 
@@ -767,7 +767,7 @@ export class CommonDao<
   }
 
   bmToTM(bm: undefined, opt?: CommonDaoOptions): TM | undefined
-  bmToTM(bm: Saved<BM>, opt?: CommonDaoOptions): TM
+  bmToTM(bm?: Saved<BM>, opt?: CommonDaoOptions): TM
   bmToTM(bm?: Saved<BM>, opt?: CommonDaoOptions): TM | undefined {
     if (bm === undefined) return
 
@@ -789,7 +789,7 @@ export class CommonDao<
   }
 
   tmToBM(tm: undefined, opt?: CommonDaoOptions): undefined
-  tmToBM(tm: TM, opt?: CommonDaoOptions): BM
+  tmToBM(tm?: TM, opt?: CommonDaoOptions): BM
   tmToBM(tm?: TM, opt: CommonDaoOptions = {}): BM | undefined {
     if (!tm) return
 
