@@ -1,3 +1,10 @@
+## [8.5.5](https://github.com/NaturalCycles/db-lib/compare/v8.5.4...v8.5.5) (2020-11-30)
+
+
+### Bug Fixes
+
+* adopt isolatedModules=true ([d5cc6ee](https://github.com/NaturalCycles/db-lib/commit/d5cc6ee9565191a1b2b43aad9c2030e2741d3403))
+
 ## [8.5.4](https://github.com/NaturalCycles/db-lib/compare/v8.5.3...v8.5.4) (2020-11-23)
 
 
