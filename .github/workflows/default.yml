@@ -1,0 +1,36 @@
+name: default
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build-and-test-job:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    env:
+      NODE_OPTIONS: '--max-old-space-size=3200'
+      CC_TEST_REPORTER_ID: 59622194cc44d91d2d1d239dffbe6af31e8cb985e6e6369c0743b67ad2cc8713
+    steps:
+      - { uses: actions/checkout@v2, with: { persist-credentials: false } }
+      - { uses: actions/setup-node@v1, with: { node-version: 14 } }
+      - uses: actions/cache@v2
+        with:
+          path: ./node_modules
+          key: deps-v1-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      - name: deps
+        run: yarn --frozen-lockfile
+
+      - name: build
+        run: yarn build
+
+      - name: test
+        run: |
+          curl -s -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+          yarn test-ci
+          ./cc-test-reporter after-build -t lcov
+
+      - uses: actions/upload-artifact@v2
+        with: { name: 'unit.xml', path: 'tmp/jest/unit.xml' }
+      - uses: actions/upload-artifact@v2
+        with: { name: 'coverage-unit', path: 'coverage/lcov-report' }

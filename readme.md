@@ -3,9 +3,9 @@
 > Lowest Common Denominator API to supported Databases
 
 [![npm](https://img.shields.io/npm/v/@naturalcycles/db-lib/latest.svg)](https://www.npmjs.com/package/@naturalcycles/db-lib)
-[![](https://circleci.com/gh/NaturalCycles/db-lib.svg?style=shield&circle-token=123)](https://circleci.com/gh/NaturalCycles/db-lib)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![loc](https://badgen.net/codeclimate/loc/NaturalCycles/db-lib)](https://github.com/NaturalCycles/db-lib)
+[![Actions](https://github.com/NaturalCycles/db-lib/workflows/default/badge.svg)](https://github.com/NaturalCycles/db-lib/actions)
 
 Defines 3 things:
 
