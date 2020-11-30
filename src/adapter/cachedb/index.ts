@@ -6,4 +6,6 @@ import {
   CacheDBStreamOptions,
 } from './cache.db.model'
 
-export { CacheDBCfg, CacheDB, CacheDBOptions, CacheDBCreateOptions, CacheDBStreamOptions }
+export type { CacheDBCfg, CacheDBOptions, CacheDBCreateOptions, CacheDBStreamOptions }
+
+export { CacheDB }

@@ -19,22 +19,24 @@ import {
   TEST_TABLE,
 } from './test.model'
 
+export type {
+  TestItemDBM,
+  TestItemBM,
+  TestItemTM,
+  CommonDBImplementationFeatures,
+  CommonDBImplementationQuirks,
+}
+
 export {
-  // Testing
   TEST_TABLE,
   createTestItemDBM,
   createTestItemBM,
   createTestItemsDBM,
   createTestItemsBM,
-  TestItemDBM,
-  TestItemBM,
-  TestItemTM,
   testItemDBMSchema,
   testItemBMSchema,
   testItemTMSchema,
   getTestItemSchema,
   runCommonDBTest,
   runCommonDaoTest,
-  CommonDBImplementationFeatures,
-  CommonDBImplementationQuirks,
 }
