@@ -1,3 +1,10 @@
+## [8.5.6](https://github.com/NaturalCycles/db-lib/compare/v8.5.5...v8.5.6) (2021-02-12)
+
+
+### Bug Fixes
+
+* CommonDao.getByIdAsDBMOrEmpty should call bmToDBM if empty ([4defcfe](https://github.com/NaturalCycles/db-lib/commit/4defcfe77be71b10254fd2e22f7397561a7be67c))
+
 ## [8.5.5](https://github.com/NaturalCycles/db-lib/compare/v8.5.4...v8.5.5) (2020-11-30)
 
 
