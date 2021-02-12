@@ -1,5 +1,5 @@
 import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/nodejs-lib'
-import { Merge } from 'type-fest'
+import type { Merge } from 'type-fest'
 import { CommonDB } from './common.db'
 
 export interface CommonDBOptions {}
