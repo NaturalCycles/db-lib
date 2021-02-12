@@ -117,7 +117,8 @@ export class CommonDao<
     const dbm = await this.getByIdAsDBM(id, opt)
     if (dbm) return dbm
 
-    return this.create({ id } as Partial<BM>, opt) as any
+    const bm: BM = this.create({ id } as Partial<BM>, opt) as any
+    return this.bmToDBM(bm, opt)
   }
 
   async getByIdAsDBM(id: undefined, opt?: CommonDaoOptions): Promise<null>
