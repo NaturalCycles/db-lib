@@ -1,3 +1,10 @@
+## [8.5.8](https://github.com/NaturalCycles/db-lib/compare/v8.5.7...v8.5.8) (2021-02-14)
+
+
+### Bug Fixes
+
+* CommonDao.saveAsDBM() should do anyToDBM() ([04e7e70](https://github.com/NaturalCycles/db-lib/commit/04e7e7090291dd094af0877d1874cae548776861))
+
 ## [8.5.7](https://github.com/NaturalCycles/db-lib/compare/v8.5.6...v8.5.7) (2021-02-12)
 
 
