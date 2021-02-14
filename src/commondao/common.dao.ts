@@ -592,7 +592,7 @@ export class CommonDao<
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
       const idWasGenerated = !dbm.id
-      this.assignIdCreatedUpdated(dbm, opt)
+      dbm = this.anyToDBM(dbm, opt) // does assignIdCreatedUpdated
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     }
     const op = `saveAsDBM(${dbm.id})`
