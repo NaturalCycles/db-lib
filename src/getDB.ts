@@ -38,3 +38,12 @@ const _getDB = _memoFn((index: number) => {
 
   return lib.getDBAdapter(cfg)
 })
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      DB1?: string
+      DB2?: string
+    }
+  }
+}
