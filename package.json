@@ -41,7 +41,7 @@
   "engines": {
     "node": ">=12.13"
   },
-  "version": "8.5.10",
+  "version": "8.5.11",
   "description": "Lowest Common Denominator API to supported Databases",
   "keywords": [
     "db",

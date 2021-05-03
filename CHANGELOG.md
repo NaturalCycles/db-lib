@@ -1,3 +1,10 @@
+## [8.5.11](https://github.com/NaturalCycles/db-lib/compare/v8.5.10...v8.5.11) (2021-05-03)
+
+
+### Bug Fixes
+
+* deps ([6b30e7f](https://github.com/NaturalCycles/db-lib/commit/6b30e7f29f8aecda8614268d81456ca61cc7652a))
+
 ## [8.5.10](https://github.com/NaturalCycles/db-lib/compare/v8.5.9...v8.5.10) (2021-03-22)
 
 
