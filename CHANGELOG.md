@@ -1,3 +1,10 @@
+## [8.5.12](https://github.com/NaturalCycles/db-lib/compare/v8.5.11...v8.5.12) (2021-05-20)
+
+
+### Bug Fixes
+
+* adopt eslint ([007b6c9](https://github.com/NaturalCycles/db-lib/commit/007b6c96e87efabed995170b52e07365f6bc2b5d))
+
 ## [8.5.11](https://github.com/NaturalCycles/db-lib/compare/v8.5.10...v8.5.11) (2021-05-03)
 
 
