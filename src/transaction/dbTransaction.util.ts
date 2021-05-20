@@ -26,7 +26,7 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
     } else if (op.type === 'deleteByIds') {
       op.ids.forEach(id => (saveMapByTable[op.table]![id] = null))
     } else {
-      throw new Error(`DBOperation not supported: ${op!.type}`)
+      throw new Error(`DBOperation not supported: ${(op as any).type}`)
     }
   })
 
@@ -82,7 +82,7 @@ export async function commitDBTransactionSimple(
     } else if (op.type === 'deleteByIds') {
       await db.deleteByIds(op.table, op.ids, opt)
     } else {
-      throw new Error(`DBOperation not supported: ${op!.type}`)
+      throw new Error(`DBOperation not supported: ${(op as any).type}`)
     }
   }
 }

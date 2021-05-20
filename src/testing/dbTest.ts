@@ -78,10 +78,10 @@ export function runCommonDBTest(
     bufferSupport = true,
   } = features
 
-  const {
-    // allowExtraPropertiesInResponse,
-    // allowBooleansAsUndefined,
-  } = quirks
+  // const {
+  // allowExtraPropertiesInResponse,
+  // allowBooleansAsUndefined,
+  // } = quirks
   const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
 
   const items = createTestItemsDBM(3)

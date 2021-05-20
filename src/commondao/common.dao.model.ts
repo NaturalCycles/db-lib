@@ -188,4 +188,4 @@ export interface CommonDaoStreamOptions<IN, OUT = IN>
   errorMode?: ErrorMode
 }
 
-export interface CommonDaoCreateOptions extends CommonDBCreateOptions {}
+export type CommonDaoCreateOptions = CommonDBCreateOptions

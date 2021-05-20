@@ -190,7 +190,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     opt: CacheDBOptions = {},
   ): Promise<number> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
-      return this.cfg.downstreamDB.runQueryCount(q, opt)
+      return await this.cfg.downstreamDB.runQueryCount(q, opt)
     }
 
     const count = await this.cfg.cacheDB.runQueryCount(q, opt)

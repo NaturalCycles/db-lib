@@ -6,6 +6,7 @@ import { CommonDBAdapter } from './db.model'
 
 /**
  * Returns pre-configured DB
+ *
  * @param index defaults to 1
  *
  * Requires process.env.DB${index} to be set to the name of the adapter, e.g `mysql-lib` or `db-lib/adapter/inmemory`.

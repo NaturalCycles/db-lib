@@ -36,6 +36,8 @@ import {
 
 const log = Debug('nc:db-lib:commondao')
 
+/* eslint-disable no-dupe-class-members */
+
 /**
  * Lowest common denominator API between supported Databases.
  *
@@ -46,7 +48,7 @@ const log = Debug('nc:db-lib:commondao')
 export class CommonDao<
   BM extends Partial<ObjectWithId>,
   DBM extends ObjectWithId = Saved<BM>,
-  TM = BM
+  TM = BM,
 > {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
@@ -90,7 +92,7 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
-    const bm = opt.raw ? (dbm as any) : this.dbmToBM(dbm!, opt)
+    const bm = opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)
     this.logResult(started, op, bm, table)
     return bm || null
   }
@@ -148,7 +150,7 @@ export class CommonDao<
       this.logResult(started, op, dbm, table)
       return (dbm as any) || null
     }
-    const bm = this.dbmToBM(dbm!, opt)
+    const bm = this.dbmToBM(dbm, opt)
     const tm = this.bmToTM(bm, opt)
     this.logResult(started, op, tm, table)
     return tm || null
@@ -573,7 +575,7 @@ export class CommonDao<
   async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
     const dbm =
       (await this.getByIdAsDBM(id, opt)) ||
-      ((this.create({ ...patch, id } as Partial<BM>, opt) as any) as DBM)
+      (this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM)
 
     return await this.saveAsDBM(
       {
@@ -823,7 +825,7 @@ export class CommonDao<
     opt: CommonDaoOptions = {},
   ): OUT {
     // `raw` option completely bypasses any processing
-    if (opt.raw) return (obj as any) as OUT
+    if (opt.raw) return obj as any as OUT
 
     // Filter null and undefined values
     obj = _filterNullishValues(obj as any)
@@ -862,7 +864,7 @@ export class CommonDao<
   }
 
   async getTableSchema(): Promise<CommonSchema> {
-    return this.cfg.db.getTableSchema<DBM>(this.cfg.table)
+    return await this.cfg.db.getTableSchema<DBM>(this.cfg.table)
   }
 
   async createTable(schema: CommonSchema, opt?: CommonDaoCreateOptions): Promise<void> {

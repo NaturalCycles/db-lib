@@ -10,6 +10,7 @@ export function deepFreeze(o: any): void {
 
   Object.getOwnPropertyNames(o).forEach(prop => {
     if (
+      // eslint-disable-next-line no-prototype-builtins
       o.hasOwnProperty(prop) &&
       o[prop] !== null &&
       (typeof o[prop] === 'object' || typeof o[prop] === 'function') &&

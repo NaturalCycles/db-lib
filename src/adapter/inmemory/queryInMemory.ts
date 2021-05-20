@@ -20,6 +20,7 @@ const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
 // But should be careful here..
 export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: ROW[] = []): ROW[] {
   // .filter
+  // eslint-disable-next-line unicorn/no-array-reduce
   rows = q._filters.reduce((rows, filter) => {
     return rows.filter(row => FILTER_FNS[filter.op](row[filter.name], filter.val))
   }, rows)
@@ -35,7 +36,7 @@ export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: R
     const { name, descending } = order
     rows = rows.sort((a, b) => {
       // tslint:disable-next-line:triple-equals
-      if (a[name] == b[name]) return 0
+      if (a[name] == b[name]) return 0 // eslint-disable-line eqeqeq
 
       if (descending) {
         return a[name] < b[name] ? 1 : -1

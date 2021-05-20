@@ -1,13 +1,7 @@
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
 import { CommonDB } from './common.db'
-import {
-  CommonDBCreateOptions,
-  CommonDBOptions,
-  CommonDBSaveOptions,
-  ObjectWithId,
-  RunQueryResult,
-} from './db.model'
+import { CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
 import { DBQuery } from './query/dbQuery'
 import { CommonSchema } from './schema/common.schema'
 import { DBTransaction } from './transaction/dbTransaction'
@@ -28,51 +22,31 @@ export class BaseCommonDB implements CommonDB {
     return { table, fields: [] }
   }
 
-  async createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void> {}
+  async createTable(_schema: CommonSchema): Promise<void> {}
 
-  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
+  async deleteByIds(_table: string, _ids: string[]): Promise<number> {
     return 0
   }
 
-  async deleteByQuery<ROW extends ObjectWithId>(
-    q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
-  ): Promise<number> {
+  async deleteByQuery<ROW extends ObjectWithId>(_q: DBQuery<ROW>): Promise<number> {
     return 0
   }
 
-  async getByIds<ROW extends ObjectWithId>(
-    table: string,
-    ids: string[],
-    opt?: CommonDBOptions,
-  ): Promise<ROW[]> {
+  async getByIds<ROW extends ObjectWithId>(_table: string, _ids: string[]): Promise<ROW[]> {
     return []
   }
 
-  async runQuery<ROW extends ObjectWithId>(
-    q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<ROW>> {
+  async runQuery<ROW extends ObjectWithId>(_q: DBQuery<ROW>): Promise<RunQueryResult<ROW>> {
     return { rows: [] }
   }
 
-  async runQueryCount<ROW extends ObjectWithId>(
-    q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
-  ): Promise<number> {
+  async runQueryCount<ROW extends ObjectWithId>(_q: DBQuery<ROW>): Promise<number> {
     return 0
   }
 
-  async saveBatch<ROW extends ObjectWithId>(
-    table: string,
-    rows: ROW[],
-    opt?: CommonDBSaveOptions,
-  ): Promise<void> {}
+  async saveBatch<ROW extends ObjectWithId>(_table: string, _rows: ROW[]): Promise<void> {}
 
-  streamQuery<ROW extends ObjectWithId>(
-    q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
-  ): ReadableTyped<ROW> {
+  streamQuery<ROW extends ObjectWithId>(_q: DBQuery<ROW>): ReadableTyped<ROW> {
     return Readable.from([])
   }
 

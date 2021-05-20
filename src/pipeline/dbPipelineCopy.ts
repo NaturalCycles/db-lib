@@ -27,6 +27,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
 
   /**
    * How many tables to dump in parallel.
+   *
    * @default 16
    * Set to `1` for serial (1 at a time) processing or debugging.
    */
@@ -55,12 +56,14 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
 
   /**
    * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated`
+   *
    * @default undefined
    */
   sinceUpdated?: number
 
   /**
    * Optionally you can provide mapper that is going to run for each table.
+   *
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
@@ -68,6 +71,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
 
   /**
    * You can alter default `transformMapOptions` here.
+   *
    * @default (see the code)
    * The goal to have default values that are reasonable for such a job to provide resilient output (forgiving individual errors).
    * `metric` will be set to table name

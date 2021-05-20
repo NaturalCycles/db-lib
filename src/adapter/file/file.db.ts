@@ -63,7 +63,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const byId = _by(await this.loadFile<ROW>(table), r => r.id)
     return ids.map(id => byId[id]!).filter(Boolean)
@@ -72,7 +72,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
-    opt?: CommonDBSaveOptions,
+    _opt?: CommonDBSaveOptions,
   ): Promise<void> {
     if (!rows.length) return // save some api calls
 
@@ -98,7 +98,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   /**
    * Implementation is optimized for loading/saving _whole files_.
    */
-  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+  async commitTransaction(tx: DBTransaction, _opt?: CommonDBSaveOptions): Promise<void> {
     // data[table][id] => row
     const data: StringMap<StringMap<ObjectWithId>> = {}
 
@@ -121,7 +121,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
       } else if (op.type === 'saveBatch') {
         op.rows.forEach(r => (data[op.table]![r.id] = r))
       } else {
-        throw new Error(`DBOperation not supported: ${op!.type}`)
+        throw new Error(`DBOperation not supported: ${(op as any).type}`)
       }
     })
 
@@ -141,7 +141,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>> {
     return {
       rows: queryInMemory(q, await this.loadFile<ROW>(q.table)),
@@ -150,7 +150,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     return (await this.loadFile(q.table)).length
   }
@@ -172,7 +172,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   async deleteByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     if (!ids.length) return 0
 
@@ -194,7 +194,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     const byId = _by(await this.loadFile<ROW>(q.table), r => r.id)
 

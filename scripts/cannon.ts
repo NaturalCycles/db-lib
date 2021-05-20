@@ -5,6 +5,7 @@ yarn tsn cannon
  */
 
 // tslint:disable:no-unused-variable
+/* eslint-disable unused-imports/no-unused-vars */
 import { expressFunctionFactory, runCannon } from '@naturalcycles/bench-lib'
 import { _omit } from '@naturalcycles/js-lib'
 import { getValidationResult, stringId } from '@naturalcycles/nodejs-lib'

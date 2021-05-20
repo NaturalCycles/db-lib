@@ -8,9 +8,9 @@ export class NoopPersistencePlugin implements FileDBPersistencePlugin {
     return []
   }
 
-  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
+  async loadFile<ROW extends ObjectWithId>(_table: string): Promise<ROW[]> {
     return []
   }
 
-  async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {}
+  async saveFiles(_ops: DBSaveBatchOperation[]): Promise<void> {}
 }

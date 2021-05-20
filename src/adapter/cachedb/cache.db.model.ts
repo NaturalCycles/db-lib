@@ -16,12 +16,14 @@ export interface CacheDBCfg {
 
   /**
    * Global default.
+   *
    * @default false
    */
   skipCache?: boolean
 
   /**
    * Global default.
+   *
    * @default false
    */
   onlyCache?: boolean

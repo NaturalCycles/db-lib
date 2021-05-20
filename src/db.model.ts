@@ -2,6 +2,7 @@ import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/
 import type { Merge } from 'type-fest'
 import { CommonDB } from './common.db'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CommonDBOptions {}
 
 /**
@@ -11,7 +12,7 @@ export interface CommonDBSaveOptions extends CommonDBOptions {
   excludeFromIndexes?: string[]
 }
 
-export interface CommonDBStreamOptions extends CommonDBOptions {}
+export type CommonDBStreamOptions = CommonDBOptions
 
 export interface CommonDBCreateOptions extends CommonDBOptions {
   /**

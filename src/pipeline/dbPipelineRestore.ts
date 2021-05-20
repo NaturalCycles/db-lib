@@ -47,6 +47,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
 
   /**
    * How many tables to dump in parallel.
+   *
    * @default 16
    * Set to `1` for serial (1 at a time) processing or debugging.
    */
@@ -75,6 +76,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
 
   /**
    * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated`
+   *
    * @default undefined
    */
   sinceUpdated?: number
@@ -88,6 +90,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
 
   /**
    * Optionally you can provide mapper that is going to run for each table.
+   *
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
@@ -95,6 +98,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
 
   /**
    * You can alter default `transformMapOptions` here.
+   *
    * @default (see the code)
    * The goal to have default values that are reasonable for such a job to provide resilient output (forgiving individual errors).
    * `metric` will be set to table name
@@ -145,9 +149,9 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     let gzip = false
 
     if (f.endsWith('.ndjson')) {
-      table = f.substr(0, f.length - '.ndjson'.length)
+      table = f.slice(0, f.length - '.ndjson'.length)
     } else if (f.endsWith('.ndjson.gz')) {
-      table = f.substr(0, f.length - '.ndjson.gz'.length)
+      table = f.slice(0, f.length - '.ndjson.gz'.length)
       gzip = true
     } else {
       return

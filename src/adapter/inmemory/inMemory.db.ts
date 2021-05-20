@@ -122,7 +122,7 @@ export class InMemoryDB implements CommonDB {
   async getByIds<ROW extends ObjectWithId>(
     _table: string,
     ids: string[],
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
@@ -132,7 +132,7 @@ export class InMemoryDB implements CommonDB {
   async saveBatch<ROW extends ObjectWithId>(
     _table: string,
     rows: ROW[],
-    opt?: CommonDBSaveOptions,
+    _opt?: CommonDBSaveOptions,
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
@@ -157,7 +157,7 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByIds(_table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
+  async deleteByIds(_table: string, ids: string[], _opt?: CommonDBOptions): Promise<number> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
 
@@ -172,7 +172,7 @@ export class InMemoryDB implements CommonDB {
 
   async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
@@ -182,7 +182,7 @@ export class InMemoryDB implements CommonDB {
 
   async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>> {
     const table = this.cfg.tablesPrefix + q.table
     return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]) }
@@ -190,7 +190,7 @@ export class InMemoryDB implements CommonDB {
 
   async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
@@ -198,7 +198,7 @@ export class InMemoryDB implements CommonDB {
 
   streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    _opt?: CommonDBOptions,
   ): ReadableTyped<ROW> {
     const table = this.cfg.tablesPrefix + q.table
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
@@ -211,7 +211,7 @@ export class InMemoryDB implements CommonDB {
       } else if (op.type === 'deleteByIds') {
         await this.deleteByIds(op.table, op.ids, opt)
       } else {
-        throw new Error(`DBOperation not supported: ${op!.type}`)
+        throw new Error(`DBOperation not supported: ${(op as any).type}`)
       }
     }
   }

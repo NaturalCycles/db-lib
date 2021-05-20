@@ -179,9 +179,10 @@ export class DBQuery<ROW extends ObjectWithId> {
       tokens.push(`select(${this._selectedFieldNames.join(',')})`)
     }
 
-    tokens.push(...this._filters.map(f => `${f.name}${f.op}${f.val}`))
-
-    tokens.push(...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`))
+    tokens.push(
+      ...this._filters.map(f => `${f.name}${f.op}${f.val}`),
+      ...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`),
+    )
 
     if (this._offsetValue) {
       tokens.push(`offset ${this._offsetValue}`)
@@ -209,7 +210,7 @@ export class DBQuery<ROW extends ObjectWithId> {
 export class RunnableDBQuery<
   BM extends Partial<ObjectWithId>,
   DBM extends ObjectWithId,
-  TM
+  TM,
 > extends DBQuery<DBM> {
   /**
    * Pass `table` to override table.

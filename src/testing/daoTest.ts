@@ -40,10 +40,10 @@ export function runCommonDaoTest(
     strongConsistency = true,
   } = features
 
-  const {
-    // allowExtraPropertiesInResponse,
-    // allowBooleansAsUndefined,
-  } = quirks
+  // const {
+  // allowExtraPropertiesInResponse,
+  // allowBooleansAsUndefined,
+  // } = quirks
   const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
 
   const items = createTestItemsBM(3)
@@ -106,7 +106,7 @@ export function runCommonDaoTest(
     expect(itemsSaved[0]).toBe(items[0]) // expect "same object" returned
 
     // no unnecessary mutation
-    const { updated, ...clone } = itemsClone[0]!
+    const { updated: _, ...clone } = itemsClone[0]!
     expect(items[0]).toMatchObject(clone)
 
     expectMatch(expectedItems, itemsSaved, quirks)
