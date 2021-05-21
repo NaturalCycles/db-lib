@@ -21,7 +21,7 @@ export interface TestItemBM extends BaseDBEntity {
   b1?: Buffer
 }
 
-export type TestItemDBM = Saved<TestItemBM>
+export interface TestItemDBM extends Saved<TestItemBM> {}
 
 export interface TestItemTM {
   k1: string
