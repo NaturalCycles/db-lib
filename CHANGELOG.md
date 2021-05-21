@@ -1,3 +1,10 @@
+## [8.5.13](https://github.com/NaturalCycles/db-lib/compare/v8.5.12...v8.5.13) (2021-05-21)
+
+
+### Bug Fixes
+
+* possible issue with type-fest ([ec49957](https://github.com/NaturalCycles/db-lib/commit/ec499578f324894f665aadd4cdb21a5a414f01ad))
+
 ## [8.5.12](https://github.com/NaturalCycles/db-lib/compare/v8.5.11...v8.5.12) (2021-05-20)
 
 
