@@ -1,4 +1,4 @@
-import { StringMap } from '@naturalcycles/js-lib'
+import { StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
 import { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
 import { DBTransaction } from './dbTransaction'
@@ -32,11 +32,11 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
 
   const resultOps: DBOperation[] = []
 
-  Object.entries(saveMapByTable).forEach(([table, saveMap]) => {
+  _stringMapEntries(saveMapByTable).forEach(([table, saveMap]) => {
     const rowsToSave: ObjectWithId[] = []
     const idsToDelete: string[] = []
 
-    Object.entries(saveMap).forEach(([id, r]) => {
+    _stringMapEntries(saveMap).forEach(([id, r]) => {
       if (r === null) {
         idsToDelete.push(id)
       } else {
