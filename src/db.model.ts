@@ -1,5 +1,5 @@
+import type { Merge } from '@naturalcycles/js-lib'
 import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/nodejs-lib'
-import type { Merge } from 'type-fest'
 import { CommonDB } from './common.db'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface

@@ -36,11 +36,11 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
     const rowsToSave: ObjectWithId[] = []
     const idsToDelete: string[] = []
 
-    Object.entries(saveMap!).forEach(([id, r]) => {
+    Object.entries(saveMap).forEach(([id, r]) => {
       if (r === null) {
         idsToDelete.push(id)
       } else {
-        rowsToSave.push(r!)
+        rowsToSave.push(r)
       }
     })
 
