@@ -1,3 +1,10 @@
+# [8.6.0](https://github.com/NaturalCycles/db-lib/compare/v8.5.13...v8.6.0) (2021-05-31)
+
+
+### Features
+
+* replace type-fest dep with js-lib types ([297e6cf](https://github.com/NaturalCycles/db-lib/commit/297e6cf9fc710755f1cb95277cd076f4733dd8ca))
+
 ## [8.5.13](https://github.com/NaturalCycles/db-lib/compare/v8.5.12...v8.5.13) (2021-05-21)
 
 
