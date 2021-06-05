@@ -1,3 +1,10 @@
+## [8.6.2](https://github.com/NaturalCycles/db-lib/compare/v8.6.1...v8.6.2) (2021-06-05)
+
+
+### Bug Fixes
+
+* noImplicitOverride=true ([def8bad](https://github.com/NaturalCycles/db-lib/commit/def8bad820d5bb244737fc1268ceba183cc77aaf))
+
 ## [8.6.1](https://github.com/NaturalCycles/db-lib/compare/v8.6.0...v8.6.1) (2021-05-31)
 
 
