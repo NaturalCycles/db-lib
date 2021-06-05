@@ -49,18 +49,18 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   public cfg!: FileDBCfg
 
-  async ping(): Promise<void> {
+  override async ping(): Promise<void> {
     await this.cfg.plugin.ping()
   }
 
-  async getTables(): Promise<string[]> {
+  override async getTables(): Promise<string[]> {
     const started = this.logStarted('getTables()')
     const tables = await this.cfg.plugin.getTables()
     this.logFinished(started, `getTables() ${tables.length} tables`)
     return tables
   }
 
-  async getByIds<ROW extends ObjectWithId>(
+  override async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     _opt?: CommonDBOptions,
@@ -69,7 +69,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return ids.map(id => byId[id]!).filter(Boolean)
   }
 
-  async saveBatch<ROW extends ObjectWithId>(
+  override async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
     _opt?: CommonDBSaveOptions,
@@ -98,7 +98,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   /**
    * Implementation is optimized for loading/saving _whole files_.
    */
-  async commitTransaction(tx: DBTransaction, _opt?: CommonDBSaveOptions): Promise<void> {
+  override async commitTransaction(tx: DBTransaction, _opt?: CommonDBSaveOptions): Promise<void> {
     // data[table][id] => row
     const data: StringMap<StringMap<ObjectWithId>> = {}
 
@@ -139,7 +139,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     await this.saveFiles(ops)
   }
 
-  async runQuery<ROW extends ObjectWithId>(
+  override async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>> {
@@ -148,14 +148,14 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  async runQueryCount<ROW extends ObjectWithId>(
+  override async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
     return (await this.loadFile(q.table)).length
   }
 
-  streamQuery<ROW extends ObjectWithId>(
+  override streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<ROW> {
@@ -169,7 +169,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return readable
   }
 
-  async deleteByIds<ROW extends ObjectWithId>(
+  override async deleteByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     _opt?: CommonDBOptions,
@@ -192,7 +192,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return deleted
   }
 
-  async deleteByQuery<ROW extends ObjectWithId>(
+  override async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
@@ -211,7 +211,9 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return deleted
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>> {
+  override async getTableSchema<ROW extends ObjectWithId>(
+    table: string,
+  ): Promise<CommonSchema<ROW>> {
     const rows = await this.loadFile(table)
     return CommonSchemaGenerator.generateFromRows({ table }, rows)
   }

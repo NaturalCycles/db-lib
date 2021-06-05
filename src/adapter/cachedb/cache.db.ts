@@ -26,7 +26,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   log!: IDebugger
 
-  async ping(): Promise<void> {
+  override async ping(): Promise<void> {
     await Promise.all([this.cfg.cacheDB.ping(), this.cfg.downstreamDB.ping()])
   }
 
@@ -39,15 +39,17 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
   //   await this.cfg.cacheDB.resetCache(table)
   // }
 
-  async getTables(): Promise<string[]> {
+  override async getTables(): Promise<string[]> {
     return await this.cfg.downstreamDB.getTables()
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>> {
+  override async getTableSchema<ROW extends ObjectWithId>(
+    table: string,
+  ): Promise<CommonSchema<ROW>> {
     return await this.cfg.downstreamDB.getTableSchema<ROW>(table)
   }
 
-  async createTable(schema: CommonSchema, opt: CacheDBCreateOptions = {}): Promise<void> {
+  override async createTable(schema: CommonSchema, opt: CacheDBCreateOptions = {}): Promise<void> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       await this.cfg.downstreamDB.createTable(schema, opt)
     }
@@ -57,7 +59,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  async getByIds<ROW extends ObjectWithId>(
+  override async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt: CacheDBOptions = {},
@@ -103,7 +105,11 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return ids.map(id => resultMap[id]!).filter(Boolean)
   }
 
-  async deleteByIds(table: string, ids: string[], opt: CacheDBOptions = {}): Promise<number> {
+  override async deleteByIds(
+    table: string,
+    ids: string[],
+    opt: CacheDBOptions = {},
+  ): Promise<number> {
     let deletedIds = 0
 
     if (!opt.onlyCache && !this.cfg.onlyCache) {
@@ -126,7 +132,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return deletedIds
   }
 
-  async saveBatch<ROW extends ObjectWithId>(
+  override async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
     opt: CacheDBOptions = {},
@@ -155,7 +161,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  async runQuery<ROW extends ObjectWithId>(
+  override async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<RunQueryResult<ROW>> {
@@ -185,7 +191,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return { rows, ...queryResult }
   }
 
-  async runQueryCount<ROW extends ObjectWithId>(
+  override async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<number> {
@@ -202,7 +208,10 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return count
   }
 
-  streamQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt: CacheDBStreamOptions = {}): Readable {
+  override streamQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt: CacheDBStreamOptions = {},
+  ): Readable {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const stream = this.cfg.downstreamDB.streamQuery<ROW>(q, opt)
 
@@ -238,7 +247,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return stream
   }
 
-  async deleteByQuery<ROW extends ObjectWithId>(
+  override async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<number> {
