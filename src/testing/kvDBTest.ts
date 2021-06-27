@@ -27,7 +27,7 @@ export function runCommonKVDBTest(db: CommonKVDB): void {
     await db.saveBatch(TEST_TABLE, testItems)
 
     const results = await db.getByIds(TEST_TABLE, testIds)
-    expect(results).toStrictEqual(Object.values(testItems))
+    expect(results).toEqual(Object.values(testItems))
   })
 
   test('deleteByIds should clear', async () => {

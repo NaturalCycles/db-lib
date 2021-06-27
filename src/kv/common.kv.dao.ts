@@ -1,5 +1,6 @@
 import { pMap, StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
+import { CommonDBCreateOptions } from '../db.model'
 import { CommonKVDB } from './common.kv.db'
 
 export interface CommonKVDaoCfg<T> {
@@ -37,6 +38,10 @@ export class CommonKVDao<T> {
 
   async ping(): Promise<void> {
     await this.cfg.db.ping()
+  }
+
+  async createTable(opt: CommonDBCreateOptions = {}): Promise<void> {
+    await this.cfg.db.createTable(this.cfg.table, opt)
   }
 
   async getById(id?: string): Promise<T | null> {

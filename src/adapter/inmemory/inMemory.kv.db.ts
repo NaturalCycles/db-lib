@@ -1,4 +1,5 @@
 import { StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
+import { CommonDBCreateOptions } from '../../db.model'
 import { CommonKVDB } from '../../kv/common.kv.db'
 
 export interface InMemoryKVDBCfg {}
@@ -10,6 +11,8 @@ export class InMemoryKVDB implements CommonKVDB {
   data: StringMap<StringMap<Buffer>> = {}
 
   async ping(): Promise<void> {}
+
+  async createTable(_table: string, _opt?: CommonDBCreateOptions): Promise<void> {}
 
   async deleteByIds(table: string, ids: string[]): Promise<void> {
     this.data[table] ||= {}
