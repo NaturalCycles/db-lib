@@ -1,4 +1,5 @@
 import { InMemoryDB, InMemoryDBCfg } from './adapter/inmemory/inMemory.db'
+import { InMemoryKVDB, InMemoryKVDBCfg } from './adapter/inmemory/inMemory.kv.db'
 import { queryInMemory } from './adapter/inmemory/queryInMemory'
 import { BaseCommonDB } from './base.common.db'
 import { DBLibError } from './cnst'
@@ -46,6 +47,8 @@ import {
   Unsaved,
 } from './db.model'
 import { getDB } from './getDB'
+import { CommonKVDao, CommonKVDaoCfg } from './kv/common.kv.dao'
+import { CommonKVDB } from './kv/common.kv.db'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -103,6 +106,7 @@ export type {
   CommonDaoBeforeBMToTMHook,
   CommonDaoAnonymizeHook,
   InMemoryDBCfg,
+  InMemoryKVDBCfg,
   DBPipelineBackupOptions,
   DBPipelineRestoreOptions,
   DBPipelineCopyOptions,
@@ -113,6 +117,8 @@ export type {
   DBOperation,
   DBSaveBatchOperation,
   DBDeleteByIdsOperation,
+  CommonKVDB,
+  CommonKVDaoCfg,
 }
 
 export {
@@ -129,6 +135,7 @@ export {
   createdUpdatedIdFields,
   idField,
   InMemoryDB,
+  InMemoryKVDB,
   queryInMemory,
   serializeJsonField,
   deserializeJsonField,
@@ -144,4 +151,5 @@ export {
   mergeDBOperations,
   commitDBTransactionSimple,
   CommonSchemaGenerator,
+  CommonKVDao,
 }

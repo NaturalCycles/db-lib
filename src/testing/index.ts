@@ -4,6 +4,7 @@ import {
   CommonDBImplementationQuirks,
   runCommonDBTest,
 } from './dbTest'
+import { runCommonKVDBTest } from './kvDBTest'
 import {
   createTestItemBM,
   createTestItemDBM,
@@ -39,4 +40,5 @@ export {
   getTestItemSchema,
   runCommonDBTest,
   runCommonDaoTest,
+  runCommonKVDBTest,
 }
