@@ -64,7 +64,7 @@ export class CommonKVDao<T> {
   async saveBatch(batch: StringMap<T>): Promise<void> {
     let map: StringMap<Buffer> = {}
 
-    if (this.cfg.hooks?.mapValueToBuffer) {
+    if (!this.cfg.hooks?.mapValueToBuffer) {
       map = batch as any
     } else {
       await pMap(_stringMapEntries(batch), async ([id, v]) => {

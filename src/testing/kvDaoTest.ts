@@ -1,6 +1,5 @@
 import { StringMap, _range } from '@naturalcycles/js-lib'
-import { CommonKVDB } from '../kv/common.kv.db'
-import { TEST_TABLE } from './test.model'
+import { CommonKVDao } from '../kv/common.kv.dao'
 
 const testIds = _range(1, 4).map(n => `id${n}`)
 
@@ -9,34 +8,34 @@ const testItems: StringMap<Buffer> = Object.fromEntries(
   testIds.map(id => [id, Buffer.from(`${id}value`)]),
 )
 
-export function runCommonKVDBTest(db: CommonKVDB): void {
+export function runCommonKVDaoTest(dao: CommonKVDao<Buffer>): void {
   test('ping', async () => {
-    await db.ping()
+    await dao.ping()
   })
 
   test('createTable', async () => {
-    await db.createTable(TEST_TABLE, { dropIfExists: true })
+    await dao.createTable({ dropIfExists: true })
   })
 
   test('deleteByIds non existing', async () => {
-    await db.deleteByIds(TEST_TABLE, testIds)
+    await dao.deleteByIds(testIds)
   })
 
   test('getByIds should return empty', async () => {
-    const results = await db.getByIds(TEST_TABLE, testIds)
+    const results = await dao.getByIds(testIds)
     expect(results).toEqual([])
   })
 
   test('saveBatch, then getByIds', async () => {
-    await db.saveBatch(TEST_TABLE, testItems)
+    await dao.saveBatch(testItems)
 
-    const results = await db.getByIds(TEST_TABLE, testIds)
+    const results = await dao.getByIds(testIds)
     expect(results).toEqual(Object.values(testItems))
   })
 
   test('deleteByIds should clear', async () => {
-    await db.deleteByIds(TEST_TABLE, testIds)
-    const results = await db.getByIds(TEST_TABLE, testIds)
+    await dao.deleteByIds(testIds)
+    const results = await dao.getByIds(testIds)
     expect(results).toEqual([])
   })
 }
