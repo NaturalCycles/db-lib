@@ -1,3 +1,10 @@
+# [8.8.0](https://github.com/NaturalCycles/db-lib/compare/v8.7.1...v8.8.0) (2021-06-27)
+
+
+### Features
+
+* runCommonKVDaoTest ([1040d8a](https://github.com/NaturalCycles/db-lib/commit/1040d8a28dd96e3287c3b33775f9bded93d584ca))
+
 ## [8.7.1](https://github.com/NaturalCycles/db-lib/compare/v8.7.0...v8.7.1) (2021-06-27)
 
 
