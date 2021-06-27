@@ -1,3 +1,10 @@
+# [8.7.0](https://github.com/NaturalCycles/db-lib/compare/v8.6.2...v8.7.0) (2021-06-27)
+
+
+### Features
+
+* CommonKVDB, Dao (experimental!) ([3750e33](https://github.com/NaturalCycles/db-lib/commit/3750e335211acab75d104057e0fd40ea7d2c1faa))
+
 ## [8.6.2](https://github.com/NaturalCycles/db-lib/compare/v8.6.1...v8.6.2) (2021-06-05)
 
 
