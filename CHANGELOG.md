@@ -1,3 +1,10 @@
+## [8.7.1](https://github.com/NaturalCycles/db-lib/compare/v8.7.0...v8.7.1) (2021-06-27)
+
+
+### Bug Fixes
+
+* clarify CommonKVDB interface ([29a398f](https://github.com/NaturalCycles/db-lib/commit/29a398fc8680b37f32445ec40eddef7953c64348))
+
 # [8.7.0](https://github.com/NaturalCycles/db-lib/compare/v8.6.2...v8.7.0) (2021-06-27)
 
 
