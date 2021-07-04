@@ -6,7 +6,7 @@ import { CommonDBCreateOptions } from '../db.model'
  *
  * @experimental
  */
-export interface CommonKVDB {
+export interface CommonKeyValueDB {
   /**
    * Check that DB connection is working properly.
    */

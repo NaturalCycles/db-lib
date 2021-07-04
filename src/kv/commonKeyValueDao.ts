@@ -1,10 +1,10 @@
 import { pMap, StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
-import { CommonKVDB } from './common.kv.db'
+import { CommonKeyValueDB } from './commonKeyValueDB'
 
-export interface CommonKVDaoCfg<T> {
-  db: CommonKVDB
+export interface CommonKeyValueDaoCfg<T> {
+  db: CommonKeyValueDB
 
   table: string
 
@@ -33,8 +33,8 @@ export interface CommonKVDaoCfg<T> {
 // todo: logging
 // todo: readonly
 
-export class CommonKVDao<T> {
-  constructor(public cfg: CommonKVDaoCfg<T>) {}
+export class CommonKeyValueDao<T> {
+  constructor(public cfg: CommonKeyValueDaoCfg<T>) {}
 
   async ping(): Promise<void> {
     await this.cfg.db.ping()

@@ -1,11 +1,11 @@
 import { StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
 import { CommonDBCreateOptions } from '../../db.model'
-import { CommonKVDB } from '../../kv/common.kv.db'
+import { CommonKeyValueDB } from '../../kv/commonKeyValueDB'
 
-export interface InMemoryKVDBCfg {}
+export interface InMemoryKeyValueDBCfg {}
 
-export class InMemoryKVDB implements CommonKVDB {
-  constructor(public cfg: InMemoryKVDBCfg = {}) {}
+export class InMemoryKeyValueDB implements CommonKeyValueDB {
+  constructor(public cfg: InMemoryKeyValueDBCfg = {}) {}
 
   // data[table][id] > Buffer
   data: StringMap<StringMap<Buffer>> = {}
