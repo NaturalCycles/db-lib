@@ -1,3 +1,10 @@
+# [8.9.0](https://github.com/NaturalCycles/db-lib/compare/v8.8.0...v8.9.0) (2021-07-04)
+
+
+### Features
+
+* rename `KV` to `KeyValue` everywhere ([ad5a6d8](https://github.com/NaturalCycles/db-lib/commit/ad5a6d8e3b4dc294a951465d5e8da036a949c705))
+
 # [8.8.0](https://github.com/NaturalCycles/db-lib/compare/v8.7.1...v8.8.0) (2021-06-27)
 
 
