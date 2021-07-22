@@ -190,3 +190,41 @@ test('should strip null on load and save', async () => {
     updated: MOCK_TS_2018_06_21,
   })
 })
+
+test('does not reset updated on getByIdAsDBM', async () => {
+  const r = await dao.save({
+    id: '123',
+    k1: 'k1',
+    k2: null as any,
+  })
+  const updated1 = r.updated
+  // console.log(r.updated)
+
+  // 5 seconds later
+  const newNow = MOCK_TS_2018_06_21 + 5000
+  mockTime(newNow)
+
+  const bm = await dao.requireById(r.id)
+  // console.log(bm.updated)
+  expect(bm.updated).toBe(updated1) // unchanged
+
+  const dbm = await dao.requireByIdAsDBM(r.id)
+  // console.log(bm.updated)
+  expect(dbm.updated).toBe(updated1) // unchanged
+
+  const r2 = await dao.save(r)
+  expect(r2.created).toBe(updated1)
+  expect(r2.updated).toBe(newNow) // updated!
+
+  const [r2b] = await dao.saveBatch([r])
+  expect(r2b!.created).toBe(updated1)
+  expect(r2b!.updated).toBe(newNow) // updated!
+
+  const r3 = await dao.saveAsDBM(r)
+  expect(r3.created).toBe(updated1)
+  expect(r3.updated).toBe(newNow) // updated!
+
+  const [r3b] = await dao.saveBatchAsDBM([r])
+  expect(r3b!.created).toBe(updated1)
+  expect(r3b!.updated).toBe(newNow) // updated!
+})

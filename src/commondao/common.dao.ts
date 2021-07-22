@@ -524,9 +524,10 @@ export class CommonDao<
    */
   async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
-    const dbm = this.bmToDBM(bm, opt) // does assignIdCreatedUpdated, mutates
-    const table = opt.table || this.cfg.table
     const idWasGenerated = !bm.id
+    this.assignIdCreatedUpdated(bm, opt) // mutates
+    const dbm = this.bmToDBM(bm, opt)
+    const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
@@ -594,7 +595,8 @@ export class CommonDao<
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
       const idWasGenerated = !dbm.id
-      dbm = this.anyToDBM(dbm, opt) // does assignIdCreatedUpdated
+      this.assignIdCreatedUpdated(dbm, opt) // mutates
+      dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     }
     const op = `saveAsDBM(${dbm.id})`
@@ -610,7 +612,8 @@ export class CommonDao<
   async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
-    const dbms = this.bmsToDBM(bms, opt) // does assignIdCreatedUpdated (mutates)
+    bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
+    const dbms = this.bmsToDBM(bms, opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
@@ -635,7 +638,8 @@ export class CommonDao<
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
     if (!opt.raw) {
-      dbms = this.anyToDBMs(dbms, opt) // does assignIdCreatedUpdated
+      dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
+      dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
@@ -733,8 +737,8 @@ export class CommonDao<
     // bm gets assigned to the new reference
     // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
-    // Mutates
-    this.assignIdCreatedUpdated(bm, opt)
+    // should not do it on load, but only on save!
+    // this.assignIdCreatedUpdated(bm, opt)
 
     // BM > DBM
     const dbm = { ...this.cfg.hooks!.beforeBMToDBM!(bm) }
@@ -753,7 +757,8 @@ export class CommonDao<
   anyToDBM(dbm?: DBM, opt: CommonDaoOptions = {}): DBM | undefined {
     if (!dbm) return
 
-    this.assignIdCreatedUpdated(dbm, opt) // mutates
+    // this shouldn't be happening on load! but should on save!
+    // this.assignIdCreatedUpdated(dbm, opt)
 
     dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id) }
 
@@ -854,9 +859,7 @@ export class CommonDao<
       } else {
         // capture by Sentry and ignore the error
         // It will still *convert* the value and return.
-        if (this.cfg.onValidationError) {
-          this.cfg.onValidationError(error)
-        }
+        this.cfg.onValidationError?.(error)
       }
     }
 
