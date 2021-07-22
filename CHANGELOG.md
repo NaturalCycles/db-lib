@@ -1,3 +1,10 @@
+## [8.9.1](https://github.com/NaturalCycles/db-lib/compare/v8.9.0...v8.9.1) (2021-07-22)
+
+
+### Bug Fixes
+
+* `updated` was wrongly updated on dbm load ([f6e8814](https://github.com/NaturalCycles/db-lib/commit/f6e88146ede51468e107c53648639864d175e274))
+
 # [8.9.0](https://github.com/NaturalCycles/db-lib/compare/v8.8.0...v8.9.0) (2021-07-04)
 
 
