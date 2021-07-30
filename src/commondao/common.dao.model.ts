@@ -182,6 +182,11 @@ export interface CommonDaoStreamOptions<IN, OUT = IN>
   skipValidation?: boolean
 
   /**
+   * @default true (for streams)
+   */
+  skipConversion?: boolean
+
+  /**
    * @default ErrorMode.SUPPRESS for returning ReadableStream, because .pipe() has no concept of "error propagation"
    * @default ErrorMode.SUPPRESS for .forEach() streams as well, but overridable
    */

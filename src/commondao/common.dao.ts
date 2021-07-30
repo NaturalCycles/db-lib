@@ -315,6 +315,7 @@ export class CommonDao<
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
+    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -354,7 +355,8 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<DBM> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
-    if (opt.skipValidation === undefined) opt.skipValidation = true
+    opt.skipValidation = opt.skipValidation !== false // default true
+    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -395,6 +397,7 @@ export class CommonDao<
   ): ReadableTyped<DBM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
+    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -419,6 +422,7 @@ export class CommonDao<
   ): ReadableTyped<Saved<BM>> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
+    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
@@ -449,7 +453,6 @@ export class CommonDao<
     opt: CommonDaoStreamOptions<ObjectWithId, string> = {},
   ): ReadableTyped<string> {
     q.table = opt.table || q.table
-    opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     return this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
@@ -466,7 +469,6 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<string> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
-    opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
 
     const op = `streamQueryIdsForEach(${q.pretty()})`
