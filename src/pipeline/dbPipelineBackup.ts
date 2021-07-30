@@ -109,6 +109,11 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * If true - will use CommonDB.getTableSchema() and emit schema.
    */
   emitSchemaFromDB?: boolean
+
+  /**
+   * @default false
+   */
+  sortObjects?: boolean
 }
 
 // const log = Debug('nc:db-lib:pipeline')
@@ -136,6 +141,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     errorMode = ErrorMode.SUPPRESS,
     emitSchemaFromDB = false,
     emitSchemaFromData = false,
+    sortObjects = false,
   } = opt
   const strict = errorMode !== ErrorMode.SUPPRESS
   const gzip = opt.gzip !== false // default to true
@@ -208,7 +214,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
           rows++
           if (schemaGen) schemaGen.add(row)
         }),
-        transformToNDJson({ strict, sortObjects: true }),
+        transformToNDJson({ strict, sortObjects }),
         ...(gzip ? [createGzip(zlibOptions)] : []), // optional gzip
         fs.createWriteStream(filePath),
       ])
