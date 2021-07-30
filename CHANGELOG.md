@@ -1,3 +1,11 @@
+# [8.10.0](https://github.com/NaturalCycles/db-lib/compare/v8.9.1...v8.10.0) (2021-07-30)
+
+
+### Features
+
+* skipConversion=true for CommonDao.stream* methods ([7e70bcb](https://github.com/NaturalCycles/db-lib/commit/7e70bcb4516240e9da5cb5d5cf096ac38838aa0c))
+* sortObjects default to false in dbPipelineBackup ([39fab5b](https://github.com/NaturalCycles/db-lib/commit/39fab5b8a895f52498735dea494317714437e3ca))
+
 ## [8.9.1](https://github.com/NaturalCycles/db-lib/compare/v8.9.0...v8.9.1) (2021-07-22)
 
 
