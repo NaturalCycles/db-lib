@@ -1,3 +1,10 @@
+## [8.11.1](https://github.com/NaturalCycles/db-lib/compare/v8.11.0...v8.11.1) (2021-08-24)
+
+
+### Bug Fixes
+
+* kvDBTest to not rely on deterministic output ([d150e44](https://github.com/NaturalCycles/db-lib/commit/d150e4499a7f2a5f9c266b153628826e5ebb6e96))
+
 # [8.11.0](https://github.com/NaturalCycles/db-lib/compare/v8.10.0...v8.11.0) (2021-08-24)
 
 
