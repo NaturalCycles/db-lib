@@ -1,3 +1,10 @@
+## [8.11.2](https://github.com/NaturalCycles/db-lib/compare/v8.11.1...v8.11.2) (2021-08-24)
+
+
+### Bug Fixes
+
+* CommonDaoStreamForEachOptions to extend TransformMapOpt ([dd8e5b5](https://github.com/NaturalCycles/db-lib/commit/dd8e5b5e0e5d20897182ecda7c2c70e723b5e2bb))
+
 ## [8.11.1](https://github.com/NaturalCycles/db-lib/compare/v8.11.0...v8.11.1) (2021-08-24)
 
 
