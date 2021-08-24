@@ -1,3 +1,10 @@
+# [8.11.0](https://github.com/NaturalCycles/db-lib/compare/v8.10.0...v8.11.0) (2021-08-24)
+
+
+### Features
+
+* KVDB changes, transformMap clarifications ([12798c6](https://github.com/NaturalCycles/db-lib/commit/12798c6124c0a71677edfbd7acce06ff6407cef3))
+
 # [8.10.0](https://github.com/NaturalCycles/db-lib/compare/v8.9.1...v8.10.0) (2021-07-30)
 
 
