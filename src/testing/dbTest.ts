@@ -1,5 +1,5 @@
 import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-lib'
-import { streamMapToArray } from '@naturalcycles/nodejs-lib'
+import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
 import {
@@ -217,7 +217,7 @@ export function runCommonDBTest(
   // STREAM
   if (streaming) {
     test('streamQuery all', async () => {
-      let rows = await streamMapToArray(db.streamQuery(queryAll()))
+      let rows = await readableToArray(db.streamQuery(queryAll()))
 
       rows = _sortBy(rows, r => r.id) // cause order is not specified in DBQuery
       expectMatch(items, rows, quirks)

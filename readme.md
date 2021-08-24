@@ -50,7 +50,11 @@ same services, DAOs. Just swap real DB with `InMemoryDB` in your `setupJest.ts` 
 - [x] [airtable-lib](https://github.com/NaturalCycles/airtable-lib) (Airtable)
 - [x] HttpDB (CommonDB exposed via REST API, implemented in
       [backend-lib](https://github.com/NaturalCycles/backend-lib))
-- [ ] TODO: Google Spreadsheet DB
+- [x] [spreadsheet-lib](https://github.com/NaturalCycles/spreadsheet-lib) "Google Spreadsheets as a
+      Database"
+- [x] [github-db](https://github.com/NaturalCycles/github-db) "github branch as a Database"
+- [x] [sqlite-lib](https://github.com/NaturalCycles/sqlite-lib) SqliteDB (in progress),
+      SqliteKeyValueDB (done)
 
 # Features
 

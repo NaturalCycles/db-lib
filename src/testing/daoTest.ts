@@ -1,5 +1,5 @@
 import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
-import { streamMapToArray } from '@naturalcycles/nodejs-lib'
+import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { getTestItemSchema, TestItemBM } from '.'
 import { CommonDaoLogLevel } from '..'
 import { CommonDB } from '../common.db'
@@ -174,7 +174,7 @@ export function runCommonDaoTest(
     })
 
     test('streamQuery all', async () => {
-      let rows = await streamMapToArray(dao.query().streamQuery())
+      let rows = await readableToArray(dao.query().streamQuery())
 
       rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)
@@ -192,7 +192,7 @@ export function runCommonDaoTest(
     })
 
     test('streamQueryIds all', async () => {
-      let ids = await streamMapToArray(dao.query().streamQueryIds())
+      let ids = await readableToArray(dao.query().streamQueryIds())
       ids = ids.sort()
       expectMatch(
         expectedItems.map(i => i.id),

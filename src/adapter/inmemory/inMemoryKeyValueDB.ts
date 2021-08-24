@@ -1,6 +1,8 @@
-import { StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
+import { StringMap } from '@naturalcycles/js-lib'
+import { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { Readable } from 'stream'
 import { CommonDBCreateOptions } from '../../db.model'
-import { CommonKeyValueDB } from '../../kv/commonKeyValueDB'
+import { CommonKeyValueDB, KeyValueDBTuple } from '../../kv/commonKeyValueDB'
 
 export interface InMemoryKeyValueDBCfg {}
 
@@ -19,13 +21,25 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ids.forEach(id => delete this.data[table]![id])
   }
 
-  async getByIds(table: string, ids: string[]): Promise<Buffer[]> {
+  async getByIds(table: string, ids: string[]): Promise<KeyValueDBTuple[]> {
     this.data[table] ||= {}
-    return ids.map(id => this.data[table]![id]!).filter(Boolean)
+    return ids.map(id => [id, this.data[table]![id]!] as KeyValueDBTuple).filter(e => e[1])
   }
 
-  async saveBatch(table: string, batch: StringMap<Buffer>): Promise<void> {
+  async saveBatch(table: string, entries: KeyValueDBTuple[]): Promise<void> {
     this.data[table] ||= {}
-    _stringMapEntries(batch).forEach(([id, b]) => (this.data[table]![id] = b))
+    entries.forEach(([id, buf]) => (this.data[table]![id] = buf))
+  }
+
+  streamIds(table: string, limit?: number): ReadableTyped<string> {
+    return Readable.from(Object.keys(this.data[table] || {}).slice(0, limit))
+  }
+
+  streamValues(table: string, limit?: number): ReadableTyped<Buffer> {
+    return Readable.from(Object.values(this.data[table] || {}).slice(0, limit))
+  }
+
+  streamEntries(table: string, limit?: number): ReadableTyped<KeyValueDBTuple> {
+    return Readable.from(Object.entries(this.data[table] || {}).slice(0, limit))
   }
 }

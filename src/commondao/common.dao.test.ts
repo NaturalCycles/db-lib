@@ -98,7 +98,9 @@ test('should propagate pipe errors', async () => {
       errorMode: ErrorMode.THROW_IMMEDIATELY,
     }),
   ).rejects.toThrow('error_from_parseNaturalId')
-  expect(results).toEqual([])
+
+  // Throws on 3rd element, all previous elements should be collected
+  expect(results).toEqual(items.slice(0, 2))
 
   // THROW_AGGREGATED
   results = []

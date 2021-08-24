@@ -9,7 +9,7 @@ import {
 import {
   NDJsonStats,
   transformBuffer,
-  transformFilter,
+  transformFilterSync,
   transformJsonParse,
   transformLimit,
   transformLogProgress,
@@ -209,7 +209,9 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
           metric: table,
         }),
         transformLimit(limit),
-        ...(sinceUpdated ? [transformFilter<SavedDBEntity>(r => r.updated >= sinceUpdated)] : []),
+        ...(sinceUpdated
+          ? [transformFilterSync<SavedDBEntity>(r => r.updated >= sinceUpdated)]
+          : []),
         transformMap(mapperPerTable[table] || _passthroughMapper, {
           errorMode,
           flattenArrayOutput: true,

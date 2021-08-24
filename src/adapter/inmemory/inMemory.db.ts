@@ -177,7 +177,7 @@ export class InMemoryDB implements CommonDB {
     const table = this.cfg.tablesPrefix + q.table
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
     const ids = rows.map(r => r.id)
-    return this.deleteByIds(q.table, ids)
+    return await this.deleteByIds(q.table, ids)
   }
 
   async runQuery<ROW extends ObjectWithId>(

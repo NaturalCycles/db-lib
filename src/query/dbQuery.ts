@@ -261,11 +261,11 @@ export class RunnableDBQuery<
     await this.dao.streamQueryAsDBMForEach(this, mapper, opt)
   }
 
-  streamQuery(opt?: CommonDaoStreamOptions<DBM, Saved<BM>>): ReadableTyped<Saved<BM>> {
+  streamQuery(opt?: CommonDaoStreamOptions): ReadableTyped<Saved<BM>> {
     return this.dao.streamQuery(this, opt)
   }
 
-  streamQueryAsDBM(opt?: CommonDaoStreamOptions<any, DBM>): ReadableTyped<DBM> {
+  streamQueryAsDBM(opt?: CommonDaoStreamOptions): ReadableTyped<DBM> {
     return this.dao.streamQueryAsDBM(this, opt)
   }
 
@@ -273,7 +273,7 @@ export class RunnableDBQuery<
     return await this.dao.queryIds(this, opt)
   }
 
-  streamQueryIds(opt?: CommonDaoStreamOptions<ObjectWithId, string>): ReadableTyped<string> {
+  streamQueryIds(opt?: CommonDaoStreamOptions): ReadableTyped<string> {
     return this.dao.streamQueryIds(this, opt)
   }
 

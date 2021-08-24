@@ -15,13 +15,14 @@ import {
   stringId,
   transformLogProgress,
   transformMap,
-  TransformMapOptions,
+  transformMapSimple,
+  transformMapSync,
   transformTap,
   writableVoid,
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
+import { DBLibError } from '../cnst'
 import { DBModelType, ObjectWithId, RunQueryResult, Saved } from '../db.model'
-import { DBLibError } from '../index'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import { CommonSchema } from '../schema/common.schema'
 import {
@@ -316,7 +317,7 @@ export class CommonDao<
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
     const op = `streamQueryForEach(${q.pretty()})`
@@ -327,14 +328,18 @@ export class CommonDao<
       this.cfg.db.streamQuery<DBM>(q, opt),
       // optimization: 1 validation is enough
       // transformMap<any, DBM>(dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)), opt),
-      transformMap<DBM, Saved<BM>>(
-        dbm => (partialQuery || opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)),
-        opt as TransformMapOptions<DBM, Saved<BM>>,
+      transformMapSync<DBM, Saved<BM>>(
+        dbm => {
+          count++
+          return partialQuery || opt.raw ? (dbm as any) : this.dbmToBM(dbm, opt)
+        },
+        {
+          errorMode: opt.errorMode,
+        },
       ),
-      transformTap(() => count++),
       transformMap<Saved<BM>, void>(mapper, {
         ...opt,
-        predicate: _passthroughPredicate,
+        predicate: _passthroughPredicate, // to be able to logProgress
       }),
       // LogProgress should be AFTER the mapper, to be able to report correct stats
       transformLogProgress({
@@ -357,7 +362,7 @@ export class CommonDao<
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
     const op = `streamQueryAsDBMForEach(${q.pretty()})`
@@ -366,14 +371,18 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<any>(q, opt),
-      transformMap<any, DBM>(
-        dbm => (partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)),
-        opt as TransformMapOptions<any, DBM>,
+      transformMapSync<any, DBM>(
+        dbm => {
+          count++
+          return partialQuery || opt.raw ? dbm : this.anyToDBM(dbm, opt)
+        },
+        {
+          errorMode: opt.errorMode,
+        },
       ),
-      transformTap(() => count++),
       transformMap<DBM, void>(mapper, {
         ...opt,
-        predicate: _passthroughPredicate,
+        predicate: _passthroughPredicate, // to be able to logProgress
       }),
       // LogProgress should be AFTER the mapper, to be able to report correct stats
       transformLogProgress({
@@ -391,14 +400,11 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQueryAsDBM(
-    q: DBQuery<DBM>,
-    opt: CommonDaoStreamOptions<any, DBM> = {},
-  ): ReadableTyped<DBM> {
+  streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<DBM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
 
@@ -406,8 +412,7 @@ export class CommonDao<
     if (partialQuery || opt.raw) return stream
 
     return stream.pipe(
-      transformMap<any, DBM>(dbm => this.anyToDBM(dbm, opt), {
-        ...opt,
+      transformMapSimple<any, DBM>(dbm => this.anyToDBM(dbm, opt), {
         errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
       }),
     )
@@ -416,29 +421,26 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQuery(
-    q: DBQuery<DBM>,
-    opt: CommonDaoStreamOptions<DBM, Saved<BM>> = {},
-  ): ReadableTyped<Saved<BM>> {
+  streamQuery(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<Saved<BM>> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
     if (partialQuery || opt.raw) return stream
 
-    const safeOpt = {
-      ...opt,
-      errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
-    }
-
     return (
       stream
         // optimization: 1 validation is enough
         // .pipe(transformMap<any, DBM>(dbm => this.anyToDBM(dbm, opt), safeOpt))
-        .pipe(transformMap<DBM, Saved<BM>>(dbm => this.dbmToBM(dbm, opt), safeOpt))
+        // .pipe(transformMap<DBM, Saved<BM>>(dbm => this.dbmToBM(dbm, opt), safeOpt))
+        .pipe(
+          transformMapSimple<DBM, Saved<BM>>(dbm => this.dbmToBM(dbm, opt), {
+            errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
+          }),
+        )
     )
   }
 
@@ -448,16 +450,12 @@ export class CommonDao<
     return rows.map(r => r.id)
   }
 
-  streamQueryIds(
-    q: DBQuery<DBM>,
-    opt: CommonDaoStreamOptions<ObjectWithId, string> = {},
-  ): ReadableTyped<string> {
+  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
     q.table = opt.table || q.table
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     return this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
-      transformMap<ObjectWithId, string>(objectWithId => objectWithId.id, {
-        ...opt,
+      transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id, {
         errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
       }),
     )
@@ -477,10 +475,7 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMap<ObjectWithId, string>(
-        objectWithId => objectWithId.id,
-        opt as TransformMapOptions<ObjectWithId, string>,
-      ),
+      transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id),
       transformTap(() => count++),
       transformMap<string, void>(mapper, {
         ...opt,

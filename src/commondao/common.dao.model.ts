@@ -3,7 +3,6 @@ import {
   JoiValidationError,
   ObjectSchemaTyped,
   TransformLogProgressOptions,
-  TransformMapOptions,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import {
@@ -170,12 +169,10 @@ export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOpti
 }
 
 export interface CommonDaoStreamForEachOptions<IN>
-  extends CommonDaoStreamOptions<IN, void>,
+  extends CommonDaoStreamOptions,
     TransformLogProgressOptions<IN> {}
 
-export interface CommonDaoStreamOptions<IN, OUT = IN>
-  extends CommonDaoOptions,
-    TransformMapOptions<IN, OUT> {
+export interface CommonDaoStreamOptions extends CommonDaoOptions {
   /**
    * @default true (for streams)
    */

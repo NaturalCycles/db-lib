@@ -48,7 +48,7 @@ import {
 } from './db.model'
 import { getDB } from './getDB'
 import { CommonKeyValueDao, CommonKeyValueDaoCfg } from './kv/commonKeyValueDao'
-import { CommonKeyValueDB } from './kv/commonKeyValueDB'
+import { CommonKeyValueDB, KeyValueDBTuple } from './kv/commonKeyValueDB'
 import {
   createdUpdatedFields,
   createdUpdatedIdFields,
@@ -119,6 +119,7 @@ export type {
   DBDeleteByIdsOperation,
   CommonKeyValueDB,
   CommonKeyValueDaoCfg,
+  KeyValueDBTuple,
 }
 
 export {
