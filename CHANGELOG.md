@@ -1,3 +1,11 @@
+# [8.12.0](https://github.com/NaturalCycles/db-lib/compare/v8.11.2...v8.12.0) (2021-09-10)
+
+
+### Features
+
+* CommonDao hooks return types are loosened to Partial ([141bd29](https://github.com/NaturalCycles/db-lib/commit/141bd29166676eee1bc9bd72f23cd5b88dc22f3b))
+* remove `throwOnError*` CommonDao options ([008674f](https://github.com/NaturalCycles/db-lib/commit/008674fc7a755cbb2e540250d9e752c7db2faeb4))
+
 ## [8.11.2](https://github.com/NaturalCycles/db-lib/compare/v8.11.1...v8.11.2) (2021-08-24)
 
 
