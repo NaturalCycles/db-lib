@@ -1,4 +1,4 @@
-import { _range } from '@naturalcycles/js-lib'
+import { jsonSchema, _range } from '@naturalcycles/js-lib'
 import {
   binarySchema,
   booleanSchema,
@@ -47,6 +47,28 @@ export const testItemDBMSchema = objectSchema<TestItemDBM>({
 export const testItemTMSchema = objectSchema<TestItemTM>({
   k1: stringSchema,
   even: booleanSchema.optional(),
+})
+
+export const testItemBMJsonSchema = jsonSchema
+  .rootObject<TestItemBM>({
+    k1: jsonSchema.string(),
+    k2: jsonSchema.string().optional(),
+    k3: jsonSchema.number().optional(),
+    even: jsonSchema.boolean().optional(),
+    b1: jsonSchema.buffer().optional(),
+  })
+  .baseDBEntity()
+
+export const testItemDBMJsonSchema = jsonSchema.rootObject<TestItemDBM>({
+  // todo: figure out how to not copy-paste these 3 fields
+  id: jsonSchema.string(),
+  created: jsonSchema.unixTimestamp(),
+  updated: jsonSchema.unixTimestamp(),
+  k1: jsonSchema.string(),
+  k2: jsonSchema.string().optional(),
+  k3: jsonSchema.number().optional(),
+  even: jsonSchema.boolean().optional(),
+  b1: jsonSchema.buffer().optional(),
 })
 
 export function createTestItemDBM(num = 1): TestItemDBM {

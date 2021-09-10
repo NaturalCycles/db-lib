@@ -8,8 +8,11 @@ import {
   _truncate,
 } from '@naturalcycles/js-lib'
 import {
+  AjvSchema,
+  AjvValidationError,
   Debug,
   getValidationResult,
+  JoiValidationError,
   ObjectSchemaTyped,
   ReadableTyped,
   stringId,
@@ -66,6 +69,7 @@ export class CommonDao<
         beforeTMToBM: tm => tm as any,
         beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
+        onValidationError: err => err,
         ...cfg.hooks,
       },
     }
@@ -73,10 +77,6 @@ export class CommonDao<
 
   // CREATE
   create(input: Partial<BM>, opt: CommonDaoOptions = {}): Saved<BM> {
-    if (opt.throwOnError === undefined) {
-      opt.throwOnError = this.cfg.throwOnDaoCreateObject
-    }
-
     let bm = this.cfg.hooks!.beforeCreate!(input)
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
@@ -818,11 +818,12 @@ export class CommonDao<
   /**
    * Returns *converted value*.
    * Validates (unless `skipValidation=true` passed).
-   * Throws only if `throwOnError=true` passed OR if `env().throwOnEntityValidationError`
+   *
+   * Does NOT mutate the object.
    */
-  validateAndConvert<IN = any, OUT = IN>(
+  validateAndConvert<IN, OUT = IN>(
     obj: IN,
-    schema?: ObjectSchemaTyped<IN>,
+    schema?: ObjectSchemaTyped<IN> | AjvSchema<IN>,
     modelType?: DBModelType,
     opt: CommonDaoOptions = {},
   ): OUT {
@@ -844,23 +845,33 @@ export class CommonDao<
 
     // This will Convert and Validate
     const table = opt.table || this.cfg.table
-    const { value, error } = getValidationResult<IN, OUT>(obj, schema, table + (modelType || ''))
+    const objectName = table + (modelType || '')
+
+    let error: JoiValidationError | AjvValidationError | undefined
+    let convertedValue: any
+
+    if (schema instanceof AjvSchema) {
+      // Ajv schema
+      convertedValue = obj // because Ajv mutates original object
+
+      error = schema.getValidationError(obj, {
+        objectName,
+      })
+    } else {
+      // Joi
+      const vr = getValidationResult<IN, OUT>(obj, schema, objectName)
+      error = vr.error
+      convertedValue = vr.value
+    }
 
     // If we care about validation and there's an error
     if (error && !opt.skipValidation) {
-      if (
-        opt.throwOnError ||
-        (this.cfg.throwOnEntityValidationError && opt.throwOnError === undefined)
-      ) {
-        throw error
-      } else {
-        // capture by Sentry and ignore the error
-        // It will still *convert* the value and return.
-        this.cfg.onValidationError?.(error)
-      }
+      const processedError = this.cfg.hooks!.onValidationError!(error)
+
+      if (processedError) throw processedError
     }
 
-    return value // converted value
+    return convertedValue
   }
 
   async getTableSchema(): Promise<CommonSchema> {

@@ -1,5 +1,7 @@
 import { ErrorMode } from '@naturalcycles/js-lib'
 import {
+  AjvSchema,
+  AjvValidationError,
   JoiValidationError,
   ObjectSchemaTyped,
   TransformLogProgressOptions,
@@ -34,6 +36,14 @@ interface CommonDaoHooks<BM, DBM, TM> {
   beforeTMToBM: CommonDaoBeforeTMToBMHook<BM, TM>
   beforeBMToTM: CommonDaoBeforeBMToTMHook<BM, TM>
   anonymize: CommonDaoAnonymizeHook<DBM>
+
+  /**
+   * If hook is defined - allows to prevent or modify the error thrown.
+   * Return `false` to prevent throwing an error.
+   * Return original `err` to pass the error through (will be thrown in CommonDao).
+   * Return modified/new `Error` if needed.
+   */
+  onValidationError: (err: JoiValidationError | AjvValidationError) => Error | false
 }
 
 export enum CommonDaoLogLevel {
@@ -49,9 +59,13 @@ export enum CommonDaoLogLevel {
 export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM> {
   db: CommonDB
   table: string
-  dbmSchema?: ObjectSchemaTyped<DBM>
-  bmSchema?: ObjectSchemaTyped<BM>
-  tmSchema?: ObjectSchemaTyped<TM>
+
+  /**
+   * Joi or AjvSchema are supported.
+   */
+  dbmSchema?: ObjectSchemaTyped<DBM> | AjvSchema<DBM>
+  bmSchema?: ObjectSchemaTyped<BM> | AjvSchema<BM>
+  tmSchema?: ObjectSchemaTyped<TM> | AjvSchema<TM>
 
   excludeFromIndexes?: string[]
 
@@ -70,22 +84,6 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
    * @default false
    */
   logStarted?: boolean
-
-  /**
-   * @default false
-   */
-  throwOnEntityValidationError?: boolean
-
-  /**
-   * @default to throwOnEntityValidationError setting
-   */
-  throwOnDaoCreateObject?: boolean
-
-  /**
-   * Called when validation error occurs.
-   * Called ONLY when error is NOT thrown (when throwOnEntityValidationError is off)
-   */
-  onValidationError?: (err: JoiValidationError) => any
 
   // Hooks are designed with inspiration from got/ky interface
   hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
@@ -127,11 +125,6 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * @default false
    */
   raw?: boolean
-
-  /**
-   * @default inherited from CommonDaoCfg.throwOnEntityValidationError
-   */
-  throwOnError?: boolean
 
   /**
    * @default false

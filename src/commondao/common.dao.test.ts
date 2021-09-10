@@ -1,6 +1,11 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, _omit } from '@naturalcycles/js-lib'
-import { writableForEach, _pipeline } from '@naturalcycles/nodejs-lib'
+import { ErrorMode, pTuple, _omit } from '@naturalcycles/js-lib'
+import {
+  AjvSchema,
+  AjvValidationError,
+  writableForEach,
+  _pipeline,
+} from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
 import {
@@ -9,7 +14,8 @@ import {
   testItemDBMSchema,
   testItemTMSchema,
   TEST_TABLE,
-} from '../testing/test.model'
+} from '../testing'
+import { testItemBMJsonSchema, testItemDBMJsonSchema } from '../testing/test.model'
 import { CommonDao } from './common.dao'
 import { CommonDaoLogLevel, CommonDaoSaveOptions } from './common.dao.model'
 
@@ -61,7 +67,7 @@ test('common', async () => {
   expect(await dao.deleteById('123')).toBe(0)
 
   expect(dao.anyToDBM(undefined)).toBeUndefined()
-  expect(dao.anyToDBM({})).toMatchObject({})
+  expect(dao.anyToDBM({}, { skipValidation: true })).toMatchObject({})
 })
 
 test('should propagate pipe errors', async () => {
@@ -85,9 +91,10 @@ test('should propagate pipe errors', async () => {
 
   // Suppress errors
   results = []
-  await dao
-    .query()
-    .streamQueryForEach(r => void results.push(r), { ...opt, errorMode: ErrorMode.SUPPRESS })
+  await dao.query().streamQueryForEach(r => void results.push(r), {
+    ...opt,
+    errorMode: ErrorMode.SUPPRESS,
+  })
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
   // THROW_IMMEDIATELY
@@ -163,6 +170,24 @@ test.skip('ensureUniqueId', async () => {
   await dao.save(item3!, opt)
 })
 
+test('mutation', async () => {
+  const obj = {
+    id: '123',
+    k1: 'k1',
+    k2: null as any,
+  }
+
+  const saved = await dao.save(obj)
+
+  // Should be a new object, not the same (by reference)
+  // NO: should return the original object
+  // Non-mutation should only be ensured inside `validateAndConvert` method
+  expect(obj === saved).toBe(true)
+
+  // But `created`, `updated` should be "mutated" on the original object
+  expect((obj as any).created).toBe(MOCK_TS_2018_06_21)
+})
+
 test('should strip null on load and save', async () => {
   const r = await dao.save({
     id: '123',
@@ -229,4 +254,36 @@ test('does not reset updated on getByIdAsDBM', async () => {
   const [r3b] = await dao.saveBatchAsDBM([r])
   expect(r3b!.created).toBe(updated1)
   expect(r3b!.updated).toBe(newNow) // updated!
+})
+
+test('ajvSchema', async () => {
+  const dao = new CommonDao({
+    table: TEST_TABLE,
+    db,
+    bmSchema: AjvSchema.create(testItemBMJsonSchema),
+    dbmSchema: AjvSchema.create(testItemDBMJsonSchema),
+  })
+
+  const items = createTestItemsBM(3)
+
+  // Should pass validation
+  await dao.saveBatch(items)
+  await dao.save({
+    k1: 'sdf',
+  })
+
+  // This should fail
+  const [err] = await pTuple(
+    dao.save({
+      id: 'id123', // provided, so we can snapshot-match
+      k1: 5 as any,
+    }),
+  )
+  expect(err).toBeInstanceOf(AjvValidationError)
+  expect(err).toMatchInlineSnapshot(`
+    [AjvValidationError: TEST_TABLEDBM.id123/k1 must be string
+    Input: { id: 'id123', k1: 5, created: 1529539200, updated: 1529539200 }]
+  `)
+
+  console.log((err as any).data)
 })
