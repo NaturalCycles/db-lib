@@ -804,7 +804,7 @@ export class CommonDao<
     // tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
 
     // TM > BM
-    const bm = this.cfg.hooks!.beforeTMToBM!(tm)
+    const bm = this.cfg.hooks!.beforeTMToBM!(tm) as BM
 
     // Validate/convert BM
     return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opt)

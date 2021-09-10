@@ -17,11 +17,11 @@ import {
 export type CommonDaoCreateIdHook<BM, DBM> = (obj: DBM | BM) => string
 export type CommonDaoParseNaturalIdHook<DBM> = (id: string) => Partial<DBM>
 export type CommonDaoBeforeCreateHook<BM> = (bm: Partial<BM>) => BM
-export type CommonDaoBeforeDBMValidateHook<DBM> = (dbm: DBM) => DBM
-export type CommonDaoBeforeDBMToBMHook<BM, DBM> = (dbm: DBM) => BM
-export type CommonDaoBeforeBMToDBMHook<BM, DBM> = (bm: BM) => DBM
-export type CommonDaoBeforeTMToBMHook<BM, TM> = (tm: TM) => BM
-export type CommonDaoBeforeBMToTMHook<BM, TM> = (bm: BM) => TM
+export type CommonDaoBeforeDBMValidateHook<DBM> = (dbm: Partial<DBM>) => Partial<DBM>
+export type CommonDaoBeforeDBMToBMHook<BM, DBM> = (dbm: DBM) => Partial<BM>
+export type CommonDaoBeforeBMToDBMHook<BM, DBM> = (bm: BM) => Partial<DBM>
+export type CommonDaoBeforeTMToBMHook<BM, TM> = (tm: TM) => Partial<BM>
+export type CommonDaoBeforeBMToTMHook<BM, TM> = (bm: BM) => Partial<TM>
 export type CommonDaoAnonymizeHook<DBM> = (dbm: DBM) => DBM
 
 interface CommonDaoHooks<BM, DBM, TM> {
