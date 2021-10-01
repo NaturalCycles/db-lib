@@ -1,3 +1,4 @@
+import { JsonSchemaObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
@@ -8,7 +9,6 @@ import {
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'
-import { CommonSchema } from './schema/common.schema'
 import { DBTransaction } from './transaction/dbTransaction'
 
 export interface CommonDB {
@@ -25,13 +25,13 @@ export interface CommonDB {
    */
   getTables(): Promise<string[]>
 
-  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<CommonSchema<ROW>>
+  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaObject<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.
    * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
    */
-  createTable(schema: CommonSchema, opt?: CommonDBCreateOptions): Promise<void>
+  createTable(table: string, schema: JsonSchemaObject, opt?: CommonDBCreateOptions): Promise<void>
 
   // GET
   /**

@@ -1,4 +1,6 @@
 import {
+  generateJsonSchemaFromData,
+  JsonSchemaObject,
   pMap,
   StringMap,
   _by,
@@ -12,8 +14,6 @@ import {
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
 import { BaseCommonDB, DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
-import { CommonSchema } from '../..'
-import { CommonSchemaGenerator } from '../..'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBOptions,
@@ -213,9 +213,12 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<CommonSchema<ROW>> {
+  ): Promise<JsonSchemaObject<ROW>> {
     const rows = await this.loadFile(table)
-    return CommonSchemaGenerator.generateFromRows({ table }, rows)
+    return {
+      ...generateJsonSchemaFromData(rows),
+      $id: `${table}.schema.json`,
+    } as JsonSchemaObject<ROW>
   }
 
   // wrapper, to handle logging

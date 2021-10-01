@@ -1,9 +1,9 @@
+import { JsonSchemaObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
 import { CommonDB } from './common.db'
 import { CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
 import { DBQuery } from './query/dbQuery'
-import { CommonSchema } from './schema/common.schema'
 import { DBTransaction } from './transaction/dbTransaction'
 import { commitDBTransactionSimple } from './transaction/dbTransaction.util'
 
@@ -18,11 +18,17 @@ export class BaseCommonDB implements CommonDB {
     return []
   }
 
-  async getTableSchema<ROW>(table: string): Promise<CommonSchema<ROW>> {
-    return { table, fields: [] }
+  async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaObject<ROW>> {
+    return {
+      $id: `${table}.schema.json`,
+      type: 'object',
+      additionalProperties: true,
+      properties: {} as any,
+      required: [],
+    }
   }
 
-  async createTable(_schema: CommonSchema): Promise<void> {}
+  async createTable(_table: string, _schema: JsonSchemaObject): Promise<void> {}
 
   async deleteByIds(_table: string, _ids: string[]): Promise<number> {
     return 0

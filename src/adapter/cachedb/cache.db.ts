@@ -1,10 +1,10 @@
+import { JsonSchemaObject } from '@naturalcycles/js-lib'
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { Readable } from 'stream'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
 import { ObjectWithId, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
-import { CommonSchema } from '../../schema/common.schema'
 import {
   CacheDBCfg,
   CacheDBCreateOptions,
@@ -45,17 +45,21 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<CommonSchema<ROW>> {
+  ): Promise<JsonSchemaObject<ROW>> {
     return await this.cfg.downstreamDB.getTableSchema<ROW>(table)
   }
 
-  override async createTable(schema: CommonSchema, opt: CacheDBCreateOptions = {}): Promise<void> {
+  override async createTable(
+    table: string,
+    schema: JsonSchemaObject,
+    opt: CacheDBCreateOptions = {},
+  ): Promise<void> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
-      await this.cfg.downstreamDB.createTable(schema, opt)
+      await this.cfg.downstreamDB.createTable(table, schema, opt)
     }
 
     if (!opt.skipCache && !this.cfg.skipCache) {
-      await this.cfg.cacheDB.createTable(schema, opt)
+      await this.cfg.cacheDB.createTable(table, schema, opt)
     }
   }
 

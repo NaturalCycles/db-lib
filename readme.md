@@ -216,19 +216,20 @@ await db.getTables()
 
 ###### getTableSchema
 
-`getTableSchema(table: string): Promise<CommonSchema>`
+`getTableSchema(table: string): Promise<JsonSchemaObject>`
 
 ```typescript
 await db.getTableSchema('table1')
-// todo: describe CommonSchema example
 ```
+
+Returns a JsonSchema, generated from the table.
 
 ###### createTable
 
-`createTable(schema: CommonSchema): Promise<void>`
+`createTable(table: string, schema: JsonSchemaObject): Promise<void>`
 
 Applicable to Relational DBs, like MySQL. Will invoke smth like `create table Table1 ... ;`. Takes a
-`CommonSchema` as an argument.
+`JsonSchema` as an argument.
 
 # DBQuery
 

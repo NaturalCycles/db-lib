@@ -67,8 +67,6 @@ import {
   DBQueryOrder,
   RunnableDBQuery,
 } from './query/dbQuery'
-import { CommonSchema, CommonSchemaField, DATA_TYPE } from './schema/common.schema'
-import { CommonSchemaGenerator, CommonSchemaGeneratorCfg } from './schema/commonSchemaGenerator'
 import { DBTransaction, RunnableDBTransaction } from './transaction/dbTransaction'
 import { commitDBTransactionSimple, mergeDBOperations } from './transaction/dbTransaction.util'
 
@@ -110,9 +108,6 @@ export type {
   DBPipelineBackupOptions,
   DBPipelineRestoreOptions,
   DBPipelineCopyOptions,
-  CommonSchema,
-  CommonSchemaField,
-  CommonSchemaGeneratorCfg,
   CommonDBAdapter,
   DBOperation,
   DBSaveBatchOperation,
@@ -143,7 +138,6 @@ export {
   dbPipelineBackup,
   dbPipelineRestore,
   dbPipelineCopy,
-  DATA_TYPE,
   getDB,
   DBLibError,
   BaseCommonDB,
@@ -151,6 +145,5 @@ export {
   RunnableDBTransaction,
   mergeDBOperations,
   commitDBTransactionSimple,
-  CommonSchemaGenerator,
   CommonKeyValueDao,
 }

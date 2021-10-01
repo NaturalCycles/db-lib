@@ -15,7 +15,6 @@ import * as fs from 'fs-extra'
 import { createGzip, ZlibOptions } from 'zlib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
-import { CommonSchemaGenerator } from '../schema/commonSchemaGenerator'
 
 export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   /**
@@ -102,7 +101,7 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * @default false
    * If true - will use CommonSchemaGenerator to detect schema from input data.
    */
-  emitSchemaFromData?: boolean
+  // emitSchemaFromData?: boolean
 
   /**
    * @default false
@@ -140,7 +139,6 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
     emitSchemaFromDB = false,
-    emitSchemaFromData = false,
     sortObjects = false,
   } = opt
   const strict = errorMode !== ErrorMode.SUPPRESS
@@ -193,10 +191,6 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         console.log(`>> ${grey(schemaFilePath)} saved (generated from DB)`)
       }
 
-      const schemaGen = emitSchemaFromData
-        ? new CommonSchemaGenerator({ table, sortedFields: true })
-        : undefined
-
       await _pipeline([
         db.streamQuery(q),
         transformLogProgress({
@@ -210,9 +204,8 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
           ...transformMapOptions,
           metric: table,
         }),
-        transformTap(row => {
+        transformTap(() => {
           rows++
-          if (schemaGen) schemaGen.add(row)
         }),
         transformToNDJson({ strict, sortObjects }),
         ...(gzip ? [createGzip(zlibOptions)] : []), // optional gzip
@@ -228,12 +221,6 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
       })
 
       console.log(`>> ${grey(filePath)}\n` + stats.toPretty())
-
-      if (schemaGen) {
-        const schema = schemaGen.generate()
-        await fs.writeJson(schemaFilePath, schema, { spaces: 2 })
-        console.log(`>> ${grey(schemaFilePath)} saved (generated from data)`)
-      }
 
       statsPerTable[table] = stats
     },

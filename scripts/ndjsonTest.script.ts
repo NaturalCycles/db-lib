@@ -41,7 +41,7 @@ runScript(async () => {
     db: fileDB2,
     outputDirPath: backupDir,
     // emitSchemaFromDB: true,
-    emitSchemaFromData: true,
+    // emitSchemaFromData: true,
   })
 
   await dbPipelineRestore({

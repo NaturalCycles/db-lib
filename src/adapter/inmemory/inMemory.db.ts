@@ -1,4 +1,12 @@
-import { pMap, StringMap, _by, _since, _sortObjectDeep } from '@naturalcycles/js-lib'
+import {
+  generateJsonSchemaFromData,
+  JsonSchemaObject,
+  pMap,
+  StringMap,
+  _by,
+  _since,
+  _sortObjectDeep,
+} from '@naturalcycles/js-lib'
 import {
   bufferReviver,
   Debug,
@@ -14,8 +22,6 @@ import * as fs from 'fs-extra'
 import { Readable } from 'stream'
 import { createGzip, createUnzip } from 'zlib'
 import { CommonDB, DBTransaction, ObjectWithId, queryInMemory } from '../..'
-import { CommonSchema } from '../..'
-import { CommonSchemaGenerator } from '../..'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -105,13 +111,20 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(_table: string): Promise<CommonSchema<ROW>> {
+  async getTableSchema<ROW extends ObjectWithId>(_table: string): Promise<JsonSchemaObject<ROW>> {
     const table = this.cfg.tablesPrefix + _table
-    return CommonSchemaGenerator.generateFromRows({ table }, Object.values(this.data[table] || {}))
+    return {
+      ...generateJsonSchemaFromData(Object.values(this.data[table] || {})),
+      $id: `${table}.schema.json`,
+    } as JsonSchemaObject<ROW>
   }
 
-  async createTable(schema: CommonSchema, opt: CommonDBCreateOptions = {}): Promise<void> {
-    const table = this.cfg.tablesPrefix + schema.table
+  async createTable(
+    _table: string,
+    _schema: JsonSchemaObject,
+    opt: CommonDBCreateOptions = {},
+  ): Promise<void> {
+    const table = this.cfg.tablesPrefix + _table
     if (opt.dropIfExists) {
       this.data[table] = {}
     } else {

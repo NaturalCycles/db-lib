@@ -2,6 +2,7 @@ import {
   AppError,
   AsyncMapper,
   ErrorMode,
+  JsonSchemaObject,
   _filterNullishValues,
   _passthroughPredicate,
   _since,
@@ -27,7 +28,6 @@ import {
 import { DBLibError } from '../cnst'
 import { DBModelType, ObjectWithId, RunQueryResult, Saved } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
-import { CommonSchema } from '../schema/common.schema'
 import {
   CommonDaoCfg,
   CommonDaoCreateOptions,
@@ -874,13 +874,13 @@ export class CommonDao<
     return convertedValue
   }
 
-  async getTableSchema(): Promise<CommonSchema> {
+  async getTableSchema(): Promise<JsonSchemaObject<DBM>> {
     return await this.cfg.db.getTableSchema<DBM>(this.cfg.table)
   }
 
-  async createTable(schema: CommonSchema, opt?: CommonDaoCreateOptions): Promise<void> {
+  async createTable(schema: JsonSchemaObject<DBM>, opt?: CommonDaoCreateOptions): Promise<void> {
     this.requireWriteAccess()
-    await this.cfg.db.createTable(schema, opt)
+    await this.cfg.db.createTable(this.cfg.table, schema as any, opt)
   }
 
   /**

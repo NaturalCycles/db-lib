@@ -179,7 +179,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
       }
 
       const schema = await fs.readJson(schemaFilePath)
-      await db.createTable(schema, { dropIfExists: true })
+      await db.createTable(table, schema, { dropIfExists: true })
     })
   }
 

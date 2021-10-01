@@ -97,7 +97,7 @@ export function runCommonDBTest(
   // CREATE TABLE, DROP
   if (createTable) {
     test('createTable, dropIfExists=true', async () => {
-      await db.createTable(getTestItemSchema(), { dropIfExists: true })
+      await db.createTable(TEST_TABLE, getTestItemSchema(), { dropIfExists: true })
     })
   }
 
