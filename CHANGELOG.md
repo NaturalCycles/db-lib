@@ -1,3 +1,10 @@
+# [8.13.0](https://github.com/NaturalCycles/db-lib/compare/v8.12.0...v8.13.0) (2021-10-01)
+
+
+### Features
+
+* remove CommonSchema in favor of JsonSchema ([1827ec5](https://github.com/NaturalCycles/db-lib/commit/1827ec5709053b97a6b9e131f2ec0b40176c3e23))
+
 # [8.12.0](https://github.com/NaturalCycles/db-lib/compare/v8.11.2...v8.12.0) (2021-09-10)
 
 
