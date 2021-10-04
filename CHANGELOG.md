@@ -1,3 +1,10 @@
+## [8.16.2](https://github.com/NaturalCycles/db-lib/compare/v8.16.1...v8.16.2) (2021-10-04)
+
+
+### Bug Fixes
+
+* unnecessary await ([11282ba](https://github.com/NaturalCycles/db-lib/commit/11282ba44982c174b1b9eeb052c911c30ee22076))
+
 ## [8.16.1](https://github.com/NaturalCycles/db-lib/compare/v8.16.0...v8.16.1) (2021-10-04)
 
 
