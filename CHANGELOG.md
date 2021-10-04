@@ -1,3 +1,10 @@
+# [8.15.0](https://github.com/NaturalCycles/db-lib/compare/v8.14.0...v8.15.0) (2021-10-04)
+
+
+### Features
+
+* dbTest to ensure `${table}.schema.json` format ([eacf18f](https://github.com/NaturalCycles/db-lib/commit/eacf18fdd7197f18e15af89f19f786556a7d3219))
+
 # [8.14.0](https://github.com/NaturalCycles/db-lib/compare/v8.13.0...v8.14.0) (2021-10-04)
 
 
