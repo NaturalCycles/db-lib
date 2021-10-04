@@ -1,3 +1,10 @@
+# [8.16.0](https://github.com/NaturalCycles/db-lib/compare/v8.15.0...v8.16.0) (2021-10-04)
+
+
+### Features
+
+* getTableSchema to enforce non-optional $id ([a147627](https://github.com/NaturalCycles/db-lib/commit/a147627d18c3323b63de7f617068c9b3e2517c10))
+
 # [8.15.0](https://github.com/NaturalCycles/db-lib/compare/v8.14.0...v8.15.0) (2021-10-04)
 
 
