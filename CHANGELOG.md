@@ -1,3 +1,10 @@
+# [8.14.0](https://github.com/NaturalCycles/db-lib/compare/v8.13.0...v8.14.0) (2021-10-04)
+
+
+### Features
+
+* support async bm-dbm CommonDao hooks ([5e5e115](https://github.com/NaturalCycles/db-lib/commit/5e5e1157a1126d9f0a3bdec5a46e6ec10a8e4c39))
+
 # [8.13.0](https://github.com/NaturalCycles/db-lib/compare/v8.12.0...v8.13.0) (2021-10-01)
 
 
