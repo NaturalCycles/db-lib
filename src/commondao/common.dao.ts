@@ -724,7 +724,8 @@ export class CommonDao<
     const bm = await this.cfg.hooks!.beforeDBMToBM!(dbm)
 
     // Validate/convert BM
-    return await this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
+    // eslint-disable-next-line @typescript-eslint/return-await
+    return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
   }
 
   async dbmsToBM(dbms: DBM[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
@@ -752,7 +753,8 @@ export class CommonDao<
     const dbm = { ...(await this.cfg.hooks!.beforeBMToDBM!(bm)) }
 
     // Validate/convert DBM
-    return await this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
+    // eslint-disable-next-line @typescript-eslint/return-await
+    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
   }
 
   async bmsToDBM(bms: BM[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
