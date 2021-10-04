@@ -25,6 +25,12 @@ export interface CommonDB {
    */
   getTables(): Promise<string[]>
 
+  /**
+   * $id of the schema SHOULD be like this:
+   * `${tableName}.schema.json`
+   *
+   * This is important for the code to rely on it, and it's verified by dbTest
+   */
   getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaObject<ROW>>
 
   /**

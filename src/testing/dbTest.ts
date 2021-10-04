@@ -233,7 +233,7 @@ export function runCommonDBTest(
       await pMap(tables, async table => {
         const schema = await db.getTableSchema(table)
         console.log(schema)
-        expect(schema).toBeDefined()
+        expect(schema.$id).toBe(`${table}.schema.json`)
       })
     }
   })
