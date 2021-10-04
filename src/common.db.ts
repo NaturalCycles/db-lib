@@ -31,7 +31,9 @@ export interface CommonDB {
    *
    * This is important for the code to rely on it, and it's verified by dbTest
    */
-  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaObject<ROW>>
+  getTableSchema<ROW extends ObjectWithId>(
+    table: string,
+  ): Promise<JsonSchemaObject<ROW> & { $id: string }>
 
   /**
    * Will do like `create table ...` for mysql.

@@ -18,7 +18,9 @@ export class BaseCommonDB implements CommonDB {
     return []
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaObject<ROW>> {
+  async getTableSchema<ROW extends ObjectWithId>(
+    table: string,
+  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
     return {
       $id: `${table}.schema.json`,
       type: 'object',

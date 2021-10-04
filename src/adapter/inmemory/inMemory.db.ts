@@ -111,12 +111,14 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(_table: string): Promise<JsonSchemaObject<ROW>> {
+  async getTableSchema<ROW extends ObjectWithId>(
+    _table: string,
+  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
     const table = this.cfg.tablesPrefix + _table
     return {
       ...generateJsonSchemaFromData(Object.values(this.data[table] || {})),
       $id: `${table}.schema.json`,
-    } as JsonSchemaObject<ROW>
+    }
   }
 
   async createTable(

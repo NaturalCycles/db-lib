@@ -45,7 +45,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<JsonSchemaObject<ROW>> {
+  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
     return await this.cfg.downstreamDB.getTableSchema<ROW>(table)
   }
 

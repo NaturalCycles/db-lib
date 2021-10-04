@@ -213,12 +213,12 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<JsonSchemaObject<ROW>> {
+  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
     const rows = await this.loadFile(table)
     return {
       ...generateJsonSchemaFromData(rows),
       $id: `${table}.schema.json`,
-    } as JsonSchemaObject<ROW>
+    }
   }
 
   // wrapper, to handle logging
