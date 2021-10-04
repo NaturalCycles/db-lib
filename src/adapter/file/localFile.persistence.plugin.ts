@@ -1,3 +1,5 @@
+import { Readable } from 'stream'
+import { createGzip, createUnzip } from 'zlib'
 import { pMap } from '@naturalcycles/js-lib'
 import {
   transformJsonParse,
@@ -7,8 +9,6 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import * as fs from 'fs-extra'
-import { Readable } from 'stream'
-import { createGzip, createUnzip } from 'zlib'
 import { DBSaveBatchOperation, ObjectWithId } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 

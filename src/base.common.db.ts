@@ -1,6 +1,6 @@
+import { Readable } from 'stream'
 import { JsonSchemaObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { Readable } from 'stream'
 import { CommonDB } from './common.db'
 import { CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
 import { DBQuery } from './query/dbQuery'

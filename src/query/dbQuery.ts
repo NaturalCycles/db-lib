@@ -34,7 +34,7 @@ export type DBQueryFilterOperator =
   | 'array-contains'
   | 'array-contains-any'
 
-export const DBQueryFilterOperatorValues = [
+export const dbQueryFilterOperatorValues = [
   '<',
   '<=',
   '==',

@@ -1,6 +1,5 @@
 import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
-import { readableToArray } from '@naturalcycles/nodejs-lib'
-import { getTestItemSchema, TestItemBM } from '.'
+import { readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
@@ -12,6 +11,7 @@ import {
   testItemTMSchema,
   TEST_TABLE,
 } from './test.model'
+import { getTestItemSchema, TestItemBM } from '.'
 
 export function runCommonDaoTest(
   db: CommonDB,
@@ -174,7 +174,11 @@ export function runCommonDaoTest(
     })
 
     test('streamQuery all', async () => {
-      let rows = await readableToArray(dao.query().streamQuery())
+      // let rows = await readableToArray(dao.query().streamQuery())
+      // todo: remove transformNoOp after `transformMap` learns to be async-iteration-friendly
+      let rows: TestItemBM[] = await readableToArray(
+        dao.query().streamQuery().pipe(transformNoOp()),
+      )
 
       rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)

@@ -63,7 +63,7 @@ import {
   DBQuery,
   DBQueryFilter,
   DBQueryFilterOperator,
-  DBQueryFilterOperatorValues,
+  dbQueryFilterOperatorValues,
   DBQueryOrder,
   RunnableDBQuery,
 } from './query/dbQuery'
@@ -119,7 +119,7 @@ export type {
 
 export {
   DBQuery,
-  DBQueryFilterOperatorValues,
+  dbQueryFilterOperatorValues,
   RunnableDBQuery,
   CommonDaoLogLevel,
   DBRelation,

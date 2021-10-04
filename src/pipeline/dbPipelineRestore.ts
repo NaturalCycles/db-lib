@@ -1,3 +1,4 @@
+import { createUnzip } from 'zlib'
 import {
   AsyncMapper,
   ErrorMode,
@@ -24,7 +25,6 @@ import {
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
-import { createUnzip } from 'zlib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions, SavedDBEntity } from '../index'
 

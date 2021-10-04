@@ -1,3 +1,5 @@
+import { Readable } from 'stream'
+import { createGzip, createUnzip } from 'zlib'
 import {
   generateJsonSchemaFromData,
   JsonSchemaObject,
@@ -19,8 +21,6 @@ import {
 } from '@naturalcycles/nodejs-lib'
 import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import * as fs from 'fs-extra'
-import { Readable } from 'stream'
-import { createGzip, createUnzip } from 'zlib'
 import { CommonDB, DBTransaction, ObjectWithId, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,

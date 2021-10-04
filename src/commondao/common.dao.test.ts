@@ -1,10 +1,12 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, pTuple, _omit } from '@naturalcycles/js-lib'
+import { ErrorMode, pTuple, _omit, _range } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
   writableForEach,
   _pipeline,
+  zipString,
+  unzipToString,
 } from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
@@ -98,16 +100,18 @@ test('should propagate pipe errors', async () => {
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
   // THROW_IMMEDIATELY
-  results = []
+  const results2 = []
   await expect(
-    dao.query().streamQueryForEach(r => void results.push(r), {
+    dao.query().streamQueryForEach(r => void results2.push(r), {
       ...opt,
       errorMode: ErrorMode.THROW_IMMEDIATELY,
     }),
   ).rejects.toThrow('error_from_parseNaturalId')
 
   // Throws on 3rd element, all previous elements should be collected
-  expect(results).toEqual(items.slice(0, 2))
+  // Cannot expect it cause with async dbmToBM it uses async `transformMap`, so
+  // the execution is not sequential
+  // expect(results2).toEqual(items.slice(0, 2))
 
   // THROW_AGGREGATED
   results = []
@@ -286,4 +290,42 @@ test('ajvSchema', async () => {
   `)
 
   console.log((err as any).data)
+})
+
+interface Item {
+  id: string
+  obj: any
+}
+
+test('zipping/unzipping via async hook', async () => {
+  const dao = new CommonDao<Item>({
+    table: TEST_TABLE,
+    db,
+    hooks: {
+      async beforeBMToDBM(bm) {
+        return {
+          ...bm,
+          obj: await zipString(JSON.stringify(bm.obj)),
+        }
+      },
+      async beforeDBMToBM(dbm) {
+        return {
+          ...dbm,
+          obj: JSON.parse(await unzipToString(dbm.obj)),
+        }
+      },
+    },
+  })
+
+  const items = _range(3).map(n => ({
+    id: `id${n}`,
+    obj: {
+      objId: `objId${n}`,
+    },
+  }))
+
+  await dao.saveBatch(items)
+
+  const items2 = await dao.getByIds(items.map(item => item.id))
+  expect(items2).toEqual(items)
 })

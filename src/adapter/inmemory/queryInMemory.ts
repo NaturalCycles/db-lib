@@ -35,7 +35,6 @@ export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: R
   if (order) {
     const { name, descending } = order
     rows = rows.sort((a, b) => {
-      // tslint:disable-next-line:triple-equals
       if (a[name] == b[name]) return 0 // eslint-disable-line eqeqeq
 
       if (descending) {

@@ -1,6 +1,6 @@
+import { Readable } from 'stream'
 import { StringMap } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { Readable } from 'stream'
 import { CommonDBCreateOptions } from '../../db.model'
 import { CommonKeyValueDB, KeyValueDBTuple } from '../../kv/commonKeyValueDB'
 
