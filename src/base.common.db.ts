@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { JsonSchemaObject } from '@naturalcycles/js-lib'
+import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
 import { CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
@@ -20,7 +20,7 @@ export class BaseCommonDB implements CommonDB {
 
   async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
+  ): Promise<JsonSchemaRootObject<ROW>> {
     return {
       $id: `${table}.schema.json`,
       type: 'object',

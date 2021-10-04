@@ -1,4 +1,4 @@
-import { JsonSchemaObject } from '@naturalcycles/js-lib'
+import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
@@ -31,9 +31,7 @@ export interface CommonDB {
    *
    * This is important for the code to rely on it, and it's verified by dbTest
    */
-  getTableSchema<ROW extends ObjectWithId>(
-    table: string,
-  ): Promise<JsonSchemaObject<ROW> & { $id: string }>
+  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaRootObject<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.

@@ -8,6 +8,7 @@ import {
   _by,
   _since,
   _sortObjectDeep,
+  JsonSchemaRootObject,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -113,7 +114,7 @@ export class InMemoryDB implements CommonDB {
 
   async getTableSchema<ROW extends ObjectWithId>(
     _table: string,
-  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
+  ): Promise<JsonSchemaRootObject<ROW>> {
     const table = this.cfg.tablesPrefix + _table
     return {
       ...generateJsonSchemaFromData(Object.values(this.data[table] || {})),

@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { JsonSchemaObject } from '@naturalcycles/js-lib'
+import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
@@ -45,7 +45,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
+  ): Promise<JsonSchemaRootObject<ROW>> {
     return await this.cfg.downstreamDB.getTableSchema<ROW>(table)
   }
 

@@ -8,6 +8,7 @@ import {
   _since,
   _truncate,
   pMap,
+  JsonSchemaRootObject,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -884,7 +885,7 @@ export class CommonDao<
     return convertedValue
   }
 
-  async getTableSchema(): Promise<JsonSchemaObject<DBM>> {
+  async getTableSchema(): Promise<JsonSchemaRootObject<DBM>> {
     return await this.cfg.db.getTableSchema<DBM>(this.cfg.table)
   }
 

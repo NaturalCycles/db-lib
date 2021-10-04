@@ -1,6 +1,5 @@
 import {
   generateJsonSchemaFromData,
-  JsonSchemaObject,
   pMap,
   StringMap,
   _by,
@@ -10,6 +9,7 @@ import {
   _sortObjectDeep,
   _stringMapValues,
   _uniq,
+  JsonSchemaRootObject,
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
@@ -213,7 +213,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
-  ): Promise<JsonSchemaObject<ROW> & { $id: string }> {
+  ): Promise<JsonSchemaRootObject<ROW>> {
     const rows = await this.loadFile(table)
     return {
       ...generateJsonSchemaFromData(rows),
