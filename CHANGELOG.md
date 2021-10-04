@@ -1,3 +1,10 @@
+## [8.16.1](https://github.com/NaturalCycles/db-lib/compare/v8.16.0...v8.16.1) (2021-10-04)
+
+
+### Bug Fixes
+
+* use JsonSchemaRootObject type ([f938b62](https://github.com/NaturalCycles/db-lib/commit/f938b624e9fee61732efb4dc2dd53074dc16977b))
+
 # [8.16.0](https://github.com/NaturalCycles/db-lib/compare/v8.15.0...v8.16.0) (2021-10-04)
 
 
