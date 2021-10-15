@@ -1,4 +1,4 @@
-import { jsonSchema, JsonSchemaObject, _range } from '@naturalcycles/js-lib'
+import { jsonSchema, JsonSchemaObject, _range, BaseDBEntity } from '@naturalcycles/js-lib'
 import {
   binarySchema,
   booleanSchema,
@@ -6,7 +6,7 @@ import {
   objectSchema,
   stringSchema,
 } from '@naturalcycles/nodejs-lib'
-import { BaseDBEntity, baseDBEntitySchema, Saved, savedDBEntitySchema } from '../db.model'
+import { baseDBEntitySchema, Saved, savedDBEntitySchema } from '../db.model'
 
 const MOCK_TS_2018_06_21 = 1529539200
 

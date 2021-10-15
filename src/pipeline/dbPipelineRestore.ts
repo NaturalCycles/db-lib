@@ -6,6 +6,7 @@ import {
   _hb,
   _mapValues,
   _passthroughMapper,
+  SavedDBEntity,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -26,7 +27,7 @@ import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dis
 import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { CommonDB } from '../common.db'
-import { CommonDBSaveOptions, SavedDBEntity } from '../index'
+import { CommonDBSaveOptions } from '../index'
 
 export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   /**

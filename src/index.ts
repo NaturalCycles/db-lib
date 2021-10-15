@@ -24,7 +24,6 @@ import {
   CommonDaoStreamOptions,
 } from './commondao/common.dao.model'
 import {
-  BaseDBEntity,
   baseDBEntitySchema,
   CommonDBAdapter,
   CommonDBCreateOptions,
@@ -42,7 +41,6 @@ import {
   ObjectWithId,
   RunQueryResult,
   Saved,
-  SavedDBEntity,
   savedDBEntitySchema,
   Unsaved,
 } from './db.model'
@@ -89,8 +87,6 @@ export type {
   CreatedUpdatedId,
   CreatedUpdatedVer,
   ObjectWithId,
-  BaseDBEntity,
-  SavedDBEntity,
   Saved,
   Unsaved,
   CommonDaoCfg,

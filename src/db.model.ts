@@ -1,4 +1,4 @@
-import type { Merge } from '@naturalcycles/js-lib'
+import type { BaseDBEntity, Merge, SavedDBEntity } from '@naturalcycles/js-lib'
 import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
 
@@ -69,20 +69,6 @@ export interface CreatedUpdatedVer {
 
 export interface ObjectWithId {
   id: string
-}
-
-export interface BaseDBEntity {
-  id?: string
-  created?: number
-  updated?: number
-  // _ver?: number
-}
-
-export interface SavedDBEntity {
-  id: string
-  created: number
-  updated: number
-  // _ver?: number
 }
 
 export type Saved<E> = Merge<E, SavedDBEntity>
