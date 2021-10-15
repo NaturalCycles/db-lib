@@ -1,5 +1,3 @@
-import type { BaseDBEntity, Merge, SavedDBEntity } from '@naturalcycles/js-lib'
-import { objectSchema, stringSchema, unixTimestampSchema } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -61,32 +59,9 @@ export interface CreatedUpdatedId extends CreatedUpdated {
   id: string
 }
 
-export interface CreatedUpdatedVer {
-  created: number
-  updated: number
-  _ver?: number
-}
-
 export interface ObjectWithId {
   id: string
 }
-
-export type Saved<E> = Merge<E, SavedDBEntity>
-export type Unsaved<E> = Merge<E, BaseDBEntity>
-
-export const baseDBEntitySchema = objectSchema<BaseDBEntity>({
-  id: stringSchema.optional(),
-  created: unixTimestampSchema.optional(),
-  updated: unixTimestampSchema.optional(),
-  // _ver: verSchema.optional(),
-})
-
-export const savedDBEntitySchema = objectSchema<SavedDBEntity>({
-  id: stringSchema,
-  created: unixTimestampSchema,
-  updated: unixTimestampSchema,
-  // _ver: verSchema.optional(),
-})
 
 /**
  * Interface for a module (lib) that implements CommonDB.

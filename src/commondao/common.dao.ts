@@ -9,6 +9,7 @@ import {
   _truncate,
   pMap,
   JsonSchemaRootObject,
+  Saved,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -28,7 +29,7 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import { DBModelType, ObjectWithId, RunQueryResult, Saved } from '../db.model'
+import { DBModelType, ObjectWithId, RunQueryResult } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import {
   CommonDaoCfg,

@@ -1,8 +1,8 @@
-import { AsyncMapper, _truncate } from '@naturalcycles/js-lib'
+import { AsyncMapper, _truncate, Saved } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions } from '..'
 import { CommonDao } from '../commondao/common.dao'
-import { ObjectWithId, RunQueryResult, Saved } from '../db.model'
+import { ObjectWithId, RunQueryResult } from '../db.model'
 
 /**
  * Modeled after Firestore operators (WhereFilterOp type)

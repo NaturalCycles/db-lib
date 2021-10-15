@@ -24,7 +24,6 @@ import {
   CommonDaoStreamOptions,
 } from './commondao/common.dao.model'
 import {
-  baseDBEntitySchema,
   CommonDBAdapter,
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -32,7 +31,6 @@ import {
   CommonDBStreamOptions,
   CreatedUpdated,
   CreatedUpdatedId,
-  CreatedUpdatedVer,
   DBDeleteByIdsOperation,
   DBModelType,
   DBOperation,
@@ -40,9 +38,6 @@ import {
   DBSaveBatchOperation,
   ObjectWithId,
   RunQueryResult,
-  Saved,
-  savedDBEntitySchema,
-  Unsaved,
 } from './db.model'
 import { getDB } from './getDB'
 import { CommonKeyValueDao, CommonKeyValueDaoCfg } from './kv/commonKeyValueDao'
@@ -85,10 +80,7 @@ export type {
   RunQueryResult,
   CreatedUpdated,
   CreatedUpdatedId,
-  CreatedUpdatedVer,
   ObjectWithId,
-  Saved,
-  Unsaved,
   CommonDaoCfg,
   CommonDaoCreateIdHook,
   CommonDaoParseNaturalIdHook,
@@ -120,8 +112,6 @@ export {
   CommonDaoLogLevel,
   DBRelation,
   DBModelType,
-  baseDBEntitySchema,
-  savedDBEntitySchema,
   CommonDao,
   createdUpdatedFields,
   createdUpdatedIdFields,
