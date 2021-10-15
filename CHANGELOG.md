@@ -1,3 +1,10 @@
+# [8.17.0](https://github.com/NaturalCycles/db-lib/compare/v8.16.2...v8.17.0) (2021-10-15)
+
+
+### Features
+
+* use BaseDBEntity, SavedDBEntity from js-lib ([93210d1](https://github.com/NaturalCycles/db-lib/commit/93210d15ad154b64e9232571f3cc0fe23565ced6))
+
 ## [8.16.2](https://github.com/NaturalCycles/db-lib/compare/v8.16.1...v8.16.2) (2021-10-04)
 
 
