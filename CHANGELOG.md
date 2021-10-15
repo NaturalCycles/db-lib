@@ -1,3 +1,10 @@
+# [8.18.0](https://github.com/NaturalCycles/db-lib/compare/v8.17.0...v8.18.0) (2021-10-15)
+
+
+### Features
+
+* stop exporting Saved, Unsaved, {base,saved}DBEntitySchema ([0894b20](https://github.com/NaturalCycles/db-lib/commit/0894b20b221136150feab4ee30e1208e0cc238f4))
+
 # [8.17.0](https://github.com/NaturalCycles/db-lib/compare/v8.16.2...v8.17.0) (2021-10-15)
 
 
