@@ -1,3 +1,10 @@
+# [8.19.0](https://github.com/NaturalCycles/db-lib/compare/v8.18.0...v8.19.0) (2021-10-17)
+
+
+### Features
+
+* better-typed Queries, excludeFromIndexes ([b7a37ba](https://github.com/NaturalCycles/db-lib/commit/b7a37ba0ed28d5047f4cea5a5f5900f7d1fe5da4))
+
 # [8.18.0](https://github.com/NaturalCycles/db-lib/compare/v8.17.0...v8.18.0) (2021-10-15)
 
 
