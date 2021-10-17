@@ -1,3 +1,10 @@
+# [8.20.0](https://github.com/NaturalCycles/db-lib/compare/v8.19.0...v8.20.0) (2021-10-17)
+
+
+### Features
+
+* CommonDao.runUnionQueries ([ed6c986](https://github.com/NaturalCycles/db-lib/commit/ed6c986e8ba25b660903e235c062237b5100e63c))
+
 # [8.19.0](https://github.com/NaturalCycles/db-lib/compare/v8.18.0...v8.19.0) (2021-10-17)
 
 
