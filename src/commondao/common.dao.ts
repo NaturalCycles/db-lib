@@ -10,6 +10,7 @@ import {
   pMap,
   JsonSchemaRootObject,
   Saved,
+  _uniqBy,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -240,6 +241,18 @@ export class CommonDao<
   async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     const { rows } = await this.runQueryExtended(q, opt)
     return rows
+  }
+
+  /**
+   * Convenience method that runs multiple queries in parallel and then merges their results together.
+   * Does deduplication by id.
+   * Order is not guaranteed, as queries run in parallel.
+   */
+  async runUnionQueries(queries: DBQuery<DBM>[], opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    const results = (
+      await pMap(queries, async q => (await this.runQueryExtended(q, opt)).rows)
+    ).flat()
+    return _uniqBy(results, r => r.id)
   }
 
   async runQueryExtended(
