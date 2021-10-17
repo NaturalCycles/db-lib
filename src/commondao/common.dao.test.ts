@@ -73,6 +73,19 @@ test('common', async () => {
   expect(dao.anyToDBM({}, { skipValidation: true })).toMatchObject({})
 })
 
+test('runUnionQuery', async () => {
+  const items = createTestItemsBM(5)
+  await dao.saveBatch(items)
+
+  const items2 = await dao.runUnionQueries([
+    dao.query().filterEq('even', true),
+    dao.query().filterEq('even', false),
+    dao.query().filterEq('even', false), // again, to test uniqueness
+  ])
+
+  expect(_sortBy(items2, r => r.id)).toEqual(items)
+})
+
 test('should propagate pipe errors', async () => {
   const items = createTestItemsBM(20)
 
@@ -329,17 +342,4 @@ test('zipping/unzipping via async hook', async () => {
 
   const items2 = await dao.getByIds(items.map(item => item.id))
   expect(items2).toEqual(items)
-})
-
-test('runUnionQuery', async () => {
-  const items = createTestItemsBM(5)
-  await dao.saveBatch(items)
-
-  const items2 = await dao.runUnionQueries([
-    dao.query().filterEq('even', true),
-    dao.query().filterEq('even', false),
-    dao.query().filterEq('even', false), // again, to test uniqueness
-  ])
-
-  expect(_sortBy(items2, r => r.id)).toEqual(items)
 })

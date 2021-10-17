@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
-import { CommonDBOptions, ObjectWithId, RunQueryResult } from './db.model'
+import { CommonDBOptions, CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
 import { DBQuery } from './query/dbQuery'
 import { DBTransaction } from './transaction/dbTransaction'
 import { commitDBTransactionSimple } from './transaction/dbTransaction.util'
@@ -55,7 +55,11 @@ export class BaseCommonDB implements CommonDB {
     return 0
   }
 
-  async saveBatch<ROW extends ObjectWithId>(_table: string, _rows: ROW[]): Promise<void> {}
+  async saveBatch<ROW extends ObjectWithId>(
+    _table: string,
+    _rows: ROW[],
+    _opt?: CommonDBSaveOptions<ROW>,
+  ): Promise<void> {}
 
   streamQuery<ROW extends ObjectWithId>(_q: DBQuery<ROW>): ReadableTyped<ROW> {
     return Readable.from([])
