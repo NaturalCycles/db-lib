@@ -1,3 +1,10 @@
+## [8.20.1](https://github.com/NaturalCycles/db-lib/compare/v8.20.0...v8.20.1) (2021-10-17)
+
+
+### Bug Fixes
+
+* types, test ([fb2f741](https://github.com/NaturalCycles/db-lib/commit/fb2f741d8c5c63a04fb70f48fcafbb529669caf2))
+
 # [8.20.0](https://github.com/NaturalCycles/db-lib/compare/v8.19.0...v8.20.0) (2021-10-17)
 
 
