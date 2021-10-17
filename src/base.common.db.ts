@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from './common.db'
-import { CommonDBSaveOptions, ObjectWithId, RunQueryResult } from './db.model'
+import { CommonDBOptions, ObjectWithId, RunQueryResult } from './db.model'
 import { DBQuery } from './query/dbQuery'
 import { DBTransaction } from './transaction/dbTransaction'
 import { commitDBTransactionSimple } from './transaction/dbTransaction.util'
@@ -30,7 +30,10 @@ export class BaseCommonDB implements CommonDB {
     }
   }
 
-  async createTable(_table: string, _schema: JsonSchemaObject): Promise<void> {}
+  async createTable<ROW extends ObjectWithId>(
+    _table: string,
+    _schema: JsonSchemaObject<ROW>,
+  ): Promise<void> {}
 
   async deleteByIds(_table: string, _ids: string[]): Promise<number> {
     return 0
@@ -62,7 +65,7 @@ export class BaseCommonDB implements CommonDB {
    * Naive implementation.
    * To be extended.
    */
-  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+  async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
     await commitDBTransactionSimple(this, tx, opt)
   }
 }

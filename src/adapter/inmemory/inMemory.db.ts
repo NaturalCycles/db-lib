@@ -122,9 +122,9 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async createTable(
+  async createTable<ROW extends ObjectWithId>(
     _table: string,
-    _schema: JsonSchemaObject,
+    _schema: JsonSchemaObject<ROW>,
     opt: CommonDBCreateOptions = {},
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
@@ -148,7 +148,7 @@ export class InMemoryDB implements CommonDB {
   async saveBatch<ROW extends ObjectWithId>(
     _table: string,
     rows: ROW[],
-    _opt?: CommonDBSaveOptions,
+    _opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
@@ -220,7 +220,7 @@ export class InMemoryDB implements CommonDB {
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
-  async commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void> {
+  async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
     for await (const op of tx.ops) {
       if (op.type === 'saveBatch') {
         await this.saveBatch(op.table, op.rows, opt)

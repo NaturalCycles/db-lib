@@ -1,5 +1,10 @@
 import { CommonDB } from '../../common.db'
-import { CommonDBCreateOptions, CommonDBSaveOptions, CommonDBStreamOptions } from '../../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBSaveOptions,
+  CommonDBStreamOptions,
+  ObjectWithId,
+} from '../../db.model'
 
 export interface CacheDBCfg {
   name: string
@@ -39,7 +44,7 @@ export interface CacheDBCfg {
   logDownstream?: boolean
 }
 
-export interface CacheDBOptions extends CommonDBSaveOptions {
+export interface CacheDBOptions<ROW extends ObjectWithId> extends CommonDBSaveOptions<ROW> {
   /**
    * @default false
    */
@@ -51,5 +56,9 @@ export interface CacheDBOptions extends CommonDBSaveOptions {
   onlyCache?: boolean
 }
 
-export interface CacheDBStreamOptions extends CacheDBOptions, CommonDBStreamOptions {}
-export interface CacheDBCreateOptions extends CacheDBOptions, CommonDBCreateOptions {}
+export interface CacheDBStreamOptions<ROW extends ObjectWithId>
+  extends CacheDBOptions<ROW>,
+    CommonDBStreamOptions {}
+export interface CacheDBCreateOptions<ROW extends ObjectWithId>
+  extends CacheDBOptions<ROW>,
+    CommonDBCreateOptions {}

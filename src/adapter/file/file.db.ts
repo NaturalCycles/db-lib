@@ -13,7 +13,13 @@ import {
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
-import { BaseCommonDB, DBSaveBatchOperation, ObjectWithId, queryInMemory } from '../..'
+import {
+  AnyObjectWithId,
+  BaseCommonDB,
+  DBSaveBatchOperation,
+  ObjectWithId,
+  queryInMemory,
+} from '../..'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBOptions,
@@ -72,7 +78,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   override async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
-    _opt?: CommonDBSaveOptions,
+    _opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void> {
     if (!rows.length) return // save some api calls
 
@@ -98,7 +104,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   /**
    * Implementation is optimized for loading/saving _whole files_.
    */
-  override async commitTransaction(tx: DBTransaction, _opt?: CommonDBSaveOptions): Promise<void> {
+  override async commitTransaction(tx: DBTransaction, _opt?: CommonDBOptions): Promise<void> {
     // data[table][id] => row
     const data: StringMap<StringMap<ObjectWithId>> = {}
 
@@ -131,7 +137,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
       return {
         type: 'saveBatch',
         table,
-        rows: this.sortRows(Object.values(data[table]!)),
+        rows: this.sortRows(Object.values(data[table]!) as AnyObjectWithId[]),
       }
     })
 
@@ -242,7 +248,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.logFinished(started, op)
   }
 
-  async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
+  async saveFiles<ROW extends ObjectWithId>(ops: DBSaveBatchOperation<ROW>[]): Promise<void> {
     if (!ops.length) return
     const op =
       `saveFiles ${ops.length} op(s):\n` + ops.map(o => `${o.table} (${o.rows.length})`).join('\n')

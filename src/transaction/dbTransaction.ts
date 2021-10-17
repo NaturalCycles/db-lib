@@ -1,5 +1,5 @@
 import type { CommonDB } from '../common.db'
-import type { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
+import type { AnyObjectWithId, CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
 
 /**
  * Convenience class that stores the list of DBOperations and provides a fluent API to add them.
@@ -7,7 +7,7 @@ import type { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model
 export class DBTransaction {
   public ops: DBOperation[] = []
 
-  saveBatch<ROW extends ObjectWithId = any>(table: string, rows: ROW[]): this {
+  saveBatch<ROW extends ObjectWithId = AnyObjectWithId>(table: string, rows: ROW[]): this {
     this.ops.push({
       type: 'saveBatch',
       table,
@@ -35,7 +35,7 @@ export class RunnableDBTransaction extends DBTransaction {
     super()
   }
 
-  async commit(opt?: CommonDBSaveOptions): Promise<void> {
+  async commit<ROW extends ObjectWithId>(opt?: CommonDBSaveOptions<ROW>): Promise<void> {
     await this.db.commitTransaction(this, opt)
   }
 }

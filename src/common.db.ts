@@ -37,7 +37,11 @@ export interface CommonDB {
    * Will do like `create table ...` for mysql.
    * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
    */
-  createTable(table: string, schema: JsonSchemaObject, opt?: CommonDBCreateOptions): Promise<void>
+  createTable<ROW extends ObjectWithId>(
+    table: string,
+    schema: JsonSchemaObject<ROW>,
+    opt?: CommonDBCreateOptions,
+  ): Promise<void>
 
   // GET
   /**
@@ -70,7 +74,7 @@ export interface CommonDB {
   saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
-    opt?: CommonDBSaveOptions,
+    opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void>
 
   // DELETE
@@ -87,5 +91,5 @@ export interface CommonDB {
    * Should be implemented as a Transaction (best effort), which means that
    * either ALL or NONE of the operations should be applied.
    */
-  commitTransaction(tx: DBTransaction, opt?: CommonDBSaveOptions): Promise<void>
+  commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void>
 }

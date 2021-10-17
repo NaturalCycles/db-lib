@@ -67,7 +67,7 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
   bmSchema?: ObjectSchemaTyped<BM> | AjvSchema<BM>
   tmSchema?: ObjectSchemaTyped<TM> | AjvSchema<TM>
 
-  excludeFromIndexes?: string[]
+  excludeFromIndexes?: (keyof DBM)[]
 
   /**
    * @default to false
@@ -149,7 +149,9 @@ export interface CommonDaoOptions extends CommonDBOptions {
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveOptions extends CommonDaoOptions, CommonDBSaveOptions {
+export interface CommonDaoSaveOptions<DBM extends ObjectWithId>
+  extends CommonDaoOptions,
+    CommonDBSaveOptions<DBM> {
   /**
    * @default false
    *

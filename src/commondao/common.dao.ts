@@ -216,12 +216,12 @@ export class CommonDao<
     }
   }
 
-  async getBy(by: string, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
-    return await this.query().filter(by, '==', value).limit(limit).runQuery(opt)
+  async getBy(by: keyof DBM, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+    return await this.query().filterEq(by, value).limit(limit).runQuery(opt)
   }
 
-  async getOneBy(by: string, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | null> {
-    const [bm] = await this.query().filter(by, '==', value).limit(1).runQuery(opt)
+  async getOneBy(by: keyof DBM, value: any, opt?: CommonDaoOptions): Promise<Saved<BM> | null> {
+    const [bm] = await this.query().filterEq(by, value).limit(1).runQuery(opt)
     return bm || null
   }
 
@@ -531,7 +531,7 @@ export class CommonDao<
   /**
    * Mutates with id, created, updated
    */
-  async save(bm: BM, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
+  async save(bm: BM, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
     const idWasGenerated = !bm.id
     this.assignIdCreatedUpdated(bm, opt) // mutates
@@ -572,7 +572,11 @@ export class CommonDao<
    *
    * Convenience method to replace 3 operations (loading+patching+saving) with one.
    */
-  async patch(id: string, patch: Partial<BM>, opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>> {
+  async patch(
+    id: string,
+    patch: Partial<BM>,
+    opt: CommonDaoSaveOptions<DBM> = {},
+  ): Promise<Saved<BM>> {
     return await this.save(
       {
         ...(await this.getByIdOrCreate(id, patch, opt)),
@@ -582,7 +586,11 @@ export class CommonDao<
     )
   }
 
-  async patchAsDBM(id: string, patch: Partial<DBM>, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+  async patchAsDBM(
+    id: string,
+    patch: Partial<DBM>,
+    opt: CommonDaoSaveOptions<DBM> = {},
+  ): Promise<DBM> {
     const dbm =
       (await this.getByIdAsDBM(id, opt)) ||
       (this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM)
@@ -596,7 +604,7 @@ export class CommonDao<
     )
   }
 
-  async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions = {}): Promise<DBM> {
+  async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
 
@@ -618,7 +626,7 @@ export class CommonDao<
     return dbm
   }
 
-  async saveBatch(bms: BM[], opt: CommonDaoSaveOptions = {}): Promise<Saved<BM>[]> {
+  async saveBatch(bms: BM[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
@@ -643,7 +651,7 @@ export class CommonDao<
     return bms as any[]
   }
 
-  async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions = {}): Promise<DBM[]> {
+  async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
     if (!opt.raw) {

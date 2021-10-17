@@ -24,6 +24,7 @@ import {
   CommonDaoStreamOptions,
 } from './commondao/common.dao.model'
 import {
+  AnyObjectWithId,
   CommonDBAdapter,
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -80,6 +81,7 @@ export type {
   RunQueryResult,
   CreatedUpdated,
   CreatedUpdatedId,
+  AnyObjectWithId,
   ObjectWithId,
   CommonDaoCfg,
   CommonDaoCreateIdHook,

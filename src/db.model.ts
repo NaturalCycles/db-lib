@@ -1,3 +1,4 @@
+import { AnyObject } from '@naturalcycles/js-lib'
 import { CommonDB } from './common.db'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -6,8 +7,9 @@ export interface CommonDBOptions {}
 /**
  * All properties default to undefined.
  */
-export interface CommonDBSaveOptions extends CommonDBOptions {
-  excludeFromIndexes?: string[]
+export interface CommonDBSaveOptions<ROW extends ObjectWithId = AnyObjectWithId>
+  extends CommonDBOptions {
+  excludeFromIndexes?: (keyof ROW)[]
 }
 
 export type CommonDBStreamOptions = CommonDBOptions
@@ -27,7 +29,7 @@ export interface RunQueryResult<T> {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
+export interface DBSaveBatchOperation<ROW extends ObjectWithId = AnyObjectWithId> {
   type: 'saveBatch'
   table: string
   rows: ROW[]
@@ -62,6 +64,8 @@ export interface CreatedUpdatedId extends CreatedUpdated {
 export interface ObjectWithId {
   id: string
 }
+
+export interface AnyObjectWithId extends AnyObject, ObjectWithId {}
 
 /**
  * Interface for a module (lib) that implements CommonDB.

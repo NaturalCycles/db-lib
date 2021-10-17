@@ -2,7 +2,7 @@ import { AsyncMapper, _truncate, Saved } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions } from '..'
 import { CommonDao } from '../commondao/common.dao'
-import { ObjectWithId, RunQueryResult } from '../db.model'
+import { AnyObjectWithId, ObjectWithId, RunQueryResult } from '../db.model'
 
 /**
  * Modeled after Firestore operators (WhereFilterOp type)
@@ -46,28 +46,16 @@ export const dbQueryFilterOperatorValues = [
   'array-contains-any',
 ]
 
-export interface DBQueryFilter {
-  name: string
+export interface DBQueryFilter<ROW extends ObjectWithId = AnyObjectWithId> {
+  name: keyof ROW
   op: DBQueryFilterOperator
   val: any
 }
 
-export interface DBQueryOrder {
-  name: string
+export interface DBQueryOrder<ROW extends ObjectWithId = AnyObjectWithId> {
+  name: keyof ROW
   descending?: boolean
 }
-
-// export interface DBQueryData {
-//   _filters: DBQueryFilter[]
-//   _limitValue: number
-//   _orders: DBQueryOrder[]
-//
-//   /**
-//    * If defined - only those fields will be selected.
-//    * In undefined - all fields (*) will be returned.
-//    */
-//   _selectedFieldNames?: string[]
-// }
 
 /**
  * Lowest Common Denominator Query object.
@@ -79,26 +67,26 @@ export interface DBQueryOrder {
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<ROW extends ObjectWithId> {
+export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
   constructor(public table: string) {}
 
   /**
    * Convenience method.
    */
-  static create<ROW extends ObjectWithId = any>(table: string): DBQuery<ROW> {
+  static create<ROW extends ObjectWithId = AnyObjectWithId>(table: string): DBQuery<ROW> {
     return new DBQuery(table)
   }
 
-  static fromPlainObject<ROW extends ObjectWithId = any>(
+  static fromPlainObject<ROW extends ObjectWithId = AnyObjectWithId>(
     obj: Partial<DBQuery<ROW>> & { table: string },
   ): DBQuery<ROW> {
     return Object.assign(new DBQuery<ROW>(obj.table), obj)
   }
 
-  _filters: DBQueryFilter[] = []
+  _filters: DBQueryFilter<ROW>[] = []
   _limitValue = 0 // 0 means "no limit"
   _offsetValue = 0 // 0 means "no offset"
-  _orders: DBQueryOrder[] = []
+  _orders: DBQueryOrder<ROW>[] = []
 
   _startCursor?: string
   _endCursor?: string
@@ -107,14 +95,14 @@ export class DBQuery<ROW extends ObjectWithId> {
    * If defined - only those fields will be selected.
    * In undefined - all fields (*) will be returned.
    */
-  _selectedFieldNames?: string[]
+  _selectedFieldNames?: (keyof ROW)[]
 
-  filter(name: string, op: DBQueryFilterOperator, val: any): this {
+  filter(name: keyof ROW, op: DBQueryFilterOperator, val: any): this {
     this._filters.push({ name, op, val })
     return this
   }
 
-  filterEq(name: string, val: any): this {
+  filterEq(name: keyof ROW, val: any): this {
     this._filters.push({ name, op: '==', val })
     return this
   }
@@ -129,7 +117,7 @@ export class DBQuery<ROW extends ObjectWithId> {
     return this
   }
 
-  order(name: string, descending?: boolean): this {
+  order(name: keyof ROW, descending?: boolean): this {
     this._orders.push({
       name,
       descending,
@@ -137,7 +125,7 @@ export class DBQuery<ROW extends ObjectWithId> {
     return this
   }
 
-  select(fieldNames: string[]): this {
+  select(fieldNames: (keyof ROW)[]): this {
     this._selectedFieldNames = fieldNames
     return this
   }
