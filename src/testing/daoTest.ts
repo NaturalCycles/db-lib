@@ -39,6 +39,7 @@ export function runCommonDaoTest(
     dbQuerySelectFields = true,
     streaming = true,
     strongConsistency = true,
+    nullValues = true,
   } = features
 
   // const {
@@ -102,15 +103,29 @@ export function runCommonDaoTest(
   })
 
   // SAVE
-  test('should allow to save and load null values', async () => {
+  if (nullValues) {
+    test('should allow to save and load null values', async () => {
+      const item3 = {
+        ...createTestItemBM(3),
+        k2: null,
+      }
+      await dao.save(item3)
+      const item3Loaded = await dao.requireById(item3.id)
+      expectMatch([item3], [item3Loaded], quirks)
+      expect(item3Loaded.k2).toBe(null)
+    })
+  }
+
+  test('undefined values should not be saved/loaded', async () => {
     const item3 = {
       ...createTestItemBM(3),
-      k2: null,
+      k2: undefined,
     }
     await dao.save(item3)
     const item3Loaded = await dao.requireById(item3.id)
     expectMatch([item3], [item3Loaded], quirks)
-    expect(item3Loaded.k2).toBe(null)
+    expect(item3Loaded.k2).toBe(undefined)
+    expect(Object.keys(item3Loaded)).not.toContain('k2')
   })
 
   test('saveBatch test items', async () => {

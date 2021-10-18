@@ -10,6 +10,7 @@ import {
   _stringMapValues,
   _uniq,
   JsonSchemaRootObject,
+  _filterUndefinedValues,
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
@@ -82,7 +83,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   ): Promise<void> {
     if (!rows.length) return // save some api calls
 
-    // 1. Load the whole file from gh
+    // 1. Load the whole file
     const byId = _by(await this.loadFile<ROW>(table), r => r.id)
 
     // 2. Merge with new data (using ids)
@@ -261,6 +262,8 @@ export class FileDB extends BaseCommonDB implements CommonDB {
    * Mutates
    */
   sortRows<ROW>(rows: ROW[]): ROW[] {
+    rows.forEach(r => _filterUndefinedValues(r, true))
+
     if (this.cfg.sortOnSave) {
       _sortBy(rows, r => r[this.cfg.sortOnSave!.name], true)
       if (this.cfg.sortOnSave.descending) rows.reverse() // mutates

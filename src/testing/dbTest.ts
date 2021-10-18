@@ -34,6 +34,7 @@ export interface CommonDBImplementationFeatures {
   streaming?: boolean
 
   bufferSupport?: boolean
+  nullValues?: boolean
 }
 
 /**
@@ -76,6 +77,7 @@ export function runCommonDBTest(
     streaming = true,
     strongConsistency = true,
     bufferSupport = true,
+    nullValues = true,
   } = features
 
   // const {
@@ -135,15 +137,29 @@ export function runCommonDBTest(
   })
 
   // SAVE
-  test('should allow to save and load null values', async () => {
+  if (nullValues) {
+    test('should allow to save and load null values', async () => {
+      const item3 = {
+        ...createTestItemDBM(3),
+        k2: null,
+      }
+      await db.saveBatch(TEST_TABLE, [item3])
+      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
+      expectMatch([item3], [item3Loaded], quirks)
+      expect(item3Loaded.k2).toBe(null)
+    })
+  }
+
+  test('undefined values should not be saved/loaded', async () => {
     const item3 = {
       ...createTestItemDBM(3),
-      k2: null,
+      k2: undefined,
     }
     await db.saveBatch(TEST_TABLE, [item3])
     const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
     expectMatch([item3], [item3Loaded], quirks)
-    expect(item3Loaded.k2).toBe(null)
+    expect(item3Loaded.k2).toBe(undefined)
+    expect(Object.keys(item3Loaded)).not.toContain('k2')
   })
 
   test('saveBatch test items', async () => {
