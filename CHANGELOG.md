@@ -1,3 +1,10 @@
+## [8.21.1](https://github.com/NaturalCycles/db-lib/compare/v8.21.0...v8.21.1) (2021-10-18)
+
+
+### Bug Fixes
+
+* test for saving/loading undefined values ([e7a8dcf](https://github.com/NaturalCycles/db-lib/commit/e7a8dcff296ba7c8c23c4157510dd79fe7ef1727))
+
 # [8.21.0](https://github.com/NaturalCycles/db-lib/compare/v8.20.1...v8.21.0) (2021-10-18)
 
 
