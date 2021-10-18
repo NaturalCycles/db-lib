@@ -1,3 +1,10 @@
+## [8.21.2](https://github.com/NaturalCycles/db-lib/compare/v8.21.1...v8.21.2) (2021-10-18)
+
+
+### Bug Fixes
+
+* CommonDao to use _filterUndefinedValues ([eb7f701](https://github.com/NaturalCycles/db-lib/commit/eb7f701cc630142fd7a8fd9a701964f70de30a0f))
+
 ## [8.21.1](https://github.com/NaturalCycles/db-lib/compare/v8.21.0...v8.21.1) (2021-10-18)
 
 
