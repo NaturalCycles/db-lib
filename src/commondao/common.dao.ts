@@ -10,6 +10,7 @@ import {
   JsonSchemaRootObject,
   Saved,
   _uniqBy,
+  _filterUndefinedValues,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -871,7 +872,9 @@ export class CommonDao<
     //
     // Filter null and undefined values
     // obj = _filterNullishValues(obj as any)
-    obj = { ...obj } // prevent mutation
+    // We still filter `undefined` values here, because `beforeDBMToBM` can return undefined values
+    // and they can be annoying with snapshot tests
+    obj = _filterUndefinedValues(obj)
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
