@@ -1,3 +1,10 @@
+## [8.21.3](https://github.com/NaturalCycles/db-lib/compare/v8.21.2...v8.21.3) (2021-10-18)
+
+
+### Bug Fixes
+
+* null/undefined tests, fix FileDB mutation ([b948d2f](https://github.com/NaturalCycles/db-lib/commit/b948d2ff11f0e0c7b758a8b65c831ebbbb221925))
+
 ## [8.21.2](https://github.com/NaturalCycles/db-lib/compare/v8.21.1...v8.21.2) (2021-10-18)
 
 
