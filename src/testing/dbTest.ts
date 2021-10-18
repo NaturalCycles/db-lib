@@ -143,6 +143,7 @@ export function runCommonDBTest(
         ...createTestItemDBM(3),
         k2: null,
       }
+      deepFreeze(item3)
       await db.saveBatch(TEST_TABLE, [item3])
       const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([item3], [item3Loaded], quirks)
@@ -155,9 +156,13 @@ export function runCommonDBTest(
       ...createTestItemDBM(3),
       k2: undefined,
     }
+    deepFreeze(item3)
+    const expected = { ...item3 }
+    delete expected.k2
+
     await db.saveBatch(TEST_TABLE, [item3])
     const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
-    expectMatch([item3], [item3Loaded], quirks)
+    expectMatch([expected], [item3Loaded], quirks)
     expect(item3Loaded.k2).toBe(undefined)
     expect(Object.keys(item3Loaded)).not.toContain('k2')
   })

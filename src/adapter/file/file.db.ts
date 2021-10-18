@@ -258,11 +258,8 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.logFinished(started, op)
   }
 
-  /**
-   * Mutates
-   */
   sortRows<ROW>(rows: ROW[]): ROW[] {
-    rows.forEach(r => _filterUndefinedValues(r, true))
+    rows = rows.map(r => _filterUndefinedValues(r))
 
     if (this.cfg.sortOnSave) {
       _sortBy(rows, r => r[this.cfg.sortOnSave!.name], true)

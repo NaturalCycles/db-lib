@@ -109,10 +109,13 @@ export function runCommonDaoTest(
         ...createTestItemBM(3),
         k2: null,
       }
+      // deepFreeze(item3) // no, Dao is expected to mutate object to add id, created, updated
       await dao.save(item3)
       const item3Loaded = await dao.requireById(item3.id)
       expectMatch([item3], [item3Loaded], quirks)
       expect(item3Loaded.k2).toBe(null)
+      expect(Object.keys(item3)).toContain('k2')
+      expect(item3.k2).toBeNull()
     })
   }
 
@@ -121,11 +124,20 @@ export function runCommonDaoTest(
       ...createTestItemBM(3),
       k2: undefined,
     }
+    // deepFreeze(item3) // no, Dao is expected to mutate object to add id, created, updated
+    const expected = { ...item3 }
+    delete expected.k2
+
     await dao.save(item3)
+
+    expected.updated = item3.updated // as it's mutated
+
     const item3Loaded = await dao.requireById(item3.id)
-    expectMatch([item3], [item3Loaded], quirks)
+    expectMatch([expected], [item3Loaded], quirks)
     expect(item3Loaded.k2).toBe(undefined)
     expect(Object.keys(item3Loaded)).not.toContain('k2')
+    expect(Object.keys(item3)).toContain('k2')
+    expect(item3.k2).toBeUndefined()
   })
 
   test('saveBatch test items', async () => {
