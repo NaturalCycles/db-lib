@@ -1,3 +1,10 @@
+# [8.21.0](https://github.com/NaturalCycles/db-lib/compare/v8.20.1...v8.21.0) (2021-10-18)
+
+
+### Features
+
+* preserve `null` values in CommonDao load and save ([6f9b0d6](https://github.com/NaturalCycles/db-lib/commit/6f9b0d6e8419d2d1a0c025b7375c2504c3b267d5))
+
 ## [8.20.1](https://github.com/NaturalCycles/db-lib/compare/v8.20.0...v8.20.1) (2021-10-17)
 
 
