@@ -15,7 +15,7 @@ export const TEST_TABLE = 'TEST_TABLE'
 
 export interface TestItemBM extends BaseDBEntity {
   k1: string
-  k2?: string
+  k2?: string | null
   k3?: number
   even?: boolean
   b1?: Buffer
@@ -30,7 +30,7 @@ export interface TestItemTM {
 
 export const testItemBMSchema = objectSchema<TestItemBM>({
   k1: stringSchema,
-  k2: stringSchema.optional(),
+  k2: stringSchema.allow(null).optional(),
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
@@ -38,7 +38,7 @@ export const testItemBMSchema = objectSchema<TestItemBM>({
 
 export const testItemDBMSchema = objectSchema<TestItemDBM>({
   k1: stringSchema,
-  k2: stringSchema.optional(),
+  k2: stringSchema.allow(null).optional(),
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
@@ -52,7 +52,7 @@ export const testItemTMSchema = objectSchema<TestItemTM>({
 export const testItemBMJsonSchema = jsonSchema
   .rootObject<TestItemBM>({
     k1: jsonSchema.string(),
-    k2: jsonSchema.string().optional(),
+    k2: jsonSchema.oneOf<string | null>([jsonSchema.string(), jsonSchema.null()]).optional(),
     k3: jsonSchema.number().optional(),
     even: jsonSchema.boolean().optional(),
     b1: jsonSchema.buffer().optional(),

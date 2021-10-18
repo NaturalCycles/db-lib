@@ -135,6 +135,17 @@ export function runCommonDBTest(
   })
 
   // SAVE
+  test('should allow to save and load null values', async () => {
+    const item3 = {
+      ...createTestItemDBM(3),
+      k2: null,
+    }
+    await db.saveBatch(TEST_TABLE, [item3])
+    const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
+    expectMatch([item3], [item3Loaded], quirks)
+    expect(item3Loaded.k2).toBe(null)
+  })
+
   test('saveBatch test items', async () => {
     await db.saveBatch(TEST_TABLE, items)
   })

@@ -10,6 +10,7 @@ import {
   testItemDBMSchema,
   testItemTMSchema,
   TEST_TABLE,
+  createTestItemBM,
 } from './test.model'
 import { getTestItemSchema, TestItemBM } from '.'
 
@@ -101,6 +102,17 @@ export function runCommonDaoTest(
   })
 
   // SAVE
+  test('should allow to save and load null values', async () => {
+    const item3 = {
+      ...createTestItemBM(3),
+      k2: null,
+    }
+    await dao.save(item3)
+    const item3Loaded = await dao.requireById(item3.id)
+    expectMatch([item3], [item3Loaded], quirks)
+    expect(item3Loaded.k2).toBe(null)
+  })
+
   test('saveBatch test items', async () => {
     const itemsSaved = await dao.saveBatch(items)
     expect(itemsSaved[0]).toBe(items[0]) // expect "same object" returned

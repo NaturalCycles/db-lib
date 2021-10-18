@@ -192,25 +192,25 @@ test('mutation', async () => {
   const obj = {
     id: '123',
     k1: 'k1',
-    k2: null as any,
+    k2: null,
   }
 
   const saved = await dao.save(obj)
 
   // Should be a new object, not the same (by reference)
-  // NO: should return the original object
   // Non-mutation should only be ensured inside `validateAndConvert` method
+  // NO: should return the original object
   expect(obj === saved).toBe(true)
 
   // But `created`, `updated` should be "mutated" on the original object
   expect((obj as any).created).toBe(MOCK_TS_2018_06_21)
 })
 
-test('should strip null on load and save', async () => {
+test('should preserve null on load and save', async () => {
   const r = await dao.save({
     id: '123',
     k1: 'k1',
-    k2: null as any,
+    k2: null,
   })
 
   // console.log(r)
@@ -230,7 +230,7 @@ test('should strip null on load and save', async () => {
   expect(r2).toEqual({
     id: '123',
     k1: 'k1',
-    // k2: null, // no k2!
+    k2: null,
     created: MOCK_TS_2018_06_21,
     updated: MOCK_TS_2018_06_21,
   })
@@ -240,7 +240,7 @@ test('does not reset updated on getByIdAsDBM', async () => {
   const r = await dao.save({
     id: '123',
     k1: 'k1',
-    k2: null as any,
+    k2: null,
   })
   const updated1 = r.updated
   // console.log(r.updated)

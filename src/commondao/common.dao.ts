@@ -3,7 +3,6 @@ import {
   AsyncMapper,
   ErrorMode,
   JsonSchemaObject,
-  _filterNullishValues,
   _passthroughPredicate,
   _since,
   _truncate,
@@ -865,8 +864,14 @@ export class CommonDao<
     // `raw` option completely bypasses any processing
     if (opt.raw) return obj as any as OUT
 
+    // Kirill 2021-10-18: I realized that there's little reason to keep removing null values
+    // So, from now on we'll preserve them
+    // "undefined" values, I believe, are/were not saved to/from DB anyway (due to e.g JSON.stringify removing them)
+    // But let's keep watching it!
+    //
     // Filter null and undefined values
-    obj = _filterNullishValues(obj as any)
+    // obj = _filterNullishValues(obj as any)
+    obj = { ...obj } // prevent mutation
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
