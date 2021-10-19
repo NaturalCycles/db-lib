@@ -1,3 +1,10 @@
+# [8.22.0](https://github.com/NaturalCycles/db-lib/compare/v8.21.3...v8.22.0) (2021-10-19)
+
+
+### Features
+
+* CommonDaoCfg.filterNullishValues b/w compat option ([fb7f786](https://github.com/NaturalCycles/db-lib/commit/fb7f786414a8431d6e48b43b6343445fa6a3a016))
+
 ## [8.21.3](https://github.com/NaturalCycles/db-lib/compare/v8.21.2...v8.21.3) (2021-10-18)
 
 
