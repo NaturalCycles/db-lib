@@ -24,20 +24,16 @@ import {
   CommonDaoStreamOptions,
 } from './commondao/common.dao.model'
 import {
-  AnyObjectWithId,
   CommonDBAdapter,
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
-  CreatedUpdated,
-  CreatedUpdatedId,
   DBDeleteByIdsOperation,
   DBModelType,
   DBOperation,
   DBRelation,
   DBSaveBatchOperation,
-  ObjectWithId,
   RunQueryResult,
 } from './db.model'
 import { getDB } from './getDB'
@@ -47,7 +43,6 @@ import {
   createdUpdatedFields,
   createdUpdatedIdFields,
   deserializeJsonField,
-  idField,
   serializeJsonField,
 } from './model.util'
 import { dbPipelineBackup, DBPipelineBackupOptions } from './pipeline/dbPipelineBackup'
@@ -79,10 +74,6 @@ export type {
   CommonDBCreateOptions,
   CommonDB,
   RunQueryResult,
-  CreatedUpdated,
-  CreatedUpdatedId,
-  AnyObjectWithId,
-  ObjectWithId,
   CommonDaoCfg,
   CommonDaoCreateIdHook,
   CommonDaoParseNaturalIdHook,
@@ -117,7 +108,6 @@ export {
   CommonDao,
   createdUpdatedFields,
   createdUpdatedIdFields,
-  idField,
   InMemoryDB,
   InMemoryKeyValueDB,
   queryInMemory,

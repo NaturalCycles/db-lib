@@ -1,11 +1,10 @@
-import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
+import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
-  ObjectWithId,
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'

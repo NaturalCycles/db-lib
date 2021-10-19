@@ -10,7 +10,9 @@ import {
   JsonSchemaRootObject,
   Saved,
   _uniqBy,
+  ObjectWithId,
   _filterUndefinedValues,
+  _filterNullishValues,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -30,7 +32,7 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import { DBModelType, ObjectWithId, RunQueryResult } from '../db.model'
+import { DBModelType, RunQueryResult } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import {
   CommonDaoCfg,
@@ -874,7 +876,11 @@ export class CommonDao<
     // obj = _filterNullishValues(obj as any)
     // We still filter `undefined` values here, because `beforeDBMToBM` can return undefined values
     // and they can be annoying with snapshot tests
-    obj = _filterUndefinedValues(obj)
+    if (this.cfg.filterNullishValues) {
+      obj = _filterNullishValues(obj)
+    } else {
+      obj = _filterUndefinedValues(obj)
+    }
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {

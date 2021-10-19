@@ -1,4 +1,4 @@
-import { AnyObject } from '@naturalcycles/js-lib'
+import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from './common.db'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -51,21 +51,6 @@ export enum DBModelType {
   BM = 'BM',
   TM = 'TM',
 }
-
-export interface CreatedUpdated {
-  created: number
-  updated: number
-}
-
-export interface CreatedUpdatedId extends CreatedUpdated {
-  id: string
-}
-
-export interface ObjectWithId {
-  id: string
-}
-
-export interface AnyObjectWithId extends AnyObject, ObjectWithId {}
 
 /**
  * Interface for a module (lib) that implements CommonDB.

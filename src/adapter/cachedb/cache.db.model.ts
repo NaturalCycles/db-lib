@@ -1,10 +1,6 @@
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from '../../common.db'
-import {
-  CommonDBCreateOptions,
-  CommonDBSaveOptions,
-  CommonDBStreamOptions,
-  ObjectWithId,
-} from '../../db.model'
+import { CommonDBCreateOptions, CommonDBSaveOptions, CommonDBStreamOptions } from '../../db.model'
 
 export interface CacheDBCfg {
   name: string

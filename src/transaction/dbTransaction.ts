@@ -1,5 +1,6 @@
+import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import type { AnyObjectWithId, CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
+import type { CommonDBSaveOptions, DBOperation } from '../db.model'
 
 /**
  * Convenience class that stores the list of DBOperations and provides a fluent API to add them.

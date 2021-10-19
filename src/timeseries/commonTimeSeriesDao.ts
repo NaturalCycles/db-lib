@@ -1,5 +1,5 @@
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import { DBTransaction } from '..'
-import { ObjectWithId } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
 import {
   CommonTimeSeriesDaoCfg,

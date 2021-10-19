@@ -1,4 +1,4 @@
-import { ErrorMode } from '@naturalcycles/js-lib'
+import { ErrorMode, ObjectWithId } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -8,12 +8,7 @@ import {
   TransformMapOptions,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
-import {
-  CommonDBCreateOptions,
-  CommonDBOptions,
-  CommonDBSaveOptions,
-  ObjectWithId,
-} from '../db.model'
+import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
 // Hook DBM, BM, TM types should follow this exact order
 export type CommonDaoCreateIdHook<BM, DBM> = (obj: DBM | BM) => string
@@ -93,6 +88,17 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
    * Set to false to disable created/updated fields management.
    */
   createdUpdated?: boolean
+
+  /**
+   * Default is false.
+   * If true - will run `_filterNullishValues` inside `validateAndConvert` function
+   * (instead of `_filterUndefinedValues`).
+   * This was the old db-lib behavior.
+   * This option allows to keep backwards-compatible behavior.
+   *
+   * @deprecated
+   */
+  filterNullishValues?: boolean
 }
 
 /**

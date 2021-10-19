@@ -1,4 +1,5 @@
-import { DBSaveBatchOperation, ObjectWithId } from '../../db.model'
+import { ObjectWithId } from '@naturalcycles/js-lib'
+import { DBSaveBatchOperation } from '../../db.model'
 import type { DBQueryOrder } from '../../query/dbQuery'
 
 export interface FileDBPersistencePlugin {

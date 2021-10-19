@@ -1,5 +1,4 @@
-import { _pick } from '@naturalcycles/js-lib'
-import { ObjectWithId } from '../../db.model'
+import { _pick, ObjectWithId } from '@naturalcycles/js-lib'
 import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean

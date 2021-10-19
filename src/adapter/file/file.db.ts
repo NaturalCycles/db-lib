@@ -11,16 +11,12 @@ import {
   _uniq,
   JsonSchemaRootObject,
   _filterUndefinedValues,
+  ObjectWithId,
+  AnyObjectWithId,
 } from '@naturalcycles/js-lib'
 import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
-import {
-  AnyObjectWithId,
-  BaseCommonDB,
-  DBSaveBatchOperation,
-  ObjectWithId,
-  queryInMemory,
-} from '../..'
+import { BaseCommonDB, DBSaveBatchOperation, queryInMemory } from '../..'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBOptions,

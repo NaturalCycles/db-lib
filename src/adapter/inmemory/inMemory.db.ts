@@ -9,6 +9,7 @@ import {
   _since,
   _sortObjectDeep,
   JsonSchemaRootObject,
+  ObjectWithId,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -22,7 +23,7 @@ import {
 } from '@naturalcycles/nodejs-lib'
 import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import * as fs from 'fs-extra'
-import { CommonDB, DBTransaction, ObjectWithId, queryInMemory } from '../..'
+import { CommonDB, DBTransaction, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,

@@ -1,9 +1,9 @@
 import { Readable } from 'stream'
-import { JsonSchemaObject, JsonSchemaRootObject } from '@naturalcycles/js-lib'
+import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
-import { ObjectWithId, RunQueryResult } from '../../db.model'
+import { RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
 import {
   CacheDBCfg,

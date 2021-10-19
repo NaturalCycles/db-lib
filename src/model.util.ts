@@ -1,5 +1,5 @@
 import { stringId } from '@naturalcycles/nodejs-lib'
-import { CreatedUpdated, CreatedUpdatedId, ObjectWithId } from './db.model'
+import { CreatedUpdated, CreatedUpdatedId, ObjectWithId } from '@naturalcycles/js-lib'
 
 export function createdUpdatedFields(
   existingObject?: Partial<CreatedUpdated> | null,

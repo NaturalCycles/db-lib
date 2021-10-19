@@ -1,6 +1,6 @@
-import { StringMap, _stringMapEntries } from '@naturalcycles/js-lib'
+import { StringMap, _stringMapEntries, ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import { CommonDBSaveOptions, DBOperation, ObjectWithId } from '../db.model'
+import { CommonDBSaveOptions, DBOperation } from '../db.model'
 import { DBTransaction } from './dbTransaction'
 
 /**
