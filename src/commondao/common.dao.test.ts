@@ -1,5 +1,5 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, pTuple, _omit, _range, _sortBy } from '@naturalcycles/js-lib'
+import { ErrorMode, _omit, _range, _sortBy, pTry } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -291,7 +291,7 @@ test('ajvSchema', async () => {
   })
 
   // This should fail
-  const [err] = await pTuple(
+  const [err] = await pTry(
     dao.save({
       id: 'id123', // provided, so we can snapshot-match
       k1: 5 as any,

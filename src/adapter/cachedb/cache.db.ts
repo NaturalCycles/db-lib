@@ -1,5 +1,10 @@
 import { Readable } from 'stream'
-import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
+import {
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  ObjectWithId,
+  StringMap,
+} from '@naturalcycles/js-lib'
 import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
@@ -68,7 +73,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     ids: string[],
     opt: CacheDBOptions<ROW> = {},
   ): Promise<ROW[]> {
-    const resultMap: Record<string, ROW> = {}
+    const resultMap: StringMap<ROW> = {}
     const missingIds: string[] = []
 
     if (!opt.skipCache && !this.cfg.skipCache) {

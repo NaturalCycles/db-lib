@@ -10,6 +10,7 @@ import {
   _sortObjectDeep,
   JsonSchemaRootObject,
   ObjectWithId,
+  _stringMapValues,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -118,7 +119,7 @@ export class InMemoryDB implements CommonDB {
   ): Promise<JsonSchemaRootObject<ROW>> {
     const table = this.cfg.tablesPrefix + _table
     return {
-      ...generateJsonSchemaFromData(Object.values(this.data[table] || {})),
+      ...generateJsonSchemaFromData(_stringMapValues(this.data[table] || {})),
       $id: `${table}.schema.json`,
     }
   }
