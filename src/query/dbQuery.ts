@@ -272,7 +272,9 @@ export class RunnableDBQuery<
     await this.dao.streamQueryIdsForEach(this, mapper, opt)
   }
 
-  async deleteByQuery(opt?: CommonDaoOptions): Promise<number> {
+  async deleteByQuery(
+    opt?: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean },
+  ): Promise<number> {
     return await this.dao.deleteByQuery(this, opt)
   }
 }

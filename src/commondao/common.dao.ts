@@ -30,6 +30,7 @@ import {
   transformTap,
   writableVoid,
   _pipeline,
+  transformBuffer,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
 import { DBModelType, RunQueryResult } from '../db.model'
@@ -719,14 +720,53 @@ export class CommonDao<
     return deletedIds
   }
 
-  async deleteByQuery(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+  /**
+   * Pass `stream: true` option to use Streaming: it will Stream the query, batch by 500, and execute
+   * `deleteByIds` for each batch concurrently (infinite concurrency).
+   * This is expected to be more memory-efficient way of deleting big numbers of rows.
+   */
+  async deleteByQuery(
+    q: DBQuery<DBM>,
+    opt: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean } = {},
+  ): Promise<number> {
     this.requireWriteAccess()
     q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
-    const ids = await this.cfg.db.deleteByQuery(q, opt)
+    let deleted = 0
+
+    if (opt.stream) {
+      const batchSize = 500
+
+      await _pipeline([
+        this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
+        transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id, {
+          errorMode: ErrorMode.SUPPRESS,
+        }),
+        transformBuffer<string>({ batchSize }),
+        transformMap<string[], void>(
+          async ids => {
+            deleted += await this.cfg.db.deleteByIds(q.table, ids, opt)
+          },
+          {
+            predicate: _passthroughPredicate,
+          },
+        ),
+        // LogProgress should be AFTER the mapper, to be able to report correct stats
+        transformLogProgress({
+          metric: q.table,
+          logEvery: 2, // 500 * 2 === 1000
+          batchSize,
+          ...opt,
+        }),
+        writableVoid(),
+      ])
+    } else {
+      deleted = await this.cfg.db.deleteByQuery(q, opt)
+    }
+
     this.logSaveResult(started, op, q.table)
-    return ids
+    return deleted
   }
 
   // CONVERSIONS
