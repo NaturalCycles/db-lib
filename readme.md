@@ -295,11 +295,6 @@ Passing empty array will actually return an array of empty objects (documented e
 .select(['id']) //=> [ { id: 'id1' }, { id: 'id2' }, ... ]
 ```
 
-# DEBUG namespaces
-
-- `nc:db-lib:commondao`
-- `nc:db-lib:inmemorydb`
-
 # Exports
 
 - `/` root
@@ -315,6 +310,6 @@ Passing empty array will actually return an array of empty objects (documented e
 # Packaging
 
 - `engines.node >= LTS`
-- `main: dist/index.js`: commonjs, es2019
+- `main: dist/index.js`: commonjs, es2020
 - `types: dist/index.d.ts`: typescript types
 - `/src` folder with source `*.ts` files included

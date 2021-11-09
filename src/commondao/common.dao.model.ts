@@ -1,4 +1,4 @@
-import { ErrorMode, ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonLogger, ErrorMode, ObjectWithId } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -69,6 +69,13 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
    * Set to true to limit DB writing (will throw an error is such case).
    */
   readOnly?: boolean
+
+  /**
+   * Pass undefined (or noopLogger) to disable logging completely.
+   *
+   * @default console
+   */
+  logger?: CommonLogger
 
   /**
    * @default OPERATIONS

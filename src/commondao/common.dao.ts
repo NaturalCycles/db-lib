@@ -17,7 +17,6 @@ import {
 import {
   AjvSchema,
   AjvValidationError,
-  Debug,
   getValidationResult,
   JoiValidationError,
   ObjectSchemaTyped,
@@ -45,8 +44,6 @@ import {
   CommonDaoStreamOptions,
 } from './common.dao.model'
 
-const log = Debug('nc:db-lib:commondao')
-
 /* eslint-disable no-dupe-class-members */
 
 /**
@@ -65,6 +62,7 @@ export class CommonDao<
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       createdUpdated: true,
+      logger: console,
       ...cfg,
       hooks: {
         createId: () => stringId(),
@@ -323,7 +321,7 @@ export class CommonDao<
     const started = this.logStarted(op, q.table)
     const count = await this.cfg.db.runQueryCount(q, opt)
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
+      this.cfg.logger?.log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
     return count
   }
@@ -369,7 +367,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
+      this.cfg.logger?.log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
   }
 
@@ -412,7 +410,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
+      this.cfg.logger?.log(`<< ${q.table}.${op}: ${count} row(s) in ${_since(started)}`)
     }
   }
 
@@ -518,7 +516,7 @@ export class CommonDao<
     ])
 
     if (this.cfg.logLevel! >= CommonDaoLogLevel.OPERATIONS) {
-      log(`<< ${q.table}.${op}: ${count} id(s) in ${_since(started)}`)
+      this.cfg.logger?.log(`<< ${q.table}.${op}: ${count} id(s) in ${_since(started)}`)
     }
   }
 
@@ -1005,17 +1003,17 @@ export class CommonDao<
       logRes = `undefined`
     }
 
-    log(...[`<< ${table}.${op}: ${logRes} in ${_since(started)}`].concat(args))
+    this.cfg.logger?.log(...[`<< ${table}.${op}: ${logRes} in ${_since(started)}`].concat(args))
   }
 
   protected logSaveResult(started: number, op: string, table: string): void {
     if (!this.cfg.logLevel) return
-    log(`<< ${table}.${op} in ${_since(started)}`)
+    this.cfg.logger?.log(`<< ${table}.${op} in ${_since(started)}`)
   }
 
   protected logStarted(op: string, table: string, force = false): number {
     if (this.cfg.logStarted || force) {
-      log(`>> ${table}.${op}`)
+      this.cfg.logger?.log(`>> ${table}.${op}`)
     }
     return Date.now()
   }
@@ -1035,7 +1033,7 @@ export class CommonDao<
         }
       }
 
-      log(...args)
+      this.cfg.logger?.log(...args)
     }
 
     return Date.now()

@@ -1,4 +1,4 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from '../../common.db'
 import { CommonDBCreateOptions, CommonDBSaveOptions, CommonDBStreamOptions } from '../../db.model'
 
@@ -38,6 +38,13 @@ export interface CacheDBCfg {
    * @default false
    */
   logDownstream?: boolean
+
+  /**
+   * Pass noopLogger (or undefined) to skip logging completely.
+   *
+   * @default console
+   */
+  logger?: CommonLogger
 }
 
 export interface CacheDBOptions<ROW extends ObjectWithId> extends CommonDBSaveOptions<ROW> {

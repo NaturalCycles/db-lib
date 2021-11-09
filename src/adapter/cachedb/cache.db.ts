@@ -5,7 +5,6 @@ import {
   ObjectWithId,
   StringMap,
 } from '@naturalcycles/js-lib'
-import { Debug, IDebugger } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
 import { RunQueryResult } from '../../db.model'
@@ -24,12 +23,15 @@ import {
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
 export class CacheDB extends BaseCommonDB implements CommonDB {
-  constructor(public cfg: CacheDBCfg) {
+  constructor(cfg: CacheDBCfg) {
     super()
-    this.log = Debug(`nc:db-lib:${cfg.name}`)
+    this.cfg = {
+      logger: console,
+      ...cfg,
+    }
   }
 
-  log!: IDebugger
+  cfg: CacheDBCfg
 
   override async ping(): Promise<void> {
     await Promise.all([this.cfg.cacheDB.ping(), this.cfg.downstreamDB.ping()])
@@ -84,7 +86,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       missingIds.push(...ids.filter(id => !resultMap[id]))
 
       if (this.cfg.logCached) {
-        this.log(
+        this.cfg.logger?.log(
           `${table}.getByIds ${results.length} rows from cache: [${results
             .map(r => r.id)
             .join(', ')}]`,
@@ -97,7 +99,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       results.forEach(r => (resultMap[r.id] = r))
 
       if (this.cfg.logDownstream) {
-        this.log(
+        this.cfg.logger?.log(
           `${table}.getByIds ${results.length} rows from downstream: [${results
             .map(r => r.id)
             .join(', ')}]`,
@@ -125,14 +127,14 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       deletedIds = await this.cfg.downstreamDB.deleteByIds(table, ids, opt)
 
       if (this.cfg.logDownstream) {
-        this.log(`${table}.deleteByIds ${deletedIds} rows from downstream`)
+        this.cfg.logger?.log(`${table}.deleteByIds ${deletedIds} rows from downstream`)
       }
     }
 
     if (!opt.skipCache && !this.cfg.skipCache) {
       const cacheResult = this.cfg.cacheDB.deleteByIds(table, ids, opt).then(deletedFromCache => {
         if (this.cfg.logCached) {
-          this.log(`${table}.deleteByIds ${deletedFromCache} rows from cache`)
+          this.cfg.logger?.log(`${table}.deleteByIds ${deletedFromCache} rows from cache`)
         }
       })
       if (this.cfg.awaitCache) await cacheResult
@@ -150,7 +152,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       await this.cfg.downstreamDB.saveBatch(table, rows, opt)
 
       if (this.cfg.logDownstream) {
-        this.log(
+        this.cfg.logger?.log(
           `${table}.saveBatch ${rows.length} rows to downstream: [${rows
             .map(r => r.id)
             .join(', ')}]`,
@@ -161,7 +163,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     if (!opt.skipCache && !this.cfg.skipCache) {
       const cacheResult = this.cfg.cacheDB.saveBatch(table, rows, opt).then(() => {
         if (this.cfg.logCached) {
-          this.log(
+          this.cfg.logger?.log(
             `${table}.saveBatch ${rows.length} rows to cache: [${rows.map(r => r.id).join(', ')}]`,
           )
         }
@@ -178,7 +180,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       const { rows, ...queryResult } = await this.cfg.downstreamDB.runQuery(q, opt)
 
       if (this.cfg.logDownstream) {
-        this.log(`${q.table}.runQuery ${rows.length} rows from downstream`)
+        this.cfg.logger?.log(`${q.table}.runQuery ${rows.length} rows from downstream`)
       }
 
       // Don't save to cache if it was a projection query
@@ -194,7 +196,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     const { rows, ...queryResult } = await this.cfg.cacheDB.runQuery(q, opt)
 
     if (this.cfg.logCached) {
-      this.log(`${q.table}.runQuery ${rows.length} rows from cache`)
+      this.cfg.logger?.log(`${q.table}.runQuery ${rows.length} rows from cache`)
     }
 
     return { rows, ...queryResult }
@@ -211,7 +213,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     const count = await this.cfg.cacheDB.runQueryCount(q, opt)
 
     if (this.cfg.logCached) {
-      this.log(`${q.table}.runQueryCount ${count} rows from cache`)
+      this.cfg.logger?.log(`${q.table}.runQueryCount ${count} rows from cache`)
     }
 
     return count
@@ -264,7 +266,9 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
       const deletedIds = await this.cfg.downstreamDB.deleteByQuery(q, opt)
 
       if (this.cfg.logDownstream) {
-        this.log(`${q.table}.deleteByQuery ${deletedIds} rows from downstream and cache`)
+        this.cfg.logger?.log(
+          `${q.table}.deleteByQuery ${deletedIds} rows from downstream and cache`,
+        )
       }
 
       if (!opt.skipCache && !this.cfg.skipCache) {
@@ -280,7 +284,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     const deletedIds = await this.cfg.cacheDB.deleteByQuery(q, opt)
 
     if (this.cfg.logCached) {
-      this.log(`${q.table}.deleteByQuery ${deletedIds} rows from cache`)
+      this.cfg.logger?.log(`${q.table}.deleteByQuery ${deletedIds} rows from cache`)
     }
 
     return deletedIds

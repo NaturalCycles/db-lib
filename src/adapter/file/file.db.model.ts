@@ -1,4 +1,4 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import type { DBQueryOrder } from '../../query/dbQuery'
 
@@ -22,6 +22,11 @@ export interface FileDBCfg {
    * If true - will run `sortObjectDeep()` on each object to achieve deterministic sort
    */
   sortObjects?: boolean
+
+  /**
+   * @default console
+   */
+  logger?: CommonLogger
 
   /**
    * @default false

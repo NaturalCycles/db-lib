@@ -115,8 +115,6 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   sortObjects?: boolean
 }
 
-// const log = Debug('nc:db-lib:pipeline')
-
 /**
  * Pipeline from input stream(s) to a NDJSON file (optionally gzipped).
  * File is overwritten (by default).

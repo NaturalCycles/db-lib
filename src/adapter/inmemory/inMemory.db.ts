@@ -11,10 +11,10 @@ import {
   JsonSchemaRootObject,
   ObjectWithId,
   _stringMapValues,
+  CommonLogger,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
-  Debug,
   ReadableTyped,
   transformJsonParse,
   transformSplit,
@@ -63,9 +63,12 @@ export interface InMemoryDBCfg {
    * @default true
    */
   persistZip: boolean
-}
 
-const log = Debug('nc:db-lib:inmemorydb')
+  /**
+   * @default console
+   */
+  logger?: CommonLogger
+}
 
 export class InMemoryDB implements CommonDB {
   constructor(cfg?: Partial<InMemoryDBCfg>) {
@@ -75,6 +78,7 @@ export class InMemoryDB implements CommonDB {
       persistenceEnabled: false,
       persistZip: true,
       persistentStoragePath: './tmp/inmemorydb',
+      logger: console,
       ...cfg,
     }
   }
@@ -100,13 +104,13 @@ export class InMemoryDB implements CommonDB {
   async resetCache(_table?: string): Promise<void> {
     if (_table) {
       const table = this.cfg.tablesPrefix + _table
-      log(`reset ${table}`)
+      this.cfg.logger?.log(`reset ${table}`)
       this.data[table] = {}
     } else {
       ;(await this.getTables()).forEach(table => {
         this.data[table] = {}
       })
-      log('reset')
+      this.cfg.logger?.log('reset')
     }
   }
 
@@ -157,7 +161,7 @@ export class InMemoryDB implements CommonDB {
 
     rows.forEach(r => {
       if (!r.id) {
-        log.warn({ rows })
+        this.cfg.logger?.warn({ rows })
         throw new Error(`InMemoryDB: id doesn't exist for row`)
       }
 
@@ -266,7 +270,9 @@ export class InMemoryDB implements CommonDB {
       ])
     })
 
-    log(`flushToDisk took ${dimGrey(_since(started))} to save ${yellow(tables)} tables`)
+    this.cfg.logger?.log(
+      `flushToDisk took ${dimGrey(_since(started))} to save ${yellow(tables)} tables`,
+    )
   }
 
   /**
@@ -306,6 +312,8 @@ export class InMemoryDB implements CommonDB {
       this.data[table] = _by(rows, r => r.id)
     })
 
-    log(`restoreFromDisk took ${dimGrey(_since(started))} to read ${yellow(files.length)} tables`)
+    this.cfg.logger?.log(
+      `restoreFromDisk took ${dimGrey(_since(started))} to read ${yellow(files.length)} tables`,
+    )
   }
 }

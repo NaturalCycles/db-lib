@@ -14,7 +14,7 @@ import {
   ObjectWithId,
   AnyObjectWithId,
 } from '@naturalcycles/js-lib'
-import { Debug, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
 import { BaseCommonDB, DBSaveBatchOperation, queryInMemory } from '../..'
 import { CommonDB } from '../../common.db'
@@ -27,8 +27,6 @@ import {
 import { DBQuery } from '../../query/dbQuery'
 import { DBTransaction } from '../../transaction/dbTransaction'
 import { FileDBCfg } from './file.db.model'
-
-const log = Debug('nc:db-lib:filedb')
 
 /**
  * Provides barebone implementation for "whole file" based CommonDB.
@@ -46,6 +44,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.cfg = {
       sortObjects: true,
       logFinished: true,
+      logger: console,
       ...cfg,
     }
   }
@@ -271,13 +270,13 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   private logStarted(op: string): number {
     if (this.cfg.logStarted) {
-      log(`>> ${op}`)
+      this.cfg.logger?.log(`>> ${op}`)
     }
     return Date.now()
   }
 
   private logFinished(started: number, op: string): void {
     if (!this.cfg.logFinished) return
-    log(`<< ${op} ${dimGrey(`in ${_since(started)}`)}`)
+    this.cfg.logger?.log(`<< ${op} ${dimGrey(`in ${_since(started)}`)}`)
   }
 }
