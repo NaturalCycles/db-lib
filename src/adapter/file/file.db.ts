@@ -28,6 +28,8 @@ import { DBQuery } from '../../query/dbQuery'
 import { DBTransaction } from '../../transaction/dbTransaction'
 import { FileDBCfg } from './file.db.model'
 
+const isGAE = !!process.env['GAE_INSTANCE']
+
 /**
  * Provides barebone implementation for "whole file" based CommonDB.
  * "whole file" means that the persistence layer doesn't allow any querying,
@@ -44,7 +46,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.cfg = {
       sortObjects: true,
       logFinished: true,
-      logger: console,
+      logger: isGAE ? undefined : console,
       ...cfg,
     }
   }

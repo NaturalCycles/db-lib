@@ -16,6 +16,8 @@ import {
   CacheDBStreamOptions,
 } from './cache.db.model'
 
+const isGAE = !!process.env['GAE_INSTANCE']
+
 /**
  * CommonDB implementation that proxies requests to downstream CommonDB
  * and does in-memory caching.
@@ -26,7 +28,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
   constructor(cfg: CacheDBCfg) {
     super()
     this.cfg = {
-      logger: console,
+      logger: isGAE ? undefined : console,
       ...cfg,
     }
   }

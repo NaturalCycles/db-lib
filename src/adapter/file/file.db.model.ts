@@ -24,7 +24,8 @@ export interface FileDBCfg {
   sortObjects?: boolean
 
   /**
-   * @default console
+   * Defaults to `console` in dev.
+   * Default to noop in AppEngine.
    */
   logger?: CommonLogger
 

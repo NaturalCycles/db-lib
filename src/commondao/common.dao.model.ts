@@ -73,7 +73,8 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
   /**
    * Pass undefined (or noopLogger) to disable logging completely.
    *
-   * @default console
+   * Defaults to `console` in dev.
+   * Default to noop in AppEngine.
    */
   logger?: CommonLogger
 

@@ -46,6 +46,8 @@ import {
 
 /* eslint-disable no-dupe-class-members */
 
+const isGAE = !!process.env['GAE_INSTANCE']
+
 /**
  * Lowest common denominator API between supported Databases.
  *
@@ -62,7 +64,7 @@ export class CommonDao<
     this.cfg = {
       logLevel: CommonDaoLogLevel.OPERATIONS,
       createdUpdated: true,
-      logger: console,
+      logger: isGAE ? undefined : console,
       ...cfg,
       hooks: {
         createId: () => stringId(),

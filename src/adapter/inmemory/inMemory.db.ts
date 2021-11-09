@@ -65,10 +65,13 @@ export interface InMemoryDBCfg {
   persistZip: boolean
 
   /**
-   * @default console
+   * Defaults to `console` in dev.
+   * Default to noop in AppEngine.
    */
   logger?: CommonLogger
 }
+
+const isGAE = !!process.env['GAE_INSTANCE']
 
 export class InMemoryDB implements CommonDB {
   constructor(cfg?: Partial<InMemoryDBCfg>) {
@@ -78,7 +81,7 @@ export class InMemoryDB implements CommonDB {
       persistenceEnabled: false,
       persistZip: true,
       persistentStoragePath: './tmp/inmemorydb',
-      logger: console,
+      logger: isGAE ? undefined : console,
       ...cfg,
     }
   }
