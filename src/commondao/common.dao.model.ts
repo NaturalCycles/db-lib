@@ -46,8 +46,17 @@ export enum CommonDaoLogLevel {
    * Same as undefined
    */
   NONE = 0,
+  /**
+   * Log operations (e.g "getById returned 1 row"), but not data
+   */
   OPERATIONS = 10,
+  /**
+   * Log operations and data for single operations (e.g getById), but not batch operations.
+   */
   DATA_SINGLE = 20,
+  /**
+   * Log EVERYTHING - all data passing in and out (max 10 rows). Very verbose!
+   */
   DATA_FULL = 30,
 }
 
@@ -71,10 +80,7 @@ export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends Obje
   readOnly?: boolean
 
   /**
-   * Pass undefined (or noopLogger) to disable logging completely.
-   *
-   * Defaults to `console` in dev.
-   * Default to noop in AppEngine.
+   * Defaults to `console`
    */
   logger?: CommonLogger
 

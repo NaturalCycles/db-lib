@@ -40,10 +40,7 @@ export interface CacheDBCfg {
   logDownstream?: boolean
 
   /**
-   * Pass noopLogger (or undefined) to skip logging completely.
-   *
-   * Defaults to `console` in dev.
-   * Default to noop in AppEngine.
+   * Defaults to `console`.
    */
   logger?: CommonLogger
 }

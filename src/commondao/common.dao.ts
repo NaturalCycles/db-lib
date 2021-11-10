@@ -1,20 +1,21 @@
 import {
+  _filterNullishValues,
+  _filterUndefinedValues,
+  _passthroughPredicate,
+  _since,
+  _truncate,
+  _uniqBy,
   AppError,
   AsyncMapper,
   ErrorMode,
   JsonSchemaObject,
-  _passthroughPredicate,
-  _since,
-  _truncate,
-  pMap,
   JsonSchemaRootObject,
-  Saved,
-  _uniqBy,
   ObjectWithId,
-  _filterUndefinedValues,
-  _filterNullishValues,
+  pMap,
+  Saved,
 } from '@naturalcycles/js-lib'
 import {
+  _pipeline,
   AjvSchema,
   AjvValidationError,
   getValidationResult,
@@ -22,14 +23,13 @@ import {
   ObjectSchemaTyped,
   ReadableTyped,
   stringId,
+  transformBuffer,
   transformLogProgress,
   transformMap,
   transformMapSimple,
   transformMapSync,
   transformTap,
   writableVoid,
-  _pipeline,
-  transformBuffer,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
 import { DBModelType, RunQueryResult } from '../db.model'
@@ -47,6 +47,7 @@ import {
 /* eslint-disable no-dupe-class-members */
 
 const isGAE = !!process.env['GAE_INSTANCE']
+const isCI = !!process.env['CI']
 
 /**
  * Lowest common denominator API between supported Databases.
@@ -62,9 +63,12 @@ export class CommonDao<
 > {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
     this.cfg = {
-      logLevel: CommonDaoLogLevel.OPERATIONS,
+      // Default is to NOT log in AppEngine and in CI,
+      // otherwise to log Operations
+      // e.g in Dev (local machine), Test - it will log operations (useful for debugging)
+      logLevel: isGAE || isCI ? CommonDaoLogLevel.NONE : CommonDaoLogLevel.OPERATIONS,
       createdUpdated: true,
-      logger: isGAE ? undefined : console,
+      logger: console,
       ...cfg,
       hooks: {
         createId: () => stringId(),
@@ -979,8 +983,6 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  // todo: logging
-  // todo: bmToDBM, etc. How?
   // transaction(): DBTransaction {
   //   return this.cfg.db.transaction()
   // }
@@ -994,7 +996,7 @@ export class CommonDao<
     if (Array.isArray(res)) {
       logRes = `${res.length} row(s)`
       if (res.length && this.cfg.logLevel >= CommonDaoLogLevel.DATA_FULL) {
-        args.push('\n', res.slice(0, 10)) // max 10 items
+        args.push('\n', ...res.slice(0, 10)) // max 10 items
       }
     } else if (res) {
       logRes = `1 row`
@@ -1005,7 +1007,7 @@ export class CommonDao<
       logRes = `undefined`
     }
 
-    this.cfg.logger?.log(...[`<< ${table}.${op}: ${logRes} in ${_since(started)}`].concat(args))
+    this.cfg.logger?.log(`<< ${table}.${op}: ${logRes} in ${_since(started)}`, ...args)
   }
 
   protected logSaveResult(started: number, op: string, table: string): void {
