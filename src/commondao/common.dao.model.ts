@@ -1,4 +1,4 @@
-import { CommonLogger, ErrorMode, ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonLogger, ErrorMode, ObjectWithId, Saved } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -60,7 +60,11 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM> {
+export interface CommonDaoCfg<
+  BM extends Partial<ObjectWithId>,
+  DBM extends ObjectWithId = Saved<BM>,
+  TM = BM,
+> {
   db: CommonDB
   table: string
 

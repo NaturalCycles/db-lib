@@ -903,9 +903,9 @@ export class CommonDao<
    * Does NOT mutate the object.
    */
   validateAndConvert<IN, OUT = IN>(
-    obj: IN,
-    schema?: ObjectSchemaTyped<IN> | AjvSchema<IN>,
-    modelType?: DBModelType,
+    obj: Partial<IN>,
+    schema: ObjectSchemaTyped<IN> | AjvSchema<IN> | undefined,
+    modelType: DBModelType,
     opt: CommonDaoOptions = {},
   ): OUT {
     // `raw` option completely bypasses any processing
@@ -928,12 +928,12 @@ export class CommonDao<
 
     // Pre-validation hooks
     if (modelType === DBModelType.DBM) {
-      obj = this.cfg.hooks!.beforeDBMValidate!(obj as any) as any
+      obj = this.cfg.hooks!.beforeDBMValidate!(obj as any) as IN
     }
 
     // Return as is if no schema is passed or if `skipConversion` is set
     if (!schema || opt.skipConversion) {
-      return obj as any
+      return obj as OUT
     }
 
     // This will Convert and Validate
@@ -947,12 +947,12 @@ export class CommonDao<
       // Ajv schema
       convertedValue = obj // because Ajv mutates original object
 
-      error = schema.getValidationError(obj, {
+      error = schema.getValidationError(obj as IN, {
         objectName,
       })
     } else {
       // Joi
-      const vr = getValidationResult<IN, OUT>(obj, schema, objectName)
+      const vr = getValidationResult<IN, OUT>(obj as IN, schema, objectName)
       error = vr.error
       convertedValue = vr.value
     }

@@ -209,7 +209,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
           ...opt,
           metric: table,
         }),
-        transformLimit(limit),
+        transformLimit({ limit }),
         ...(sinceUpdated
           ? [transformFilterSync<SavedDBEntity>(r => r.updated >= sinceUpdated)]
           : []),
