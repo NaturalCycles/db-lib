@@ -5,8 +5,8 @@ import {
   AjvValidationError,
   writableForEach,
   _pipeline,
-  zipString,
-  unzipToString,
+  deflateString,
+  inflateToString,
 } from '@naturalcycles/nodejs-lib'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
@@ -321,13 +321,13 @@ test('zipping/unzipping via async hook', async () => {
       async beforeBMToDBM(bm) {
         return {
           ...bm,
-          obj: await zipString(JSON.stringify(bm.obj)),
+          obj: await deflateString(JSON.stringify(bm.obj)),
         }
       },
       async beforeDBMToBM(dbm) {
         return {
           ...dbm,
-          obj: JSON.parse(await unzipToString(dbm.obj)),
+          obj: JSON.parse(await inflateToString(dbm.obj)),
         }
       },
     },
