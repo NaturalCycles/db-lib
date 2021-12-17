@@ -168,6 +168,14 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * Useful e.g in AirtableDB where you can have one Dao to control multiple tables.
    */
   table?: string
+
+  /**
+   * If set - wraps the method in `pTimeout` with a timeout of given number of milliseconds.
+   * Currently, it is only used to debug an ongoing GCP infra issue.
+   *
+   * @experimental
+   */
+  timeout?: number
 }
 
 /**

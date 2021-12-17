@@ -151,7 +151,8 @@ test('patch', async () => {
     k1: 'k111',
   })
 
-  const r2 = await dao.getById(id)
+  // timeout is not important here, adding to test that code path
+  const r2 = await dao.getById(id, { timeout: 1000 })
 
   expect(r.id).toBe(id)
   expect(r2).toEqual(r)
