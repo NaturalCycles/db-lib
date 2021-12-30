@@ -35,6 +35,12 @@ export interface CommonDBImplementationFeatures {
 
   bufferSupport?: boolean
   nullValues?: boolean
+
+  /**
+   * Set false for SQL (relational) databases,
+   * they will return `null` for all missing properties.
+   */
+  documentDB?: boolean
 }
 
 /**
@@ -78,6 +84,7 @@ export function runCommonDBTest(
     strongConsistency = true,
     bufferSupport = true,
     nullValues = true,
+    documentDB = true,
   } = features
 
   // const {
@@ -151,21 +158,23 @@ export function runCommonDBTest(
     })
   }
 
-  test('undefined values should not be saved/loaded', async () => {
-    const item3 = {
-      ...createTestItemDBM(3),
-      k2: undefined,
-    }
-    deepFreeze(item3)
-    const expected = { ...item3 }
-    delete expected.k2
+  if (documentDB) {
+    test('undefined values should not be saved/loaded', async () => {
+      const item3 = {
+        ...createTestItemDBM(3),
+        k2: undefined,
+      }
+      deepFreeze(item3)
+      const expected = { ...item3 }
+      delete expected.k2
 
-    await db.saveBatch(TEST_TABLE, [item3])
-    const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
-    expectMatch([expected], [item3Loaded], quirks)
-    expect(item3Loaded.k2).toBe(undefined)
-    expect(Object.keys(item3Loaded)).not.toContain('k2')
-  })
+      await db.saveBatch(TEST_TABLE, [item3])
+      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
+      expectMatch([expected], [item3Loaded], quirks)
+      expect(item3Loaded.k2).toBe(undefined)
+      expect(Object.keys(item3Loaded)).not.toContain('k2')
+    })
+  }
 
   test('saveBatch test items', async () => {
     await db.saveBatch(TEST_TABLE, items)
