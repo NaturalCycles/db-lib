@@ -42,4 +42,9 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
   streamEntries(table: string, limit?: number): ReadableTyped<KeyValueDBTuple> {
     return Readable.from(Object.entries(this.data[table] || {}).slice(0, limit))
   }
+
+  async count(table: string): Promise<number> {
+    this.data[table] ||= {}
+    return Object.keys(this.data[table]!).length
+  }
 }

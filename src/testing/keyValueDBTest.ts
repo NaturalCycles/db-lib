@@ -25,12 +25,20 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
     expect(results).toEqual([])
   })
 
+  test('count should be 0', async () => {
+    expect(await db.count(TEST_TABLE)).toBe(0)
+  })
+
   test('saveBatch, then getByIds', async () => {
     await db.saveBatch(TEST_TABLE, testEntries)
 
     const entries = await db.getByIds(TEST_TABLE, testIds)
     _sortBy(entries, e => e[0], true)
     expect(entries).toEqual(testEntries)
+  })
+
+  test('count should be 3', async () => {
+    expect(await db.count(TEST_TABLE)).toBe(3)
   })
 
   test('streamIds', async () => {

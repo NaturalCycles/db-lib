@@ -34,4 +34,6 @@ export interface CommonKeyValueDB {
   streamIds(table: string, limit?: number): ReadableTyped<string>
   streamValues(table: string, limit?: number): ReadableTyped<Buffer>
   streamEntries(table: string, limit?: number): ReadableTyped<KeyValueDBTuple>
+
+  count(table: string): Promise<number>
 }
