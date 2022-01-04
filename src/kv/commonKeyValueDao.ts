@@ -84,6 +84,10 @@ export class CommonKeyValueDao<T> {
     await this.cfg.db.deleteByIds(this.cfg.table, ids)
   }
 
+  async deleteById(id: string): Promise<void> {
+    await this.cfg.db.deleteByIds(this.cfg.table, [id])
+  }
+
   streamIds(limit?: number): ReadableTyped<string> {
     return this.cfg.db.streamIds(this.cfg.table, limit)
   }
