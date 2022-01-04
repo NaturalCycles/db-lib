@@ -13,7 +13,7 @@ import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../
 // Hook DBM, BM, TM types should follow this exact order
 export type CommonDaoCreateIdHook<BM, DBM> = (obj: DBM | BM) => string
 export type CommonDaoParseNaturalIdHook<DBM> = (id: string) => Partial<DBM>
-export type CommonDaoBeforeCreateHook<BM> = (bm: Partial<BM>) => BM
+export type CommonDaoBeforeCreateHook<BM> = (bm: Partial<BM>) => Partial<BM>
 export type CommonDaoBeforeDBMValidateHook<DBM> = (dbm: Partial<DBM>) => Partial<DBM>
 export type CommonDaoBeforeDBMToBMHook<BM, DBM> = (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
 export type CommonDaoBeforeBMToDBMHook<BM, DBM> = (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
