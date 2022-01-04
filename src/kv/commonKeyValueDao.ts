@@ -26,8 +26,9 @@ export interface CommonKeyValueDaoCfg<T> {
   logStarted?: boolean
 
   hooks?: {
-    mapValueToBuffer(v: T): Promise<Buffer>
-    mapBufferToValue(b: Buffer): Promise<T>
+    mapValueToBuffer?: (v: T) => Promise<Buffer>
+    mapBufferToValue?: (b: Buffer) => Promise<T>
+    beforeCreate?: (v: Partial<T>) => Partial<T>
   }
 }
 
@@ -45,10 +46,37 @@ export class CommonKeyValueDao<T> {
     await this.cfg.db.createTable(this.cfg.table, opt)
   }
 
+  create(input: Partial<T> = {}): T {
+    return {
+      ...this.cfg.hooks?.beforeCreate?.(input),
+    } as T
+  }
+
   async getById(id?: string): Promise<T | null> {
     if (!id) return null
     const [r] = await this.getByIds([id])
     return r?.[1] || null
+  }
+
+  async getByIdOrEmpty(id: string, part: Partial<T> = {}): Promise<T> {
+    const [r] = await this.getByIds([id])
+    if (r) return r[1]
+
+    return {
+      ...this.cfg.hooks?.beforeCreate?.({}),
+      ...part,
+    } as T
+  }
+
+  async patch(id: string, patch: Partial<T>): Promise<T> {
+    const v: T = {
+      ...(await this.getByIdOrEmpty(id)),
+      ...patch,
+    }
+
+    await this.save(id, v)
+
+    return v
   }
 
   async getByIds(ids: string[]): Promise<KeyValueTuple<string, T>[]> {
@@ -57,7 +85,7 @@ export class CommonKeyValueDao<T> {
 
     return await pMap(entries, async ([id, buf]) => [
       id,
-      await this.cfg.hooks!.mapBufferToValue(buf),
+      await this.cfg.hooks!.mapBufferToValue!(buf),
     ])
   }
 
@@ -73,7 +101,7 @@ export class CommonKeyValueDao<T> {
     } else {
       bufferEntries = await pMap(entries, async ([id, v]) => [
         id,
-        await this.cfg.hooks!.mapValueToBuffer(v),
+        await this.cfg.hooks!.mapValueToBuffer!(v),
       ])
     }
 
@@ -100,7 +128,7 @@ export class CommonKeyValueDao<T> {
     // todo: consider it when readableMap supports `errorMode: SUPPRESS`
     // readableMap(this.cfg.db.streamValues(this.cfg.table, limit), async buf => await this.cfg.hooks!.mapBufferToValue(buf))
     return this.cfg.db.streamValues(this.cfg.table, limit).pipe(
-      transformMap(async buf => await this.cfg.hooks!.mapBufferToValue(buf), {
+      transformMap(async buf => await this.cfg.hooks!.mapBufferToValue!(buf), {
         errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
       }),
     )
@@ -112,7 +140,7 @@ export class CommonKeyValueDao<T> {
     }
 
     return this.cfg.db.streamEntries(this.cfg.table, limit).pipe(
-      transformMap(async ([id, buf]) => [id, await this.cfg.hooks!.mapBufferToValue(buf)], {
+      transformMap(async ([id, buf]) => [id, await this.cfg.hooks!.mapBufferToValue!(buf)], {
         errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
       }),
     )

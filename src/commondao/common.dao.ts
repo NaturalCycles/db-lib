@@ -88,8 +88,8 @@ export class CommonDao<
   }
 
   // CREATE
-  create(input: Partial<BM>, opt: CommonDaoOptions = {}): Saved<BM> {
-    let bm = this.cfg.hooks!.beforeCreate!(input) as BM
+  create(part: Partial<BM>, opt: CommonDaoOptions = {}): Saved<BM> {
+    let bm = this.cfg.hooks!.beforeCreate!(part) as BM
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
     // If no SCHEMA - return as is
@@ -124,29 +124,18 @@ export class CommonDao<
     return bm || null
   }
 
-  async getByIdOrCreate(
-    id: string,
-    bmToCreate: Partial<BM>,
-    opt?: CommonDaoOptions,
-  ): Promise<Saved<BM>> {
+  async getByIdOrEmpty(id: string, part: Partial<BM>, opt?: CommonDaoOptions): Promise<Saved<BM>> {
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
-    return this.create({ ...bmToCreate, id }, opt)
+    return this.create({ ...part, id }, opt)
   }
 
-  async getByIdOrEmpty(id: string, opt?: CommonDaoOptions): Promise<Saved<BM>> {
-    const bm = await this.getById(id, opt)
-    if (bm) return bm
-
-    return this.create({ id } as Partial<BM>, opt)
-  }
-
-  async getByIdAsDBMOrEmpty(id: string, opt?: CommonDaoOptions): Promise<DBM> {
+  async getByIdAsDBMOrEmpty(id: string, part: Partial<BM>, opt?: CommonDaoOptions): Promise<DBM> {
     const dbm = await this.getByIdAsDBM(id, opt)
     if (dbm) return dbm
 
-    const bm: BM = this.create({ id } as Partial<BM>, opt) as any
+    const bm: BM = this.create({ ...part, id }, opt) as any
     return await this.bmToDBM(bm, opt)
   }
 
@@ -614,7 +603,7 @@ export class CommonDao<
   ): Promise<Saved<BM>> {
     return await this.save(
       {
-        ...(await this.getByIdOrCreate(id, patch, opt)),
+        ...(await this.getByIdOrEmpty(id, patch, opt)),
         ...patch,
       } as any,
       opt,
