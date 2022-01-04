@@ -124,14 +124,22 @@ export class CommonDao<
     return bm || null
   }
 
-  async getByIdOrEmpty(id: string, part: Partial<BM>, opt?: CommonDaoOptions): Promise<Saved<BM>> {
+  async getByIdOrEmpty(
+    id: string,
+    part: Partial<BM> = {},
+    opt?: CommonDaoOptions,
+  ): Promise<Saved<BM>> {
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
     return this.create({ ...part, id }, opt)
   }
 
-  async getByIdAsDBMOrEmpty(id: string, part: Partial<BM>, opt?: CommonDaoOptions): Promise<DBM> {
+  async getByIdAsDBMOrEmpty(
+    id: string,
+    part: Partial<BM> = {},
+    opt?: CommonDaoOptions,
+  ): Promise<DBM> {
     const dbm = await this.getByIdAsDBM(id, opt)
     if (dbm) return dbm
 
