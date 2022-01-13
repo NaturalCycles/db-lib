@@ -88,7 +88,7 @@ export class CommonDao<
   }
 
   // CREATE
-  create(part: Partial<BM>, opt: CommonDaoOptions = {}): Saved<BM> {
+  create(part: Partial<BM> = {}, opt: CommonDaoOptions = {}): Saved<BM> {
     let bm = this.cfg.hooks!.beforeCreate!(part) as BM
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
 
