@@ -1,4 +1,5 @@
 import {
+  _assert,
   _filterNullishValues,
   _filterUndefinedValues,
   _passthroughPredicate,
@@ -260,6 +261,18 @@ export class CommonDao<
   async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     const { rows } = await this.runQueryExtended(q, opt)
     return rows
+  }
+
+  async runQuerySingleColumn<T = any>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<T[]> {
+    _assert(
+      q._selectedFieldNames?.length === 1,
+      `runQuerySingleColumn requires exactly 1 column to be selected: ${q.pretty()}`,
+    )
+
+    const col = q._selectedFieldNames[0]!
+
+    const { rows } = await this.runQueryExtended(q, opt)
+    return rows.map(r => r[col as any])
   }
 
   /**

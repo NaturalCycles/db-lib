@@ -97,6 +97,7 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
    */
   _selectedFieldNames?: (keyof ROW)[]
   _groupByFieldNames?: (keyof ROW)[]
+  _distinct = false
 
   filter(name: keyof ROW, op: DBQueryFilterOperator, val: any): this {
     this._filters.push({ name, op, val })
@@ -136,6 +137,11 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
     return this
   }
 
+  distinct(distinct = true): this {
+    this._distinct = distinct
+    return this
+  }
+
   startCursor(startCursor?: string): this {
     this._startCursor = startCursor
     return this
@@ -153,6 +159,8 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
       _offsetValue: this._offsetValue,
       _orders: [...this._orders],
       _selectedFieldNames: this._selectedFieldNames && [...this._selectedFieldNames],
+      _groupByFieldNames: this._groupByFieldNames && [...this._groupByFieldNames],
+      _distinct: this._distinct,
       _startCursor: this._startCursor,
       _endCursor: this._endCursor,
     })
@@ -170,7 +178,9 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
     // }
 
     if (this._selectedFieldNames) {
-      tokens.push(`select(${this._selectedFieldNames.join(',')})`)
+      tokens.push(
+        `select${this._distinct ? ' distinct' : ''}(${this._selectedFieldNames.join(',')})`,
+      )
     }
 
     tokens.push(
@@ -219,6 +229,10 @@ export class RunnableDBQuery<
 
   async runQuery(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     return await this.dao.runQuery(this, opt)
+  }
+
+  async runQuerySingleColumn<T = any>(opt?: CommonDaoOptions): Promise<T[]> {
+    return await this.dao.runQuerySingleColumn<T>(this, opt)
   }
 
   async runQueryAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
