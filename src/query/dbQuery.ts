@@ -96,6 +96,7 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
    * In undefined - all fields (*) will be returned.
    */
   _selectedFieldNames?: (keyof ROW)[]
+  _groupByFieldNames?: (keyof ROW)[]
 
   filter(name: keyof ROW, op: DBQueryFilterOperator, val: any): this {
     this._filters.push({ name, op, val })
@@ -127,6 +128,11 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
 
   select(fieldNames: (keyof ROW)[]): this {
     this._selectedFieldNames = fieldNames
+    return this
+  }
+
+  groupBy(fieldNames: (keyof ROW)[]): this {
+    this._groupByFieldNames = fieldNames
     return this
   }
 
@@ -171,6 +177,10 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
       ...this._filters.map(f => `${f.name}${f.op}${f.val}`),
       ...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`),
     )
+
+    if (this._groupByFieldNames) {
+      tokens.push(`groupBy(${this._groupByFieldNames.join(',')})`)
+    }
 
     if (this._offsetValue) {
       tokens.push(`offset ${this._offsetValue}`)
