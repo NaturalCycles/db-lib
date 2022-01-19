@@ -69,7 +69,8 @@ export class CommonDao<
       // otherwise to log Operations
       // e.g in Dev (local machine), Test - it will log operations (useful for debugging)
       logLevel: isGAE || isCI ? CommonDaoLogLevel.NONE : CommonDaoLogLevel.OPERATIONS,
-      createdUpdated: true,
+      created: true,
+      updated: true,
       logger: console,
       ...cfg,
       hooks: {
@@ -562,9 +563,14 @@ export class CommonDao<
 
     obj.id = obj.id || this.cfg.hooks!.createId!(obj)
 
-    if (this.cfg.createdUpdated) {
+    if (this.cfg.created) {
       Object.assign(obj, {
         created: (obj as any).created || (obj as any).updated || now,
+      })
+    }
+
+    if (this.cfg.updated) {
+      Object.assign(obj, {
         updated: opt.preserveUpdatedCreated && (obj as any).updated ? (obj as any).updated : now,
       })
     }

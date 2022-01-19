@@ -102,10 +102,16 @@ export interface CommonDaoCfg<
   hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
 
   /**
-   * @default true
-   * Set to false to disable created/updated fields management.
+   * Defaults to true
+   * Set to false to disable `created` field management.
    */
-  createdUpdated?: boolean
+  created?: boolean
+
+  /**
+   * Defaults to true
+   * Set to false to disable `updated` field management.
+   */
+  updated?: boolean
 
   /**
    * Default is false.
