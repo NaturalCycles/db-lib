@@ -1,5 +1,6 @@
-import { ErrorMode, KeyValueTuple, pMap } from '@naturalcycles/js-lib'
+import { AppError, ErrorMode, KeyValueTuple, pMap } from '@naturalcycles/js-lib'
 import { ReadableTyped, transformMap } from '@naturalcycles/nodejs-lib'
+import { DBLibError } from '../cnst'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
 import { CommonKeyValueDB, KeyValueDBTuple } from './commonKeyValueDB'
@@ -56,6 +57,21 @@ export class CommonKeyValueDao<T> {
     if (!id) return null
     const [r] = await this.getByIds([id])
     return r?.[1] || null
+  }
+
+  async requireById(id: string): Promise<T> {
+    const [r] = await this.getByIds([id])
+
+    if (!r) {
+      const { table } = this.cfg
+      throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+        code: DBLibError.DB_ROW_REQUIRED,
+        table,
+        id,
+      })
+    }
+
+    return r[1]
   }
 
   async getByIdOrEmpty(id: string, part: Partial<T> = {}): Promise<T> {
