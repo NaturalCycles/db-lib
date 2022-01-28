@@ -58,6 +58,7 @@ import {
 } from './query/dbQuery'
 import { DBTransaction, RunnableDBTransaction } from './transaction/dbTransaction'
 import { commitDBTransactionSimple, mergeDBOperations } from './transaction/dbTransaction.util'
+export * from './kv/commonKeyValueDaoMemoCache'
 
 export type {
   DBQueryFilterOperator,
