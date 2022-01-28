@@ -1,5 +1,10 @@
 import { AppError, ErrorMode, KeyValueTuple, pMap } from '@naturalcycles/js-lib'
-import { ReadableTyped, transformMap } from '@naturalcycles/nodejs-lib'
+import {
+  deflateString,
+  inflateToString,
+  ReadableTyped,
+  transformMap,
+} from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
@@ -31,13 +36,28 @@ export interface CommonKeyValueDaoCfg<T> {
     mapBufferToValue?: (b: Buffer) => Promise<T>
     beforeCreate?: (v: Partial<T>) => Partial<T>
   }
+
+  /**
+   * Set to `true` to conveniently enable zipping+JSON.stringify
+   * (and unzipping+JSON.parse) of the Buffer value via hooks.
+   * Custom hooks will override these hooks (if provided).
+   */
+  deflatedJsonValue?: boolean
 }
 
 // todo: logging
 // todo: readonly
 
 export class CommonKeyValueDao<T> {
-  constructor(public cfg: CommonKeyValueDaoCfg<T>) {}
+  constructor(public cfg: CommonKeyValueDaoCfg<T>) {
+    if (cfg.deflatedJsonValue) {
+      cfg.hooks = {
+        mapValueToBuffer: async v => await deflateString(JSON.stringify(v)),
+        mapBufferToValue: async buf => JSON.parse(await inflateToString(buf)),
+        ...cfg.hooks,
+      }
+    }
+  }
 
   async ping(): Promise<void> {
     await this.cfg.db.ping()
