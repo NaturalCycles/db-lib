@@ -79,7 +79,9 @@ export interface CommonDaoCfg<
 
   /**
    * @default to true
-   * Set to false to limit DB writing (will throw an error if an object with matching ID already exists during save(). saveBatch, delete*() and patch() with throw).
+   * Set to false to limit DB writing:
+   * * Will throw an error if an object with matching ID already exists during save().
+   * * saveBatch, delete*() and patch() will throw.
    */
   mutable?: boolean
 
