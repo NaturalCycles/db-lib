@@ -78,6 +78,12 @@ export interface CommonDaoCfg<
   excludeFromIndexes?: (keyof DBM)[]
 
   /**
+   * @default to true
+   * Set to false to limit DB writing (will throw an error if an object with matching ID already exists during save).
+   */
+  mutable?: boolean
+
+  /**
    * @default to false
    * Set to true to limit DB writing (will throw an error is such case).
    */
