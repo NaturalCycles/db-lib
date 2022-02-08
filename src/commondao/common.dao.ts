@@ -679,6 +679,7 @@ export class CommonDao<
       this.assignIdCreatedUpdated(dbm, opt) // mutates
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+      if (this.cfg.mutable === false) this.requireObjectMutability()
     }
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm, table)
@@ -754,7 +755,7 @@ export class CommonDao<
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
-    this.requireObjectMutability()
+    if (opt.overrideImmutability !== true) this.requireObjectMutability()
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -765,7 +766,7 @@ export class CommonDao<
 
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
-    this.requireObjectMutability()
+    if (opt.overrideImmutability !== true) this.requireObjectMutability()
     if (this.cfg.mutable === false)
       throw new AppError('mutable: false is not supported in deleteByIds')
     const op = `deleteByIds(${ids.join(', ')})`
@@ -786,7 +787,7 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean } = {},
   ): Promise<number> {
     this.requireWriteAccess()
-    this.requireObjectMutability()
+    if (opt.overrideImmutability !== true) this.requireObjectMutability()
     q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)

@@ -82,6 +82,8 @@ export interface CommonDaoCfg<
    * Set to false to limit DB writing:
    * * Will throw an error if an object with matching ID already exists during save().
    * * saveBatch, delete*() and patch() will throw.
+   *
+   * Although deletion is possible by passing if (opt.overrideImmutability === true)
    */
   mutable?: boolean
 
@@ -177,6 +179,11 @@ export interface CommonDaoOptions extends CommonDBOptions {
   anonymize?: boolean
 
   /**
+   * @default false (for streams). Setting to true enables deletion of immutable objects
+   */
+  overrideImmutability?: boolean
+
+  /**
    * Allows to override the Table that this Dao is connected to, only in the context of this call.
    *
    * Useful e.g in AirtableDB where you can have one Dao to control multiple tables.
@@ -216,6 +223,11 @@ export interface CommonDaoStreamForEachOptions<IN>
     TransformLogProgressOptions<IN> {}
 
 export interface CommonDaoStreamOptions extends CommonDaoOptions {
+  /**
+   * @default false (for streams). Setting to true enables deletion of immutable objects
+   */
+  overrideImmutability?: boolean
+
   /**
    * @default true (for streams)
    */

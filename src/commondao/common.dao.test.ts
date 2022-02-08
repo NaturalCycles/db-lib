@@ -215,6 +215,8 @@ test('modifications of immutable objects', async () => {
   await expect(immutableDao.deleteByIds([item1Saved.id])).rejects.toThrow()
   const q = new DBQuery('TestKind').filter('id', '==', item1Saved.id)
   await expect(immutableDao.deleteByQuery(q)).rejects.toThrow()
+
+  await expect(immutableDao.deleteByQuery(q, { overrideImmutability: true })).resolves.not.toThrow()
 })
 
 test('mutation', async () => {
