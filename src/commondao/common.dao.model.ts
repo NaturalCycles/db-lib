@@ -83,7 +83,7 @@ export interface CommonDaoCfg<
    * * Will throw an error if an object with matching ID already exists during save().
    * * saveBatch, delete*() and patch() will throw.
    *
-   * Although deletion is possible by passing if (opt.overrideImmutability === true)
+   * Although deletion is possible by passing (opt.overrideImmutability === true)
    */
   mutable?: boolean
 
