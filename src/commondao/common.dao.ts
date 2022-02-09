@@ -242,7 +242,7 @@ export class CommonDao<
    * Throws if readOnly is true
    */
   private requireObjectMutability(): void {
-    if (this.cfg.mutable === false) {
+    if (this.cfg.immutable === true) {
       throw new AppError(DBLibError.OBJECT_IS_IMMUTABLE, {
         code: DBLibError.OBJECT_IS_IMMUTABLE,
         table: this.cfg.table,
@@ -601,7 +601,7 @@ export class CommonDao<
     const dbm = await this.bmToDBM(bm, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-    else if (this.cfg.mutable === false) await this.ensureUniqueId(table, dbm)
+    else if (this.cfg.immutable === true && !idWasGenerated) await this.ensureUniqueId(table, dbm)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
@@ -679,7 +679,7 @@ export class CommonDao<
       this.assignIdCreatedUpdated(dbm, opt) // mutates
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-      if (this.cfg.mutable === false) this.requireObjectMutability()
+      if (this.cfg.immutable === true) this.requireObjectMutability()
     }
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm, table)
@@ -697,8 +697,8 @@ export class CommonDao<
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
     const dbms = await this.bmsToDBM(bms, opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
-    else if (this.cfg.mutable === false)
-      throw new AppError('mutable === false is not supported in saveBatch')
+    else if (this.cfg.immutable === true)
+      throw new AppError('immutable DB entries are not supported in saveBatch')
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
         .slice(0, 10)
@@ -725,8 +725,8 @@ export class CommonDao<
       dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
       dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
-      else if (this.cfg.mutable === false)
-        throw new AppError('mutable === false is not supported in saveBatch')
+      else if (this.cfg.immutable === true)
+        throw new AppError('immutable objects are not supported in saveBatch')
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
@@ -767,8 +767,6 @@ export class CommonDao<
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
     if (opt.overrideImmutability !== true) this.requireObjectMutability()
-    if (this.cfg.mutable === false)
-      throw new AppError('mutable: false is not supported in deleteByIds')
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)

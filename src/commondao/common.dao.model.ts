@@ -78,14 +78,14 @@ export interface CommonDaoCfg<
   excludeFromIndexes?: (keyof DBM)[]
 
   /**
-   * @default to true
-   * Set to false to limit DB writing:
+   * @default to false
+   * Set to true to limit DB writing:
    * * Will throw an error if an object with matching ID already exists during save().
    * * saveBatch, delete*() and patch() will throw.
    *
    * Although deletion is possible by passing (opt.overrideImmutability === true)
    */
-  mutable?: boolean
+  immutable?: boolean
 
   /**
    * @default to false
