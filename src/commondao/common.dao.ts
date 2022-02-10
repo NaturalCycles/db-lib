@@ -601,7 +601,7 @@ export class CommonDao<
     const dbm = await this.bmToDBM(bm, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-    if (this.cfg.immutable && !idWasGenerated) await this.ensureImmutableDoesntExist(table, dbm)
+    if (this.cfg.immutable) await this.ensureImmutableDoesntExist(table, dbm)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
