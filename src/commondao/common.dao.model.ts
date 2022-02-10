@@ -79,6 +79,16 @@ export interface CommonDaoCfg<
 
   /**
    * @default to false
+   * Set to true to limit DB writing:
+   * * Will throw an error if an object with matching ID already exists during save().
+   * * saveBatch, delete*() and patch() will throw.
+   *
+   * Although deletion is possible by passing (opt.overrideImmutability === true)
+   */
+  immutable?: boolean
+
+  /**
+   * @default to false
    * Set to true to limit DB writing (will throw an error is such case).
    */
   readOnly?: boolean
@@ -160,6 +170,11 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * @default false
    */
   preserveUpdatedCreated?: boolean
+
+  /**
+   * @default false (for streams). Setting to true enables deletion of immutable objects
+   */
+  allowMutabiliity?: boolean
 
   /**
    * If true - data will be anonymized (by calling a BaseDao.anonymize() hook that you can extend in your Dao implementation).

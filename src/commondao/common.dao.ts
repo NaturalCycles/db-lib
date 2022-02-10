@@ -238,6 +238,18 @@ export class CommonDao<
     }
   }
 
+  /**
+   * Throws if readOnly is true
+   */
+  private requireObjectMutability(): void {
+    if (this.cfg.immutable) {
+      throw new AppError(DBLibError.OBJECT_IS_IMMUTABLE, {
+        code: DBLibError.OBJECT_IS_IMMUTABLE,
+        table: this.cfg.table,
+      })
+    }
+  }
+
   async getBy(by: keyof DBM, value: any, limit = 0, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
     return await this.query().filterEq(by, value).limit(limit).runQuery(opt)
   }
@@ -589,6 +601,7 @@ export class CommonDao<
     const dbm = await this.bmToDBM(bm, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+    if (this.cfg.immutable) await this.ensureImmutableDoesntExist(table, dbm)
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
@@ -600,19 +613,36 @@ export class CommonDao<
     return bm as any
   }
 
-  /**
-   * Mutates id if needed
-   */
-  private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
-    // todo: retry N times
-    const [existing] = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
-    if (existing) {
-      throw new AppError(DBLibError.NON_UNIQUE_ID, {
-        code: DBLibError.NON_UNIQUE_ID,
+  private async ensureImmutableDoesntExist(table: string, dbm: DBM): Promise<void> {
+    await this.throwIfObjectExists(table, dbm, [
+      DBLibError.OBJECT_IS_IMMUTABLE,
+      {
+        code: DBLibError.OBJECT_IS_IMMUTABLE,
         id: dbm.id,
         table,
-      })
-    }
+      },
+    ])
+  }
+
+  private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
+    // todo: retry N times
+    await this.throwIfObjectExists(table, dbm, [
+      DBLibError.OBJECT_IS_IMMUTABLE,
+      {
+        code: DBLibError.OBJECT_IS_IMMUTABLE,
+        id: dbm.id,
+        table,
+      },
+    ])
+  }
+
+  private async throwIfObjectExists(
+    table: string,
+    dbm: DBM,
+    errorMeta: [DBLibError, any],
+  ): Promise<void> {
+    const [existing] = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
+    if (existing) throw new AppError(errorMeta[0], errorMeta[1])
   }
 
   /**
@@ -666,6 +696,7 @@ export class CommonDao<
       this.assignIdCreatedUpdated(dbm, opt) // mutates
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+      if (this.cfg.immutable) await this.ensureImmutableDoesntExist(table, dbm)
     }
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm, table)
@@ -683,6 +714,8 @@ export class CommonDao<
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
     const dbms = await this.bmsToDBM(bms, opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
+    if (this.cfg.immutable)
+      throw new AppError('immutable DB entries are not supported in saveBatch')
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
         .slice(0, 10)
@@ -709,6 +742,7 @@ export class CommonDao<
       dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
       dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
+      if (this.cfg.immutable) throw new AppError('immutable objects are not supported in saveBatch')
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
@@ -737,6 +771,7 @@ export class CommonDao<
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
+    if (!opt.allowMutabiliity) this.requireObjectMutability()
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -747,6 +782,7 @@ export class CommonDao<
 
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
+    if (!opt.allowMutabiliity) this.requireObjectMutability()
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -765,6 +801,7 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean } = {},
   ): Promise<number> {
     this.requireWriteAccess()
+    if (!opt.allowMutabiliity) this.requireObjectMutability()
     q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
