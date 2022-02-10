@@ -614,33 +614,35 @@ export class CommonDao<
   }
 
   private async ensureImmutableDoesntExist(table: string, dbm: DBM): Promise<void> {
-    await this.throwIfObjectExists(
-      table,
-      dbm,
-      new AppError(DBLibError.OBJECT_IS_IMMUTABLE, {
+    await this.throwIfObjectExists(table, dbm, [
+      DBLibError.OBJECT_IS_IMMUTABLE,
+      {
         code: DBLibError.OBJECT_IS_IMMUTABLE,
         id: dbm.id,
         table,
-      }),
-    )
+      },
+    ])
   }
 
   private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
     // todo: retry N times
-    await this.throwIfObjectExists(
-      table,
-      dbm,
-      new AppError(DBLibError.NON_UNIQUE_ID, {
-        code: DBLibError.NON_UNIQUE_ID,
+    await this.throwIfObjectExists(table, dbm, [
+      DBLibError.OBJECT_IS_IMMUTABLE,
+      {
+        code: DBLibError.OBJECT_IS_IMMUTABLE,
         id: dbm.id,
         table,
-      }),
-    )
+      },
+    ])
   }
 
-  private async throwIfObjectExists(table: string, dbm: DBM, error: Error): Promise<void> {
+  private async throwIfObjectExists(
+    table: string,
+    dbm: DBM,
+    errorMeta: [DBLibError, any],
+  ): Promise<void> {
     const [existing] = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
-    if (existing) throw error
+    if (existing) throw new AppError(errorMeta[0], errorMeta[1])
   }
 
   /**
