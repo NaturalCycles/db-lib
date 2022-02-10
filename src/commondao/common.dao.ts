@@ -715,7 +715,8 @@ export class CommonDao<
     const dbms = await this.bmsToDBM(bms, opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     if (this.cfg.immutable)
-      throw new AppError('immutable DB entries are not supported in saveBatch')
+      await pMap(dbms, async dbm => await this.ensureImmutableDoesntExist(table, dbm))
+
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
         .slice(0, 10)
@@ -742,7 +743,8 @@ export class CommonDao<
       dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
       dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
-      if (this.cfg.immutable) throw new AppError('immutable objects are not supported in saveBatch')
+      if (this.cfg.immutable)
+        await pMap(dbms, async dbm => await this.ensureImmutableDoesntExist(table, dbm))
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
