@@ -204,13 +204,10 @@ test('modifications of immutable objects', async () => {
   // Ensure object cannot be modified with save
   await expect(immutableDao.save(item1Saved)).rejects.toThrow()
 
-  // Ensure object cannot be modified with saveBatch
-  const dbms = [item2!, item3!].map(i => {
-    i.id = `${Math.random()}`
-    return i
-  }) as TestItemDBM[]
+  // Ensure objects be saved with saveBatch
+  const bms = [item2!, item3!]
 
-  await expect(immutableDao.saveBatch(dbms)).resolves.not.toThrow()
+  await expect(immutableDao.saveBatch(bms)).resolves.not.toThrow()
 
   // Ensure Object can't be patched
   await expect(immutableDao.patch(item1Saved.id, { k2: 'patchedk2' })).rejects.toThrow()
