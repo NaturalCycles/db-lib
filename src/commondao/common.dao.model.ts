@@ -174,7 +174,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
   /**
    * @default false (for streams). Setting to true enables deletion of immutable objects
    */
-  allowMutabiliity?: boolean
+  allowMutability?: boolean
 
   /**
    * If true - data will be anonymized (by calling a BaseDao.anonymize() hook that you can extend in your Dao implementation).

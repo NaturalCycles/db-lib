@@ -217,12 +217,12 @@ test('modifications of immutable objects', async () => {
   await expect(immutableDao.deleteByQuery(q)).rejects.toThrow()
 
   // Ensure deletion is possible with override flag
-  await expect(immutableDao.deleteByQuery(q, { allowMutabiliity: true })).resolves.not.toThrow()
+  await expect(immutableDao.deleteByQuery(q, { allowMutability: true })).resolves.not.toThrow()
   await expect(
-    immutableDao.deleteById(item1Saved.id, { allowMutabiliity: true }),
+    immutableDao.deleteById(item1Saved.id, { allowMutability: true }),
   ).resolves.not.toThrow()
   await expect(
-    immutableDao.deleteByIds([item1Saved.id], { allowMutabiliity: true }),
+    immutableDao.deleteByIds([item1Saved.id], { allowMutability: true }),
   ).resolves.not.toThrow()
 })
 
