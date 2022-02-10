@@ -771,7 +771,7 @@ export class CommonDao<
   async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
-    if (!opt.allowMutabiliity) this.requireObjectMutability()
+    if (!opt.allowMutability) this.requireObjectMutability()
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -782,7 +782,7 @@ export class CommonDao<
 
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
-    if (!opt.allowMutabiliity) this.requireObjectMutability()
+    if (!opt.allowMutability) this.requireObjectMutability()
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -801,7 +801,7 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean } = {},
   ): Promise<number> {
     this.requireWriteAccess()
-    if (!opt.allowMutabiliity) this.requireObjectMutability()
+    if (!opt.allowMutability) this.requireObjectMutability()
     q.table = opt.table || q.table
     const op = `deleteByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
