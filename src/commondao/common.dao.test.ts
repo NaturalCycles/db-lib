@@ -217,13 +217,22 @@ test('modifications of immutable objects', async () => {
   await expect(immutableDao.deleteByQuery(q)).rejects.toThrow()
 
   // Ensure deletion is possible with override flag
-  await expect(immutableDao.deleteByQuery(q, { overrideImmutability: true })).resolves.not.toThrow()
+  await expect(immutableDao.deleteByQuery(q, { allowMutabiliity: true })).resolves.not.toThrow()
   await expect(
-    immutableDao.deleteById(item1Saved.id, { overrideImmutability: true }),
+    immutableDao.deleteById(item1Saved.id, { allowMutabiliity: true }),
   ).resolves.not.toThrow()
   await expect(
-    immutableDao.deleteByIds([item1Saved.id], { overrideImmutability: true }),
+    immutableDao.deleteByIds([item1Saved.id], { allowMutabiliity: true }),
   ).resolves.not.toThrow()
+})
+
+test('ensure mutable objects can be written to multiple times', async () => {
+  const [item1] = createTestItemsBM(1).map(r => _omit(r, ['id']))
+  const item1Saved = await dao.save(item1!)
+
+  item1Saved.k1 = 'modifiedk1'
+  // Ensure object cannot be modified with save
+  await expect(dao.save(item1Saved)).resolves.not.toThrow()
 })
 
 test('mutation', async () => {
