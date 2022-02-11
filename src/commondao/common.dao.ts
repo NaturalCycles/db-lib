@@ -601,7 +601,7 @@ export class CommonDao<
     const dbm = await this.bmToDBM(bm, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-    if (this.cfg.immutable) await this.ensureImmutableDoesntExist(table, dbm)
+    if (this.cfg.immutable) await this.ensureImmutableDontExist(table, [dbm.id])
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
@@ -613,12 +613,11 @@ export class CommonDao<
     return bm as any
   }
 
-  private async ensureImmutableDoesntExist(table: string, dbm: DBM): Promise<void> {
-    await this.throwIfObjectExists(table, dbm, [
+  private async ensureImmutableDontExist(table: string, ids: string[]): Promise<void> {
+    await this.throwIfObjectExists(table, ids, [
       DBLibError.OBJECT_IS_IMMUTABLE,
       {
         code: DBLibError.OBJECT_IS_IMMUTABLE,
-        id: dbm.id,
         table,
       },
     ])
@@ -626,23 +625,27 @@ export class CommonDao<
 
   private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
     // todo: retry N times
-    await this.throwIfObjectExists(table, dbm, [
-      DBLibError.OBJECT_IS_IMMUTABLE,
-      {
-        code: DBLibError.OBJECT_IS_IMMUTABLE,
-        id: dbm.id,
-        table,
-      },
-    ])
+    await this.throwIfObjectExists(
+      table,
+      [dbm.id],
+      [
+        DBLibError.OBJECT_IS_IMMUTABLE,
+        {
+          code: DBLibError.OBJECT_IS_IMMUTABLE,
+          table,
+        },
+      ],
+    )
   }
 
   private async throwIfObjectExists(
     table: string,
-    dbm: DBM,
+    ids: string[],
     errorMeta: [DBLibError, any],
   ): Promise<void> {
-    const [existing] = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
-    if (existing) throw new AppError(errorMeta[0], errorMeta[1])
+    const existing = await this.cfg.db.getByIds<DBM>(table, ids)
+    if (existing.length > 0)
+      throw new AppError(errorMeta[0], { ...errorMeta[1], ids: existing.map(i => i.id) })
   }
 
   /**
@@ -696,7 +699,7 @@ export class CommonDao<
       this.assignIdCreatedUpdated(dbm, opt) // mutates
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-      if (this.cfg.immutable) await this.ensureImmutableDoesntExist(table, dbm)
+      if (this.cfg.immutable) await this.ensureImmutableDontExist(table, [dbm.id])
     }
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm, table)
@@ -715,7 +718,10 @@ export class CommonDao<
     const dbms = await this.bmsToDBM(bms, opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     if (this.cfg.immutable)
-      await pMap(dbms, async dbm => await this.ensureImmutableDoesntExist(table, dbm))
+      await this.ensureImmutableDontExist(
+        table,
+        dbms.map(dbm => dbm.id),
+      )
 
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
       dbms
@@ -744,7 +750,10 @@ export class CommonDao<
       dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
       if (this.cfg.immutable)
-        await pMap(dbms, async dbm => await this.ensureImmutableDoesntExist(table, dbm))
+        await this.ensureImmutableDontExist(
+          table,
+          dbms.map(dbm => dbm.id),
+        )
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
