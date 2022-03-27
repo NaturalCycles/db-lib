@@ -1,4 +1,4 @@
-import { AsyncMapper, ErrorMode, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
+import { AsyncMapper, ErrorMode, pMap, _passthroughMapper, localTime } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -11,7 +11,6 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import { dayjs } from '@naturalcycles/time-lib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
@@ -103,7 +102,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
 
   let { tables } = opt
 
-  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
+  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(localTime(sinceUpdated).toPretty()) : ''
 
   console.log(`>> ${dimWhite('dbPipelineCopy')} started...${sinceUpdatedStr}`)
 

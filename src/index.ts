@@ -36,7 +36,6 @@ import {
   DBSaveBatchOperation,
   RunQueryResult,
 } from './db.model'
-import { getDB } from './getDB'
 import { CommonKeyValueDao, CommonKeyValueDaoCfg } from './kv/commonKeyValueDao'
 import { CommonKeyValueDB, KeyValueDBTuple } from './kv/commonKeyValueDB'
 import {
@@ -117,7 +116,6 @@ export {
   dbPipelineBackup,
   dbPipelineRestore,
   dbPipelineCopy,
-  getDB,
   DBLibError,
   BaseCommonDB,
   DBTransaction,

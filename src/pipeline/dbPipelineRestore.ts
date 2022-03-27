@@ -7,6 +7,7 @@ import {
   _mapValues,
   _passthroughMapper,
   SavedDBEntity,
+  localTime,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -24,7 +25,6 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../index'
@@ -133,7 +133,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   const strict = errorMode !== ErrorMode.SUPPRESS
   const onlyTables = opt.tables && new Set(opt.tables)
 
-  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
+  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(localTime(sinceUpdated).toPretty()) : ''
 
   console.log(
     `>> ${dimWhite('dbPipelineRestore')} started in ${grey(inputDirPath)}...${sinceUpdatedStr}`,

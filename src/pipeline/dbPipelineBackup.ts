@@ -1,5 +1,12 @@
 import { createGzip, ZlibOptions } from 'zlib'
-import { AppError, AsyncMapper, ErrorMode, pMap, _passthroughMapper } from '@naturalcycles/js-lib'
+import {
+  AppError,
+  AsyncMapper,
+  ErrorMode,
+  pMap,
+  _passthroughMapper,
+  localTime,
+} from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformLogProgress,
@@ -11,7 +18,6 @@ import {
   _pipeline,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import { dayjs } from '@naturalcycles/time-lib'
 import * as fs from 'fs-extra'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
@@ -144,7 +150,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
   let { tables } = opt
 
-  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(dayjs.unix(sinceUpdated).toPretty()) : ''
+  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(localTime(sinceUpdated).toPretty()) : ''
 
   console.log(
     `>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...${sinceUpdatedStr}`,
