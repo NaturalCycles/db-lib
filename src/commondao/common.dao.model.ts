@@ -10,27 +10,21 @@ import {
 import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
-// Hook DBM, BM, TM types should follow this exact order
-export type CommonDaoCreateIdHook<BM, DBM> = (obj: DBM | BM) => string
-export type CommonDaoParseNaturalIdHook<DBM> = (id: string) => Partial<DBM>
-export type CommonDaoBeforeCreateHook<BM> = (bm: Partial<BM>) => Partial<BM>
-export type CommonDaoBeforeDBMValidateHook<DBM> = (dbm: Partial<DBM>) => Partial<DBM>
-export type CommonDaoBeforeDBMToBMHook<BM, DBM> = (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
-export type CommonDaoBeforeBMToDBMHook<BM, DBM> = (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
-export type CommonDaoBeforeTMToBMHook<BM, TM> = (tm: TM) => Partial<BM>
-export type CommonDaoBeforeBMToTMHook<BM, TM> = (bm: BM) => Partial<TM>
-export type CommonDaoAnonymizeHook<DBM> = (dbm: DBM) => DBM
-
-interface CommonDaoHooks<BM, DBM, TM> {
-  createId: CommonDaoCreateIdHook<BM, DBM>
-  parseNaturalId: CommonDaoParseNaturalIdHook<DBM>
-  beforeCreate: CommonDaoBeforeCreateHook<BM>
-  beforeDBMValidate: CommonDaoBeforeDBMValidateHook<DBM>
-  beforeDBMToBM: CommonDaoBeforeDBMToBMHook<BM, DBM>
-  beforeBMToDBM: CommonDaoBeforeBMToDBMHook<BM, DBM>
-  beforeTMToBM: CommonDaoBeforeTMToBMHook<BM, TM>
-  beforeBMToTM: CommonDaoBeforeBMToTMHook<BM, TM>
-  anonymize: CommonDaoAnonymizeHook<DBM>
+export interface CommonDaoHooks<
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID>,
+  TM,
+  ID extends string | number,
+> {
+  createId: (obj: DBM | BM) => ID
+  parseNaturalId: (id: ID) => Partial<DBM>
+  beforeCreate: (bm: Partial<BM>) => Partial<BM>
+  beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
+  beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
+  beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
+  beforeTMToBM: (tm: TM) => Partial<BM>
+  beforeBMToTM: (bm: BM) => Partial<TM>
+  anonymize: (dbm: DBM) => DBM
 
   /**
    * If hook is defined - allows to prevent or modify the error thrown.
@@ -61,9 +55,10 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<
-  BM extends Partial<ObjectWithId>,
-  DBM extends ObjectWithId = Saved<BM>,
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID> = Saved<BM>,
   TM = BM,
+  ID extends string | number = DBM['id'],
 > {
   db: CommonDB
   table: string
@@ -109,7 +104,19 @@ export interface CommonDaoCfg<
   logStarted?: boolean
 
   // Hooks are designed with inspiration from got/ky interface
-  hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
+  hooks?: Partial<CommonDaoHooks<BM, DBM, TM, ID>>
+
+  /**
+   * Defaults to 'string'
+   */
+  idType?: 'string' | 'number'
+
+  /**
+   * Defaults to true.
+   * Set to false to disable auto-generation of `id`.
+   * Useful e.g when your DB is generating ids by itself (e.g mysql auto_increment).
+   */
+  createId?: boolean
 
   /**
    * Defaults to true

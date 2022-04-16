@@ -216,14 +216,15 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends Partial<ObjectWithId>,
-  DBM extends ObjectWithId,
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID>,
   TM,
+  ID extends string | number,
 > extends DBQuery<DBM> {
   /**
    * Pass `table` to override table.
    */
-  constructor(public dao: CommonDao<BM, DBM, TM>, table?: string) {
+  constructor(public dao: CommonDao<BM, DBM, TM, ID>, table?: string) {
     super(table || dao.cfg.table)
   }
 
@@ -281,17 +282,17 @@ export class RunnableDBQuery<
     return this.dao.streamQueryAsDBM(this, opt)
   }
 
-  async queryIds(opt?: CommonDaoOptions): Promise<string[]> {
+  async queryIds(opt?: CommonDaoOptions): Promise<ID[]> {
     return await this.dao.queryIds(this, opt)
   }
 
-  streamQueryIds(opt?: CommonDaoStreamOptions): ReadableTyped<string> {
+  streamQueryIds(opt?: CommonDaoStreamOptions): ReadableTyped<ID> {
     return this.dao.streamQueryIds(this, opt)
   }
 
   async streamQueryIdsForEach(
-    mapper: AsyncMapper<string, void>,
-    opt?: CommonDaoStreamForEachOptions<string>,
+    mapper: AsyncMapper<ID, void>,
+    opt?: CommonDaoStreamForEachOptions<ID>,
   ): Promise<void> {
     await this.dao.streamQueryIdsForEach(this, mapper, opt)
   }

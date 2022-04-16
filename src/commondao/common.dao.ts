@@ -59,33 +59,46 @@ const isCI = !!process.env['CI']
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<
-  BM extends Partial<ObjectWithId>,
-  DBM extends ObjectWithId = Saved<BM>,
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID> = Saved<BM>,
   TM = BM,
+  ID extends string | number = DBM['id'],
 > {
-  constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
+  constructor(public cfg: CommonDaoCfg<BM, DBM, TM, ID>) {
     this.cfg = {
       // Default is to NOT log in AppEngine and in CI,
       // otherwise to log Operations
       // e.g in Dev (local machine), Test - it will log operations (useful for debugging)
       logLevel: isGAE || isCI ? CommonDaoLogLevel.NONE : CommonDaoLogLevel.OPERATIONS,
+      idType: 'string',
+      createId: true,
       created: true,
       updated: true,
       logger: console,
       ...cfg,
       hooks: {
-        createId: () => stringId(),
         parseNaturalId: () => ({}),
         beforeCreate: bm => bm as BM,
         beforeDBMValidate: dbm => dbm,
         beforeDBMToBM: dbm => dbm as any,
         beforeBMToDBM: bm => bm as any,
-        beforeTMToBM: tm => tm as any,
+        beforeTMToBM: tm => tm,
         beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,
         ...cfg.hooks,
       },
+    }
+
+    if (this.cfg.createId) {
+      _assert(
+        this.cfg.idType === 'string',
+        'db-lib: automatic generation of non-string ids is not supported',
+      )
+
+      this.cfg.hooks!.createId ||= () => stringId() as ID
+    } else {
+      delete this.cfg.hooks!.createId
     }
   }
 
@@ -93,15 +106,13 @@ export class CommonDao<
   create(part: Partial<BM> = {}, opt: CommonDaoOptions = {}): Saved<BM> {
     let bm = this.cfg.hooks!.beforeCreate!(part) as BM
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-
-    // If no SCHEMA - return as is
     return this.assignIdCreatedUpdated(bm, opt)
   }
 
   // GET
   async getById(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getById(id?: string, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
-  async getById(id?: string, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
+  async getById(id?: ID, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
+  async getById(id?: ID, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
     if (!id) return null
     const op = `getById(${id})`
     const table = opt.table || this.cfg.table
@@ -126,22 +137,14 @@ export class CommonDao<
     return bm || null
   }
 
-  async getByIdOrEmpty(
-    id: string,
-    part: Partial<BM> = {},
-    opt?: CommonDaoOptions,
-  ): Promise<Saved<BM>> {
+  async getByIdOrEmpty(id: ID, part: Partial<BM> = {}, opt?: CommonDaoOptions): Promise<Saved<BM>> {
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
     return this.create({ ...part, id }, opt)
   }
 
-  async getByIdAsDBMOrEmpty(
-    id: string,
-    part: Partial<BM> = {},
-    opt?: CommonDaoOptions,
-  ): Promise<DBM> {
+  async getByIdAsDBMOrEmpty(id: ID, part: Partial<BM> = {}, opt?: CommonDaoOptions): Promise<DBM> {
     const dbm = await this.getByIdAsDBM(id, opt)
     if (dbm) return dbm
 
@@ -150,8 +153,8 @@ export class CommonDao<
   }
 
   async getByIdAsDBM(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsDBM(id?: string, opt?: CommonDaoOptions): Promise<DBM | null>
-  async getByIdAsDBM(id?: string, opt: CommonDaoOptions = {}): Promise<DBM | null> {
+  async getByIdAsDBM(id?: ID, opt?: CommonDaoOptions): Promise<DBM | null>
+  async getByIdAsDBM(id?: ID, opt: CommonDaoOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
@@ -165,8 +168,8 @@ export class CommonDao<
   }
 
   async getByIdAsTM(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsTM(id?: string, opt?: CommonDaoOptions): Promise<TM | null>
-  async getByIdAsTM(id?: string, opt: CommonDaoOptions = {}): Promise<TM | null> {
+  async getByIdAsTM(id?: ID, opt?: CommonDaoOptions): Promise<TM | null>
+  async getByIdAsTM(id?: ID, opt: CommonDaoOptions = {}): Promise<TM | null> {
     if (!id) return null
     const op = `getByIdAsTM(${id})`
     const table = opt.table || this.cfg.table
@@ -182,7 +185,7 @@ export class CommonDao<
     return tm || null
   }
 
-  async getByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
+  async getByIds(ids: ID[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -192,7 +195,7 @@ export class CommonDao<
     return bms
   }
 
-  async getByIdsAsDBM(ids: string[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
+  async getByIdsAsDBM(ids: ID[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
     const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
@@ -201,7 +204,7 @@ export class CommonDao<
     return dbms
   }
 
-  async requireById(id: string, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
+  async requireById(id: ID, opt: CommonDaoOptions = {}): Promise<Saved<BM>> {
     const r = await this.getById(id, opt)
     if (!r) {
       this.throwRequiredError(id, opt)
@@ -209,7 +212,7 @@ export class CommonDao<
     return r
   }
 
-  async requireByIdAsDBM(id: string, opt: CommonDaoOptions = {}): Promise<DBM> {
+  async requireByIdAsDBM(id: ID, opt: CommonDaoOptions = {}): Promise<DBM> {
     const r = await this.getByIdAsDBM(id, opt)
     if (!r) {
       this.throwRequiredError(id, opt)
@@ -217,7 +220,7 @@ export class CommonDao<
     return r
   }
 
-  private throwRequiredError(id: string, opt: CommonDaoOptions): never {
+  private throwRequiredError(id: ID, opt: CommonDaoOptions): never {
     const table = opt.table || this.cfg.table
     throw new AppError(`DB row required, but not found: ${table}.${id}`, {
       code: DBLibError.DB_ROW_REQUIRED,
@@ -267,8 +270,8 @@ export class CommonDao<
   /**
    * Pass `table` to override table
    */
-  query(table?: string): RunnableDBQuery<BM, DBM, TM> {
-    return new RunnableDBQuery<BM, DBM, TM>(this, table)
+  query(table?: string): RunnableDBQuery<BM, DBM, TM, ID> {
+    return new RunnableDBQuery<BM, DBM, TM, ID>(this, table)
   }
 
   async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
@@ -514,18 +517,18 @@ export class CommonDao<
     )
   }
 
-  async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<string[]> {
+  async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<ID[]> {
     q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
     return rows.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<string> {
+  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<ID> {
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     return this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
-      transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id, {
+      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
         errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
       }),
     )
@@ -533,8 +536,8 @@ export class CommonDao<
 
   async streamQueryIdsForEach(
     q: DBQuery<DBM>,
-    mapper: AsyncMapper<string, void>,
-    opt: CommonDaoStreamForEachOptions<string> = {},
+    mapper: AsyncMapper<ID, void>,
+    opt: CommonDaoStreamForEachOptions<ID> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
@@ -545,9 +548,9 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id),
+      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id),
       transformTap(() => count++),
-      transformMap<string, void>(mapper, {
+      transformMap<ID, void>(mapper, {
         ...opt,
         predicate: _passthroughPredicate,
       }),
@@ -573,18 +576,14 @@ export class CommonDao<
   assignIdCreatedUpdated(obj: DBM | BM, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
-    obj.id = obj.id || this.cfg.hooks!.createId!(obj)
+    obj.id ||= this.cfg.hooks!.createId?.(obj)
 
     if (this.cfg.created) {
-      Object.assign(obj, {
-        created: (obj as any).created || (obj as any).updated || now,
-      })
+      obj['created'] ||= obj['updated'] || now
     }
 
     if (this.cfg.updated) {
-      Object.assign(obj, {
-        updated: opt.preserveUpdatedCreated && (obj as any).updated ? (obj as any).updated : now,
-      })
+      obj['updated'] = opt.preserveUpdatedCreated && obj['updated'] ? obj['updated'] : now
     }
 
     return obj as any
@@ -613,7 +612,7 @@ export class CommonDao<
     return bm as any
   }
 
-  private async ensureImmutableDontExist(table: string, ids: string[]): Promise<void> {
+  private async ensureImmutableDontExist(table: string, ids: ID[]): Promise<void> {
     await this.throwIfObjectExists(table, ids, [
       DBLibError.OBJECT_IS_IMMUTABLE,
       {
@@ -640,7 +639,7 @@ export class CommonDao<
 
   private async throwIfObjectExists(
     table: string,
-    ids: string[],
+    ids: ID[],
     errorMeta: [DBLibError, any],
   ): Promise<void> {
     const existing = await this.cfg.db.getByIds<DBM>(table, ids)
@@ -656,11 +655,7 @@ export class CommonDao<
    *
    * Convenience method to replace 3 operations (loading+patching+saving) with one.
    */
-  async patch(
-    id: string,
-    patch: Partial<BM>,
-    opt: CommonDaoSaveOptions<DBM> = {},
-  ): Promise<Saved<BM>> {
+  async patch(id: ID, patch: Partial<BM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
     return await this.save(
       {
         ...(await this.getByIdOrEmpty(id, patch, opt)),
@@ -670,11 +665,7 @@ export class CommonDao<
     )
   }
 
-  async patchAsDBM(
-    id: string,
-    patch: Partial<DBM>,
-    opt: CommonDaoSaveOptions<DBM> = {},
-  ): Promise<DBM> {
+  async patchAsDBM(id: ID, patch: Partial<DBM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM> {
     const dbm =
       (await this.getByIdAsDBM(id, opt)) ||
       (this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM)
@@ -778,8 +769,8 @@ export class CommonDao<
    * @returns number of deleted items
    */
   async deleteById(id: undefined, opt?: CommonDaoOptions): Promise<0>
-  async deleteById(id?: string, opt?: CommonDaoOptions): Promise<number>
-  async deleteById(id?: string, opt: CommonDaoOptions = {}): Promise<number> {
+  async deleteById(id?: ID, opt?: CommonDaoOptions): Promise<number>
+  async deleteById(id?: ID, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
     if (!opt.allowMutability) this.requireObjectMutability()
@@ -791,7 +782,7 @@ export class CommonDao<
     return ids
   }
 
-  async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
+  async deleteByIds(ids: ID[], opt: CommonDaoOptions = {}): Promise<number> {
     this.requireWriteAccess()
     if (!opt.allowMutability) this.requireObjectMutability()
     const op = `deleteByIds(${ids.join(', ')})`
@@ -823,7 +814,7 @@ export class CommonDao<
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-        transformMapSimple<ObjectWithId, string>(objectWithId => objectWithId.id, {
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
           errorMode: ErrorMode.SUPPRESS,
         }),
         transformBuffer<string>({ batchSize }),

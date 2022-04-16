@@ -137,17 +137,17 @@ export class InMemoryDB implements CommonDB {
     if (opt.dropIfExists) {
       this.data[table] = {}
     } else {
-      this.data[table] = this.data[table] || {}
+      this.data[table] ||= {}
     }
   }
 
   async getByIds<ROW extends ObjectWithId>(
     _table: string,
-    ids: string[],
+    ids: ROW['id'][],
     _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
-    this.data[table] = this.data[table] || {}
+    this.data[table] ||= {}
     return ids.map(id => this.data[table]![id]).filter(Boolean) as ROW[]
   }
 
@@ -157,7 +157,7 @@ export class InMemoryDB implements CommonDB {
     _opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
-    this.data[table] = this.data[table] || {}
+    this.data[table] ||= {}
 
     rows.forEach(r => {
       if (!r.id) {
@@ -179,7 +179,11 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByIds(_table: string, ids: string[], _opt?: CommonDBOptions): Promise<number> {
+  async deleteByIds<ROW extends ObjectWithId>(
+    _table: string,
+    ids: ROW['id'][],
+    _opt?: CommonDBOptions,
+  ): Promise<number> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] = this.data[table] || {}
 

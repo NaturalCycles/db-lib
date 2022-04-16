@@ -45,7 +45,7 @@ export interface CacheDBCfg {
   logger?: CommonLogger
 }
 
-export interface CacheDBOptions<ROW extends ObjectWithId> extends CommonDBSaveOptions<ROW> {
+export interface CacheDBOptions {
   /**
    * @default false
    */
@@ -57,9 +57,10 @@ export interface CacheDBOptions<ROW extends ObjectWithId> extends CommonDBSaveOp
   onlyCache?: boolean
 }
 
-export interface CacheDBStreamOptions<ROW extends ObjectWithId>
-  extends CacheDBOptions<ROW>,
-    CommonDBStreamOptions {}
-export interface CacheDBCreateOptions<ROW extends ObjectWithId>
-  extends CacheDBOptions<ROW>,
-    CommonDBCreateOptions {}
+export interface CacheDBSaveOptions<ROW extends ObjectWithId>
+  extends CacheDBOptions,
+    CommonDBSaveOptions<ROW> {}
+
+export interface CacheDBStreamOptions extends CacheDBOptions, CommonDBStreamOptions {}
+
+export interface CacheDBCreateOptions extends CacheDBOptions, CommonDBCreateOptions {}

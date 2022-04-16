@@ -13,6 +13,7 @@ import {
   CacheDBCfg,
   CacheDBCreateOptions,
   CacheDBOptions,
+  CacheDBSaveOptions,
   CacheDBStreamOptions,
 } from './cache.db.model'
 
@@ -59,7 +60,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
   override async createTable<ROW extends ObjectWithId>(
     table: string,
     schema: JsonSchemaObject<ROW>,
-    opt: CacheDBCreateOptions<ROW> = {},
+    opt: CacheDBCreateOptions = {},
   ): Promise<void> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       await this.cfg.downstreamDB.createTable(table, schema, opt)
@@ -72,11 +73,11 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async getByIds<ROW extends ObjectWithId>(
     table: string,
-    ids: string[],
-    opt: CacheDBOptions<ROW> = {},
+    ids: ROW['id'][],
+    opt: CacheDBSaveOptions<ROW> = {},
   ): Promise<ROW[]> {
     const resultMap: StringMap<ROW> = {}
-    const missingIds: string[] = []
+    const missingIds: ROW['id'][] = []
 
     if (!opt.skipCache && !this.cfg.skipCache) {
       const results = await this.cfg.cacheDB.getByIds<ROW>(table, ids, opt)
@@ -118,13 +119,13 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async deleteByIds<ROW extends ObjectWithId>(
     table: string,
-    ids: string[],
-    opt: CacheDBOptions<ROW> = {},
+    ids: ROW['id'][],
+    opt: CacheDBOptions = {},
   ): Promise<number> {
     let deletedIds = 0
 
     if (!opt.onlyCache && !this.cfg.onlyCache) {
-      deletedIds = await this.cfg.downstreamDB.deleteByIds(table, ids, opt)
+      deletedIds = await this.cfg.downstreamDB.deleteByIds<ROW>(table, ids, opt)
 
       if (this.cfg.logDownstream) {
         this.cfg.logger?.log(`${table}.deleteByIds ${deletedIds} rows from downstream`)
@@ -132,11 +133,13 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
 
     if (!opt.skipCache && !this.cfg.skipCache) {
-      const cacheResult = this.cfg.cacheDB.deleteByIds(table, ids, opt).then(deletedFromCache => {
-        if (this.cfg.logCached) {
-          this.cfg.logger?.log(`${table}.deleteByIds ${deletedFromCache} rows from cache`)
-        }
-      })
+      const cacheResult = this.cfg.cacheDB
+        .deleteByIds<ROW>(table, ids, opt)
+        .then(deletedFromCache => {
+          if (this.cfg.logCached) {
+            this.cfg.logger?.log(`${table}.deleteByIds ${deletedFromCache} rows from cache`)
+          }
+        })
       if (this.cfg.awaitCache) await cacheResult
     }
 
@@ -146,7 +149,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
   override async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
-    opt: CacheDBOptions<ROW> = {},
+    opt: CacheDBSaveOptions<ROW> = {},
   ): Promise<void> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       await this.cfg.downstreamDB.saveBatch(table, rows, opt)
@@ -174,7 +177,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt: CacheDBOptions<ROW> = {},
+    opt: CacheDBSaveOptions<ROW> = {},
   ): Promise<RunQueryResult<ROW>> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const { rows, ...queryResult } = await this.cfg.downstreamDB.runQuery(q, opt)
@@ -204,7 +207,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt: CacheDBOptions<ROW> = {},
+    opt: CacheDBOptions = {},
   ): Promise<number> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       return await this.cfg.downstreamDB.runQueryCount(q, opt)
@@ -221,7 +224,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt: CacheDBStreamOptions<ROW> = {},
+    opt: CacheDBStreamOptions = {},
   ): Readable {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const stream = this.cfg.downstreamDB.streamQuery<ROW>(q, opt)
@@ -260,7 +263,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
 
   override async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt: CacheDBOptions<ROW> = {},
+    opt: CacheDBOptions = {},
   ): Promise<number> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const deletedIds = await this.cfg.downstreamDB.deleteByQuery(q, opt)

@@ -64,7 +64,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   override async getByIds<ROW extends ObjectWithId>(
     table: string,
-    ids: string[],
+    ids: ROW['id'][],
     _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const byId = _by(await this.loadFile<ROW>(table), r => r.id)
@@ -173,7 +173,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
   override async deleteByIds<ROW extends ObjectWithId>(
     table: string,
-    ids: string[],
+    ids: ROW['id'][],
     _opt?: CommonDBOptions,
   ): Promise<number> {
     if (!ids.length) return 0

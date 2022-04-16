@@ -35,7 +35,7 @@ export class BaseCommonDB implements CommonDB {
     _schema: JsonSchemaObject<ROW>,
   ): Promise<void> {}
 
-  async deleteByIds(_table: string, _ids: string[]): Promise<number> {
+  async deleteByIds<ROW extends ObjectWithId>(_table: string, _ids: ROW['id'][]): Promise<number> {
     return 0
   }
 
@@ -43,7 +43,7 @@ export class BaseCommonDB implements CommonDB {
     return 0
   }
 
-  async getByIds<ROW extends ObjectWithId>(_table: string, _ids: string[]): Promise<ROW[]> {
+  async getByIds<ROW extends ObjectWithId>(_table: string, _ids: ROW['id'][]): Promise<ROW[]> {
     return []
   }
 

@@ -1,5 +1,4 @@
 import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
-import { CommonDB } from './common.db'
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CommonDBOptions {}
@@ -16,8 +15,9 @@ export type CommonDBStreamOptions = CommonDBOptions
 
 export interface CommonDBCreateOptions extends CommonDBOptions {
   /**
-   * @default false
    * Caution! If set to true - will actually DROP the table!
+   *
+   * @default false
    */
   dropIfExists?: boolean
 }
@@ -50,20 +50,4 @@ export enum DBModelType {
   DBM = 'DBM',
   BM = 'BM',
   TM = 'TM',
-}
-
-/**
- * Interface for a module (lib) that implements CommonDB.
- *
- * Example:
- *
- * const lib: CommonDBModule = require('mysql-lib')
- * const db = lib.getDB()
- */
-export interface CommonDBAdapter {
-  /**
-   * @param cfg was read from SECRET_DB${i} by secret('SECRET_DB${i}') method and passed there.
-   * It's a string that can contain e.g JSON.stringified configuration object (depends on the adapter).
-   */
-  getDBAdapter(cfg?: string): CommonDB
 }
