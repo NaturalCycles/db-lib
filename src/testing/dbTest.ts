@@ -5,9 +5,9 @@ import { DBQuery } from '../query/dbQuery'
 import {
   createTestItemDBM,
   createTestItemsDBM,
-  getTestItemSchema,
   TestItemDBM,
   TEST_TABLE,
+  testItemDBMJsonSchema,
 } from './test.model'
 import { deepFreeze } from './test.util'
 
@@ -110,7 +110,7 @@ export function runCommonDBTest(
   // CREATE TABLE, DROP
   if (createTable) {
     test('createTable, dropIfExists=true', async () => {
-      await db.createTable(TEST_TABLE, getTestItemSchema(), { dropIfExists: true })
+      await db.createTable(TEST_TABLE, testItemDBMJsonSchema.build(), { dropIfExists: true })
     })
   }
 

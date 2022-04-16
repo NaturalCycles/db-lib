@@ -11,8 +11,9 @@ import {
   testItemTMSchema,
   TEST_TABLE,
   createTestItemBM,
+  testItemDBMJsonSchema,
 } from './test.model'
-import { getTestItemSchema, TestItemBM } from '.'
+import { TestItemBM } from '.'
 
 export function runCommonDaoTest(
   db: CommonDB,
@@ -65,7 +66,7 @@ export function runCommonDaoTest(
   // CREATE TABLE, DROP
   if (createTable) {
     test('createTable, dropIfExists=true', async () => {
-      await dao.createTable(getTestItemSchema(), { dropIfExists: true })
+      await dao.createTable(testItemDBMJsonSchema.build(), { dropIfExists: true })
     })
   }
 

@@ -1,4 +1,4 @@
-import { jsonSchema, JsonSchemaObject, _range, BaseDBEntity, Saved } from '@naturalcycles/js-lib'
+import { jsonSchema, _range, BaseDBEntity, Saved } from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,
@@ -93,21 +93,4 @@ export function createTestItemsDBM(count = 1): TestItemDBM[] {
 
 export function createTestItemsBM(count = 1): Saved<TestItemBM>[] {
   return _range(1, count + 1).map(num => createTestItemBM(num))
-}
-
-const testItemJsonSchema = jsonSchema
-  .object<TestItemDBM>({
-    id: jsonSchema.string(),
-    k1: jsonSchema.string(),
-    k2: jsonSchema.string(),
-    k3: jsonSchema.number(),
-    even: jsonSchema.boolean(),
-    created: jsonSchema.unixTimestamp(),
-    updated: jsonSchema.unixTimestamp(),
-  })
-  .build()
-
-export function getTestItemSchema(): JsonSchemaObject<TestItemDBM> {
-  // return CommonSchemaGenerator.generateFromRows({ table: TEST_TABLE }, createTestItemsDBM())
-  return testItemJsonSchema
 }
