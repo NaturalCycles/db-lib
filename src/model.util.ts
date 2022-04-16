@@ -1,5 +1,5 @@
 import { stringId } from '@naturalcycles/nodejs-lib'
-import { CreatedUpdated, CreatedUpdatedId, ObjectWithId } from '@naturalcycles/js-lib'
+import { CreatedUpdated, CreatedUpdatedId } from '@naturalcycles/js-lib'
 
 export function createdUpdatedFields(
   existingObject?: Partial<CreatedUpdated> | null,
@@ -12,19 +12,13 @@ export function createdUpdatedFields(
 }
 
 export function createdUpdatedIdFields(
-  existingObject?: Partial<CreatedUpdatedId> | null,
-): CreatedUpdatedId {
+  existingObject?: Partial<CreatedUpdatedId<string>> | null,
+): CreatedUpdatedId<string> {
   const now = Math.floor(Date.now() / 1000)
   return {
     created: existingObject?.created || now,
     id: existingObject?.id || stringId(),
     updated: now,
-  }
-}
-
-export function idField(existingObject?: Partial<CreatedUpdatedId> | null): ObjectWithId {
-  return {
-    id: existingObject?.id || stringId(),
   }
 }
 
