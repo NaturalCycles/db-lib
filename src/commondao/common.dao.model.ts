@@ -209,7 +209,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveOptions<DBM extends ObjectWithId>
+export interface CommonDaoSaveOptions<DBM extends Partial<ObjectWithId>>
   extends CommonDaoOptions,
     CommonDBSaveOptions<DBM> {
   /**

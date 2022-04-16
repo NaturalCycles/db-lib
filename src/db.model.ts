@@ -1,14 +1,29 @@
 import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
 
+/**
+ * Similar to SQL INSERT, UPDATE.
+ * Insert will fail if row already exists.
+ * Update will fail if row is missing.
+ * Upsert will auto-detect and use Insert or Update to not fail.
+ *
+ * Default is Upsert.
+ */
+export type CommonDBSaveMethod = 'upsert' | 'insert' | 'update'
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CommonDBOptions {}
 
 /**
  * All properties default to undefined.
  */
-export interface CommonDBSaveOptions<ROW extends ObjectWithId = AnyObjectWithId>
+export interface CommonDBSaveOptions<ROW extends Partial<ObjectWithId> = AnyObjectWithId>
   extends CommonDBOptions {
   excludeFromIndexes?: (keyof ROW)[]
+
+  /**
+   * Default is `upsert`
+   */
+  saveMethod?: CommonDBSaveMethod
 }
 
 export type CommonDBStreamOptions = CommonDBOptions

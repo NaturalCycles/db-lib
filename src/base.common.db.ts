@@ -55,7 +55,7 @@ export class BaseCommonDB implements CommonDB {
     return 0
   }
 
-  async saveBatch<ROW extends ObjectWithId>(
+  async saveBatch<ROW extends Partial<ObjectWithId>>(
     _table: string,
     _rows: ROW[],
     _opt?: CommonDBSaveOptions<ROW>,

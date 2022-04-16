@@ -57,7 +57,7 @@ export interface CacheDBOptions {
   onlyCache?: boolean
 }
 
-export interface CacheDBSaveOptions<ROW extends ObjectWithId>
+export interface CacheDBSaveOptions<ROW extends Partial<ObjectWithId>>
   extends CacheDBOptions,
     CommonDBSaveOptions<ROW> {}
 

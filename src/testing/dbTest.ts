@@ -21,6 +21,8 @@ export interface CommonDBImplementationFeatures {
   dbQueryFilterIn?: boolean
   dbQueryOrder?: boolean
   dbQuerySelectFields?: boolean
+  insert?: boolean
+  update?: boolean
 
   createTable?: boolean
   tableSchemas?: boolean
@@ -80,6 +82,8 @@ export function runCommonDBTest(
     // dbQueryFilterIn = true,
     dbQueryOrder = true,
     dbQuerySelectFields = true,
+    insert = true,
+    update = true,
     streaming = true,
     strongConsistency = true,
     bufferSupport = true,
@@ -176,9 +180,27 @@ export function runCommonDBTest(
     })
   }
 
+  if (update) {
+    test('saveBatch UPDATE method should throw', async () => {
+      await expect(db.saveBatch(TEST_TABLE, items, { saveMethod: 'update' })).rejects.toThrow()
+    })
+  }
+
   test('saveBatch test items', async () => {
     await db.saveBatch(TEST_TABLE, items)
   })
+
+  if (insert) {
+    test('saveBatch INSERT method should throw', async () => {
+      await expect(db.saveBatch(TEST_TABLE, items, { saveMethod: 'insert' })).rejects.toThrow()
+    })
+  }
+
+  if (update) {
+    test('saveBatch UPDATE method should pass', async () => {
+      await db.saveBatch(TEST_TABLE, items, { saveMethod: 'update' })
+    })
+  }
 
   // GET not empty
   test('getByIds all items', async () => {

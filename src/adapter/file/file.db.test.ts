@@ -9,6 +9,8 @@ const db = new FileDB({
 describe('runCommonDBTest', () =>
   runCommonDBTest(db, {
     bufferSupport: false, // todo: implement
+    insert: false,
+    update: false,
   }))
 
 describe('runCommonDaoTest', () => runCommonDaoTest(db))

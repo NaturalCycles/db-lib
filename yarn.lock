@@ -782,9 +782,9 @@
     yargs "^17.0.0"
 
 "@naturalcycles/js-lib@^14.0.0":
-  version "14.98.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.98.1.tgz#3df41076d86c1e0bb4058747b02e00defce97de3"
-  integrity sha512-vp3FzxmCMsCSsQNrXJLucj0FAEo0m4sPKoLcSms+RqE2JYbS/daQIjDy1l6H1e448KHWuD1BDPLIZfpUkAtE7Q==
+  version "14.98.2"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.98.2.tgz#76dd4ec23b805837a3e84b088a13a15dea22e29b"
+  integrity sha512-D2QjRNFEtGPf9osVNOYUGylTpymW3wsGMHRPsdv0aj0tOb3gPLy/xJA1Rvjbwp2zK69IR2eDCPkIrwllfqnhPw==
   dependencies:
     tslib "^2.0.0"
 
@@ -3019,9 +3019,9 @@ fresh@0.5.2:
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
 
 fs-extra@^10.0.0:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.1.tgz#27de43b4320e833f6867cc044bfce29fdf0ef3b8"
-  integrity sha512-NbdoVMZso2Lsrn/QwLXOy6rm0ufY2zEOKCDzJR/0kBsb0E6qed0P3iYK+Ath3BfvXEeu4JhEtXLgILx5psUfag==
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
+  integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"

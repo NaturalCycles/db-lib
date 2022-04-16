@@ -151,10 +151,10 @@ export class InMemoryDB implements CommonDB {
     return ids.map(id => this.data[table]![id]).filter(Boolean) as ROW[]
   }
 
-  async saveBatch<ROW extends ObjectWithId>(
+  async saveBatch<ROW extends Partial<ObjectWithId>>(
     _table: string,
     rows: ROW[],
-    _opt?: CommonDBSaveOptions<ROW>,
+    opt: CommonDBSaveOptions<ROW> = {},
   ): Promise<void> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
@@ -162,20 +162,23 @@ export class InMemoryDB implements CommonDB {
     rows.forEach(r => {
       if (!r.id) {
         this.cfg.logger?.warn({ rows })
-        throw new Error(`InMemoryDB: id doesn't exist for row`)
+        throw new Error(
+          `InMemoryDB doesn't support id auto-generation in saveBatch, row without id was given`,
+        )
+      }
+
+      if (opt.saveMethod === 'insert' && this.data[table]![r.id]) {
+        throw new Error(`InMemoryDB: INSERT failed, entity exists: ${table}.${r.id}`)
+      }
+
+      if (opt.saveMethod === 'update' && !this.data[table]![r.id]) {
+        throw new Error(`InMemoryDB: UPDATE failed, entity doesn't exist: ${table}.${r.id}`)
       }
 
       // JSON parse/stringify (deep clone) is to:
       // 1. Not store values "by reference" (avoid mutation bugs)
       // 2. Simulate real DB that would do something like that in a transport layer anyway
       this.data[table]![r.id] = JSON.parse(JSON.stringify(r), bufferReviver)
-
-      // special treatment for Buffers (assign them raw, without JSON parse/stringify)
-      // Object.entries(r).forEach(([k, v]) => {
-      //   if (Buffer.isBuffer(v)) {
-      //     this.data[table]![r.id]![k] = v
-      //   }
-      // })
     })
   }
 

@@ -15,6 +15,7 @@ import {
   pMap,
   pTimeout,
   Saved,
+  Unsaved,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -573,10 +574,11 @@ export class CommonDao<
    */
   assignIdCreatedUpdated(obj: DBM, opt?: CommonDaoOptions): DBM
   assignIdCreatedUpdated(obj: BM, opt?: CommonDaoOptions): Saved<BM>
-  assignIdCreatedUpdated(obj: DBM | BM, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
+  assignIdCreatedUpdated(obj: Unsaved<BM>, opt?: CommonDaoOptions): Saved<BM>
+  assignIdCreatedUpdated(obj: DBM | BM | Unsaved<BM>, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
-    obj.id ||= this.cfg.hooks!.createId?.(obj)
+    obj.id ||= this.cfg.hooks!.createId?.(obj as BM)
 
     if (this.cfg.created) {
       obj['created'] ||= obj['updated'] || now
@@ -593,11 +595,11 @@ export class CommonDao<
   /**
    * Mutates with id, created, updated
    */
-  async save(bm: BM, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
+  async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
     const idWasGenerated = !bm.id
     this.assignIdCreatedUpdated(bm, opt) // mutates
-    const dbm = await this.bmToDBM(bm, opt)
+    const dbm = await this.bmToDBM(bm as BM, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     if (this.cfg.immutable) await this.ensureImmutableDontExist(table, [dbm.id])
@@ -702,11 +704,11 @@ export class CommonDao<
     return dbm
   }
 
-  async saveBatch(bms: BM[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>[]> {
+  async saveBatch(bms: Unsaved<BM>[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
-    const dbms = await this.bmsToDBM(bms, opt)
+    const dbms = await this.bmsToDBM(bms as BM[], opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     if (this.cfg.immutable)
       await this.ensureImmutableDontExist(

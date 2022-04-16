@@ -18,6 +18,7 @@ import {
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
+  CommonDBSaveMethod,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   DBDeleteByIdsOperation,
@@ -62,6 +63,7 @@ export type {
   CommonDaoHooks,
   CommonDBOptions,
   CommonDBSaveOptions,
+  CommonDBSaveMethod,
   CommonDBStreamOptions,
   CommonDBCreateOptions,
   CommonDB,

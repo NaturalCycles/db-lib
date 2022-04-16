@@ -11,6 +11,8 @@ const db = new FileDB({
 describe('runCommonDBTest', () =>
   runCommonDBTest(db, {
     bufferSupport: false, // todo: use bufferReviver
+    insert: false,
+    update: false,
   }))
 
 describe('runCommonDaoTest', () => runCommonDaoTest(db))
