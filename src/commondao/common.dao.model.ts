@@ -73,18 +73,19 @@ export interface CommonDaoCfg<
   excludeFromIndexes?: (keyof DBM)[]
 
   /**
-   * @default to false
-   * Set to true to limit DB writing:
-   * * Will throw an error if an object with matching ID already exists during save().
-   * * saveBatch, delete*() and patch() will throw.
+   * Defaults to false.
+   * Setting it to true will set saveMethod to `insert` for save/saveBatch, which will
+   * fail for rows that already exist in the DB (if CommonDB implementation supports it).
    *
-   * Although deletion is possible by passing (opt.overrideImmutability === true)
+   * `delete*` and `patch` will throw.
+   *
+   * You can still override saveMethod, or set opt.allowMutability to allow deletion.
    */
   immutable?: boolean
 
   /**
-   * @default to false
-   * Set to true to limit DB writing (will throw an error is such case).
+   * Defaults to false.
+   * Set to true to limit DB writing (will throw an error in such case).
    */
   readOnly?: boolean
 
