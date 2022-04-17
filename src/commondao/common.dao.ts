@@ -553,7 +553,7 @@ export class CommonDao<
     opt: CommonDaoStreamForEachOptions<ID> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
-    opt.errorMode = opt.errorMode || ErrorMode.SUPPRESS
+    opt.errorMode ||= ErrorMode.SUPPRESS
 
     const op = `streamQueryIdsForEach(${q.pretty()})`
     const started = this.logStarted(op, q.table, true)
@@ -614,8 +614,8 @@ export class CommonDao<
     const dbm = await this.bmToDBM(bm as BM, opt)
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-    if (this.cfg.immutable && !opt.allowMutability) {
-      opt.saveMethod ||= 'insert'
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
     }
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
@@ -672,8 +672,8 @@ export class CommonDao<
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     }
-    if (this.cfg.immutable && !opt.allowMutability) {
-      opt.saveMethod ||= 'insert'
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
     }
     const op = `saveAsDBM(${dbm.id})`
     const started = this.logSaveStarted(op, dbm, table)
@@ -691,8 +691,8 @@ export class CommonDao<
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
     const dbms = await this.bmsToDBM(bms as BM[], opt)
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
-    if (this.cfg.immutable && !opt.allowMutability) {
-      opt.saveMethod ||= 'insert'
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
     }
 
     const op = `saveBatch ${dbms.length} row(s) (${_truncate(
@@ -722,8 +722,8 @@ export class CommonDao<
       dbms = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     }
-    if (this.cfg.immutable && !opt.allowMutability) {
-      opt.saveMethod ||= 'insert'
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
     }
     const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
       dbms
