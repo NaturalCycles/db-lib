@@ -27,6 +27,7 @@ export type DBQueryFilterOperator =
   | '<'
   | '<='
   | '=='
+  | '!='
   | '>='
   | '>'
   | 'in'
@@ -34,10 +35,11 @@ export type DBQueryFilterOperator =
   | 'array-contains'
   | 'array-contains-any'
 
-export const dbQueryFilterOperatorValues = [
+export const dbQueryFilterOperatorValues: DBQueryFilterOperator[] = [
   '<',
   '<=',
   '==',
+  '!=',
   '>=',
   '>',
   'in',

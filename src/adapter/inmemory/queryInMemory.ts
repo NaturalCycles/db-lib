@@ -4,6 +4,7 @@ import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 type FilterFn = (v: any, val: any) => boolean
 const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
   '==': (v, val) => v === val,
+  '!=': (v, val) => v !== val,
   '<': (v, val) => v < val,
   '<=': (v, val) => v <= val,
   '>': (v, val) => v > val,
