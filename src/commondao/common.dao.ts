@@ -73,6 +73,7 @@ export class CommonDao<
       logLevel: isGAE || isCI ? CommonDaoLogLevel.NONE : CommonDaoLogLevel.OPERATIONS,
       idType: 'string',
       createId: true,
+      assignGeneratedIds: false,
       created: true,
       updated: true,
       logger: console,
@@ -609,7 +610,7 @@ export class CommonDao<
    */
   async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
-    const idWasGenerated = !bm.id
+    const idWasGenerated = !bm.id && this.cfg.createId
     this.assignIdCreatedUpdated(bm, opt) // mutates
     const dbm = await this.bmToDBM(bm as BM, opt)
     const table = opt.table || this.cfg.table
@@ -621,6 +622,7 @@ export class CommonDao<
     const started = this.logSaveStarted(op, bm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
+      assignGeneratedIds: this.cfg.assignGeneratedIds,
       ...opt,
     })
 
@@ -667,7 +669,7 @@ export class CommonDao<
     // assigning id in case it misses the id
     // will override/set `updated` field, unless opts.preserveUpdated is set
     if (!opt.raw) {
-      const idWasGenerated = !dbm.id
+      const idWasGenerated = !dbm.id && this.cfg.createId
       this.assignIdCreatedUpdated(dbm, opt) // mutates
       dbm = this.anyToDBM(dbm, opt)
       if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
@@ -679,6 +681,7 @@ export class CommonDao<
     const started = this.logSaveStarted(op, dbm, table)
     await this.cfg.db.saveBatch(table, [dbm], {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
+      assignGeneratedIds: this.cfg.assignGeneratedIds,
       ...opt,
     })
     this.logSaveResult(started, op, table)
@@ -706,6 +709,7 @@ export class CommonDao<
 
     await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
+      assignGeneratedIds: this.cfg.assignGeneratedIds,
       ...opt,
     })
 
@@ -736,6 +740,7 @@ export class CommonDao<
 
     await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes: this.cfg.excludeFromIndexes,
+      assignGeneratedIds: this.cfg.assignGeneratedIds,
       ...opt,
     })
 

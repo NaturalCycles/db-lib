@@ -120,6 +120,12 @@ export interface CommonDaoCfg<
   createId?: boolean
 
   /**
+   * See the same option in CommonDB.
+   * Defaults to false normally.
+   */
+  assignGeneratedIds?: boolean
+
+  /**
    * Defaults to true
    * Set to false to disable `created` field management.
    */
