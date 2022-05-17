@@ -620,11 +620,17 @@ export class CommonDao<
     }
     const op = `save(${dbm.id})`
     const started = this.logSaveStarted(op, bm, table)
+    const { excludeFromIndexes } = this.cfg
+    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
     await this.cfg.db.saveBatch(table, [dbm], {
-      excludeFromIndexes: this.cfg.excludeFromIndexes,
-      assignGeneratedIds: this.cfg.assignGeneratedIds,
+      excludeFromIndexes,
+      assignGeneratedIds,
       ...opt,
     })
+
+    if (assignGeneratedIds) {
+      bm.id = dbm.id as any
+    }
 
     this.logSaveResult(started, op, table)
     return bm as any
@@ -668,24 +674,32 @@ export class CommonDao<
 
     // assigning id in case it misses the id
     // will override/set `updated` field, unless opts.preserveUpdated is set
+    let row = dbm
     if (!opt.raw) {
       const idWasGenerated = !dbm.id && this.cfg.createId
       this.assignIdCreatedUpdated(dbm, opt) // mutates
-      dbm = this.anyToDBM(dbm, opt)
-      if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+      row = this.anyToDBM(dbm, opt)
+      if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, row)
     }
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
     }
-    const op = `saveAsDBM(${dbm.id})`
-    const started = this.logSaveStarted(op, dbm, table)
-    await this.cfg.db.saveBatch(table, [dbm], {
-      excludeFromIndexes: this.cfg.excludeFromIndexes,
-      assignGeneratedIds: this.cfg.assignGeneratedIds,
+    const op = `saveAsDBM(${row.id})`
+    const started = this.logSaveStarted(op, row, table)
+    const { excludeFromIndexes } = this.cfg
+    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
+    await this.cfg.db.saveBatch(table, [row], {
+      excludeFromIndexes,
+      assignGeneratedIds,
       ...opt,
     })
+
+    if (assignGeneratedIds) {
+      dbm.id = row.id
+    }
+
     this.logSaveResult(started, op, table)
-    return dbm
+    return row
   }
 
   async saveBatch(bms: Unsaved<BM>[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>[]> {
@@ -706,12 +720,18 @@ export class CommonDao<
       50,
     )})`
     const started = this.logSaveStarted(op, bms, table)
+    const { excludeFromIndexes } = this.cfg
+    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
 
     await this.cfg.db.saveBatch(table, dbms, {
-      excludeFromIndexes: this.cfg.excludeFromIndexes,
-      assignGeneratedIds: this.cfg.assignGeneratedIds,
+      excludeFromIndexes,
+      assignGeneratedIds,
       ...opt,
     })
+
+    if (assignGeneratedIds) {
+      dbms.forEach((dbm, i) => (bms[i]!.id = dbm.id as any))
+    }
 
     this.logSaveResult(started, op, table)
 
@@ -721,31 +741,38 @@ export class CommonDao<
   async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM[]> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
+    let rows = dbms
     if (!opt.raw) {
       dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
-      dbms = this.anyToDBMs(dbms, opt)
+      rows = this.anyToDBMs(dbms, opt)
       if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     }
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
     }
-    const op = `saveBatchAsDBM ${dbms.length} row(s) (${_truncate(
-      dbms
+    const op = `saveBatchAsDBM ${rows.length} row(s) (${_truncate(
+      rows
         .slice(0, 10)
         .map(bm => bm.id)
         .join(', '),
       50,
     )})`
-    const started = this.logSaveStarted(op, dbms, table)
+    const started = this.logSaveStarted(op, rows, table)
+    const { excludeFromIndexes } = this.cfg
+    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
 
-    await this.cfg.db.saveBatch(table, dbms, {
-      excludeFromIndexes: this.cfg.excludeFromIndexes,
-      assignGeneratedIds: this.cfg.assignGeneratedIds,
+    await this.cfg.db.saveBatch(table, rows, {
+      excludeFromIndexes,
+      assignGeneratedIds,
       ...opt,
     })
 
+    if (assignGeneratedIds) {
+      rows.forEach((row, i) => (dbms[i]!.id = row.id))
+    }
+
     this.logSaveResult(started, op, table)
-    return dbms
+    return rows
   }
 
   // DELETE
