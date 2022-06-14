@@ -186,8 +186,8 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
     }
 
     tokens.push(
-      ...this._filters.map(f => `${f.name}${f.op}${f.val}`),
-      ...this._orders.map(o => `order by ${o.name}${o.descending ? ' desc' : ''}`),
+      ...this._filters.map(f => `${f.name as string}${f.op}${f.val}`),
+      ...this._orders.map(o => `order by ${o.name as string}${o.descending ? ' desc' : ''}`),
     )
 
     if (this._groupByFieldNames) {

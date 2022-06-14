@@ -260,7 +260,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     rows = rows.map(r => _filterUndefinedValues(r))
 
     if (this.cfg.sortOnSave) {
-      _sortBy(rows, r => r[this.cfg.sortOnSave!.name], true)
+      _sortBy(rows, r => r[this.cfg.sortOnSave!.name as keyof ROW], true)
       if (this.cfg.sortOnSave.descending) rows.reverse() // mutates
     }
 

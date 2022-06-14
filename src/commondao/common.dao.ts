@@ -302,7 +302,7 @@ export class CommonDao<
     const col = q._selectedFieldNames[0]!
 
     const { rows } = await this.runQueryExtended(q, opt)
-    return rows.map(r => r[col as any])
+    return rows.map((r: any) => r[col])
   }
 
   /**
@@ -594,11 +594,12 @@ export class CommonDao<
     obj.id ||= this.cfg.hooks!.createId?.(obj as BM)
 
     if (this.cfg.created) {
-      obj['created'] ||= obj['updated'] || now
+      ;(obj as any)['created'] ||= (obj as any)['updated'] || now
     }
 
     if (this.cfg.updated) {
-      obj['updated'] = opt.preserveUpdatedCreated && obj['updated'] ? obj['updated'] : now
+      ;(obj as any)['updated'] =
+        opt.preserveUpdatedCreated && (obj as any)['updated'] ? (obj as any)['updated'] : now
     }
 
     return obj as any
