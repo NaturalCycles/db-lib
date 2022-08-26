@@ -84,7 +84,7 @@ export class CommonDao<
         beforeDBMValidate: dbm => dbm,
         beforeDBMToBM: dbm => dbm as any,
         beforeBMToDBM: bm => bm as any,
-        beforeTMToBM: tm => tm,
+        beforeTMToBM: tm => tm as any,
         beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,

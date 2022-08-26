@@ -58,18 +58,21 @@ export const testItemBMJsonSchema = jsonSchema
     b1: jsonSchema.buffer().optional(),
   })
   .baseDBEntity()
+  .build()
 
-export const testItemDBMJsonSchema = jsonSchema.rootObject<TestItemDBM>({
-  // todo: figure out how to not copy-paste these 3 fields
-  id: jsonSchema.string(),
-  created: jsonSchema.unixTimestamp(),
-  updated: jsonSchema.unixTimestamp(),
-  k1: jsonSchema.string(),
-  k2: jsonSchema.string().optional(),
-  k3: jsonSchema.number().optional(),
-  even: jsonSchema.boolean().optional(),
-  b1: jsonSchema.buffer().optional(),
-})
+export const testItemDBMJsonSchema = jsonSchema
+  .rootObject<TestItemDBM>({
+    // todo: figure out how to not copy-paste these 3 fields
+    id: jsonSchema.string(),
+    created: jsonSchema.unixTimestamp(),
+    updated: jsonSchema.unixTimestamp(),
+    k1: jsonSchema.string(),
+    k2: jsonSchema.string().optional(),
+    k3: jsonSchema.number().optional(),
+    even: jsonSchema.boolean().optional(),
+    b1: jsonSchema.buffer().optional(),
+  })
+  .build()
 
 export function createTestItemDBM(num = 1): TestItemDBM {
   return {
