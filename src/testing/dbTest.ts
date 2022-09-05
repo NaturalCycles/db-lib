@@ -128,7 +128,7 @@ export function runCommonDBTest(
     test('runQuery(all), runQueryCount should return empty', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect((await db.runQuery(queryAll())).rows).toEqual([])
-      expect(await db.runQueryCount(queryAll())).toEqual(0)
+      expect(await db.runQueryCount(queryAll())).toBe(0)
     })
   }
 
@@ -158,7 +158,7 @@ export function runCommonDBTest(
       await db.saveBatch(TEST_TABLE, [item3])
       const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([item3], [item3Loaded], quirks)
-      expect(item3Loaded.k2).toBe(null)
+      expect(item3Loaded.k2).toBeNull()
     })
   }
 
@@ -175,7 +175,7 @@ export function runCommonDBTest(
       await db.saveBatch(TEST_TABLE, [item3])
       const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([expected], [item3Loaded], quirks)
-      expect(item3Loaded.k2).toBe(undefined)
+      expect(item3Loaded.k2).toBeUndefined()
       expect(Object.keys(item3Loaded)).not.toContain('k2')
     })
   }

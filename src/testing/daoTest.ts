@@ -84,7 +84,7 @@ export function runCommonDaoTest(
     test('runQuery(all), runQueryCount should return empty', async () => {
       if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect(await dao.query().runQuery()).toEqual([])
-      expect(await dao.query().runQueryCount()).toEqual(0)
+      expect(await dao.query().runQueryCount()).toBe(0)
     })
   }
 
@@ -114,7 +114,7 @@ export function runCommonDaoTest(
       await dao.save(item3)
       const item3Loaded = await dao.requireById(item3.id)
       expectMatch([item3], [item3Loaded], quirks)
-      expect(item3Loaded.k2).toBe(null)
+      expect(item3Loaded.k2).toBeNull()
       expect(Object.keys(item3)).toContain('k2')
       expect(item3.k2).toBeNull()
     })
@@ -135,7 +135,7 @@ export function runCommonDaoTest(
 
     const item3Loaded = await dao.requireById(item3.id)
     expectMatch([expected], [item3Loaded], quirks)
-    expect(item3Loaded.k2).toBe(undefined)
+    expect(item3Loaded.k2).toBeUndefined()
     expect(Object.keys(item3Loaded)).not.toContain('k2')
     expect(Object.keys(item3)).toContain('k2')
     expect(item3.k2).toBeUndefined()

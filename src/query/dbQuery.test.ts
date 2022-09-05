@@ -9,7 +9,7 @@ test('DBQuery', () => {
 test('prettyConditions', () => {
   const q = new DBQuery('TestKind').filter('a', '>', 5)
   expect(q.prettyConditions()).toEqual(['a>5'])
-  expect(q.pretty()).toEqual('a>5')
+  expect(q.pretty()).toBe('a>5')
 })
 
 test('toJson, fromJson', () => {

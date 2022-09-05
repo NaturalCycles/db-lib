@@ -249,6 +249,7 @@ test('mutation', async () => {
   // Should be a new object, not the same (by reference)
   // Non-mutation should only be ensured inside `validateAndConvert` method
   // NO: should return the original object
+  // eslint-disable-next-line jest/prefer-equality-matcher
   expect(obj === saved).toBe(true)
 
   // But `created`, `updated` should be "mutated" on the original object
