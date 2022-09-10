@@ -112,9 +112,9 @@ export class CommonDao<
   }
 
   // GET
-  async getById(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getById(id?: ID, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
-  async getById(id?: ID, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
+  async getById(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
+  async getById(id?: ID | null, opt?: CommonDaoOptions): Promise<Saved<BM> | null>
+  async getById(id?: ID | null, opt: CommonDaoOptions = {}): Promise<Saved<BM> | null> {
     if (!id) return null
     const op = `getById(${id})`
     const table = opt.table || this.cfg.table
@@ -154,9 +154,9 @@ export class CommonDao<
     return await this.bmToDBM(bm, opt)
   }
 
-  async getByIdAsDBM(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsDBM(id?: ID, opt?: CommonDaoOptions): Promise<DBM | null>
-  async getByIdAsDBM(id?: ID, opt: CommonDaoOptions = {}): Promise<DBM | null> {
+  async getByIdAsDBM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
+  async getByIdAsDBM(id?: ID | null, opt?: CommonDaoOptions): Promise<DBM | null>
+  async getByIdAsDBM(id?: ID | null, opt: CommonDaoOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
@@ -169,9 +169,9 @@ export class CommonDao<
     return dbm || null
   }
 
-  async getByIdAsTM(id: undefined, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsTM(id?: ID, opt?: CommonDaoOptions): Promise<TM | null>
-  async getByIdAsTM(id?: ID, opt: CommonDaoOptions = {}): Promise<TM | null> {
+  async getByIdAsTM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
+  async getByIdAsTM(id?: ID | null, opt?: CommonDaoOptions): Promise<TM | null>
+  async getByIdAsTM(id?: ID | null, opt: CommonDaoOptions = {}): Promise<TM | null> {
     if (!id) return null
     const op = `getByIdAsTM(${id})`
     const table = opt.table || this.cfg.table
@@ -780,9 +780,9 @@ export class CommonDao<
   /**
    * @returns number of deleted items
    */
-  async deleteById(id: undefined, opt?: CommonDaoOptions): Promise<0>
-  async deleteById(id?: ID, opt?: CommonDaoOptions): Promise<number>
-  async deleteById(id?: ID, opt: CommonDaoOptions = {}): Promise<number> {
+  async deleteById(id: undefined | null, opt?: CommonDaoOptions): Promise<0>
+  async deleteById(id?: ID | null, opt?: CommonDaoOptions): Promise<number>
+  async deleteById(id?: ID | null, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
     this.requireWriteAccess()
     this.requireObjectMutability(opt)
