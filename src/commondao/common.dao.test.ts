@@ -1,5 +1,5 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, _omit, _range, _sortBy, pTry } from '@naturalcycles/js-lib'
+import { ErrorMode, _omit, _range, _sortBy, pTry, pExpectedError } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -393,3 +393,21 @@ test('zipping/unzipping via async hook', async () => {
   const items2 = await dao.getByIds(items.map(item => item.id))
   expect(items2).toEqual(items)
 })
+
+test('runQuery stack', async () => {
+  // save invalid value
+  await dao.save(
+    {
+      id: 'invalid',
+      even: true,
+    } as TestItemBM,
+    { skipValidation: true },
+  )
+
+  const err = await pExpectedError(getEven())
+  expect(err.stack).toContain('at getEven (')
+})
+
+async function getEven(): Promise<TestItemBM[]> {
+  return await dao.query().filterEq('even', true).runQuery()
+}
