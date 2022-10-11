@@ -1,6 +1,6 @@
-import { runCommonDaoTest } from '../../testing/daoTest'
-import { runCommonDBTest } from '../../testing/dbTest'
-import { TEST_TABLE } from '../../testing/test.model'
+import { runCommonDaoTest } from '../../testing'
+import { runCommonDBTest } from '../../testing'
+import { TEST_TABLE } from '../../testing'
 import { InMemoryDB } from '../inmemory/inMemory.db'
 import { CacheDB } from './cache.db'
 

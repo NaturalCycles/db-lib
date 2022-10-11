@@ -53,7 +53,7 @@ export class CommonTimeSeriesDao {
   async commitTransaction(ops: TimeSeriesSaveBatchOp[]): Promise<void> {
     if (!ops.length) return
 
-    const tx = new DBTransaction()
+    const tx = DBTransaction.create()
 
     ops.forEach(op => {
       const rows: ObjectWithId[] = op.dataPoints.map(([ts, v]) => ({

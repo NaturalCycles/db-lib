@@ -12,8 +12,9 @@ import {
   JsonSchemaRootObject,
   _filterUndefinedValues,
   ObjectWithId,
-  AnyObjectWithId,
   _assert,
+  _deepCopy,
+  _stringMapEntries,
 } from '@naturalcycles/js-lib'
 import { readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
@@ -119,12 +120,19 @@ export class FileDB extends BaseCommonDB implements CommonDB {
       { concurrency: 16 },
     )
 
+    const backup = _deepCopy(data)
+
     // 2. Apply ops one by one (in order)
     tx.ops.forEach(op => {
       if (op.type === 'deleteByIds') {
         op.ids.forEach(id => delete data[op.table]![id])
       } else if (op.type === 'saveBatch') {
-        op.rows.forEach(r => (data[op.table]![r.id] = r))
+        op.rows.forEach(r => {
+          if (!r.id) {
+            throw new Error('FileDB: row has an empty id')
+          }
+          data[op.table]![r.id] = r
+        })
       } else {
         throw new Error(`DBOperation not supported: ${(op as any).type}`)
       }
@@ -132,16 +140,31 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
     // 3. Sort, turn it into ops
     // Not filtering empty arrays, cause it's already filtered in this.saveFiles()
-    const ops: DBSaveBatchOperation[] = Object.keys(data).map(table => {
+    const ops: DBSaveBatchOperation[] = _stringMapEntries(data).map(([table, map]) => {
       return {
         type: 'saveBatch',
         table,
-        rows: this.sortRows(Object.values(data[table]!) as AnyObjectWithId[]),
+        rows: this.sortRows(_stringMapValues(map)),
       }
     })
 
     // 4. Save all files
-    await this.saveFiles(ops)
+    try {
+      await this.saveFiles(ops)
+    } catch (err) {
+      const ops: DBSaveBatchOperation[] = _stringMapEntries(backup).map(([table, map]) => {
+        return {
+          type: 'saveBatch',
+          table,
+          rows: this.sortRows(_stringMapValues(map)),
+        }
+      })
+
+      // Rollback, ignore rollback error (if any)
+      await this.saveFiles(ops).catch(_ => {})
+
+      throw err
+    }
   }
 
   override async runQuery<ROW extends ObjectWithId>(

@@ -1,4 +1,4 @@
-import { pDelay, _deepCopy, _pick, _sortBy } from '@naturalcycles/js-lib'
+import { pDelay, _deepCopy, _pick, _sortBy, _omit, localTime } from '@naturalcycles/js-lib'
 import { readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel } from '..'
 import { CommonDB } from '../common.db'
@@ -41,6 +41,7 @@ export function runCommonDaoTest(
     streaming = true,
     strongConsistency = true,
     nullValues = true,
+    transactions = true,
   } = features
 
   // const {
@@ -263,5 +264,57 @@ export function runCommonDaoTest(
         rows.map(i => i.id),
       )
     })
+  }
+
+  if (transactions) {
+    test('transaction happy path', async () => {
+      // cleanup
+      await dao.query().deleteByQuery()
+
+      // Test that id, created, updated are created
+      const now = localTime().unix()
+      await dao.runInTransaction([dao.tx.save(_omit(item1, ['id', 'created', 'updated']))])
+
+      const loaded = await dao.query().runQuery()
+      expect(loaded.length).toBe(1)
+      expect(loaded[0]!.id).toBeDefined()
+      expect(loaded[0]!.created).toBeGreaterThanOrEqual(now)
+      expect(loaded[0]!.updated).toBe(loaded[0]!.created)
+
+      await dao.runInTransaction([dao.tx.deleteById(loaded[0]!.id)])
+
+      // saveBatch [item1, 2, 3]
+      // save item3 with k1: k1_mod
+      // delete item2
+      // remaining: item1, item3_with_k1_mod
+      await dao.runInTransaction([
+        dao.tx.saveBatch(items),
+        dao.tx.save({ ...items[2]!, k1: 'k1_mod' }),
+        dao.tx.deleteById(items[1]!.id),
+      ])
+
+      const rows = await dao.query().runQuery()
+      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
+      expectMatch(expected, rows, quirks)
+    })
+
+    test('transaction rollback', async () => {
+      await expect(
+        dao.runInTransaction([
+          dao.tx.deleteById(items[2]!.id),
+          dao.tx.save({ ...items[0]!, k1: 5 as any }), // it should fail here
+        ]),
+      ).rejects.toThrow()
+
+      const rows = await dao.query().runQuery()
+      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
+      expectMatch(expected, rows, quirks)
+    })
+
+    if (querying) {
+      test('transaction cleanup', async () => {
+        await dao.query().deleteByQuery()
+      })
+    }
   }
 }

@@ -6,13 +6,38 @@ import type { CommonDBSaveOptions, DBOperation } from '../db.model'
  * Convenience class that stores the list of DBOperations and provides a fluent API to add them.
  */
 export class DBTransaction {
-  public ops: DBOperation[] = []
+  protected constructor(public ops: DBOperation[] = []) {}
+
+  /**
+   * Convenience method.
+   */
+  static create(ops: DBOperation[] = []): DBTransaction {
+    return new DBTransaction(ops)
+  }
+
+  save<ROW extends ObjectWithId = AnyObjectWithId>(table: string, row: ROW): this {
+    this.ops.push({
+      type: 'saveBatch',
+      table,
+      rows: [row],
+    })
+    return this
+  }
 
   saveBatch<ROW extends ObjectWithId = AnyObjectWithId>(table: string, rows: ROW[]): this {
     this.ops.push({
       type: 'saveBatch',
       table,
       rows,
+    })
+    return this
+  }
+
+  deleteById(table: string, id: string): this {
+    this.ops.push({
+      type: 'deleteByIds',
+      table,
+      ids: [id],
     })
     return this
   }

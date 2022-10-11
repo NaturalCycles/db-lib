@@ -211,6 +211,17 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * @experimental
    */
   timeout?: number
+
+  /**
+   * If passed - operation will not be performed immediately, but instead "added" to the transaction.
+   * In the end - transaction needs to be committed (by calling `commit`).
+   * This API is inspired by Datastore API.
+   *
+   * Only applicable to save* and delete* operations
+   *
+   * @experimental
+   */
+  tx?: boolean
 }
 
 /**

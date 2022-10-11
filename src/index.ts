@@ -48,7 +48,7 @@ import {
   RunnableDBQuery,
 } from './query/dbQuery'
 import { DBTransaction, RunnableDBTransaction } from './transaction/dbTransaction'
-import { commitDBTransactionSimple, mergeDBOperations } from './transaction/dbTransaction.util'
+import { commitDBTransactionSimple } from './transaction/dbTransaction.util'
 export * from './kv/commonKeyValueDaoMemoCache'
 
 export type {
@@ -104,7 +104,6 @@ export {
   BaseCommonDB,
   DBTransaction,
   RunnableDBTransaction,
-  mergeDBOperations,
   commitDBTransactionSimple,
   CommonKeyValueDao,
 }

@@ -1,30 +1,32 @@
-import { StringMap, _stringMapEntries, ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import { CommonDBSaveOptions, DBOperation } from '../db.model'
+import { CommonDBSaveOptions } from '../db.model'
 import { DBTransaction } from './dbTransaction'
 
 /**
  * Optimizes the Transaction (list of DBOperations) to do less operations.
  * E.g if you save id1 first and then delete it - this function will turn it into a no-op (self-eliminate).
+ * UPD: actually, it will only keep delete, but remove previous ops.
  *
  * Currently only takes into account SaveBatch and DeleteByIds ops.
- * Output ops are maximum 2 (per table) - save and delete (where order actually doesn't matter, cause ids there will not overlap).
+ * Output ops are maximum 1 per entity - save or delete.
  */
+// Commented out as "overly complicated"
+/*
 export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
   if (ops.length <= 1) return ops // nothing to optimize there
 
   // This map will be saved in the end. Null would mean "delete"
   // saveMap[table][id] => row
-  const saveMapByTable: StringMap<StringMap<ObjectWithId | null>> = {}
+  const data: StringMap<StringMap<ObjectWithId | null>> = {}
 
   // Merge ops using `saveMap`
   ops.forEach(op => {
-    saveMapByTable[op.table] = saveMapByTable[op.table] || {}
+    data[op.table] ||= {}
 
     if (op.type === 'saveBatch') {
-      op.rows.forEach(r => (saveMapByTable[op.table]![r.id] = r))
+      op.rows.forEach(r => (data[op.table]![r.id] = r))
     } else if (op.type === 'deleteByIds') {
-      op.ids.forEach(id => (saveMapByTable[op.table]![id] = null))
+      op.ids.forEach(id => (data[op.table]![id] = null))
     } else {
       throw new Error(`DBOperation not supported: ${(op as any).type}`)
     }
@@ -32,37 +34,31 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
 
   const resultOps: DBOperation[] = []
 
-  _stringMapEntries(saveMapByTable).forEach(([table, saveMap]) => {
-    const rowsToSave: ObjectWithId[] = []
-    const idsToDelete: string[] = []
-
-    _stringMapEntries(saveMap).forEach(([id, r]) => {
-      if (r === null) {
-        idsToDelete.push(id)
-      } else {
-        rowsToSave.push(r)
-      }
-    })
-
-    if (rowsToSave.length) {
-      resultOps.push({
-        type: 'saveBatch',
-        table,
-        rows: rowsToSave,
-      })
+  _stringMapEntries(data).forEach(([table, map]) => {
+    const saveOp: DBSaveBatchOperation = {
+      type: 'saveBatch',
+      table,
+      rows: _stringMapValues(map).filter(_isTruthy),
     }
 
-    if (idsToDelete.length) {
-      resultOps.push({
-        type: 'deleteByIds',
-        table,
-        ids: idsToDelete,
-      })
+    if (saveOp.rows.length) {
+      resultOps.push(saveOp)
+    }
+
+    const deleteOp: DBDeleteByIdsOperation = {
+      type: 'deleteByIds',
+      table,
+      ids: _stringMapEntries(map).filter(([id, row]) => row === null).map(([id]) => id),
+    }
+
+    if (deleteOp.ids.length) {
+      resultOps.push(deleteOp)
     }
   })
 
   return resultOps
 }
+ */
 
 /**
  * Naive implementation of "Transaction" which just executes all operations one-by-one.
@@ -74,13 +70,13 @@ export async function commitDBTransactionSimple(
   tx: DBTransaction,
   opt?: CommonDBSaveOptions,
 ): Promise<void> {
-  const ops = mergeDBOperations(tx.ops)
+  // const ops = mergeDBOperations(tx.ops)
 
-  for await (const op of ops) {
+  for await (const op of tx.ops) {
     if (op.type === 'saveBatch') {
-      await db.saveBatch(op.table, op.rows, opt)
+      await db.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
     } else if (op.type === 'deleteByIds') {
-      await db.deleteByIds(op.table, op.ids, opt)
+      await db.deleteByIds(op.table, op.ids, { ...op.opt, ...opt })
     } else {
       throw new Error(`DBOperation not supported: ${(op as any).type}`)
     }

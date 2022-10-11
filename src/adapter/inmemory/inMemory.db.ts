@@ -12,6 +12,7 @@ import {
   ObjectWithId,
   _stringMapValues,
   CommonLogger,
+  _deepCopy,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -104,13 +105,13 @@ export class InMemoryDB implements CommonDB {
   async resetCache(_table?: string): Promise<void> {
     if (_table) {
       const table = this.cfg.tablesPrefix + _table
-      this.cfg.logger?.log(`reset ${table}`)
+      this.cfg.logger!.log(`reset ${table}`)
       this.data[table] = {}
     } else {
       ;(await this.getTables()).forEach(table => {
         this.data[table] = {}
       })
-      this.cfg.logger?.log('reset')
+      this.cfg.logger!.log('reset')
     }
   }
 
@@ -161,7 +162,7 @@ export class InMemoryDB implements CommonDB {
 
     rows.forEach(r => {
       if (!r.id) {
-        this.cfg.logger?.warn({ rows })
+        this.cfg.logger!.warn({ rows })
         throw new Error(
           `InMemoryDB doesn't support id auto-generation in saveBatch, row without id was given`,
         )
@@ -234,14 +235,24 @@ export class InMemoryDB implements CommonDB {
   }
 
   async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
-    for await (const op of tx.ops) {
-      if (op.type === 'saveBatch') {
-        await this.saveBatch(op.table, op.rows, opt)
-      } else if (op.type === 'deleteByIds') {
-        await this.deleteByIds(op.table, op.ids, opt)
-      } else {
-        throw new Error(`DBOperation not supported: ${(op as any).type}`)
+    const backup = _deepCopy(this.data)
+
+    try {
+      for await (const op of tx.ops) {
+        if (op.type === 'saveBatch') {
+          await this.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
+        } else if (op.type === 'deleteByIds') {
+          await this.deleteByIds(op.table, op.ids, { ...op.opt, ...opt })
+        } else {
+          throw new Error(`DBOperation not supported: ${(op as any).type}`)
+        }
       }
+    } catch (err) {
+      // rollback
+      this.data = backup
+      this.cfg.logger!.log('InMemoryDB transaction rolled back')
+
+      throw err
     }
   }
 
@@ -277,7 +288,7 @@ export class InMemoryDB implements CommonDB {
       ])
     })
 
-    this.cfg.logger?.log(
+    this.cfg.logger!.log(
       `flushToDisk took ${dimGrey(_since(started))} to save ${yellow(tables)} tables`,
     )
   }
@@ -319,7 +330,7 @@ export class InMemoryDB implements CommonDB {
       this.data[table] = _by(rows, r => r.id)
     })
 
-    this.cfg.logger?.log(
+    this.cfg.logger!.log(
       `restoreFromDisk took ${dimGrey(_since(started))} to read ${yellow(files.length)} tables`,
     )
   }

@@ -411,3 +411,17 @@ test('runQuery stack', async () => {
 async function getEven(): Promise<TestItemBM[]> {
   return await dao.query().filterEq('even', true).runQuery()
 }
+
+test('runInTransaction', async () => {
+  const items = createTestItemsBM(4)
+
+  await dao.runInTransaction([
+    dao.tx.save(items[0]!),
+    dao.tx.save(items[1]!),
+    dao.tx.save(items[3]!),
+    dao.tx.deleteById(items[1]!.id),
+  ])
+
+  const items2 = await dao.query().runQuery()
+  expect(items2.map(i => i.id).sort()).toEqual(['id1', 'id4'])
+})

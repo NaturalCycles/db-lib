@@ -67,6 +67,7 @@ export class BaseCommonDB implements CommonDB {
 
   /**
    * Naive implementation.
+   * Doesn't support rollback on error, hence doesn't pass dbTest.
    * To be extended.
    */
   async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {

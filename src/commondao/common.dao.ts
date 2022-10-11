@@ -35,8 +35,15 @@ import {
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import { DBModelType, RunQueryResult } from '../db.model'
+import {
+  DBDeleteByIdsOperation,
+  DBModelType,
+  DBOperation,
+  DBSaveBatchOperation,
+  RunQueryResult,
+} from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
+import { DBTransaction } from '../transaction/dbTransaction'
 import {
   CommonDaoCfg,
   CommonDaoCreateOptions,
@@ -606,6 +613,57 @@ export class CommonDao<
     return obj as any
   }
 
+  tx = {
+    save: async (
+      bm: Unsaved<BM>,
+      opt: CommonDaoSaveOptions<DBM> = {},
+    ): Promise<DBSaveBatchOperation> => {
+      const row: DBM = (await this.save(bm, { ...opt, tx: true })) as any
+
+      return {
+        type: 'saveBatch',
+        table: this.cfg.table,
+        rows: [row],
+        opt: {
+          excludeFromIndexes: this.cfg.excludeFromIndexes as any,
+          ...opt,
+        },
+      }
+    },
+    saveBatch: async (
+      bms: Unsaved<BM>[],
+      opt: CommonDaoSaveOptions<DBM> = {},
+    ): Promise<DBSaveBatchOperation> => {
+      const rows: DBM[] = (await this.saveBatch(bms, { ...opt, tx: true })) as any
+
+      return {
+        type: 'saveBatch',
+        table: this.cfg.table,
+        rows,
+        opt: {
+          excludeFromIndexes: this.cfg.excludeFromIndexes as any,
+          ...opt,
+        },
+      }
+    },
+    deleteByIds: async (ids: ID[], opt: CommonDaoOptions = {}): Promise<DBDeleteByIdsOperation> => {
+      return {
+        type: 'deleteByIds',
+        table: this.cfg.table,
+        ids: ids as string[],
+        opt,
+      }
+    },
+    deleteById: async (id: ID, opt: CommonDaoOptions = {}): Promise<DBDeleteByIdsOperation> => {
+      return {
+        type: 'deleteByIds',
+        table: this.cfg.table,
+        ids: [id as string],
+        opt,
+      }
+    },
+  }
+
   // SAVE
   /**
    * Mutates with id, created, updated
@@ -615,6 +673,11 @@ export class CommonDao<
     const idWasGenerated = !bm.id && this.cfg.createId
     this.assignIdCreatedUpdated(bm, opt) // mutates
     const dbm = await this.bmToDBM(bm as BM, opt)
+
+    if (opt.tx) {
+      return dbm as any
+    }
+
     const table = opt.table || this.cfg.table
     if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
@@ -709,6 +772,11 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     bms.forEach(bm => this.assignIdCreatedUpdated(bm, opt))
     const dbms = await this.bmsToDBM(bms as BM[], opt)
+
+    if (opt.tx) {
+      return dbms as any
+    }
+
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
@@ -724,7 +792,6 @@ export class CommonDao<
     const started = this.logSaveStarted(op, bms, table)
     const { excludeFromIndexes } = this.cfg
     const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
-
     await this.cfg.db.saveBatch(table, dbms, {
       excludeFromIndexes,
       assignGeneratedIds,
@@ -1066,9 +1133,13 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  // transaction(): DBTransaction {
-  //   return this.cfg.db.transaction()
-  // }
+  async runInTransaction(ops: Promise<DBOperation>[]): Promise<void> {
+    if (!ops.length) return
+
+    const resolvedOps = await Promise.all(ops)
+
+    await this.cfg.db.commitTransaction(DBTransaction.create(resolvedOps))
+  }
 
   protected logResult(started: number, op: string, res: any, table: string): void {
     if (!this.cfg.logLevel) return

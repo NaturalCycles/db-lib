@@ -56,12 +56,14 @@ export interface DBSaveBatchOperation<ROW extends ObjectWithId = AnyObjectWithId
   type: 'saveBatch'
   table: string
   rows: ROW[]
+  opt?: CommonDBSaveOptions<ROW>
 }
 
 export interface DBDeleteByIdsOperation {
   type: 'deleteByIds'
   table: string
   ids: string[]
+  opt?: CommonDBOptions
 }
 
 export enum DBRelation {

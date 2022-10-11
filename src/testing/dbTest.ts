@@ -2,6 +2,7 @@ import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-l
 import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
+import { DBTransaction } from '../transaction/dbTransaction'
 import {
   createTestItemDBM,
   createTestItemsDBM,
@@ -43,6 +44,8 @@ export interface CommonDBImplementationFeatures {
    * they will return `null` for all missing properties.
    */
   documentDB?: boolean
+
+  transactions?: boolean
 }
 
 /**
@@ -89,6 +92,7 @@ export function runCommonDBTest(
     bufferSupport = true,
     nullValues = true,
     documentDB = true,
+    transactions = true,
   } = features
 
   // const {
@@ -188,6 +192,10 @@ export function runCommonDBTest(
 
   test('saveBatch test items', async () => {
     await db.saveBatch(TEST_TABLE, items)
+  })
+
+  test('saveBatch should throw on null id', async () => {
+    await expect(db.saveBatch(TEST_TABLE, [{ ...item1, id: null as any }])).rejects.toThrow()
   })
 
   if (insert) {
@@ -290,12 +298,12 @@ export function runCommonDBTest(
   // getTables
   test('getTables, getTableSchema (if supported)', async () => {
     const tables = await db.getTables()
-    console.log({ tables })
+    // console.log({ tables })
 
     if (tableSchemas) {
       await pMap(tables, async table => {
         const schema = await db.getTableSchema(table)
-        console.log(schema)
+        // console.log(schema)
         expect(schema.$id).toBe(`${table}.schema.json`)
       })
     }
@@ -327,16 +335,51 @@ export function runCommonDBTest(
       await db.saveBatch(TEST_TABLE, [item])
       const [loaded] = await db.getByIds<TestItemDBM>(TEST_TABLE, [item.id])
       const b1Loaded = loaded!.b1!
-      console.log({
-        b11: typeof b1,
-        b12: typeof b1Loaded,
-        l1: b1.length,
-        l2: b1Loaded.length,
-        b1,
-        b1Loaded,
-      })
+      // console.log({
+      //   b11: typeof b1,
+      //   b12: typeof b1Loaded,
+      //   l1: b1.length,
+      //   l2: b1Loaded.length,
+      //   b1,
+      //   b1Loaded,
+      // })
       expect(b1Loaded).toEqual(b1)
       expect(b1Loaded.toString()).toBe(s)
+    })
+  }
+
+  if (transactions) {
+    test('transaction happy path', async () => {
+      // cleanup
+      await db.deleteByQuery(queryAll())
+
+      // saveBatch [item1, 2, 3]
+      // save item3 with k1: k1_mod
+      // delete item2
+      // remaining: item1, item3_with_k1_mod
+      const tx = DBTransaction.create()
+        .saveBatch(TEST_TABLE, items)
+        .save(TEST_TABLE, { ...items[2]!, k1: 'k1_mod' })
+        .deleteById(TEST_TABLE, items[1]!.id)
+
+      await db.commitTransaction(tx)
+
+      const { rows } = await db.runQuery(queryAll())
+      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
+      expectMatch(expected, rows, quirks)
+    })
+
+    test('transaction rollback', async () => {
+      // It should fail on id == null
+      const tx = DBTransaction.create()
+        .deleteById(TEST_TABLE, items[2]!.id)
+        .save(TEST_TABLE, { ...items[0]!, k1: 5, id: null as any })
+
+      await expect(db.commitTransaction(tx)).rejects.toThrow()
+
+      const { rows } = await db.runQuery(queryAll())
+      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
+      expectMatch(expected, rows, quirks)
     })
   }
 
