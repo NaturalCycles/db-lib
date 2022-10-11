@@ -1,5 +1,5 @@
 import type { CommonDB } from '../common.db'
-import { CommonDBSaveOptions } from '../db.model'
+import { CommonDBSaveOptions, DBOperation } from '../db.model'
 import { DBTransaction } from './dbTransaction'
 
 /**
@@ -10,6 +10,10 @@ import { DBTransaction } from './dbTransaction'
  * Currently only takes into account SaveBatch and DeleteByIds ops.
  * Output ops are maximum 1 per entity - save or delete.
  */
+export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
+  return ops // currently "does nothing"
+}
+
 // Commented out as "overly complicated"
 /*
 export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
