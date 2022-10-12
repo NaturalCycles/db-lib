@@ -71,7 +71,7 @@ export class CommonDao<
   BM extends Partial<ObjectWithId<ID>>,
   DBM extends ObjectWithId<ID> = Saved<BM>,
   TM extends AnyObject = BM,
-  ID extends string | number = string,
+  ID extends string | number = NonNullable<BM['id']>,
 > {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM, ID>) {
     this.cfg = {
