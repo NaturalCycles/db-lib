@@ -1,4 +1,4 @@
-import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
 import type { CommonDBSaveOptions, DBOperation } from '../db.model'
 
@@ -15,7 +15,7 @@ export class DBTransaction {
     return new DBTransaction(ops)
   }
 
-  save<ROW extends ObjectWithId = AnyObjectWithId>(table: string, row: ROW): this {
+  save<ROW extends ObjectWithId>(table: string, row: ROW): this {
     this.ops.push({
       type: 'saveBatch',
       table,
@@ -24,7 +24,7 @@ export class DBTransaction {
     return this
   }
 
-  saveBatch<ROW extends ObjectWithId = AnyObjectWithId>(table: string, rows: ROW[]): this {
+  saveBatch<ROW extends ObjectWithId>(table: string, rows: ROW[]): this {
     this.ops.push({
       type: 'saveBatch',
       table,

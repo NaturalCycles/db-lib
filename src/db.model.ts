@@ -16,7 +16,7 @@ export interface CommonDBOptions {}
 /**
  * All properties default to undefined.
  */
-export interface CommonDBSaveOptions<ROW extends Partial<ObjectWithId> = AnyObjectWithId>
+export interface CommonDBSaveOptions<ROW extends ObjectWithId = AnyObjectWithId>
   extends CommonDBOptions {
   excludeFromIndexes?: (keyof ROW)[]
 

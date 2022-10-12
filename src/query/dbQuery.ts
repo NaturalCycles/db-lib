@@ -1,4 +1,11 @@
-import { AnyObjectWithId, ObjectWithId, AsyncMapper, _truncate, Saved } from '@naturalcycles/js-lib'
+import {
+  AnyObjectWithId,
+  ObjectWithId,
+  AsyncMapper,
+  _truncate,
+  Saved,
+  AnyObject,
+} from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoOptions, CommonDaoStreamForEachOptions, CommonDaoStreamOptions } from '..'
 import { CommonDao } from '../commondao/common.dao'
@@ -218,10 +225,10 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends ObjectWithId<ID>,
-  TM,
-  ID extends string | number,
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
+  TM extends AnyObject = BM,
+  ID extends string | number = string,
 > extends DBQuery<DBM> {
   /**
    * Pass `table` to override table.

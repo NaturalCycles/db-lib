@@ -6,6 +6,7 @@ import {
   _since,
   _truncate,
   _uniqBy,
+  AnyObject,
   AppError,
   AsyncMapper,
   ErrorMode,
@@ -67,10 +68,10 @@ const isCI = !!process.env['CI']
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends ObjectWithId<ID> = Saved<BM>,
-  TM = BM,
-  ID extends string | number = DBM['id'],
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
+  TM extends AnyObject = BM,
+  ID extends string | number = string,
 > {
   constructor(public cfg: CommonDaoCfg<BM, DBM, TM, ID>) {
     this.cfg = {

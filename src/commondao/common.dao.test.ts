@@ -16,7 +16,6 @@ import {
   testItemDBMSchema,
   testItemTMSchema,
   TEST_TABLE,
-  TestItemDBM,
   TestItemBM,
 } from '../testing'
 import { testItemBMJsonSchema, testItemDBMJsonSchema } from '../testing/test.model'
@@ -163,7 +162,7 @@ test('patch', async () => {
 
 // todo: fix jest mock
 test.skip('ensureUniqueId', async () => {
-  const opt: CommonDaoSaveOptions<TestItemDBM> = {
+  const opt: CommonDaoSaveOptions<TestItemBM> = {
     ensureUniqueId: true,
   }
 

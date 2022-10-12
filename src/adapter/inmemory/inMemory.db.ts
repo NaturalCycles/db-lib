@@ -152,7 +152,7 @@ export class InMemoryDB implements CommonDB {
     return ids.map(id => this.data[table]![id]).filter(Boolean) as ROW[]
   }
 
-  async saveBatch<ROW extends Partial<ObjectWithId>>(
+  async saveBatch<ROW extends ObjectWithId>(
     _table: string,
     rows: ROW[],
     opt: CommonDBSaveOptions<ROW> = {},

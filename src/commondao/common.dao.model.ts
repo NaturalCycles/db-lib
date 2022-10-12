@@ -1,4 +1,4 @@
-import { CommonLogger, ErrorMode, ObjectWithId, Saved } from '@naturalcycles/js-lib'
+import { CommonLogger, ErrorMode, ObjectWithId } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -11,7 +11,7 @@ import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
 export interface CommonDaoHooks<
-  BM extends Partial<ObjectWithId<ID>>,
+  BM extends ObjectWithId<ID>,
   DBM extends ObjectWithId<ID>,
   TM,
   ID extends string | number,
@@ -55,10 +55,10 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends ObjectWithId<ID> = Saved<BM>,
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
   TM = BM,
-  ID extends string | number = DBM['id'],
+  ID extends string | number = string,
 > {
   db: CommonDB
   table: string
@@ -227,7 +227,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveOptions<DBM extends Partial<ObjectWithId>>
+export interface CommonDaoSaveOptions<DBM extends ObjectWithId>
   extends CommonDaoOptions,
     CommonDBSaveOptions<DBM> {
   /**

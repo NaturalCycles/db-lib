@@ -1,4 +1,4 @@
-import { jsonSchema, _range, BaseDBEntity, Saved } from '@naturalcycles/js-lib'
+import { jsonSchema, _range, BaseDBEntity, Saved, JsonSchemaObject } from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,
@@ -14,6 +14,7 @@ const MOCK_TS_2018_06_21 = 1529539200
 export const TEST_TABLE = 'TEST_TABLE'
 
 export interface TestItemBM extends BaseDBEntity {
+  id: string
   k1: string
   k2?: string | null
   k3?: number
@@ -49,8 +50,9 @@ export const testItemTMSchema = objectSchema<TestItemTM>({
   even: booleanSchema.optional(),
 })
 
-export const testItemBMJsonSchema = jsonSchema
+export const testItemBMJsonSchema: JsonSchemaObject<TestItemBM> = jsonSchema
   .rootObject<TestItemBM>({
+    id: jsonSchema.string(), // todo: not strictly needed here
     k1: jsonSchema.string(),
     k2: jsonSchema.oneOf<string | null>([jsonSchema.string(), jsonSchema.null()]).optional(),
     k3: jsonSchema.number().optional(),
@@ -60,7 +62,7 @@ export const testItemBMJsonSchema = jsonSchema
   .baseDBEntity()
   .build()
 
-export const testItemDBMJsonSchema = jsonSchema
+export const testItemDBMJsonSchema: JsonSchemaObject<TestItemDBM> = jsonSchema
   .rootObject<TestItemDBM>({
     // todo: figure out how to not copy-paste these 3 fields
     id: jsonSchema.string(),

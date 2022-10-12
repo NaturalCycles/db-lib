@@ -73,7 +73,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return ids.map(id => byId[id]!).filter(Boolean)
   }
 
-  override async saveBatch<ROW extends Partial<ObjectWithId>>(
+  override async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
     _opt?: CommonDBSaveOptions<ROW>,
@@ -81,7 +81,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     if (!rows.length) return // save some api calls
 
     // 1. Load the whole file
-    const byId = _by(await this.loadFile<ROW & ObjectWithId>(table), r => r.id)
+    const byId = _by(await this.loadFile<ROW>(table), r => r.id)
 
     // 2. Merge with new data (using ids)
     let saved = 0
