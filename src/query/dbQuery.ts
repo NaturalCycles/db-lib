@@ -225,8 +225,8 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends ObjectWithId<ID>,
-  DBM extends ObjectWithId<ID> = BM,
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID> = Saved<BM>,
   TM extends AnyObject = BM,
   ID extends string | number = string,
 > extends DBQuery<DBM> {

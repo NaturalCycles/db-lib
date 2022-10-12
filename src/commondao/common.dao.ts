@@ -68,8 +68,8 @@ const isCI = !!process.env['CI']
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<
-  BM extends ObjectWithId<ID>,
-  DBM extends ObjectWithId<ID> = BM,
+  BM extends Partial<ObjectWithId<ID>>,
+  DBM extends ObjectWithId<ID> = Saved<BM>,
   TM extends AnyObject = BM,
   ID extends string | number = string,
 > {
