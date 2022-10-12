@@ -147,7 +147,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return deletedIds
   }
 
-  override async saveBatch<ROW extends ObjectWithId>(
+  override async saveBatch<ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],
     opt: CacheDBSaveOptions<ROW> = {},

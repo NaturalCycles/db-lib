@@ -1,4 +1,4 @@
-import { AnyObjectWithId, ObjectWithId } from '@naturalcycles/js-lib'
+import { ObjectWithId } from '@naturalcycles/js-lib'
 
 /**
  * Similar to SQL INSERT, UPDATE.
@@ -16,7 +16,7 @@ export interface CommonDBOptions {}
 /**
  * All properties default to undefined.
  */
-export interface CommonDBSaveOptions<ROW extends ObjectWithId = AnyObjectWithId>
+export interface CommonDBSaveOptions<ROW extends Partial<ObjectWithId> = any>
   extends CommonDBOptions {
   excludeFromIndexes?: (keyof ROW)[]
 
@@ -52,7 +52,7 @@ export interface RunQueryResult<T> {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
+export interface DBSaveBatchOperation<ROW extends Partial<ObjectWithId> = any> {
   type: 'saveBatch'
   table: string
   rows: ROW[]

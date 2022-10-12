@@ -73,7 +73,7 @@ export interface CommonDB {
   /**
    * rows can have missing ids only if DB supports auto-generating them (like mysql auto_increment).
    */
-  saveBatch<ROW extends ObjectWithId>(
+  saveBatch<ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,

@@ -15,7 +15,7 @@ export class DBTransaction {
     return new DBTransaction(ops)
   }
 
-  save<ROW extends ObjectWithId>(table: string, row: ROW): this {
+  save<ROW extends Partial<ObjectWithId>>(table: string, row: ROW): this {
     this.ops.push({
       type: 'saveBatch',
       table,
@@ -24,7 +24,7 @@ export class DBTransaction {
     return this
   }
 
-  saveBatch<ROW extends ObjectWithId>(table: string, rows: ROW[]): this {
+  saveBatch<ROW extends Partial<ObjectWithId>>(table: string, rows: ROW[]): this {
     this.ops.push({
       type: 'saveBatch',
       table,
@@ -61,7 +61,7 @@ export class RunnableDBTransaction extends DBTransaction {
     super()
   }
 
-  async commit<ROW extends ObjectWithId>(opt?: CommonDBSaveOptions<ROW>): Promise<void> {
+  async commit<ROW extends Partial<ObjectWithId>>(opt?: CommonDBSaveOptions<ROW>): Promise<void> {
     await this.db.commitTransaction(this, opt)
   }
 }
