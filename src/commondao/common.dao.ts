@@ -626,7 +626,7 @@ export class CommonDao<
         table: this.cfg.table,
         rows: [row],
         opt: {
-          excludeFromIndexes: this.cfg.excludeFromIndexes as any,
+          excludeFromIndexes: this.cfg.excludeFromIndexes,
           ...opt,
         },
       }
@@ -642,7 +642,7 @@ export class CommonDao<
         table: this.cfg.table,
         rows,
         opt: {
-          excludeFromIndexes: this.cfg.excludeFromIndexes as any,
+          excludeFromIndexes: this.cfg.excludeFromIndexes,
           ...opt,
         },
       }

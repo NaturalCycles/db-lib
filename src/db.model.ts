@@ -52,7 +52,7 @@ export interface RunQueryResult<T> {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<ROW extends ObjectWithId = AnyObjectWithId> {
+export interface DBSaveBatchOperation<ROW extends ObjectWithId = any> {
   type: 'saveBatch'
   table: string
   rows: ROW[]
