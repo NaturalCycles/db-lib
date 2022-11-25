@@ -498,11 +498,13 @@ export class CommonDao<
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
     if (partialQuery || opt.raw) return stream
 
-    return stream.pipe(
-      transformMapSimple<any, DBM>(dbm => this.anyToDBM(dbm, opt), {
-        errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
-      }),
-    )
+    return stream
+      .on('error', err => stream.emit('error', err))
+      .pipe(
+        transformMapSimple<any, DBM>(dbm => this.anyToDBM(dbm, opt), {
+          errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
+        }),
+      )
   }
 
   /**
@@ -529,6 +531,7 @@ export class CommonDao<
         // optimization: 1 validation is enough
         // .pipe(transformMap<any, DBM>(dbm => this.anyToDBM(dbm, opt), safeOpt))
         // .pipe(transformMap<DBM, Saved<BM>>(dbm => this.dbmToBM(dbm, opt), safeOpt))
+        .on('error', err => stream.emit('error', err))
         .pipe(
           transformMap<DBM, Saved<BM>>(async dbm => await this.dbmToBM(dbm, opt), {
             errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
@@ -550,11 +553,16 @@ export class CommonDao<
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
-    return this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).pipe(
-      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
-        errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
-      }),
-    )
+    const stream: ReadableTyped<ID> = this.cfg.db
+      .streamQuery<DBM>(q.select(['id']), opt)
+      .on('error', err => stream.emit('error', err))
+      .pipe(
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
+          errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
+        }),
+      )
+
+    return stream
   }
 
   async streamQueryIdsForEach(

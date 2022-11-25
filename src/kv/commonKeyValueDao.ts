@@ -163,11 +163,16 @@ export class CommonKeyValueDao<T> {
 
     // todo: consider it when readableMap supports `errorMode: SUPPRESS`
     // readableMap(this.cfg.db.streamValues(this.cfg.table, limit), async buf => await this.cfg.hooks!.mapBufferToValue(buf))
-    return this.cfg.db.streamValues(this.cfg.table, limit).pipe(
-      transformMap(async buf => await this.cfg.hooks!.mapBufferToValue!(buf), {
-        errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
-      }),
-    )
+    const stream: ReadableTyped<Buffer> = this.cfg.db
+      .streamValues(this.cfg.table, limit)
+      .on('error', err => stream.emit('error', err))
+      .pipe(
+        transformMap(async buf => await this.cfg.hooks!.mapBufferToValue!(buf), {
+          errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
+        }),
+      )
+
+    return stream
   }
 
   streamEntries(limit?: number): ReadableTyped<KeyValueTuple<string, T>> {
@@ -175,10 +180,15 @@ export class CommonKeyValueDao<T> {
       return this.cfg.db.streamEntries(this.cfg.table, limit)
     }
 
-    return this.cfg.db.streamEntries(this.cfg.table, limit).pipe(
-      transformMap(async ([id, buf]) => [id, await this.cfg.hooks!.mapBufferToValue!(buf)], {
-        errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
-      }),
-    )
+    const stream: ReadableTyped<KeyValueTuple<string, T>> = this.cfg.db
+      .streamEntries(this.cfg.table, limit)
+      .on('error', err => stream.emit('error', err))
+      .pipe(
+        transformMap(async ([id, buf]) => [id, await this.cfg.hooks!.mapBufferToValue!(buf)], {
+          errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
+        }),
+      )
+
+    return stream
   }
 }
