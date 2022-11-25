@@ -1,4 +1,4 @@
-import { createGzip, ZlibOptions } from 'zlib'
+import { createGzip, ZlibOptions } from 'node:zlib'
 import {
   AppError,
   AsyncMapper,

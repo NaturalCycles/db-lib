@@ -1,5 +1,5 @@
-import { Readable } from 'stream'
-import { createGzip, createUnzip } from 'zlib'
+import { Readable } from 'node:stream'
+import { createGzip, createUnzip } from 'node:zlib'
 import { pMap, ObjectWithId } from '@naturalcycles/js-lib'
 import {
   transformJsonParse,
