@@ -608,10 +608,6 @@ export class CommonDao<
   assignIdCreatedUpdated(obj: DBM | BM | Unsaved<BM>, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
-    if (this.cfg.createId) {
-      obj.id ||= this.cfg.hooks!.createNaturalId?.(obj as BM) || this.cfg.hooks!.createRandomId!()
-    }
-
     if (this.cfg.created) {
       ;(obj as any)['created'] ||= (obj as any)['updated'] || now
     }
@@ -619,6 +615,10 @@ export class CommonDao<
     if (this.cfg.updated) {
       ;(obj as any)['updated'] =
         opt.preserveUpdatedCreated && (obj as any)['updated'] ? (obj as any)['updated'] : now
+    }
+
+    if (this.cfg.createId) {
+      obj.id ||= this.cfg.hooks!.createNaturalId?.(obj as BM) || this.cfg.hooks!.createRandomId!()
     }
 
     return obj as any
