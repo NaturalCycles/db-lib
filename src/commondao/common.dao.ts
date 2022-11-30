@@ -106,9 +106,9 @@ export class CommonDao<
         'db-lib: automatic generation of non-string ids is not supported',
       )
 
-      this.cfg.hooks!.createId ||= () => stringId() as ID
+      this.cfg.hooks!.createRandomId ||= () => stringId() as ID
     } else {
-      delete this.cfg.hooks!.createId
+      delete this.cfg.hooks!.createRandomId
     }
   }
 
@@ -608,7 +608,9 @@ export class CommonDao<
   assignIdCreatedUpdated(obj: DBM | BM | Unsaved<BM>, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
-    obj.id ||= this.cfg.hooks!.createId?.(obj as BM)
+    if (this.cfg.createId) {
+      obj.id ||= this.cfg.hooks!.createNaturalId?.(obj as BM) || this.cfg.hooks!.createRandomId!()
+    }
 
     if (this.cfg.created) {
       ;(obj as any)['created'] ||= (obj as any)['updated'] || now

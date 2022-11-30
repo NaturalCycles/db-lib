@@ -16,7 +16,12 @@ export interface CommonDaoHooks<
   TM,
   ID extends string | number,
 > {
-  createId: (obj: DBM | BM) => ID
+  createRandomId: () => ID
+  /**
+   * createNaturalId hook is called (tried) first.
+   * If it doesn't exist - createRandomId is called.
+   */
+  createNaturalId: (obj: DBM | BM) => ID
   parseNaturalId: (id: ID) => Partial<DBM>
   beforeCreate: (bm: Partial<BM>) => Partial<BM>
   beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
