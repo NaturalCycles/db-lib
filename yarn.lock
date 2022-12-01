@@ -866,10 +866,10 @@
     typescript "^4.0.2"
     yargs "^17.0.0"
 
-"@naturalcycles/js-lib@^14.0.0":
-  version "14.115.2"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.115.2.tgz#cc73978e1c2a629796ba3a3eece158b4a5272868"
-  integrity sha512-ofjC3b2J9pu7/q+0wy2ZvRUUG5yijU99T95ab+qQ49rvnDl+oE1IhGq+FqI/A7pWVj0D5NboeiN8LrlBN+u2xw==
+"@naturalcycles/js-lib@^14.0.0", "@naturalcycles/js-lib@^14.116.0":
+  version "14.116.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.116.0.tgz#a76ad1824f1cfd2ba4f10d99a54d2fa375eee84f"
+  integrity sha512-C+DcSlQcGtk+jqBrmWM9Dj67qaSxzk2gI68RsjfsvztMjxZsyu+Gz/VftVu8aVA+piyBJM3xkdAjNfNJZyRhVw==
   dependencies:
     tslib "^2.0.0"
 

@@ -134,7 +134,7 @@ export class CommonDao<
     if (opt.timeout) {
       // todo: possibly remove it after debugging is done
       dbm = (
-        await pTimeout(this.cfg.db.getByIds<DBM>(table, [id]), {
+        await pTimeout(() => this.cfg.db.getByIds<DBM>(table, [id]), {
           timeout: opt.timeout,
           name: `getById(${table})`,
         })
