@@ -79,8 +79,29 @@ export class CommonKeyValueDao<T> {
     return r?.[1] || null
   }
 
+  async getByIdAsBuffer(id?: string): Promise<Buffer | null> {
+    if (!id) return null
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
+    return r?.[1] || null
+  }
+
   async requireById(id: string): Promise<T> {
     const [r] = await this.getByIds([id])
+
+    if (!r) {
+      const { table } = this.cfg
+      throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+        code: DBLibError.DB_ROW_REQUIRED,
+        table,
+        id,
+      })
+    }
+
+    return r[1]
+  }
+
+  async requireByIdAsBuffer(id: string): Promise<Buffer> {
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
 
     if (!r) {
       const { table } = this.cfg
@@ -125,8 +146,16 @@ export class CommonKeyValueDao<T> {
     ])
   }
 
+  async getByIdsAsBuffer(ids: string[]): Promise<KeyValueTuple<string, Buffer>[]> {
+    return await this.cfg.db.getByIds(this.cfg.table, ids)
+  }
+
   async save(id: string, value: T): Promise<void> {
     await this.saveBatch([[id, value]])
+  }
+
+  async saveAsBuffer(id: string, value: Buffer): Promise<void> {
+    await this.cfg.db.saveBatch(this.cfg.table, [[id, value]])
   }
 
   async saveBatch(entries: KeyValueTuple<string, T>[]): Promise<void> {
@@ -144,6 +173,10 @@ export class CommonKeyValueDao<T> {
     await this.cfg.db.saveBatch(this.cfg.table, bufferEntries)
   }
 
+  async saveBatchAsBuffer(entries: KeyValueDBTuple[]): Promise<void> {
+    await this.cfg.db.saveBatch(this.cfg.table, entries)
+  }
+
   async deleteByIds(ids: string[]): Promise<void> {
     await this.cfg.db.deleteByIds(this.cfg.table, ids)
   }
@@ -156,14 +189,14 @@ export class CommonKeyValueDao<T> {
     return this.cfg.db.streamIds(this.cfg.table, limit)
   }
 
-  streamValues(limit?: number): ReadableTyped<Buffer> {
+  streamValues(limit?: number): ReadableTyped<T> {
     if (!this.cfg.hooks?.mapBufferToValue) {
       return this.cfg.db.streamValues(this.cfg.table, limit)
     }
 
     // todo: consider it when readableMap supports `errorMode: SUPPRESS`
     // readableMap(this.cfg.db.streamValues(this.cfg.table, limit), async buf => await this.cfg.hooks!.mapBufferToValue(buf))
-    const stream: ReadableTyped<Buffer> = this.cfg.db
+    const stream: ReadableTyped<T> = this.cfg.db
       .streamValues(this.cfg.table, limit)
       .on('error', err => stream.emit('error', err))
       .pipe(

@@ -189,7 +189,7 @@ export class InMemoryDB implements CommonDB {
     _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + _table
-    this.data[table] = this.data[table] || {}
+    this.data[table] ||= {}
 
     return ids
       .map(id => {
