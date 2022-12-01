@@ -799,17 +799,17 @@
     "@jridgewell/sourcemap-codec" "1.4.14"
 
 "@naturalcycles/bench-lib@^1.0.0":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/bench-lib/-/bench-lib-1.6.1.tgz#998233822c4b441f4f67e52096dca3e3252b3794"
-  integrity sha512-WQWKdivJN++Tf6TbjuJMZq4kBkRJeFhCkfK50sTp+nk7fSz1l8Qq6fpJnpTjmherfSzdesmUEF7rCYkCs3Uxmw==
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/bench-lib/-/bench-lib-1.6.2.tgz#2f1f82074b8bb25606dad033ce7c2f3f389b1e22"
+  integrity sha512-K/388qu8V0q5xb2AdCgAzuvcQKyvbldCV9AKgbG/dtu+7G2Rby7PylZZV2D7o9wvPUvp/C8xaAxHZakdxsiJBQ==
   dependencies:
     "@naturalcycles/js-lib" "^14.0.0"
     "@naturalcycles/nodejs-lib" "^12.0.0"
     autocannon "^7.0.0"
     benchmark "^2.1.4"
     express "^4.17.1"
-    fs-extra "^10.0.0"
-    helmet "^4.6.0"
+    fs-extra "^11.1.0"
+    helmet "^6.0.0"
     vega "^5.10.1"
     vega-lite "^5.0.0"
 
@@ -874,9 +874,9 @@
     tslib "^2.0.0"
 
 "@naturalcycles/nodejs-lib@^12.0.0", "@naturalcycles/nodejs-lib@^12.8.0":
-  version "12.80.2"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-12.80.2.tgz#41909225b735392f8e7994f4ee0dc0cb69de543e"
-  integrity sha512-vo2Pd8w4yGH4kjQ4y9cyNYZpN0HWG4CxMVO+PtYMa5CHWXM/PjVJnKu42wBAWR6LM7RJdfmeiGZMLNBQTWLSIQ==
+  version "12.80.3"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-12.80.3.tgz#5cc65e9e4ff6d283cf9763d81f0e87e837c570be"
+  integrity sha512-3sd0vWVMQpSB6t4CHit5H3cw6YRTCPAHaErGy4/1R+KulA+Pk4i2VXD79z02dAPyhF90GsWhMmo5WJlqFI+UAw==
   dependencies:
     "@naturalcycles/js-lib" "^14.0.0"
     "@types/through2-concurrent" "^2.0.0"
@@ -1111,14 +1111,14 @@
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
 "@types/node@*", "@types/node@^18.0.0", "@types/node@^18.0.3":
-  version "18.11.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.9.tgz#02d013de7058cea16d36168ef2fc653464cfbad4"
-  integrity sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==
+  version "18.11.10"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.10.tgz#4c64759f3c2343b7e6c4b9caf761c7a3a05cee34"
+  integrity sha512-juG3RWMBOqcOuXC643OAdSA525V44cVgGV6dUDuiFtss+8Fk5x1hI93Rsld43VeJVIeqlP9I7Fn9/qaVqoEAuQ==
 
 "@types/node@^14.0.0":
-  version "14.18.33"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.33.tgz#8c29a0036771569662e4635790ffa9e057db379b"
-  integrity sha512-qelS/Ra6sacc4loe/3MSjXNL1dNQ/GjxNHVzuChwMfmk7HuycRLVQN2qNY3XahK+fZc5E2szqQSKUyAF0E+2bg==
+  version "14.18.34"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.34.tgz#cd2e6fa0dbfb08a62582a7b967558e73c32061ec"
+  integrity sha512-hcU9AIQVHmPnmjRK+XUUYlILlr9pQrsqSrwov/JK1pnf3GTQowVBhx54FbvM0AU/VXGH4i3+vgXS5EguR7fysA==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -1719,9 +1719,9 @@ camelcase@^6.2.0:
   integrity sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==
 
 caniuse-lite@^1.0.30001400:
-  version "1.0.30001434"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001434.tgz#ec1ec1cfb0a93a34a0600d37903853030520a4e5"
-  integrity sha512-aOBHrLmTQw//WFa2rcF1If9fa3ypkC1wzqqiKHgfdrXTWcU8C4gKVZT77eQAPWN1APys3+uQ0Df07rKauXGEYA==
+  version "1.0.30001435"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001435.tgz#502c93dbd2f493bee73a408fe98e98fb1dad10b2"
+  integrity sha512-kdCkUTjR+v4YAJelyiDTqiu82BDr4W4CP5sgTA0ZBmqn30XfS2ZghPLMowik9TPhS+psWJiUNxsqLyurDbmutA==
 
 chalk@^2.0.0:
   version "2.4.2"
@@ -3165,10 +3165,10 @@ hdr-histogram-percentiles-obj@^3.0.0:
   resolved "https://registry.yarnpkg.com/hdr-histogram-percentiles-obj/-/hdr-histogram-percentiles-obj-3.0.0.tgz#9409f4de0c2dda78e61de2d9d78b1e9f3cba283c"
   integrity sha512-7kIufnBqdsBGcSZLPJwqHT3yhk1QTsSlFsVD3kx5ixH/AlgBs9yM1q6DPhXZ8f8gtdqgh7N7/5btRLpQsS2gHw==
 
-helmet@^4.6.0:
-  version "4.6.0"
-  resolved "https://registry.yarnpkg.com/helmet/-/helmet-4.6.0.tgz#579971196ba93c5978eb019e4e8ec0e50076b4df"
-  integrity sha512-HVqALKZlR95ROkrnesdhbbZJFi/rIVSoNq6f3jA/9u6MIbTsPh3xZwihjeI5+DO/2sOV6HMHooXcEOuwskHpTg==
+helmet@^6.0.0:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/helmet/-/helmet-6.0.1.tgz#52ec353638b2e87f14fe079d142b368ac11e79a4"
+  integrity sha512-8wo+VdQhTMVBMCITYZaGTbE4lvlthelPYSvoyNvk4RECTmrVjMerp9RfUOQXZWLvCcAn1pKj7ZRxK4lI9Alrcw==
 
 hosted-git-info@^2.1.4:
   version "2.8.9"
