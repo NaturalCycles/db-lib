@@ -936,11 +936,11 @@ export class CommonDao<
   }
 
   async updateById(id: ID, patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
-    return await this.updateByQuery(this.query().byId(id), patch, opt)
+    return await this.updateByQuery(this.query().filterEq('id', id), patch, opt)
   }
 
   async updateByIds(ids: ID[], patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
-    return await this.updateByQuery(this.query().byIds(ids), patch, opt)
+    return await this.updateByQuery(this.query().filter('id', 'in', ids), patch, opt)
   }
 
   async updateByQuery(

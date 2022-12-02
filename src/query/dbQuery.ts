@@ -113,7 +113,6 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
   _selectedFieldNames?: (keyof ROW)[]
   _groupByFieldNames?: (keyof ROW)[]
   _distinct = false
-  _ids?: ROW['id'][]
 
   filter(name: keyof ROW, op: DBQueryFilterOperator, val: any): this {
     this._filters.push({ name, op, val })
@@ -168,28 +167,6 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
     return this
   }
 
-  /**
-   * Allows to query by ids (one or many).
-   * Similar to:
-   * SELECT * FROM table where id in (a, b, c)
-   * or (if only 1 id is passed)
-   * SELECT * FROM table where id = a
-   */
-  byIds(ids: ROW['id'][]): this {
-    this._ids = ids
-    return this
-  }
-
-  /**
-   * Allows to query by id.
-   * Similar to:
-   * SELECT * FROM table where id = a
-   */
-  byId(id: ROW['id']): this {
-    this._ids = [id]
-    return this
-  }
-
   clone(): DBQuery<ROW> {
     return _objectAssign(new DBQuery<ROW>(this.table), {
       _filters: [...this._filters],
@@ -201,7 +178,6 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
       _distinct: this._distinct,
       _startCursor: this._startCursor,
       _endCursor: this._endCursor,
-      _ids: this._ids,
     })
   }
 
@@ -220,14 +196,6 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
       tokens.push(
         `select${this._distinct ? ' distinct' : ''}(${this._selectedFieldNames.join(',')})`,
       )
-    }
-
-    if (this._ids?.length) {
-      if (this._ids.length === 1) {
-        tokens.push(`id=${this._ids[0]}`)
-      } else {
-        tokens.push(`ids in (${this._ids.join(',')})`)
-      }
     }
 
     tokens.push(

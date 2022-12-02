@@ -391,7 +391,6 @@ export function runCommonDBTest(
   }
 
   if (updateByQuery) {
-    // todo: query by ids (same as getByIds)
     test('updateByQuery simple', async () => {
       // cleanup, reset initial data
       await db.deleteByQuery(queryAll())
