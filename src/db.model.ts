@@ -76,3 +76,22 @@ export enum DBModelType {
   BM = 'BM',
   TM = 'TM',
 }
+
+/**
+ * Allows to construct a query similar to:
+ *
+ * UPDATE table SET A = A + 1
+ *
+ * In this case DBIncement.of(1) will be needed.
+ */
+export class DBIncrement {
+  private constructor(public amount: number) {}
+
+  static of(amount: number): DBIncrement {
+    return new DBIncrement(amount)
+  }
+}
+
+export type DBPatch<ROW extends Partial<ObjectWithId>> = Partial<
+  Record<keyof ROW, ROW[keyof ROW] | DBIncrement>
+>

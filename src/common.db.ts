@@ -5,6 +5,7 @@ import {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
+  DBPatch,
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'
@@ -91,6 +92,30 @@ export interface CommonDB {
   ): Promise<number>
 
   deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
+
+  /**
+   * Applies patch to the rows returned by the query.
+   *
+   * Example:
+   *
+   * UPDATE table SET A = B where $QUERY_CONDITION
+   *
+   * patch would be { A: 'B' } for that query.
+   *
+   * Supports "increment query", example:
+   *
+   * UPDATE table SET A = A + 1
+   *
+   * In that case patch would look like:
+   * { A: DBIncrement(1) }
+   *
+   * Returns number of rows affected.
+   */
+  updateByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    patch: DBPatch<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number>
 
   // TRANSACTION
   /**

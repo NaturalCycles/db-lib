@@ -13,6 +13,11 @@ describe('runCommonDBTest', () =>
     bufferSupport: false, // todo: use bufferReviver
     insert: false,
     update: false,
+    updateByQuery: false,
+    createTable: false,
   }))
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', () =>
+  runCommonDaoTest(db, {
+    createTable: false,
+  }))

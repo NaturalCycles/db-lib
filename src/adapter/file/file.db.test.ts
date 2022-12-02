@@ -11,6 +11,11 @@ describe('runCommonDBTest', () =>
     bufferSupport: false, // todo: implement
     insert: false,
     update: false,
+    updateByQuery: false,
+    createTable: false,
   }))
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', () =>
+  runCommonDaoTest(db, {
+    createTable: false,
+  }))

@@ -19,7 +19,6 @@ import {
   TestItemBM,
 } from '../testing'
 import { testItemBMJsonSchema, testItemDBMJsonSchema } from '../testing/test.model'
-import { DBQuery } from '../query/dbQuery'
 import { CommonDao } from './common.dao'
 import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveOptions } from './common.dao.model'
 
@@ -214,7 +213,7 @@ test('modifications of immutable objects', async () => {
   // Ensure object can't be deleted
   await expect(immutableDao.deleteById(item1Saved.id)).rejects.toThrow()
   await expect(immutableDao.deleteByIds([item1Saved.id])).rejects.toThrow()
-  const q = new DBQuery('TestKind').filter('id', '==', item1Saved.id)
+  const q = immutableDao.query().filter('id', '==', item1Saved.id)
   await expect(immutableDao.deleteByQuery(q)).rejects.toThrow()
 
   // Ensure deletion is possible with override flag

@@ -40,6 +40,7 @@ import {
   DBDeleteByIdsOperation,
   DBModelType,
   DBOperation,
+  DBPatch,
   DBSaveBatchOperation,
   RunQueryResult,
 } from '../db.model'
@@ -932,6 +933,29 @@ export class CommonDao<
 
     this.logSaveResult(started, op, q.table)
     return deleted
+  }
+
+  async updateById(id: ID, patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+    return await this.updateByQuery(this.query().byId(id), patch, opt)
+  }
+
+  async updateByIds(ids: ID[], patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+    return await this.updateByQuery(this.query().byIds(ids), patch, opt)
+  }
+
+  async updateByQuery(
+    q: DBQuery<DBM>,
+    patch: DBPatch<DBM>,
+    opt: CommonDaoOptions = {},
+  ): Promise<number> {
+    this.requireWriteAccess()
+    this.requireObjectMutability(opt)
+    q.table = opt.table || q.table
+    const op = `updateByQuery(${q.pretty()})`
+    const started = this.logStarted(op, q.table)
+    const updated = await this.cfg.db.updateByQuery(q, patch, opt)
+    this.logSaveResult(started, op, q.table)
+    return updated
   }
 
   // CONVERSIONS

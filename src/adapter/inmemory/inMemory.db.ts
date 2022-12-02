@@ -13,6 +13,7 @@ import {
   _stringMapValues,
   CommonLogger,
   _deepCopy,
+  _assert,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -25,7 +26,7 @@ import {
 } from '@naturalcycles/nodejs-lib'
 import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import * as fs from 'fs-extra'
-import { CommonDB, DBTransaction, queryInMemory } from '../..'
+import { CommonDB, DBIncrement, DBPatch, DBTransaction, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -149,7 +150,7 @@ export class InMemoryDB implements CommonDB {
   ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
-    return ids.map(id => this.data[table]![id]).filter(Boolean) as ROW[]
+    return ids.map(id => this.data[table]![id] as ROW).filter(Boolean)
   }
 
   async saveBatch<ROW extends Partial<ObjectWithId>>(
@@ -190,14 +191,13 @@ export class InMemoryDB implements CommonDB {
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
-
-    return ids
-      .map(id => {
-        const exists = !!this.data[table]![id]
-        delete this.data[table]![id]
-        if (exists) return id
-      })
-      .filter(Boolean).length
+    let count = 0
+    ids.forEach(id => {
+      if (!this.data[table]![id]) return
+      delete this.data[table]![id]
+      count++
+    })
+    return count
   }
 
   async deleteByQuery<ROW extends ObjectWithId>(
@@ -208,6 +208,28 @@ export class InMemoryDB implements CommonDB {
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
     const ids = rows.map(r => r.id)
     return await this.deleteByIds(q.table, ids)
+  }
+
+  async updateByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    patch: DBPatch<ROW>,
+  ): Promise<number> {
+    const patchEntries = Object.entries(patch)
+    if (!patchEntries.length) return 0
+
+    const table = this.cfg.tablesPrefix + q.table
+    const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
+    rows.forEach((row: any) => {
+      patchEntries.forEach(([k, v]) => {
+        if (v instanceof DBIncrement) {
+          row[k] = (row[k] || 0) + v.amount
+        } else {
+          row[k] = v
+        }
+      })
+    })
+
+    return rows.length
   }
 
   async runQuery<ROW extends ObjectWithId>(
@@ -260,9 +282,7 @@ export class InMemoryDB implements CommonDB {
    * Flushes all tables (all namespaces) at once.
    */
   async flushToDisk(): Promise<void> {
-    if (!this.cfg.persistenceEnabled) {
-      throw new Error('flushToDisk() called but persistenceEnabled=false')
-    }
+    _assert(this.cfg.persistenceEnabled, 'flushToDisk() called but persistenceEnabled=false')
     const { persistentStoragePath, persistZip } = this.cfg
 
     const started = Date.now()
@@ -297,9 +317,7 @@ export class InMemoryDB implements CommonDB {
    * Restores all tables (all namespaces) at once.
    */
   async restoreFromDisk(): Promise<void> {
-    if (!this.cfg.persistentStoragePath) {
-      throw new Error('restoreFromDisk() called but persistenceEnabled=false')
-    }
+    _assert(this.cfg.persistenceEnabled, 'restoreFromDisk() called but persistenceEnabled=false')
     const { persistentStoragePath } = this.cfg
 
     const started = Date.now()

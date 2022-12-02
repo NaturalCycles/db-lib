@@ -7,7 +7,7 @@ import {
 } from '@naturalcycles/js-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
-import { CommonDBOptions, RunQueryResult } from '../../db.model'
+import { CommonDBOptions, DBPatch, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
 import { DBTransaction } from '../../transaction/dbTransaction'
 import {
@@ -292,6 +292,25 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
 
     return deletedIds
+  }
+
+  override async updateByQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    patch: DBPatch<ROW>,
+    opt: CacheDBOptions = {},
+  ): Promise<number> {
+    let updated: number | undefined
+
+    if (!opt.onlyCache && !this.cfg.onlyCache) {
+      updated = await this.cfg.downstreamDB.updateByQuery(q, patch, opt)
+    }
+
+    if (!opt.skipCache && !this.cfg.skipCache) {
+      const cacheResult = this.cfg.cacheDB.updateByQuery(q, patch, opt)
+      if (this.cfg.awaitCache) updated ??= await cacheResult
+    }
+
+    return updated || 0
   }
 
   override async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
