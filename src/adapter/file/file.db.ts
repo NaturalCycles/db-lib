@@ -65,15 +65,6 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return tables
   }
 
-  override async getByIds<ROW extends ObjectWithId>(
-    table: string,
-    ids: ROW['id'][],
-    _opt?: CommonDBOptions,
-  ): Promise<ROW[]> {
-    const byId = _by(await this.loadFile<ROW>(table), r => r.id)
-    return ids.map(id => byId[id]!).filter(Boolean)
-  }
-
   override async saveBatch<ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],
@@ -196,29 +187,6 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     })
 
     return readable
-  }
-
-  override async deleteByIds<ROW extends ObjectWithId>(
-    table: string,
-    ids: ROW['id'][],
-    _opt?: CommonDBOptions,
-  ): Promise<number> {
-    if (!ids.length) return 0
-
-    let deleted = 0
-    const rows = (await this.loadFile<ROW>(table)).filter(r => {
-      if (ids.includes(r.id)) {
-        deleted++
-        return false
-      }
-      return true
-    })
-
-    if (deleted > 0) {
-      await this.saveFile(table, rows)
-    }
-
-    return deleted
   }
 
   override async deleteByQuery<ROW extends ObjectWithId>(

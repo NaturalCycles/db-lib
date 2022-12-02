@@ -129,9 +129,12 @@ export function runCommonDBTest(
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
       const { rows } = await db.runQuery(queryAll().select(['id']))
-      await db.deleteByIds(
-        TEST_TABLE,
-        rows.map(i => i.id),
+      await db.runQuery(
+        queryAll().filter(
+          'id',
+          'in',
+          rows.map(i => i.id),
+        ),
       )
     })
 
@@ -145,17 +148,17 @@ export function runCommonDBTest(
 
   // GET empty
   test('getByIds(item1.id) should return empty', async () => {
-    const [item1Loaded] = await db.getByIds<TestItemDBM>(TEST_TABLE, [item1.id])
+    const [item1Loaded] = (await db.runQuery(queryAll().filterEq('id', item1.id))).rows
     // console.log(a)
     expect(item1Loaded).toBeUndefined()
   })
 
   test('getByIds([]) should return []', async () => {
-    expect(await db.getByIds(TEST_TABLE, [])).toEqual([])
+    expect((await db.runQuery(queryAll().filter('id', 'in', []))).rows).toEqual([])
   })
 
   test('getByIds(...) should return empty', async () => {
-    expect(await db.getByIds(TEST_TABLE, ['abc', 'abcd'])).toEqual([])
+    expect((await db.runQuery(queryAll().filter('id', 'in', ['abc', 'abcd']))).rows).toEqual([])
   })
 
   // SAVE
@@ -167,7 +170,7 @@ export function runCommonDBTest(
       }
       deepFreeze(item3)
       await db.saveBatch(TEST_TABLE, [item3])
-      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
+      const item3Loaded = (await db.runQuery(queryAll().filterEq('id', item3.id))).rows[0]!
       expectMatch([item3], [item3Loaded], quirks)
       expect(item3Loaded.k2).toBeNull()
     })
@@ -184,7 +187,7 @@ export function runCommonDBTest(
       delete expected.k2
 
       await db.saveBatch(TEST_TABLE, [item3])
-      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
+      const item3Loaded = (await db.runQuery(queryAll().filterEq('id', item3.id))).rows[0]!
       expectMatch([expected], [item3Loaded], quirks)
       expect(item3Loaded.k2).toBeUndefined()
       expect(Object.keys(item3Loaded)).not.toContain('k2')
@@ -219,8 +222,14 @@ export function runCommonDBTest(
 
   // GET not empty
   test('getByIds all items', async () => {
-    const rows = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
-    expectMatch(items, rows, quirks)
+    const rows = (
+      await db.runQuery(queryAll().filter('id', 'in', items.map(i => i.id).concat('abcd')))
+    ).rows
+    expectMatch(
+      items,
+      _sortBy(rows, r => r.id),
+      quirks,
+    )
   })
 
   // QUERY
@@ -340,8 +349,8 @@ export function runCommonDBTest(
         b1,
       }
       await db.saveBatch(TEST_TABLE, [item])
-      const [loaded] = await db.getByIds<TestItemDBM>(TEST_TABLE, [item.id])
-      const b1Loaded = loaded!.b1!
+      const loaded = (await db.runQuery(queryAll().filterEq('id', item.id))).rows[0]!
+      const b1Loaded = loaded.b1!
       // console.log({
       //   b11: typeof b1,
       //   b12: typeof b1Loaded,
@@ -444,11 +453,7 @@ export function runCommonDBTest(
   if (querying) {
     test('cleanup', async () => {
       // CLEAN UP
-      const { rows } = await db.runQuery(queryAll().select(['id']))
-      await db.deleteByIds(
-        TEST_TABLE,
-        rows.map(i => i.id),
-      )
+      await db.deleteByQuery(queryAll())
     })
   }
 }

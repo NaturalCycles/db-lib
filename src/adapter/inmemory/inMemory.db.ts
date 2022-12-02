@@ -143,16 +143,6 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<ROW extends ObjectWithId>(
-    _table: string,
-    ids: ROW['id'][],
-    _opt?: CommonDBOptions,
-  ): Promise<ROW[]> {
-    const table = this.cfg.tablesPrefix + _table
-    this.data[table] ||= {}
-    return ids.map(id => this.data[table]![id] as ROW).filter(Boolean)
-  }
-
   async saveBatch<ROW extends Partial<ObjectWithId>>(
     _table: string,
     rows: ROW[],
@@ -184,30 +174,19 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByIds<ROW extends ObjectWithId>(
-    _table: string,
-    ids: ROW['id'][],
-    _opt?: CommonDBOptions,
-  ): Promise<number> {
-    const table = this.cfg.tablesPrefix + _table
-    this.data[table] ||= {}
-    let count = 0
-    ids.forEach(id => {
-      if (!this.data[table]![id]) return
-      delete this.data[table]![id]
-      count++
-    })
-    return count
-  }
-
   async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
-    const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
-    const ids = rows.map(r => r.id)
-    return await this.deleteByIds(q.table, ids)
+    this.data[table] ||= {}
+    let count = 0
+    queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]).forEach(r => {
+      if (!this.data[table]![r.id]) return
+      delete this.data[table]![r.id]
+      count++
+    })
+    return count
   }
 
   async updateByQuery<ROW extends ObjectWithId>(
@@ -264,7 +243,10 @@ export class InMemoryDB implements CommonDB {
         if (op.type === 'saveBatch') {
           await this.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
         } else if (op.type === 'deleteByIds') {
-          await this.deleteByIds(op.table, op.ids, { ...op.opt, ...opt })
+          await this.deleteByQuery(DBQuery.create(op.table).filter('id', 'in', op.ids), {
+            ...op.opt,
+            ...opt,
+          })
         } else {
           throw new Error(`DBOperation not supported: ${(op as any).type}`)
         }

@@ -134,14 +134,17 @@ export class CommonDao<
 
     if (opt.timeout) {
       // todo: possibly remove it after debugging is done
-      dbm = (
-        await pTimeout(() => this.cfg.db.getByIds<DBM>(table, [id]), {
+      dbm = await pTimeout(
+        async () => {
+          return (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows[0]
+        },
+        {
           timeout: opt.timeout,
           name: `getById(${table})`,
-        })
-      )[0]
+        },
+      )
     } else {
-      dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
+      dbm = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows[0]
     }
 
     const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
@@ -171,7 +174,7 @@ export class CommonDao<
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    let [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
+    let [dbm] = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows
     if (!opt.raw) {
       dbm = this.anyToDBM(dbm!, opt)
     }
@@ -186,7 +189,7 @@ export class CommonDao<
     const op = `getByIdAsTM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
+    const [dbm] = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows
     if (opt.raw) {
       this.logResult(started, op, dbm, table)
       return (dbm as any) || null
@@ -201,7 +204,7 @@ export class CommonDao<
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
+    const dbms = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterIn('id', ids))).rows
     const bms = opt.raw ? (dbms as any) : await this.dbmsToBM(dbms, opt)
     this.logResult(started, op, bms, table)
     return bms
@@ -211,7 +214,7 @@ export class CommonDao<
     const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
+    const dbms = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterIn('id', ids))).rows
     this.logResult(started, op, dbms, table)
     return dbms
   }
@@ -267,7 +270,8 @@ export class CommonDao<
 
   private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
     // todo: retry N times
-    const existing = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
+    const existing = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', dbm.id)))
+      .rows
     if (existing.length) {
       throw new AppError(DBLibError.NON_UNIQUE_ID, {
         table,
@@ -869,9 +873,9 @@ export class CommonDao<
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const ids = await this.cfg.db.deleteByIds(table, [id])
+    const count = await this.cfg.db.deleteByQuery(DBQuery.create(table).filterEq('id', id))
     this.logSaveResult(started, op, table)
-    return ids
+    return count
   }
 
   async deleteByIds(ids: ID[], opt: CommonDaoOptions = {}): Promise<number> {
@@ -880,9 +884,9 @@ export class CommonDao<
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const deletedIds = await this.cfg.db.deleteByIds(table, ids)
+    const count = await this.cfg.db.deleteByQuery(DBQuery.create(table).filterIn('id', ids))
     this.logSaveResult(started, op, table)
-    return deletedIds
+    return count
   }
 
   /**
@@ -912,7 +916,10 @@ export class CommonDao<
         transformBuffer<string>({ batchSize }),
         transformMap<string[], void>(
           async ids => {
-            deleted += await this.cfg.db.deleteByIds(q.table, ids, opt)
+            deleted += await this.cfg.db.deleteByQuery(
+              DBQuery.create(q.table).filterIn('id', ids),
+              opt,
+            )
           },
           {
             predicate: _passthroughPredicate,
@@ -940,7 +947,7 @@ export class CommonDao<
   }
 
   async updateByIds(ids: ID[], patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
-    return await this.updateByQuery(this.query().filter('id', 'in', ids), patch, opt)
+    return await this.updateByQuery(this.query().filterIn('id', ids), patch, opt)
   }
 
   async updateByQuery(

@@ -124,6 +124,11 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
     return this
   }
 
+  filterIn(name: keyof ROW, val: any[]): this {
+    this._filters.push({ name, op: 'in', val })
+    return this
+  }
+
   limit(limit: number): this {
     this._limitValue = limit
     return this

@@ -1,6 +1,6 @@
 import { pDelay, _deepCopy, _pick, _sortBy, _omit, localTime } from '@naturalcycles/js-lib'
 import { readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
-import { CommonDaoLogLevel } from '..'
+import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
 import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
@@ -75,9 +75,12 @@ export function runCommonDaoTest(
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
       const rows = await dao.query().select(['id']).runQuery()
-      await db.deleteByIds(
-        TEST_TABLE,
-        rows.map(i => i.id),
+      await db.deleteByQuery(
+        DBQuery.create(TEST_TABLE).filter(
+          'id',
+          'in',
+          rows.map(r => r.id),
+        ),
       )
     })
 
@@ -156,7 +159,11 @@ export function runCommonDaoTest(
   // GET not empty
   test('getByIds all items', async () => {
     const rows = await dao.getByIds(items.map(i => i.id).concat('abcd'))
-    expectMatch(expectedItems, rows, quirks)
+    expectMatch(
+      expectedItems,
+      _sortBy(rows, r => r.id),
+      quirks,
+    )
   })
 
   // QUERY
@@ -258,11 +265,7 @@ export function runCommonDaoTest(
 
     test('cleanup', async () => {
       // CLEAN UP
-      const rows = await dao.query().select(['id']).runQuery()
-      await db.deleteByIds(
-        TEST_TABLE,
-        rows.map(i => i.id),
-      )
+      await dao.query().deleteByQuery()
     })
   }
 

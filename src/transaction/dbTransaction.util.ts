@@ -1,5 +1,6 @@
 import type { CommonDB } from '../common.db'
 import { CommonDBSaveOptions, DBOperation } from '../db.model'
+import { DBQuery } from '../query/dbQuery'
 import { DBTransaction } from './dbTransaction'
 
 /**
@@ -80,7 +81,10 @@ export async function commitDBTransactionSimple(
     if (op.type === 'saveBatch') {
       await db.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
     } else if (op.type === 'deleteByIds') {
-      await db.deleteByIds(op.table, op.ids, { ...op.opt, ...opt })
+      await db.deleteByQuery(DBQuery.create(op.table).filter('id', 'in', op.ids), {
+        ...op.opt,
+        ...opt,
+      })
     } else {
       throw new Error(`DBOperation not supported: ${(op as any).type}`)
     }

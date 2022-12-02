@@ -30,11 +30,7 @@ export class BaseCommonDB implements CommonDB {
     table: string,
     schema: JsonSchemaObject<ROW>,
   ): Promise<void> {
-    throw new Error('createTable is not implemented')
-  }
-
-  async deleteByIds<ROW extends ObjectWithId>(table: string, ids: ROW['id'][]): Promise<number> {
-    throw new Error('deleteByIds is not implemented')
+    // no-op
   }
 
   async deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>): Promise<number> {
@@ -47,10 +43,6 @@ export class BaseCommonDB implements CommonDB {
     opt?: CommonDBOptions,
   ): Promise<number> {
     throw new Error('updateByQuery is not implemented')
-  }
-
-  async getByIds<ROW extends ObjectWithId>(table: string, ids: ROW['id'][]): Promise<ROW[]> {
-    throw new Error('getByIds is not implemented')
   }
 
   async runQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>): Promise<RunQueryResult<ROW>> {
