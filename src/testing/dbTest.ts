@@ -129,10 +129,9 @@ export function runCommonDBTest(
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
       const { rows } = await db.runQuery(queryAll().select(['id']))
-      await db.runQuery(
-        queryAll().filter(
+      await db.deleteByQuery(
+        queryAll().filterIn(
           'id',
-          'in',
           rows.map(i => i.id),
         ),
       )
@@ -154,11 +153,11 @@ export function runCommonDBTest(
   })
 
   test('getByIds([]) should return []', async () => {
-    expect((await db.runQuery(queryAll().filter('id', 'in', []))).rows).toEqual([])
+    expect((await db.runQuery(queryAll().filterIn('id', []))).rows).toEqual([])
   })
 
   test('getByIds(...) should return empty', async () => {
-    expect((await db.runQuery(queryAll().filter('id', 'in', ['abc', 'abcd']))).rows).toEqual([])
+    expect((await db.runQuery(queryAll().filterIn('id', ['abc', 'abcd']))).rows).toEqual([])
   })
 
   // SAVE
@@ -222,9 +221,8 @@ export function runCommonDBTest(
 
   // GET not empty
   test('getByIds all items', async () => {
-    const rows = (
-      await db.runQuery(queryAll().filter('id', 'in', items.map(i => i.id).concat('abcd')))
-    ).rows
+    const rows = (await db.runQuery(queryAll().filterIn('id', items.map(i => i.id).concat('abcd'))))
+      .rows
     expectMatch(
       items,
       _sortBy(rows, r => r.id),
