@@ -65,6 +65,15 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return tables
   }
 
+  override async getByIds<ROW extends ObjectWithId>(
+    table: string,
+    ids: ROW['id'][],
+    _opt?: CommonDBOptions,
+  ): Promise<ROW[]> {
+    const byId = _by(await this.loadFile<ROW>(table), r => r.id)
+    return ids.map(id => byId[id]!).filter(Boolean)
+  }
+
   override async saveBatch<ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],

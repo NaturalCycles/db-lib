@@ -43,6 +43,17 @@ export interface CommonDB {
     opt?: CommonDBCreateOptions,
   ): Promise<void>
 
+  // GET
+  /**
+   * Order of items returned is not guaranteed to match order of ids.
+   * (Such limitation exists because Datastore doesn't support it).
+   */
+  getByIds<ROW extends ObjectWithId>(
+    table: string,
+    ids: ROW['id'][],
+    opt?: CommonDBOptions,
+  ): Promise<ROW[]>
+
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).

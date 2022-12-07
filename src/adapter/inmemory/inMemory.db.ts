@@ -143,6 +143,16 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
+  async getByIds<ROW extends ObjectWithId>(
+    _table: string,
+    ids: ROW['id'][],
+    _opt?: CommonDBOptions,
+  ): Promise<ROW[]> {
+    const table = this.cfg.tablesPrefix + _table
+    this.data[table] ||= {}
+    return ids.map(id => this.data[table]![id] as ROW).filter(Boolean)
+  }
+
   async saveBatch<ROW extends Partial<ObjectWithId>>(
     _table: string,
     rows: ROW[],

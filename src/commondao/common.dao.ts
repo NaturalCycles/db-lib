@@ -56,8 +56,6 @@ import {
   CommonDaoStreamOptions,
 } from './common.dao.model'
 
-/* eslint-disable no-dupe-class-members */
-
 const isGAE = !!process.env['GAE_INSTANCE']
 const isCI = !!process.env['CI']
 
@@ -136,7 +134,7 @@ export class CommonDao<
       // todo: possibly remove it after debugging is done
       dbm = await pTimeout(
         async () => {
-          return (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows[0]
+          return (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
         },
         {
           timeout: opt.timeout,
@@ -144,7 +142,7 @@ export class CommonDao<
         },
       )
     } else {
-      dbm = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows[0]
+      dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
     }
 
     const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
@@ -174,7 +172,7 @@ export class CommonDao<
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    let [dbm] = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows
+    let [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (!opt.raw) {
       dbm = this.anyToDBM(dbm!, opt)
     }
@@ -189,7 +187,7 @@ export class CommonDao<
     const op = `getByIdAsTM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const [dbm] = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', id))).rows
+    const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
     if (opt.raw) {
       this.logResult(started, op, dbm, table)
       return (dbm as any) || null
@@ -204,7 +202,7 @@ export class CommonDao<
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const dbms = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterIn('id', ids))).rows
+    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
     const bms = opt.raw ? (dbms as any) : await this.dbmsToBM(dbms, opt)
     this.logResult(started, op, bms, table)
     return bms
@@ -214,7 +212,7 @@ export class CommonDao<
     const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const dbms = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterIn('id', ids))).rows
+    const dbms = await this.cfg.db.getByIds<DBM>(table, ids)
     this.logResult(started, op, dbms, table)
     return dbms
   }
@@ -270,8 +268,7 @@ export class CommonDao<
 
   private async ensureUniqueId(table: string, dbm: DBM): Promise<void> {
     // todo: retry N times
-    const existing = (await this.cfg.db.runQuery(DBQuery.create<DBM>(table).filterEq('id', dbm.id)))
-      .rows
+    const existing = await this.cfg.db.getByIds<DBM>(table, [dbm.id])
     if (existing.length) {
       throw new AppError(DBLibError.NON_UNIQUE_ID, {
         table,

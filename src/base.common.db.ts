@@ -33,6 +33,10 @@ export class BaseCommonDB implements CommonDB {
     // no-op
   }
 
+  async getByIds<ROW extends ObjectWithId>(table: string, ids: ROW['id'][]): Promise<ROW[]> {
+    throw new Error('getByIds is not implemented')
+  }
+
   async deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>): Promise<number> {
     throw new Error('deleteByQuery is not implemented')
   }

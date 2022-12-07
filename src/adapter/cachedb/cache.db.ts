@@ -1,5 +1,10 @@
 import { Readable } from 'node:stream'
-import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
+import {
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  ObjectWithId,
+  StringMap,
+} from '@naturalcycles/js-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
 import { CommonDBOptions, DBPatch, RunQueryResult } from '../../db.model'
@@ -65,6 +70,52 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     if (!opt.skipCache && !this.cfg.skipCache) {
       await this.cfg.cacheDB.createTable(table, schema, opt)
     }
+  }
+
+  override async getByIds<ROW extends ObjectWithId>(
+    table: string,
+    ids: ROW['id'][],
+    opt: CacheDBSaveOptions<ROW> = {},
+  ): Promise<ROW[]> {
+    const resultMap: StringMap<ROW> = {}
+    const missingIds: ROW['id'][] = []
+
+    if (!opt.skipCache && !this.cfg.skipCache) {
+      const results = await this.cfg.cacheDB.getByIds<ROW>(table, ids, opt)
+
+      results.forEach(r => (resultMap[r.id] = r))
+
+      missingIds.push(...ids.filter(id => !resultMap[id]))
+
+      if (this.cfg.logCached) {
+        this.cfg.logger?.log(
+          `${table}.getByIds ${results.length} rows from cache: [${results
+            .map(r => r.id)
+            .join(', ')}]`,
+        )
+      }
+    }
+
+    if (missingIds.length && !opt.onlyCache && !this.cfg.onlyCache) {
+      const results = await this.cfg.downstreamDB.getByIds<ROW>(table, missingIds, opt)
+      results.forEach(r => (resultMap[r.id] = r))
+
+      if (this.cfg.logDownstream) {
+        this.cfg.logger?.log(
+          `${table}.getByIds ${results.length} rows from downstream: [${results
+            .map(r => r.id)
+            .join(', ')}]`,
+        )
+      }
+
+      if (!opt.skipCache) {
+        const cacheResult = this.cfg.cacheDB.saveBatch(table, results, opt)
+        if (this.cfg.awaitCache) await cacheResult
+      }
+    }
+
+    // return in right order
+    return ids.map(id => resultMap[id]!).filter(Boolean)
   }
 
   override async saveBatch<ROW extends Partial<ObjectWithId>>(

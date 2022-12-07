@@ -147,17 +147,17 @@ export function runCommonDBTest(
 
   // GET empty
   test('getByIds(item1.id) should return empty', async () => {
-    const [item1Loaded] = (await db.runQuery(queryAll().filterEq('id', item1.id))).rows
+    const [item1Loaded] = await db.getByIds(TEST_TABLE, [item1.id])
     // console.log(a)
     expect(item1Loaded).toBeUndefined()
   })
 
   test('getByIds([]) should return []', async () => {
-    expect((await db.runQuery(queryAll().filterIn('id', []))).rows).toEqual([])
+    expect(await db.getByIds(TEST_TABLE, [])).toEqual([])
   })
 
   test('getByIds(...) should return empty', async () => {
-    expect((await db.runQuery(queryAll().filterIn('id', ['abc', 'abcd']))).rows).toEqual([])
+    expect(await db.getByIds(TEST_TABLE, ['abc', 'abcd'])).toEqual([])
   })
 
   // SAVE
@@ -169,7 +169,7 @@ export function runCommonDBTest(
       }
       deepFreeze(item3)
       await db.saveBatch(TEST_TABLE, [item3])
-      const item3Loaded = (await db.runQuery(queryAll().filterEq('id', item3.id))).rows[0]!
+      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([item3], [item3Loaded], quirks)
       expect(item3Loaded.k2).toBeNull()
     })
@@ -186,7 +186,7 @@ export function runCommonDBTest(
       delete expected.k2
 
       await db.saveBatch(TEST_TABLE, [item3])
-      const item3Loaded = (await db.runQuery(queryAll().filterEq('id', item3.id))).rows[0]!
+      const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([expected], [item3Loaded], quirks)
       expect(item3Loaded.k2).toBeUndefined()
       expect(Object.keys(item3Loaded)).not.toContain('k2')
@@ -221,8 +221,7 @@ export function runCommonDBTest(
 
   // GET not empty
   test('getByIds all items', async () => {
-    const rows = (await db.runQuery(queryAll().filterIn('id', items.map(i => i.id).concat('abcd'))))
-      .rows
+    const rows = await db.getByIds<TestItemDBM>(TEST_TABLE, items.map(i => i.id).concat('abcd'))
     expectMatch(
       items,
       _sortBy(rows, r => r.id),
@@ -347,7 +346,7 @@ export function runCommonDBTest(
         b1,
       }
       await db.saveBatch(TEST_TABLE, [item])
-      const loaded = (await db.runQuery(queryAll().filterEq('id', item.id))).rows[0]!
+      const loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item.id]))[0]!
       const b1Loaded = loaded.b1!
       // console.log({
       //   b11: typeof b1,
