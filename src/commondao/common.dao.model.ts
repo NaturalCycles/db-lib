@@ -16,20 +16,20 @@ export interface CommonDaoHooks<
   TM,
   ID extends string | number,
 > {
-  createRandomId: () => ID
+  createRandomId(): ID
   /**
    * createNaturalId hook is called (tried) first.
    * If it doesn't exist - createRandomId is called.
    */
-  createNaturalId: (obj: DBM | BM) => ID
-  parseNaturalId: (id: ID) => Partial<DBM>
-  beforeCreate: (bm: Partial<BM>) => Partial<BM>
-  beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
-  beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
-  beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
-  beforeTMToBM: (tm: TM) => Partial<BM>
-  beforeBMToTM: (bm: BM) => Partial<TM>
-  anonymize: (dbm: DBM) => DBM
+  createNaturalId(obj: DBM | BM): ID
+  parseNaturalId(id: ID): Partial<DBM>
+  beforeCreate(bm: Partial<BM>): Partial<BM>
+  beforeDBMValidate(dbm: Partial<DBM>): Partial<DBM>
+  beforeDBMToBM(dbm: DBM): Partial<BM> | Promise<Partial<BM>>
+  beforeBMToDBM(bm: BM): Partial<DBM> | Promise<Partial<DBM>>
+  beforeTMToBM(tm: TM): Partial<BM>
+  beforeBMToTM(bm: BM): Partial<TM>
+  anonymize(dbm: DBM): DBM
 
   /**
    * If hook is defined - allows to prevent or modify the error thrown.
@@ -37,7 +37,7 @@ export interface CommonDaoHooks<
    * Return original `err` to pass the error through (will be thrown in CommonDao).
    * Return modified/new `Error` if needed.
    */
-  onValidationError: (err: JoiValidationError | AjvValidationError) => Error | false
+  onValidationError(err: JoiValidationError | AjvValidationError): Error | false
 }
 
 export enum CommonDaoLogLevel {

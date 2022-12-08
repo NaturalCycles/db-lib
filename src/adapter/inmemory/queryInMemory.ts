@@ -39,9 +39,8 @@ export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: R
 
       if (descending) {
         return a[name] < b[name] ? 1 : -1
-      } else {
-        return a[name] > b[name] ? 1 : -1
       }
+      return a[name] > b[name] ? 1 : -1
     })
   }
 

@@ -106,9 +106,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
 
   console.log(`>> ${dimWhite('dbPipelineCopy')} started...${sinceUpdatedStr}`)
 
-  if (!tables) {
-    tables = await dbInput.getTables()
-  }
+  tables ||= await dbInput.getTables()
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n` + tables.join('\n'))
 

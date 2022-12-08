@@ -158,9 +158,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
   fs.ensureDirSync(outputDirPath)
 
-  if (!tables) {
-    tables = await db.getTables()
-  }
+  tables ||= await db.getTables()
 
   console.log(`${yellow(tables.length)} ${boldWhite('table(s)')}:\n` + tables.join('\n'))
 

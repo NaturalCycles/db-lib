@@ -32,9 +32,9 @@ export interface CommonKeyValueDaoCfg<T> {
   logStarted?: boolean
 
   hooks?: {
-    mapValueToBuffer?: (v: T) => Promise<Buffer>
-    mapBufferToValue?: (b: Buffer) => Promise<T>
-    beforeCreate?: (v: Partial<T>) => Partial<T>
+    mapValueToBuffer?(v: T): Promise<Buffer>
+    mapBufferToValue?(b: Buffer): Promise<T>
+    beforeCreate?(v: Partial<T>): Partial<T>
   }
 
   /**
