@@ -988,7 +988,7 @@ export class CommonDao<
   validateAndConvert<IN, OUT = IN>(
     obj: Partial<IN>,
     schema: ObjectSchemaTyped<IN> | AjvSchema<IN> | undefined,
-    modelType: DBModelType,
+    modelType?: DBModelType | string,
     opt: CommonDaoOptions = {},
   ): OUT {
     // `raw` option completely bypasses any processing
