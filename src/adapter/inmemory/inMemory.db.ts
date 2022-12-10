@@ -120,7 +120,7 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<ROW extends ObjectWithId>(
+  async getTableSchema<ROW extends Partial<ObjectWithId>>(
     _table: string,
   ): Promise<JsonSchemaRootObject<ROW>> {
     const table = this.cfg.tablesPrefix + _table
@@ -130,7 +130,7 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async createTable<ROW extends ObjectWithId>(
+  async createTable<ROW extends Partial<ObjectWithId>>(
     _table: string,
     _schema: JsonSchemaObject<ROW>,
     opt: CommonDBCreateOptions = {},
@@ -143,14 +143,14 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<ROW extends ObjectWithId>(
+  async getByIds<ROW extends Partial<ObjectWithId>>(
     _table: string,
     ids: ROW['id'][],
     _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
-    return ids.map(id => this.data[table]![id] as ROW).filter(Boolean)
+    return ids.map(id => this.data[table]![id!] as ROW).filter(Boolean)
   }
 
   async saveBatch<ROW extends Partial<ObjectWithId>>(
@@ -184,7 +184,7 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByQuery<ROW extends ObjectWithId>(
+  async deleteByQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
@@ -192,14 +192,14 @@ export class InMemoryDB implements CommonDB {
     this.data[table] ||= {}
     let count = 0
     queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]).forEach(r => {
-      if (!this.data[table]![r.id]) return
-      delete this.data[table]![r.id]
+      if (!this.data[table]![r.id!]) return
+      delete this.data[table]![r.id!]
       count++
     })
     return count
   }
 
-  async updateByQuery<ROW extends ObjectWithId>(
+  async updateByQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
   ): Promise<number> {
@@ -221,7 +221,7 @@ export class InMemoryDB implements CommonDB {
     return rows.length
   }
 
-  async runQuery<ROW extends ObjectWithId>(
+  async runQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>> {
@@ -229,7 +229,7 @@ export class InMemoryDB implements CommonDB {
     return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]) }
   }
 
-  async runQueryCount<ROW extends ObjectWithId>(
+  async runQueryCount<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
@@ -237,7 +237,7 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
-  streamQuery<ROW extends ObjectWithId>(
+  streamQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): ReadableTyped<ROW> {

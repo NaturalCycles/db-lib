@@ -46,7 +46,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       .map(f => f.split('.ndjson')[0]!)
   }
 
-  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
+  async loadFile<ROW extends Partial<ObjectWithId>>(table: string): Promise<ROW[]> {
     await fs.ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`

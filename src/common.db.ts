@@ -31,13 +31,15 @@ export interface CommonDB {
    *
    * This is important for the code to rely on it, and it's verified by dbTest
    */
-  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaRootObject<ROW>>
+  getTableSchema<ROW extends Partial<ObjectWithId>>(
+    table: string,
+  ): Promise<JsonSchemaRootObject<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.
    * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
    */
-  createTable<ROW extends ObjectWithId>(
+  createTable<ROW extends Partial<ObjectWithId>>(
     table: string,
     schema: JsonSchemaObject<ROW>,
     opt?: CommonDBCreateOptions,
@@ -48,7 +50,7 @@ export interface CommonDB {
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds<ROW extends ObjectWithId>(
+  getByIds<ROW extends Partial<ObjectWithId>>(
     table: string,
     ids: ROW['id'][],
     opt?: CommonDBOptions,
@@ -58,14 +60,17 @@ export interface CommonDB {
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    */
-  runQuery<ROW extends ObjectWithId>(
+  runQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>>
 
-  runQueryCount<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
+  runQueryCount<ROW extends Partial<ObjectWithId>>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number>
 
-  streamQuery<ROW extends ObjectWithId>(
+  streamQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<ROW>
@@ -85,7 +90,10 @@ export interface CommonDB {
    * Returns number of deleted items.
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
-  deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
+  deleteByQuery<ROW extends Partial<ObjectWithId>>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<number>
 
   /**
    * Applies patch to the rows returned by the query.
@@ -105,7 +113,7 @@ export interface CommonDB {
    *
    * Returns number of rows affected.
    */
-  updateByQuery<ROW extends ObjectWithId>(
+  updateByQuery<ROW extends Partial<ObjectWithId>>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
     opt?: CommonDBOptions,

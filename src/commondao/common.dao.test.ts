@@ -14,7 +14,6 @@ import {
   createTestItemsBM,
   testItemBMSchema,
   testItemDBMSchema,
-  testItemTMSchema,
   TEST_TABLE,
   TestItemBM,
 } from '../testing'
@@ -30,7 +29,6 @@ const daoCfg: CommonDaoCfg<TestItemBM> = {
   db,
   dbmSchema: testItemDBMSchema,
   bmSchema: testItemBMSchema,
-  tmSchema: testItemTMSchema,
   // logStarted: true,
   logLevel: CommonDaoLogLevel.OPERATIONS,
   hooks: {
@@ -63,8 +61,6 @@ test('common', async () => {
   expect(await dao.getById('non-existing')).toBeNull()
   expect(await dao.getByIdAsDBM(undefined)).toBeNull()
   expect(await dao.getByIdAsDBM('123')).toBeNull()
-  expect(await dao.getByIdAsTM(undefined)).toBeNull()
-  expect(await dao.getByIdAsTM('123')).toBeNull()
 
   expect(await dao.deleteById(undefined)).toBe(0)
   expect(await dao.deleteById('123')).toBe(0)
@@ -151,8 +147,7 @@ test('patch', async () => {
     k1: 'k111',
   })
 
-  // timeout is not important here, adding to test that code path
-  const r2 = await dao.getById(id, { timeout: 1000 })
+  const r2 = await dao.getById(id)
 
   expect(r.id).toBe(id)
   expect(r2).toEqual(r)

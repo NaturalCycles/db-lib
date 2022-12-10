@@ -6,7 +6,6 @@ import {
   _since,
   _truncate,
   _uniqBy,
-  AnyObject,
   AppError,
   AsyncMapper,
   ErrorMode,
@@ -14,7 +13,6 @@ import {
   JsonSchemaRootObject,
   ObjectWithId,
   pMap,
-  pTimeout,
   Saved,
   Unsaved,
 } from '@naturalcycles/js-lib'
@@ -64,15 +62,13 @@ const isCI = !!process.env['CI']
  *
  * DBM = Database model (how it's stored in DB)
  * BM = Backend model (optimized for API access)
- * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<
   BM extends Partial<ObjectWithId<ID>>,
-  DBM extends ObjectWithId<ID> = Saved<BM>,
-  TM extends AnyObject = BM,
+  DBM extends Partial<ObjectWithId<ID>> = BM,
   ID extends string | number = NonNullable<BM['id']>,
 > {
-  constructor(public cfg: CommonDaoCfg<BM, DBM, TM, ID>) {
+  constructor(public cfg: CommonDaoCfg<BM, DBM, ID>) {
     this.cfg = {
       // Default is to NOT log in AppEngine and in CI,
       // otherwise to log Operations
@@ -91,8 +87,6 @@ export class CommonDao<
         beforeDBMValidate: dbm => dbm,
         beforeDBMToBM: dbm => dbm as any,
         beforeBMToDBM: bm => bm as any,
-        beforeTMToBM: tm => tm as any,
-        beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,
         ...cfg.hooks,
@@ -128,22 +122,7 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
 
-    let dbm: DBM | undefined
-
-    if (opt.timeout) {
-      // todo: possibly remove it after debugging is done
-      dbm = await pTimeout(
-        async () => {
-          return (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
-        },
-        {
-          timeout: opt.timeout,
-          name: `getById(${table})`,
-        },
-      )
-    } else {
-      dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
-    }
+    const dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
 
     const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
     this.logResult(started, op, bm, table)
@@ -178,24 +157,6 @@ export class CommonDao<
     }
     this.logResult(started, op, dbm, table)
     return dbm || null
-  }
-
-  async getByIdAsTM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsTM(id?: ID | null, opt?: CommonDaoOptions): Promise<TM | null>
-  async getByIdAsTM(id?: ID | null, opt: CommonDaoOptions = {}): Promise<TM | null> {
-    if (!id) return null
-    const op = `getByIdAsTM(${id})`
-    const table = opt.table || this.cfg.table
-    const started = this.logStarted(op, table)
-    const [dbm] = await this.cfg.db.getByIds<DBM>(table, [id])
-    if (opt.raw) {
-      this.logResult(started, op, dbm, table)
-      return (dbm as any) || null
-    }
-    const bm = await this.dbmToBM(dbm, opt)
-    const tm = this.bmToTM(bm, opt)
-    this.logResult(started, op, tm, table)
-    return tm || null
   }
 
   async getByIds(ids: ID[], opt: CommonDaoOptions = {}): Promise<Saved<BM>[]> {
@@ -295,8 +256,8 @@ export class CommonDao<
   /**
    * Pass `table` to override table
    */
-  query(table?: string): RunnableDBQuery<BM, DBM, TM, ID> {
-    return new RunnableDBQuery<BM, DBM, TM, ID>(this, table)
+  query(table?: string): RunnableDBQuery<BM, DBM, ID> {
+    return new RunnableDBQuery<BM, DBM, ID>(this, table)
   }
 
   async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
@@ -362,29 +323,6 @@ export class CommonDao<
     const dbms = partialQuery || opt.raw ? rows : this.anyToDBMs(rows, opt)
     this.logResult(started, op, dbms, q.table)
     return { rows: dbms, ...queryResult }
-  }
-
-  async runQueryAsTM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<TM[]> {
-    const { rows } = await this.runQueryExtendedAsTM(q, opt)
-    return rows
-  }
-
-  async runQueryExtendedAsTM(
-    q: DBQuery<DBM>,
-    opt: CommonDaoOptions = {},
-  ): Promise<RunQueryResult<TM>> {
-    q.table = opt.table || q.table
-    const op = `runQueryAsTM(${q.pretty()})`
-    const started = this.logStarted(op, q.table)
-    const { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
-    const partialQuery = !!q._selectedFieldNames
-    const tms =
-      partialQuery || opt.raw ? (rows as any[]) : this.bmsToTM(await this.dbmsToBM(rows, opt), opt)
-    this.logResult(started, op, tms, q.table)
-    return {
-      rows: tms,
-      ...queryResult,
-    }
   }
 
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
@@ -548,7 +486,7 @@ export class CommonDao<
   async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<ID[]> {
     q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
-    return rows.map(r => r.id)
+    return rows.map(r => r.id!)
   }
 
   streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<ID> {
@@ -559,7 +497,7 @@ export class CommonDao<
       .streamQuery<DBM>(q.select(['id']), opt)
       .on('error', err => stream.emit('error', err))
       .pipe(
-        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!, {
           errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
         }),
       )
@@ -581,7 +519,7 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id),
+      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!),
       transformTap(() => count++),
       transformMap<ID, void>(mapper, {
         ...opt,
@@ -907,7 +845,7 @@ export class CommonDao<
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!, {
           errorMode: ErrorMode.SUPPRESS,
         }),
         transformBuffer<string>({ batchSize }),
@@ -971,7 +909,7 @@ export class CommonDao<
 
     // optimization: no need to run full joi DBM validation, cause BM validation will be run
     // const dbm = this.anyToDBM(_dbm, opt)
-    let dbm: DBM = { ..._dbm, ...this.cfg.hooks!.parseNaturalId!(_dbm.id) }
+    let dbm: DBM = { ..._dbm, ...this.cfg.hooks!.parseNaturalId!(_dbm.id!) }
 
     if (opt.anonymize) {
       dbm = this.cfg.hooks!.anonymize!(dbm)
@@ -1027,7 +965,7 @@ export class CommonDao<
     // this shouldn't be happening on load! but should on save!
     // this.assignIdCreatedUpdated(dbm, opt)
 
-    dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id) }
+    dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id!) }
 
     if (opt.anonymize) {
       dbm = this.cfg.hooks!.anonymize!(dbm)
@@ -1039,50 +977,6 @@ export class CommonDao<
 
   anyToDBMs(entities: DBM[], opt: CommonDaoOptions = {}): DBM[] {
     return entities.map(entity => this.anyToDBM(entity, opt))
-  }
-
-  bmToTM(bm: undefined, opt?: CommonDaoOptions): TM | undefined
-  bmToTM(bm?: Saved<BM>, opt?: CommonDaoOptions): TM
-  bmToTM(bm?: Saved<BM>, opt?: CommonDaoOptions): TM | undefined {
-    if (bm === undefined) return
-
-    // optimization: 1 validation is enough
-    // Validate/convert BM
-    // bm gets assigned to the new reference
-    // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-
-    // BM > TM
-    const tm = this.cfg.hooks!.beforeBMToTM!(bm as any)
-
-    // Validate/convert DBM
-    return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
-  }
-
-  bmsToTM(bms: Saved<BM>[], opt: CommonDaoOptions = {}): TM[] {
-    // try/catch?
-    return bms.map(bm => this.bmToTM(bm, opt))
-  }
-
-  tmToBM(tm: undefined, opt?: CommonDaoOptions): undefined
-  tmToBM(tm?: TM, opt?: CommonDaoOptions): BM
-  tmToBM(tm?: TM, opt: CommonDaoOptions = {}): BM | undefined {
-    if (!tm) return
-
-    // optimization: 1 validation is enough
-    // Validate/convert TM
-    // bm gets assigned to the new reference
-    // tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
-
-    // TM > BM
-    const bm = this.cfg.hooks!.beforeTMToBM!(tm) as BM
-
-    // Validate/convert BM
-    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-  }
-
-  tmsToBM(tms: TM[], opt: CommonDaoOptions = {}): BM[] {
-    // try/catch?
-    return tms.map(tm => this.tmToBM(tm, opt))
   }
 
   /**

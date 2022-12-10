@@ -8,7 +8,6 @@ import {
   createTestItemsBM,
   testItemBMSchema,
   testItemDBMSchema,
-  testItemTMSchema,
   TEST_TABLE,
   createTestItemBM,
   testItemDBMJsonSchema,
@@ -25,7 +24,6 @@ export function runCommonDaoTest(
     db,
     dbmSchema: testItemDBMSchema,
     bmSchema: testItemBMSchema,
-    tmSchema: testItemTMSchema,
     logStarted: true,
     logLevel: CommonDaoLogLevel.DATA_FULL,
   })

@@ -14,7 +14,7 @@ export class InMemoryPersistencePlugin implements FileDBPersistencePlugin {
     return Object.keys(this.data)
   }
 
-  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
+  async loadFile<ROW extends Partial<ObjectWithId>>(table: string): Promise<ROW[]> {
     return Object.values(this.data[table] || ({} as any))
   }
 
