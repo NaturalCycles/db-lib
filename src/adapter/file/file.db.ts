@@ -115,7 +115,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     await pMap(
       tables,
       async table => {
-        const rows = await this.loadFile(table)
+        const rows: ObjectWithId[] = await this.loadFile(table)
         data[table] = _by(rows, r => r.id)
       },
       { concurrency: 16 },
