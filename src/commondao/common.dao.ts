@@ -64,9 +64,9 @@ const isCI = !!process.env['CI']
  * BM = Backend model (optimized for API access)
  */
 export class CommonDao<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends Partial<ObjectWithId<ID>> = BM,
-  ID extends string | number = NonNullable<BM['id']>,
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
+  ID extends string | number = BM['id'],
 > {
   constructor(public cfg: CommonDaoCfg<BM, DBM, ID>) {
     this.cfg = {
@@ -486,7 +486,7 @@ export class CommonDao<
   async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<ID[]> {
     q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
-    return rows.map(r => r.id!)
+    return rows.map(r => r.id)
   }
 
   streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<ID> {
@@ -497,7 +497,7 @@ export class CommonDao<
       .streamQuery<DBM>(q.select(['id']), opt)
       .on('error', err => stream.emit('error', err))
       .pipe(
-        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!, {
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
           errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
         }),
       )
@@ -519,7 +519,7 @@ export class CommonDao<
 
     await _pipeline([
       this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!),
+      transformMapSimple<DBM, ID>(objectWithId => objectWithId.id),
       transformTap(() => count++),
       transformMap<ID, void>(mapper, {
         ...opt,
@@ -845,7 +845,7 @@ export class CommonDao<
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id!, {
+        transformMapSimple<DBM, ID>(objectWithId => objectWithId.id, {
           errorMode: ErrorMode.SUPPRESS,
         }),
         transformBuffer<string>({ batchSize }),
@@ -909,7 +909,7 @@ export class CommonDao<
 
     // optimization: no need to run full joi DBM validation, cause BM validation will be run
     // const dbm = this.anyToDBM(_dbm, opt)
-    let dbm: DBM = { ..._dbm, ...this.cfg.hooks!.parseNaturalId!(_dbm.id!) }
+    let dbm: DBM = { ..._dbm, ...this.cfg.hooks!.parseNaturalId!(_dbm.id) }
 
     if (opt.anonymize) {
       dbm = this.cfg.hooks!.anonymize!(dbm)
@@ -965,7 +965,7 @@ export class CommonDao<
     // this shouldn't be happening on load! but should on save!
     // this.assignIdCreatedUpdated(dbm, opt)
 
-    dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id!) }
+    dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id) }
 
     if (opt.anonymize) {
       dbm = this.cfg.hooks!.anonymize!(dbm)

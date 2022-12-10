@@ -61,9 +61,9 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends Partial<ObjectWithId<ID>> = BM,
-  ID extends string | number = NonNullable<BM['id']>,
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
+  ID extends string | number = BM['id'],
 > {
   db: CommonDB
   table: string

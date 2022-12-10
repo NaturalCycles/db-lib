@@ -235,9 +235,9 @@ export class DBQuery<ROW extends Partial<ObjectWithId> = AnyObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends Partial<ObjectWithId<ID>>,
-  DBM extends Partial<ObjectWithId<ID>> = BM,
-  ID extends string | number = NonNullable<BM['id']>,
+  BM extends ObjectWithId<ID>,
+  DBM extends ObjectWithId<ID> = BM,
+  ID extends string | number = BM['id'],
 > extends DBQuery<DBM> {
   /**
    * Pass `table` to override table.
