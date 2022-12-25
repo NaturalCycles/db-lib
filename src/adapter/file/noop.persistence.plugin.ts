@@ -9,7 +9,7 @@ export class NoopPersistencePlugin implements FileDBPersistencePlugin {
     return []
   }
 
-  async loadFile<ROW extends Partial<ObjectWithId>>(_table: string): Promise<ROW[]> {
+  async loadFile<ROW extends ObjectWithId>(_table: string): Promise<ROW[]> {
     return []
   }
 

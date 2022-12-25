@@ -18,10 +18,7 @@ const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
 
 // Important: q.table is not used in this function, so tablesPrefix is not needed.
 // But should be careful here..
-export function queryInMemory<ROW extends Partial<ObjectWithId>>(
-  q: DBQuery<ROW>,
-  rows: ROW[] = [],
-): ROW[] {
+export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: ROW[] = []): ROW[] {
   // .filter
   // eslint-disable-next-line unicorn/no-array-reduce
   rows = q._filters.reduce((rows, filter) => {

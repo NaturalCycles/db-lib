@@ -65,13 +65,13 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return tables
   }
 
-  override async getByIds<ROW extends Partial<ObjectWithId>>(
+  override async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: ROW['id'][],
     _opt?: CommonDBOptions,
   ): Promise<ROW[]> {
     const byId = _by(await this.loadFile<ROW>(table), r => r.id)
-    return ids.map(id => byId[id!]!).filter(Boolean)
+    return ids.map(id => byId[id]!).filter(Boolean)
   }
 
   override async saveBatch<ROW extends Partial<ObjectWithId>>(
@@ -115,7 +115,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     await pMap(
       tables,
       async table => {
-        const rows: ObjectWithId[] = await this.loadFile(table)
+        const rows = await this.loadFile(table)
         data[table] = _by(rows, r => r.id)
       },
       { concurrency: 16 },
@@ -168,7 +168,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  override async runQuery<ROW extends Partial<ObjectWithId>>(
+  override async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<RunQueryResult<ROW>> {
@@ -177,14 +177,14 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  override async runQueryCount<ROW extends Partial<ObjectWithId>>(
+  override async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
     return (await this.loadFile(q.table)).length
   }
 
-  override streamQuery<ROW extends Partial<ObjectWithId>>(
+  override streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
   ): ReadableTyped<ROW> {
@@ -198,7 +198,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return readable
   }
 
-  override async deleteByQuery<ROW extends Partial<ObjectWithId>>(
+  override async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
@@ -206,7 +206,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
 
     let deleted = 0
     queryInMemory(q, _stringMapValues(byId)).forEach(r => {
-      delete byId[r.id!]
+      delete byId[r.id]
       deleted++
     })
 
@@ -217,7 +217,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return deleted
   }
 
-  override async getTableSchema<ROW extends Partial<ObjectWithId>>(
+  override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
   ): Promise<JsonSchemaRootObject<ROW>> {
     const rows = await this.loadFile(table)
@@ -228,7 +228,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   }
 
   // wrapper, to handle logging
-  async loadFile<ROW extends Partial<ObjectWithId>>(table: string): Promise<ROW[]> {
+  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
     const started = this.logStarted(`loadFile(${table})`)
     const rows = await this.cfg.plugin.loadFile<ROW>(table)
     this.logFinished(started, `loadFile(${table}) ${rows.length} row(s)`)
@@ -236,7 +236,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   }
 
   // wrapper, to handle logging, sorting rows before saving
-  async saveFile<ROW extends Partial<ObjectWithId>>(table: string, _rows: ROW[]): Promise<void> {
+  async saveFile<ROW extends ObjectWithId>(table: string, _rows: ROW[]): Promise<void> {
     // if (!_rows.length) return // NO, it should be able to save file with 0 rows!
 
     // Sort the rows, if needed
@@ -257,7 +257,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.logFinished(started, op)
   }
 
-  private sortRows<ROW extends Partial<ObjectWithId>>(rows: ROW[]): ROW[] {
+  private sortRows<ROW extends ObjectWithId>(rows: ROW[]): ROW[] {
     rows = rows.map(r => _filterUndefinedValues(r))
 
     if (this.cfg.sortOnSave) {

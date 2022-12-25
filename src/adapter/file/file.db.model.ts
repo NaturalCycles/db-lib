@@ -5,7 +5,7 @@ import type { DBQueryOrder } from '../../query/dbQuery'
 export interface FileDBPersistencePlugin {
   ping(): Promise<void>
   getTables(): Promise<string[]>
-  loadFile<ROW extends Partial<ObjectWithId>>(table: string): Promise<ROW[]>
+  loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]>
   saveFiles(ops: DBSaveBatchOperation<any>[]): Promise<void>
 }
 
