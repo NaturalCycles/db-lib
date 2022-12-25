@@ -18,12 +18,12 @@ export interface CommonDB {
    * It SHOULD fail if DB setup is wrong (e.g on wrong credentials).
    * It SHOULD succeed if e.g getByIds(['nonExistingKey']) doesn't throw.
    */
-  ping(): Promise<void>
+  ping: () => Promise<void>
 
   /**
    * Return all tables (table names) available in this DB.
    */
-  getTables(): Promise<string[]>
+  getTables: () => Promise<string[]>
 
   /**
    * $id of the schema SHOULD be like this:
@@ -31,61 +31,67 @@ export interface CommonDB {
    *
    * This is important for the code to rely on it, and it's verified by dbTest
    */
-  getTableSchema<ROW extends ObjectWithId>(table: string): Promise<JsonSchemaRootObject<ROW>>
+  getTableSchema: <ROW extends ObjectWithId>(table: string) => Promise<JsonSchemaRootObject<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.
    * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
    */
-  createTable<ROW extends ObjectWithId>(
+  createTable: <ROW extends ObjectWithId>(
     table: string,
     schema: JsonSchemaObject<ROW>,
     opt?: CommonDBCreateOptions,
-  ): Promise<void>
+  ) => Promise<void>
 
   // GET
   /**
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds<ROW extends ObjectWithId>(
+  getByIds: <ROW extends ObjectWithId>(
     table: string,
     ids: ROW['id'][],
     opt?: CommonDBOptions,
-  ): Promise<ROW[]>
+  ) => Promise<ROW[]>
 
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    */
-  runQuery<ROW extends ObjectWithId>(
+  runQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<ROW>>
+  ) => Promise<RunQueryResult<ROW>>
 
-  runQueryCount<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
+  runQueryCount: <ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ) => Promise<number>
 
-  streamQuery<ROW extends ObjectWithId>(
+  streamQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
-  ): ReadableTyped<ROW>
+  ) => ReadableTyped<ROW>
 
   // SAVE
   /**
    * rows can have missing ids only if DB supports auto-generating them (like mysql auto_increment).
    */
-  saveBatch<ROW extends Partial<ObjectWithId>>(
+  saveBatch: <ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,
-  ): Promise<void>
+  ) => Promise<void>
 
   // DELETE
   /**
    * Returns number of deleted items.
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
-  deleteByQuery<ROW extends ObjectWithId>(q: DBQuery<ROW>, opt?: CommonDBOptions): Promise<number>
+  deleteByQuery: <ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ) => Promise<number>
 
   /**
    * Applies patch to the rows returned by the query.
@@ -105,16 +111,16 @@ export interface CommonDB {
    *
    * Returns number of rows affected.
    */
-  updateByQuery<ROW extends ObjectWithId>(
+  updateByQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
     opt?: CommonDBOptions,
-  ): Promise<number>
+  ) => Promise<number>
 
   // TRANSACTION
   /**
    * Should be implemented as a Transaction (best effort), which means that
    * either ALL or NONE of the operations should be applied.
    */
-  commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void>
+  commitTransaction: (tx: DBTransaction, opt?: CommonDBOptions) => Promise<void>
 }
