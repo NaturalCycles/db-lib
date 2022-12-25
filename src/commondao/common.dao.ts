@@ -14,7 +14,6 @@ import {
   JsonSchemaRootObject,
   ObjectWithId,
   pMap,
-  pTimeout,
   Saved,
   Unsaved,
 } from '@naturalcycles/js-lib'
@@ -128,22 +127,7 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
 
-    let dbm: DBM | undefined
-
-    if (opt.timeout) {
-      // todo: possibly remove it after debugging is done
-      dbm = await pTimeout(
-        async () => {
-          return (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
-        },
-        {
-          timeout: opt.timeout,
-          name: `getById(${table})`,
-        },
-      )
-    } else {
-      dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
-    }
+    const dbm = (await this.cfg.db.getByIds<DBM>(table, [id]))[0]
 
     const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
     this.logResult(started, op, bm, table)

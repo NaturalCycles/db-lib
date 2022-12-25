@@ -210,14 +210,6 @@ export interface CommonDaoOptions extends CommonDBOptions {
   table?: string
 
   /**
-   * If set - wraps the method in `pTimeout` with a timeout of given number of milliseconds.
-   * Currently, it is only used to debug an ongoing GCP infra issue.
-   *
-   * @experimental
-   */
-  timeout?: number
-
-  /**
    * If passed - operation will not be performed immediately, but instead "added" to the transaction.
    * In the end - transaction needs to be committed (by calling `commit`).
    * This API is inspired by Datastore API.
