@@ -1,4 +1,11 @@
-import { CommonLogger, ErrorMode, ObjectWithId, Saved } from '@naturalcycles/js-lib'
+import {
+  CommonLogger,
+  ErrorMode,
+  ObjectWithId,
+  Saved,
+  ZodError,
+  ZodSchema,
+} from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -37,7 +44,7 @@ export interface CommonDaoHooks<
    * Return original `err` to pass the error through (will be thrown in CommonDao).
    * Return modified/new `Error` if needed.
    */
-  onValidationError: (err: JoiValidationError | AjvValidationError) => Error | false
+  onValidationError: (err: JoiValidationError | AjvValidationError | ZodError) => Error | false
 }
 
 export enum CommonDaoLogLevel {
@@ -69,11 +76,11 @@ export interface CommonDaoCfg<
   table: string
 
   /**
-   * Joi or AjvSchema are supported.
+   * Joi, AjvSchema or ZodSchema is supported.
    */
-  dbmSchema?: ObjectSchemaTyped<DBM> | AjvSchema<DBM>
-  bmSchema?: ObjectSchemaTyped<BM> | AjvSchema<BM>
-  tmSchema?: ObjectSchemaTyped<TM> | AjvSchema<TM>
+  dbmSchema?: ObjectSchemaTyped<DBM> | AjvSchema<DBM> | ZodSchema<DBM>
+  bmSchema?: ObjectSchemaTyped<BM> | AjvSchema<BM> | ZodSchema<BM>
+  tmSchema?: ObjectSchemaTyped<TM> | AjvSchema<TM> | ZodSchema<TM>
 
   excludeFromIndexes?: (keyof DBM)[]
 

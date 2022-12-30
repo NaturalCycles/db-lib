@@ -16,6 +16,9 @@ import {
   pMap,
   Saved,
   Unsaved,
+  ZodSchema,
+  ZodValidationError,
+  zSafeValidate,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -1077,7 +1080,7 @@ export class CommonDao<
    */
   validateAndConvert<IN, OUT = IN>(
     obj: Partial<IN>,
-    schema: ObjectSchemaTyped<IN> | AjvSchema<IN> | undefined,
+    schema: ObjectSchemaTyped<IN> | AjvSchema<IN> | ZodSchema<IN> | undefined,
     modelType: DBModelType,
     opt: CommonDaoOptions = {},
   ): OUT {
@@ -1113,10 +1116,15 @@ export class CommonDao<
     const table = opt.table || this.cfg.table
     const objectName = table + (modelType || '')
 
-    let error: JoiValidationError | AjvValidationError | undefined
+    let error: JoiValidationError | AjvValidationError | ZodValidationError<IN> | undefined
     let convertedValue: any
 
-    if (schema instanceof AjvSchema) {
+    if (schema instanceof ZodSchema) {
+      // Zod schema
+      const vr = zSafeValidate(obj as IN, schema)
+      error = vr.error
+      convertedValue = vr.data
+    } else if (schema instanceof AjvSchema) {
       // Ajv schema
       convertedValue = obj // because Ajv mutates original object
 
