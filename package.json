@@ -39,7 +39,7 @@
     "url": "https://github.com/NaturalCycles/db-lib"
   },
   "engines": {
-    "node": ">=14.15"
+    "node": ">=18.12"
   },
   "version": "8.22.0",
   "description": "Lowest Common Denominator API to supported Databases",

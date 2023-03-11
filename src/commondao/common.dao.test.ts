@@ -122,7 +122,7 @@ test('should propagate pipe errors', async () => {
       ...opt,
       errorMode: ErrorMode.THROW_IMMEDIATELY,
     }),
-  ).rejects.toThrow('error_from_parseNaturalId')
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`"error_from_parseNaturalId"`)
 
   // Throws on 3rd element, all previous elements should be collected
   // Cannot expect it cause with async dbmToBM it uses async `transformMap`, so
@@ -136,7 +136,7 @@ test('should propagate pipe errors', async () => {
       ...opt,
       errorMode: ErrorMode.THROW_AGGREGATED,
     }),
-  ).rejects.toThrow('error_from_parseNaturalId')
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`"transformMap resulted in 1 error(s)"`)
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
   // .stream should suppress by default
