@@ -2,6 +2,7 @@ import {
   _assert,
   _filterNullishValues,
   _filterUndefinedValues,
+  _isTruthy,
   _passthroughPredicate,
   _since,
   _truncate,
@@ -14,6 +15,7 @@ import {
   JsonSchemaRootObject,
   ObjectWithId,
   pMap,
+  Promisable,
   Saved,
   Unsaved,
   ZodSchema,
@@ -633,7 +635,8 @@ export class CommonDao<
     saveBatch: async (
       bms: Unsaved<BM>[],
       opt: CommonDaoSaveOptions<DBM> = {},
-    ): Promise<DBSaveBatchOperation> => {
+    ): Promise<DBSaveBatchOperation | undefined> => {
+      if (!bms.length) return
       const rows: DBM[] = (await this.saveBatch(bms, { ...opt, tx: true })) as any
 
       return {
@@ -646,7 +649,11 @@ export class CommonDao<
         },
       }
     },
-    deleteByIds: async (ids: ID[], opt: CommonDaoOptions = {}): Promise<DBDeleteByIdsOperation> => {
+    deleteByIds: async (
+      ids: ID[],
+      opt: CommonDaoOptions = {},
+    ): Promise<DBDeleteByIdsOperation | undefined> => {
+      if (!ids.length) return
       return {
         type: 'deleteByIds',
         table: this.cfg.table,
@@ -654,7 +661,11 @@ export class CommonDao<
         opt,
       }
     },
-    deleteById: async (id: ID, opt: CommonDaoOptions = {}): Promise<DBDeleteByIdsOperation> => {
+    deleteById: async (
+      id: ID | null | undefined,
+      opt: CommonDaoOptions = {},
+    ): Promise<DBDeleteByIdsOperation | undefined> => {
+      if (!id) return
       return {
         type: 'deleteByIds',
         table: this.cfg.table,
@@ -1164,10 +1175,9 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  async runInTransaction(ops: Promise<DBOperation>[]): Promise<void> {
-    if (!ops.length) return
-
-    const resolvedOps = await Promise.all(ops)
+  async runInTransaction(ops: Promisable<DBOperation | undefined>[]): Promise<void> {
+    const resolvedOps = (await Promise.all(ops)).filter(_isTruthy)
+    if (!resolvedOps.length) return
 
     await this.cfg.db.commitTransaction(DBTransaction.create(resolvedOps))
   }
