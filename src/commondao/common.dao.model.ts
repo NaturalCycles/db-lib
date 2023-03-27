@@ -23,19 +23,59 @@ export interface CommonDaoHooks<
   TM,
   ID extends string | number,
 > {
+  /**
+   * Allows to override the id generation function.
+   * By default it uses `stringId` from nodejs-lib
+   * (which uses lowercase alphanumberic alphabet and the size of 16).
+   */
   createRandomId: () => ID
+
   /**
    * createNaturalId hook is called (tried) first.
    * If it doesn't exist - createRandomId is called.
    */
   createNaturalId: (obj: DBM | BM) => ID
+
+  /**
+   * It's a counter-part of `createNaturalId`.
+   * Allows to provide a parser function to parse "natural id" into
+   * DBM components (e.g accountId and some other property that is part of the id).
+   */
   parseNaturalId: (id: ID) => Partial<DBM>
+
+  /**
+   * It is called only on `dao.create` method.
+   * Dao.create method is called in:
+   *
+   * - getByIdOrEmpty, getByIdAsDBMOrEmpty
+   * - patch, patchAsDBM
+   */
   beforeCreate: (bm: Partial<BM>) => Partial<BM>
+
+  /**
+   * Called when loading things "as DBM" and validation is not skipped.
+   * When loading things like BM/TM - other hooks get involved instead:
+   * - beforeDBMToBM
+   * - beforeBMToTM
+   *
+   * TODO: maybe rename those to `validateAs(model)`
+   * as it only validates "final state", not intermediate
+   */
   beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
+
   beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
-  beforeTMToBM: (tm: TM) => Partial<BM>
   beforeBMToTM: (bm: BM) => Partial<TM>
+
+  /**
+   * Called in:
+   * - dbmToBM (applied before DBM becomes BM)
+   * - anyToDBM
+   *
+   * Hook only allows to apply anonymization to DBM (not to BM).
+   * It still applies to BM "transitively", during dbmToBM
+   * (e.g after loaded from the Database).
+   */
   anonymize: (dbm: DBM) => DBM
 
   /**

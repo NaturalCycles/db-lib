@@ -95,7 +95,6 @@ export class CommonDao<
         beforeDBMValidate: dbm => dbm,
         beforeDBMToBM: dbm => dbm as any,
         beforeBMToDBM: bm => bm as any,
-        beforeTMToBM: tm => tm as any,
         beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,
@@ -1059,28 +1058,6 @@ export class CommonDao<
   bmsToTM(bms: Saved<BM>[], opt: CommonDaoOptions = {}): TM[] {
     // try/catch?
     return bms.map(bm => this.bmToTM(bm, opt))
-  }
-
-  tmToBM(tm: undefined, opt?: CommonDaoOptions): undefined
-  tmToBM(tm?: TM, opt?: CommonDaoOptions): BM
-  tmToBM(tm?: TM, opt: CommonDaoOptions = {}): BM | undefined {
-    if (!tm) return
-
-    // optimization: 1 validation is enough
-    // Validate/convert TM
-    // bm gets assigned to the new reference
-    // tm = this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
-
-    // TM > BM
-    const bm = this.cfg.hooks!.beforeTMToBM!(tm) as BM
-
-    // Validate/convert BM
-    return this.validateAndConvert<BM>(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-  }
-
-  tmsToBM(tms: TM[], opt: CommonDaoOptions = {}): BM[] {
-    // try/catch?
-    return tms.map(tm => this.tmToBM(tm, opt))
   }
 
   /**
