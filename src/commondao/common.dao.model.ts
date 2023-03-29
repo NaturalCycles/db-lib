@@ -2,6 +2,7 @@ import {
   CommonLogger,
   ErrorMode,
   ObjectWithId,
+  Promisable,
   Saved,
   ZodError,
   ZodSchema,
@@ -54,7 +55,7 @@ export interface CommonDaoHooks<
 
   /**
    * Called when loading things "as DBM" and validation is not skipped.
-   * When loading things like BM/TM - other hooks get involved instead:
+   * When loading things as BM/TM - other hooks get involved instead:
    * - beforeDBMToBM
    * - beforeBMToTM
    *
@@ -66,6 +67,35 @@ export interface CommonDaoHooks<
   beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
   beforeBMToTM: (bm: BM) => Partial<TM>
+
+  /**
+   * Allows to access the DBM just after it has been loaded from the DB.
+   *
+   * Normally does nothing.
+   *
+   * You can change the DBM as you want here: ok to mutate or not, but you need to return the DBM
+   * to pass it further.
+   *
+   * You can return `null` to make it look "not found".
+   *
+   * You can do validations as needed here and throw errors, they will be propagated.
+   */
+  afterLoad?: (dbm: DBM) => Promisable<DBM | null>
+
+  /**
+   * Allows to access the DBM just before it's supposed to be saved to the DB.
+   *
+   * Normally does nothing.
+   *
+   * You can change the DBM as you want here: ok to mutate or not, but you need to return the DBM
+   * to pass it further.
+   *
+   * You can return `null` to prevent it from being saved, without throwing an error.
+   * `.save` method will then return the BM/DBM as it has entered the method (it **won't** return the null value!).
+   *
+   * You can do validations as needed here and throw errors, they will be propagated.
+   */
+  beforeSave?: (dbm: DBM) => Promisable<DBM | null>
 
   /**
    * Called in:
