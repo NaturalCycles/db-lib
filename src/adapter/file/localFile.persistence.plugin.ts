@@ -1,4 +1,6 @@
+import * as fs from 'node:fs'
 import { Readable } from 'node:stream'
+import * as fsp from 'node:fs/promises'
 import { createGzip, createUnzip } from 'node:zlib'
 import { pMap, ObjectWithId } from '@naturalcycles/js-lib'
 import {
@@ -7,8 +9,9 @@ import {
   transformToNDJson,
   writablePushToArray,
   _pipeline,
+  _ensureDir,
+  _pathExists,
 } from '@naturalcycles/nodejs-lib'
-import * as fs from 'fs-extra'
 import { DBSaveBatchOperation } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -41,17 +44,17 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   async ping(): Promise<void> {}
 
   async getTables(): Promise<string[]> {
-    return (await fs.readdir(this.cfg.storagePath))
+    return (await fsp.readdir(this.cfg.storagePath))
       .filter(f => f.includes('.ndjson'))
       .map(f => f.split('.ndjson')[0]!)
   }
 
   async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
-    await fs.ensureDir(this.cfg.storagePath)
+    await _ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
 
-    if (!(await fs.pathExists(filePath))) return []
+    if (!(await _pathExists(filePath))) return []
 
     const transformUnzip = this.cfg.gzip ? [createUnzip()] : []
 
@@ -73,7 +76,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   }
 
   async saveFile<ROW extends ObjectWithId>(table: string, rows: ROW[]): Promise<void> {
-    await fs.ensureDir(this.cfg.storagePath)
+    await _ensureDir(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
     const transformZip = this.cfg.gzip ? [createGzip()] : []

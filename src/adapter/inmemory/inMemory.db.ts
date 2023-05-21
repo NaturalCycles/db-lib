@@ -1,3 +1,5 @@
+import * as fs from 'node:fs'
+import * as fsp from 'node:fs/promises'
 import { Readable } from 'node:stream'
 import { createGzip, createUnzip } from 'node:zlib'
 import {
@@ -23,9 +25,10 @@ import {
   transformToNDJson,
   writablePushToArray,
   _pipeline,
+  _emptyDir,
+  _ensureDir,
 } from '@naturalcycles/nodejs-lib'
 import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import * as fs from 'fs-extra'
 import { CommonDB, DBIncrement, DBPatch, DBTransaction, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,
@@ -279,7 +282,7 @@ export class InMemoryDB implements CommonDB {
 
     const started = Date.now()
 
-    await fs.emptyDir(persistentStoragePath)
+    await _emptyDir(persistentStoragePath)
 
     const transformZip = persistZip ? [createGzip()] : []
     let tables = 0
@@ -314,11 +317,11 @@ export class InMemoryDB implements CommonDB {
 
     const started = Date.now()
 
-    await fs.ensureDir(persistentStoragePath)
+    await _ensureDir(persistentStoragePath)
 
     this.data = {} // empty it in the beginning!
 
-    const files = (await fs.readdir(persistentStoragePath)).filter(f => f.includes('.ndjson'))
+    const files = (await fsp.readdir(persistentStoragePath)).filter(f => f.includes('.ndjson'))
 
     // infinite concurrency for now
     await pMap(files, async file => {

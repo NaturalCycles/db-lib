@@ -1,3 +1,4 @@
+import * as fs from 'node:fs'
 import { createUnzip } from 'node:zlib'
 import {
   AsyncMapper,
@@ -8,6 +9,7 @@ import {
   _passthroughMapper,
   SavedDBEntity,
   localTime,
+  JsonSchemaObject,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -23,9 +25,10 @@ import {
   transformTap,
   writableForEach,
   _pipeline,
+  _ensureDirSync,
+  _readJsonFile,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import * as fs from 'fs-extra'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../index'
 
@@ -139,7 +142,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     `>> ${dimWhite('dbPipelineRestore')} started in ${grey(inputDirPath)}...${sinceUpdatedStr}`,
   )
 
-  fs.ensureDirSync(inputDirPath)
+  _ensureDirSync(inputDirPath)
 
   const tablesToGzip = new Set<string>()
   const sizeByTable: Record<string, number> = {}
@@ -179,7 +182,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         return
       }
 
-      const schema = await fs.readJson(schemaFilePath)
+      const schema = await _readJsonFile<JsonSchemaObject<any>>(schemaFilePath)
       await db.createTable(table, schema, { dropIfExists: true })
     })
   }

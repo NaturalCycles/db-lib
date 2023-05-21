@@ -1,3 +1,5 @@
+import * as fs from 'node:fs'
+import * as fsp from 'node:fs/promises'
 import { createGzip, ZlibOptions } from 'node:zlib'
 import {
   AppError,
@@ -16,9 +18,12 @@ import {
   transformTap,
   transformToNDJson,
   _pipeline,
+  _ensureDirSync,
+  _pathExistsSync,
+  _ensureFileSync,
+  _writeJsonFile,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
-import * as fs from 'fs-extra'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
 
@@ -156,7 +161,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     `>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...${sinceUpdatedStr}`,
   )
 
-  fs.ensureDirSync(outputDirPath)
+  _ensureDirSync(outputDirPath)
 
   tables ||= await db.getTables()
 
@@ -176,20 +181,20 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
       const filePath = `${outputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
       const schemaFilePath = `${outputDirPath}/${table}.schema.json`
 
-      if (protectFromOverwrite && (await fs.pathExists(filePath))) {
+      if (protectFromOverwrite && _pathExistsSync(filePath)) {
         throw new AppError(`dbPipelineBackup: output file exists: ${filePath}`)
       }
 
       const started = Date.now()
       let rows = 0
 
-      await fs.ensureFile(filePath)
+      _ensureFileSync(filePath)
 
       console.log(`>> ${grey(filePath)} started...`)
 
       if (emitSchemaFromDB) {
         const schema = await db.getTableSchema(table)
-        await fs.writeJson(schemaFilePath, schema, { spaces: 2 })
+        await _writeJsonFile(schemaFilePath, schema, { spaces: 2 })
         console.log(`>> ${grey(schemaFilePath)} saved (generated from DB)`)
       }
 
@@ -214,7 +219,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         fs.createWriteStream(filePath),
       ])
 
-      const { size: sizeBytes } = await fs.stat(filePath)
+      const { size: sizeBytes } = await fsp.stat(filePath)
 
       const stats = NDJsonStats.create({
         tookMillis: Date.now() - started,
