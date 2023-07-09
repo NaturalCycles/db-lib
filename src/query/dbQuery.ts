@@ -244,7 +244,10 @@ export class RunnableDBQuery<
   /**
    * Pass `table` to override table.
    */
-  constructor(public dao: CommonDao<BM, DBM, TM, ID>, table?: string) {
+  constructor(
+    public dao: CommonDao<BM, DBM, TM, ID>,
+    table?: string,
+  ) {
     super(table || dao.cfg.table)
   }
 

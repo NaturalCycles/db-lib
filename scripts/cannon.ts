@@ -40,38 +40,38 @@ const dao = new CommonDao({
   bmSchema: testItemBMSchema,
 })
 
-async function register1() {
+async function register1(): Promise<any> {
   const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   return { item }
 }
 
-async function register2() {
+async function register2(): Promise<any> {
   const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   await db.saveBatch(TEST_TABLE, [item])
   return { item }
 }
 
-async function register3() {
+async function register3(): Promise<any> {
   let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item, { skipConversion: true })
   return { item }
 }
 
-async function register4() {
+async function register4(): Promise<any> {
   let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item, { skipValidation: true })
   return { item }
 }
 
-async function registerFull() {
+async function registerFull(): Promise<any> {
   let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item)
   return { item }
 }
 
-async function validate1() {
+async function validate1(): Promise<any> {
   const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   getValidationResult(item, testItemBMSchema)
