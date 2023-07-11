@@ -52,7 +52,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  public cfg!: FileDBCfg
+  cfg!: FileDBCfg
 
   override async ping(): Promise<void> {
     await this.cfg.plugin.ping()

@@ -1,4 +1,4 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import { _isTruthy, ObjectWithId } from '@naturalcycles/js-lib'
 import { DBTransaction } from '..'
 import { DBQuery } from '../query/dbQuery'
 import {
@@ -26,8 +26,8 @@ export class CommonTimeSeriesDao {
 
   async getSeries(): Promise<string[]> {
     return (await this.cfg.db.getTables())
-      .map(t => /^(.*)_TIMESERIES_RAW$/.exec(t)?.[1] as string)
-      .filter(Boolean)
+      .map(t => /^(.*)_TIMESERIES_RAW$/.exec(t)?.[1])
+      .filter(_isTruthy)
   }
 
   // convenience method

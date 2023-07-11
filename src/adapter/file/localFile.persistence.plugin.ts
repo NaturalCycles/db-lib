@@ -39,7 +39,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
     }
   }
 
-  public cfg!: LocalFilePersistencePluginCfg
+  cfg!: LocalFilePersistencePluginCfg
 
   async ping(): Promise<void> {}
 

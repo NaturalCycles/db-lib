@@ -453,7 +453,7 @@ export class CommonDao<
           if (partialQuery || opt.raw) return dbm as any
 
           if (this.cfg.hooks!.afterLoad) {
-            dbm = (await this.cfg.hooks!.afterLoad(dbm)) as DBM
+            dbm = (await this.cfg.hooks!.afterLoad(dbm))!
             if (dbm === null) return SKIP
           }
 
@@ -503,7 +503,7 @@ export class CommonDao<
           if (partialQuery || opt.raw) return dbm
 
           if (this.cfg.hooks!.afterLoad) {
-            dbm = (await this.cfg.hooks!.afterLoad(dbm)) as DBM
+            dbm = (await this.cfg.hooks!.afterLoad(dbm))!
             if (dbm === null) return SKIP
           }
 
@@ -550,7 +550,7 @@ export class CommonDao<
         transformMap<any, DBM>(
           async dbm => {
             if (this.cfg.hooks!.afterLoad) {
-              dbm = (await this.cfg.hooks!.afterLoad(dbm)) as DBM
+              dbm = (await this.cfg.hooks!.afterLoad(dbm))!
               if (dbm === null) return SKIP
             }
 
@@ -592,7 +592,7 @@ export class CommonDao<
           transformMap<DBM, Saved<BM>>(
             async dbm => {
               if (this.cfg.hooks!.afterLoad) {
-                dbm = (await this.cfg.hooks!.afterLoad(dbm)) as DBM
+                dbm = (await this.cfg.hooks!.afterLoad(dbm))!
                 if (dbm === null) return SKIP
               }
 
@@ -765,7 +765,7 @@ export class CommonDao<
     let dbm = await this.bmToDBM(bm as BM, opt)
 
     if (this.cfg.hooks!.beforeSave) {
-      dbm = (await this.cfg.hooks!.beforeSave(dbm)) as DBM
+      dbm = (await this.cfg.hooks!.beforeSave(dbm))!
       if (dbm === null && !opt.tx) return bm as any
     }
 
@@ -852,7 +852,7 @@ export class CommonDao<
     const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
 
     if (this.cfg.hooks!.beforeSave) {
-      row = (await this.cfg.hooks!.beforeSave(row)) as DBM
+      row = (await this.cfg.hooks!.beforeSave(row))!
       if (row === null) return dbm
     }
 
