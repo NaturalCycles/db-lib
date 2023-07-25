@@ -342,6 +342,7 @@ test('ajvSchema', async () => {
       id: 'id123', // provided, so we can snapshot-match
       k1: 5 as any,
     }),
+    AjvValidationError,
   )
   expect(err).toBeInstanceOf(AjvValidationError)
   expect(err).toMatchInlineSnapshot(`
