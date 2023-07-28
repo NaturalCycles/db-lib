@@ -35,7 +35,7 @@ export const testItemBMSchema = objectSchema<TestItemBM>({
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
-}).concat(baseDBEntitySchema)
+}).concat(baseDBEntitySchema as any)
 
 export const testItemDBMSchema = objectSchema<TestItemDBM>({
   k1: stringSchema,
@@ -43,7 +43,7 @@ export const testItemDBMSchema = objectSchema<TestItemDBM>({
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
-}).concat(savedDBEntitySchema)
+}).concat(savedDBEntitySchema as any)
 
 export const testItemTMSchema = objectSchema<TestItemTM>({
   k1: stringSchema,

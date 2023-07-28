@@ -30,7 +30,7 @@ import {
   AjvValidationError,
   getValidationResult,
   JoiValidationError,
-  ObjectSchemaTyped,
+  ObjectSchema,
   ReadableTyped,
   stringId,
   transformBuffer,
@@ -1178,7 +1178,7 @@ export class CommonDao<
    */
   validateAndConvert<IN, OUT = IN>(
     obj: Partial<IN>,
-    schema: ObjectSchemaTyped<IN> | AjvSchema<IN> | ZodSchema<IN> | undefined,
+    schema: ObjectSchema<IN> | AjvSchema<IN> | ZodSchema<IN> | undefined,
     modelType: DBModelType,
     opt: CommonDaoOptions = {},
   ): OUT {
@@ -1231,7 +1231,7 @@ export class CommonDao<
       })
     } else {
       // Joi
-      const vr = getValidationResult<IN, OUT>(obj as IN, schema, objectName)
+      const vr = getValidationResult(obj, schema, objectName)
       error = vr.error
       convertedValue = vr.value
     }

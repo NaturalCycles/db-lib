@@ -11,7 +11,7 @@ import {
   AjvSchema,
   AjvValidationError,
   JoiValidationError,
-  ObjectSchemaTyped,
+  ObjectSchema,
   TransformLogProgressOptions,
   TransformMapOptions,
 } from '@naturalcycles/nodejs-lib'
@@ -148,9 +148,9 @@ export interface CommonDaoCfg<
   /**
    * Joi, AjvSchema or ZodSchema is supported.
    */
-  dbmSchema?: ObjectSchemaTyped<DBM> | AjvSchema<DBM> | ZodSchema<DBM>
-  bmSchema?: ObjectSchemaTyped<BM> | AjvSchema<BM> | ZodSchema<BM>
-  tmSchema?: ObjectSchemaTyped<TM> | AjvSchema<TM> | ZodSchema<TM>
+  dbmSchema?: ObjectSchema<DBM> | AjvSchema<DBM> | ZodSchema<DBM>
+  bmSchema?: ObjectSchema<BM> | AjvSchema<BM> | ZodSchema<BM>
+  tmSchema?: ObjectSchema<TM> | AjvSchema<TM> | ZodSchema<TM>
 
   excludeFromIndexes?: (keyof DBM)[]
 

@@ -17,15 +17,18 @@ import {
   testItemTMSchema,
   TEST_TABLE,
   TestItemBM,
+  TestItemDBM,
+  TestItemTM,
+  testItemBMJsonSchema,
+  testItemDBMJsonSchema,
 } from '../testing'
-import { testItemBMJsonSchema, testItemDBMJsonSchema } from '../testing/test.model'
 import { CommonDao } from './common.dao'
 import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveOptions } from './common.dao.model'
 
 let throwError = false
 
 const db = new InMemoryDB()
-const daoCfg: CommonDaoCfg<TestItemBM> = {
+const daoCfg: CommonDaoCfg<TestItemBM, TestItemDBM, TestItemTM> = {
   table: TEST_TABLE,
   db,
   dbmSchema: testItemDBMSchema,

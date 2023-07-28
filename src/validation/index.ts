@@ -3,11 +3,18 @@ import {
   arraySchema,
   booleanSchema,
   integerSchema,
+  Joi,
   objectSchema,
   stringSchema,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDBOptions, CommonDBSaveOptions } from '../db.model'
-import { DBQuery, DBQueryFilter, dbQueryFilterOperatorValues, DBQueryOrder } from '../query/dbQuery'
+import {
+  DBQuery,
+  DBQueryFilter,
+  DBQueryFilterOperator,
+  dbQueryFilterOperatorValues,
+  DBQueryOrder,
+} from '../query/dbQuery'
 
 export const commonDBOptionsSchema = objectSchema<CommonDBOptions>({
   onlyCache: booleanSchema.optional(),
@@ -18,7 +25,9 @@ export const commonDBSaveOptionsSchema = objectSchema<CommonDBSaveOptions>({
   excludeFromIndexes: arraySchema(stringSchema).optional(),
 }).concat(commonDBOptionsSchema)
 
-export const dbQueryFilterOperatorSchema = stringSchema.valid(...dbQueryFilterOperatorValues)
+export const dbQueryFilterOperatorSchema = Joi.string<DBQueryFilterOperator>().valid(
+  ...dbQueryFilterOperatorValues,
+)
 
 export const dbQueryFilterSchema = objectSchema<DBQueryFilter>({
   name: stringSchema,
