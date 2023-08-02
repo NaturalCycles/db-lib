@@ -249,7 +249,7 @@ export class CommonDao<
 
   private throwRequiredError(id: ID, opt: CommonDaoOptions): never {
     const table = opt.table || this.cfg.table
-    throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+    throw new AppError(`DB row required, but not found in ${table}`, {
       code: DBLibError.DB_ROW_REQUIRED,
       table,
       id,

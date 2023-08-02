@@ -90,7 +90,7 @@ export class CommonKeyValueDao<T> {
 
     if (!r) {
       const { table } = this.cfg
-      throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+      throw new AppError(`DB row required, but not found in ${table}`, {
         code: DBLibError.DB_ROW_REQUIRED,
         table,
         id,
@@ -105,7 +105,7 @@ export class CommonKeyValueDao<T> {
 
     if (!r) {
       const { table } = this.cfg
-      throw new AppError(`DB row required, but not found: ${table}.${id}`, {
+      throw new AppError(`DB row required, but not found in ${table}`, {
         code: DBLibError.DB_ROW_REQUIRED,
         table,
         id,
