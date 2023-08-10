@@ -250,7 +250,6 @@ export class CommonDao<
   private throwRequiredError(id: ID, opt: CommonDaoOptions): never {
     const table = opt.table || this.cfg.table
     throw new AppError(`DB row required, but not found in ${table}`, {
-      code: DBLibError.DB_ROW_REQUIRED,
       table,
       id,
     })
@@ -262,7 +261,6 @@ export class CommonDao<
   private requireWriteAccess(): void {
     if (this.cfg.readOnly) {
       throw new AppError(DBLibError.DAO_IS_READ_ONLY, {
-        code: DBLibError.DAO_IS_READ_ONLY,
         table: this.cfg.table,
       })
     }
@@ -274,7 +272,6 @@ export class CommonDao<
   private requireObjectMutability(opt: CommonDaoOptions): void {
     if (this.cfg.immutable && !opt.allowMutability) {
       throw new AppError(DBLibError.OBJECT_IS_IMMUTABLE, {
-        code: DBLibError.OBJECT_IS_IMMUTABLE,
         table: this.cfg.table,
       })
     }
@@ -286,7 +283,6 @@ export class CommonDao<
     if (existing.length) {
       throw new AppError(DBLibError.NON_UNIQUE_ID, {
         table,
-        code: DBLibError.NON_UNIQUE_ID,
         ids: existing.map(i => i.id),
       })
     }

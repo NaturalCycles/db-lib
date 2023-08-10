@@ -5,7 +5,6 @@ import {
   ReadableTyped,
   transformMap,
 } from '@naturalcycles/nodejs-lib'
-import { DBLibError } from '../cnst'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
 import { CommonKeyValueDB, KeyValueDBTuple } from './commonKeyValueDB'
@@ -91,7 +90,6 @@ export class CommonKeyValueDao<T> {
     if (!r) {
       const { table } = this.cfg
       throw new AppError(`DB row required, but not found in ${table}`, {
-        code: DBLibError.DB_ROW_REQUIRED,
         table,
         id,
       })
@@ -106,7 +104,6 @@ export class CommonKeyValueDao<T> {
     if (!r) {
       const { table } = this.cfg
       throw new AppError(`DB row required, but not found in ${table}`, {
-        code: DBLibError.DB_ROW_REQUIRED,
         table,
         id,
       })

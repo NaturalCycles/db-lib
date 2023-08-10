@@ -21,7 +21,7 @@ import {
   _ensureDirSync,
   _pathExistsSync,
   _ensureFileSync,
-  _writeJsonFile,
+  _writeJson,
 } from '@naturalcycles/nodejs-lib'
 import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
 import { CommonDB } from '../common.db'
@@ -194,7 +194,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
       if (emitSchemaFromDB) {
         const schema = await db.getTableSchema(table)
-        await _writeJsonFile(schemaFilePath, schema, { spaces: 2 })
+        await _writeJson(schemaFilePath, schema, { spaces: 2 })
         console.log(`>> ${grey(schemaFilePath)} saved (generated from DB)`)
       }
 
