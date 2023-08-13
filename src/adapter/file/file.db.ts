@@ -18,7 +18,7 @@ import {
   Saved,
 } from '@naturalcycles/js-lib'
 import { readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { dimGrey } from '@naturalcycles/nodejs-lib/dist/colors'
+import { dimGrey } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB, DBSaveBatchOperation, queryInMemory } from '../..'
 import { CommonDB } from '../../common.db'
 import {

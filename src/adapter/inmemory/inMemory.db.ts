@@ -28,7 +28,7 @@ import {
   _emptyDir,
   _ensureDir,
 } from '@naturalcycles/nodejs-lib'
-import { dimGrey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
+import { dimGrey, yellow } from '@naturalcycles/nodejs-lib'
 import { CommonDB, DBIncrement, DBPatch, DBTransaction, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,

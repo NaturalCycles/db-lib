@@ -4,7 +4,7 @@ DEBUG=nc* yarn tsn ndjsonTest.script.ts
 
  */
 
-import { runScript } from '@naturalcycles/nodejs-lib/dist/script'
+import { runScript } from '@naturalcycles/nodejs-lib'
 import { dbPipelineBackup, dbPipelineCopy, dbPipelineRestore, InMemoryDB } from '../src'
 import { tmpDir } from '../src/test/paths.cnst'
 import { createTestItemsDBM, TEST_TABLE } from '../src/testing'

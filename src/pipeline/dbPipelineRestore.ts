@@ -26,9 +26,9 @@ import {
   writableForEach,
   _pipeline,
   _ensureDirSync,
-  _readJsonFile,
+  _readJson,
 } from '@naturalcycles/nodejs-lib'
-import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
+import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../index'
 
@@ -182,7 +182,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         return
       }
 
-      const schema = await _readJsonFile<JsonSchemaObject<any>>(schemaFilePath)
+      const schema = await _readJson<JsonSchemaObject<any>>(schemaFilePath)
       await db.createTable(table, schema, { dropIfExists: true })
     })
   }

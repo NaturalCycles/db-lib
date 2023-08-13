@@ -23,7 +23,7 @@ import {
   _ensureFileSync,
   _writeJson,
 } from '@naturalcycles/nodejs-lib'
-import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib/dist/colors'
+import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
 
