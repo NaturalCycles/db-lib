@@ -10,6 +10,7 @@ import {
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDaoOptions,
+  CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
   DBPatch,
@@ -301,11 +302,11 @@ export class RunnableDBQuery<
     await this.dao.streamQueryAsDBMForEach(this, mapper, opt)
   }
 
-  streamQuery(opt?: CommonDaoStreamOptions): ReadableTyped<Saved<BM>> {
+  streamQuery(opt?: CommonDaoStreamOptions<Saved<BM>>): ReadableTyped<Saved<BM>> {
     return this.dao.streamQuery(this, opt)
   }
 
-  streamQueryAsDBM(opt?: CommonDaoStreamOptions): ReadableTyped<DBM> {
+  streamQueryAsDBM(opt?: CommonDaoStreamOptions<DBM>): ReadableTyped<DBM> {
     return this.dao.streamQueryAsDBM(this, opt)
   }
 
@@ -313,7 +314,7 @@ export class RunnableDBQuery<
     return await this.dao.queryIds(this, opt)
   }
 
-  streamQueryIds(opt?: CommonDaoStreamOptions): ReadableTyped<ID> {
+  streamQueryIds(opt?: CommonDaoStreamOptions<ID>): ReadableTyped<ID> {
     return this.dao.streamQueryIds(this, opt)
   }
 
@@ -324,9 +325,7 @@ export class RunnableDBQuery<
     await this.dao.streamQueryIdsForEach(this, mapper, opt)
   }
 
-  async deleteByQuery(
-    opt?: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean },
-  ): Promise<number> {
+  async deleteByQuery(opt?: CommonDaoStreamDeleteOptions<DBM>): Promise<number> {
     return await this.dao.deleteByQuery(this, opt)
   }
 }

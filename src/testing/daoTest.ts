@@ -1,5 +1,6 @@
+import { Readable } from 'node:stream'
 import { pDelay, _deepCopy, _pick, _sortBy, _omit, localTime } from '@naturalcycles/js-lib'
-import { readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
+import { _pipeline, readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
@@ -251,6 +252,19 @@ export function runCommonDaoTest(
         ids,
         quirks,
       )
+    })
+
+    test('streamSaveTransform', async () => {
+      const items2 = createTestItemsBM(2).map(i => ({ ...i, id: i.id + '_str' }))
+      const ids = items2.map(i => i.id)
+
+      await _pipeline([Readable.from(items2), ...dao.streamSaveTransform()])
+
+      const items2Loaded = await dao.getByIds(ids)
+      expectMatch(items2, items2Loaded, quirks)
+
+      // cleanup
+      await dao.query().filterIn('id', ids).deleteByQuery()
     })
   }
 

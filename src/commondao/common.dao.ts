@@ -1,3 +1,4 @@
+import { Transform } from 'node:stream'
 import {
   _assert,
   _filterNullishValues,
@@ -57,8 +58,10 @@ import {
   CommonDaoLogLevel,
   CommonDaoOptions,
   CommonDaoSaveOptions,
+  CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
+  CommonDaoStreamSaveOptions,
 } from './common.dao.model'
 
 const isGAE = !!process.env['GAE_INSTANCE']
@@ -529,7 +532,7 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<DBM> {
+  streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<DBM> = {}): ReadableTyped<DBM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
@@ -568,7 +571,10 @@ export class CommonDao<
    *
    * You can do `.pipe(transformNoOp)` to make it "valid again".
    */
-  streamQuery(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<Saved<BM>> {
+  streamQuery(
+    q: DBQuery<DBM>,
+    opt: CommonDaoStreamOptions<Saved<BM>> = {},
+  ): ReadableTyped<Saved<BM>> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
@@ -611,7 +617,7 @@ export class CommonDao<
     return rows.map(r => r.id)
   }
 
-  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions = {}): ReadableTyped<ID> {
+  streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<ID> = {}): ReadableTyped<ID> {
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
@@ -958,6 +964,72 @@ export class CommonDao<
     return rows
   }
 
+  /**
+   * "Streaming" is implemented by buffering incoming rows into **batches**
+   * (of size opt.batchSize, which defaults to 500),
+   * and then executing db.saveBatch(batch) with the concurrency
+   * of opt.batchConcurrency (which defaults to 16).
+   */
+  streamSaveTransform(opt: CommonDaoStreamSaveOptions<DBM> = {}): Transform[] {
+    this.requireWriteAccess()
+
+    const table = opt.table || this.cfg.table
+    opt.skipValidation ??= true
+    opt.skipConversion ??= true
+    opt.errorMode ||= ErrorMode.SUPPRESS
+
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
+    }
+
+    const excludeFromIndexes = opt.excludeFromIndexes || this.cfg.excludeFromIndexes
+    const { beforeSave } = this.cfg.hooks!
+
+    const { batchSize = 500, batchConcurrency = 16, errorMode } = opt
+
+    return [
+      transformMap<BM, DBM>(
+        async bm => {
+          this.assignIdCreatedUpdated(bm, opt) // mutates
+
+          let dbm = await this.bmToDBM(bm, opt)
+
+          if (beforeSave) {
+            dbm = (await beforeSave(dbm))!
+            if (dbm === null && !opt.tx) return SKIP
+          }
+
+          return dbm
+        },
+        {
+          errorMode,
+        },
+      ),
+      transformBuffer<DBM>({ batchSize }),
+      transformMap<DBM[], DBM[]>(
+        async batch => {
+          await this.cfg.db.saveBatch(table, batch, {
+            ...opt,
+            excludeFromIndexes,
+          })
+          return batch
+        },
+        {
+          concurrency: batchConcurrency,
+          errorMode,
+          flattenArrayOutput: true,
+        },
+      ),
+      transformLogProgress({
+        metric: 'saved',
+        ...opt,
+      }),
+      // just to satisfy and simplify typings
+      // It's easier to return Transform[], rather than (Transform | Writable)[]
+      writableVoid() as Transform,
+    ]
+  }
+
   // DELETE
   /**
    * @returns number of deleted items
@@ -995,7 +1067,7 @@ export class CommonDao<
    */
   async deleteByQuery(
     q: DBQuery<DBM>,
-    opt: CommonDaoStreamForEachOptions<DBM> & { stream?: boolean } = {},
+    opt: CommonDaoStreamDeleteOptions<DBM> = {},
   ): Promise<number> {
     this.requireWriteAccess()
     this.requireObjectMutability(opt)
@@ -1004,8 +1076,8 @@ export class CommonDao<
     const started = this.logStarted(op, q.table)
     let deleted = 0
 
-    if (opt.stream) {
-      const batchSize = 500
+    if (opt.batchSize) {
+      const { batchSize, batchConcurrency = 16 } = opt
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
@@ -1022,6 +1094,7 @@ export class CommonDao<
           },
           {
             predicate: _passthroughPredicate,
+            concurrency: batchConcurrency,
           },
         ),
         // LogProgress should be AFTER the mapper, to be able to report correct stats

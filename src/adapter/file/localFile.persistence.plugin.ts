@@ -1,6 +1,6 @@
-import * as fs from 'node:fs'
+import fs from 'node:fs'
 import { Readable } from 'node:stream'
-import * as fsp from 'node:fs/promises'
+import fsp from 'node:fs/promises'
 import { createGzip, createUnzip } from 'node:zlib'
 import { pMap, ObjectWithId } from '@naturalcycles/js-lib'
 import {

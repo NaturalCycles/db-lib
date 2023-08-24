@@ -1,5 +1,5 @@
-import * as fs from 'node:fs'
-import * as fsp from 'node:fs/promises'
+import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import { Readable } from 'node:stream'
 import { createGzip, createUnzip } from 'node:zlib'
 import {

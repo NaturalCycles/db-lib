@@ -316,12 +316,20 @@ export interface CommonDaoSaveOptions<DBM extends ObjectWithId>
   ensureUniqueId?: boolean
 }
 
-export interface CommonDaoStreamForEachOptions<IN>
-  extends CommonDaoStreamOptions,
-    TransformMapOptions<IN, any>,
-    TransformLogProgressOptions<IN> {}
+export interface CommonDaoStreamDeleteOptions<DBM extends ObjectWithId>
+  extends CommonDaoStreamOptions<DBM> {}
 
-export interface CommonDaoStreamOptions extends CommonDaoOptions {
+export interface CommonDaoStreamSaveOptions<DBM extends ObjectWithId>
+  extends CommonDaoSaveOptions<DBM>,
+    CommonDaoStreamOptions<DBM> {}
+
+export interface CommonDaoStreamForEachOptions<IN>
+  extends CommonDaoStreamOptions<IN>,
+    TransformMapOptions<IN, any> {}
+
+export interface CommonDaoStreamOptions<IN>
+  extends CommonDaoOptions,
+    TransformLogProgressOptions<IN> {
   /**
    * @default true (for streams)
    */
@@ -337,6 +345,20 @@ export interface CommonDaoStreamOptions extends CommonDaoOptions {
    * @default ErrorMode.SUPPRESS for .forEach() streams as well, but overridable
    */
   errorMode?: ErrorMode
+
+  /**
+   * Applicable to some of stream operations, e.g deleteByQuery.
+   * If set - `deleteByQuery` won't execute it "all at once", but in batches.
+   *
+   * Defaults to undefined, so the operation is executed "all at once".
+   */
+  batchSize?: number
+
+  /**
+   * When batchSize is set - this option controls how many batches to run concurrently.
+   * Defaults to 16, "the magic number of JavaScript concurrency".
+   */
+  batchConcurrency?: number
 }
 
 export type CommonDaoCreateOptions = CommonDBCreateOptions
