@@ -22,8 +22,11 @@ import {
   _pathExistsSync,
   _ensureFileSync,
   _writeJson,
+  boldWhite,
+  dimWhite,
+  grey,
+  yellow,
 } from '@naturalcycles/nodejs-lib'
-import { boldWhite, dimWhite, grey, yellow } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
 

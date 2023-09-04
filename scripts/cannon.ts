@@ -7,8 +7,7 @@ yarn tsn cannon
 /* eslint-disable unused-imports/no-unused-vars */
 import { expressFunctionFactory, runCannon } from '@naturalcycles/bench-lib'
 import { _omit } from '@naturalcycles/js-lib'
-import { getValidationResult, stringId } from '@naturalcycles/nodejs-lib'
-import { runScript } from '@naturalcycles/nodejs-lib'
+import { getValidationResult, stringId, runScript } from '@naturalcycles/nodejs-lib'
 import { CommonDao, InMemoryDB } from '../src'
 import { createTestItemsBM, testItemBMSchema, testItemDBMSchema, TEST_TABLE } from '../src/testing'
 

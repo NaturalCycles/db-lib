@@ -1,6 +1,5 @@
 import { CommonKeyValueDao } from '../../kv/commonKeyValueDao'
-import { TEST_TABLE } from '../../testing'
-import { runCommonKeyValueDBTest } from '../../testing'
+import { TEST_TABLE, runCommonKeyValueDBTest } from '../../testing'
 import { runCommonKeyValueDaoTest } from '../../testing/keyValueDaoTest'
 import { InMemoryKeyValueDB } from './inMemoryKeyValueDB'
 
