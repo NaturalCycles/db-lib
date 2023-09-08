@@ -1,6 +1,7 @@
 import { Transform } from 'node:stream'
 import {
   _assert,
+  _deepJsonEquals,
   _filterNullishValues,
   _filterUndefinedValues,
   _isTruthy,
@@ -57,6 +58,7 @@ import {
   CommonDaoHooks,
   CommonDaoLogLevel,
   CommonDaoOptions,
+  CommonDaoSaveBatchOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
@@ -697,7 +699,7 @@ export class CommonDao<
   tx = {
     save: async (
       bm: Unsaved<BM>,
-      opt: CommonDaoSaveOptions<DBM> = {},
+      opt: CommonDaoSaveBatchOptions<DBM> = {},
     ): Promise<DBSaveBatchOperation | undefined> => {
       // .save actually returns DBM (not BM) when it detects `opt.tx === true`
       const row: DBM | null = (await this.save(bm, { ...opt, tx: true })) as any
@@ -715,7 +717,7 @@ export class CommonDao<
     },
     saveBatch: async (
       bms: Unsaved<BM>[],
-      opt: CommonDaoSaveOptions<DBM> = {},
+      opt: CommonDaoSaveBatchOptions<DBM> = {},
     ): Promise<DBSaveBatchOperation | undefined> => {
       const rows: DBM[] = (await this.saveBatch(bms, { ...opt, tx: true })) as any
       if (!rows.length) return
@@ -760,8 +762,14 @@ export class CommonDao<
   /**
    * Mutates with id, created, updated
    */
-  async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
+  async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<BM, DBM> = {}): Promise<Saved<BM>> {
     this.requireWriteAccess()
+
+    if (opt.skipIfEquals && _deepJsonEquals(bm, opt.skipIfEquals)) {
+      // Skipping the save operation
+      return bm as Saved<BM>
+    }
+
     const idWasGenerated = !bm.id && this.cfg.createId
     this.assignIdCreatedUpdated(bm, opt) // mutates
     let dbm = await this.bmToDBM(bm as BM, opt)
@@ -801,38 +809,94 @@ export class CommonDao<
   }
 
   /**
-   * Loads the row by id.
-   * Creates the row (via this.create()) if it doesn't exist
-   * (this will cause a validation error if Patch has not enough data for the row to be valid).
-   * Saves (as fast as possible) with the Patch applied.
+   * 1. Applies the patch
+   * 2. If object is the same after patching - skips saving it
+   * 3. Otherwise - saves the patched object and returns it
    *
-   * Convenience method to replace 3 operations (loading+patching+saving) with one.
+   * Similar to `save` with skipIfEquals.
+   * Similar to `patch`, but doesn't load the object from the Database.
    */
-  async patch(id: ID, patch: Partial<BM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>> {
-    return await this.save(
-      {
-        ...(await this.getByIdOrEmpty(id, patch, opt)),
-        ...patch,
-      } as any,
-      opt,
-    )
+  async savePatch(
+    bm: Saved<BM>,
+    patch: Partial<BM>,
+    opt: CommonDaoSaveBatchOptions<DBM>,
+  ): Promise<Saved<BM>> {
+    const patched: Saved<BM> = {
+      ...bm,
+      ...patch,
+    }
+
+    if (_deepJsonEquals(bm, patched)) {
+      // Skipping the save operation, as data is the same
+      return bm
+    }
+
+    // Actually apply the patch by mutating the original object (by design)
+    Object.assign(bm, patch)
+
+    return await this.save(bm, opt)
   }
 
-  async patchAsDBM(id: ID, patch: Partial<DBM>, opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM> {
-    const dbm =
-      (await this.getByIdAsDBM(id, opt)) ||
-      (this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM)
+  /**
+   * Convenience method to replace 3 operations (loading+patching+saving) with one:
+   *
+   * 1. Loads the row by id.
+   * 1.1 Creates the row (via this.create()) if it doesn't exist
+   * (this will cause a validation error if Patch has not enough data for the row to be valid).
+   * 2. Applies the patch on top of loaded data.
+   * 3. Saves (as fast as possible since the read) with the Patch applied.
+   */
+  async patch(
+    id: ID,
+    patch: Partial<BM>,
+    opt: CommonDaoSaveBatchOptions<DBM> = {},
+  ): Promise<Saved<BM>> {
+    const bm = await this.getById(id, opt)
+    let patched: Saved<BM>
 
-    return await this.saveAsDBM(
-      {
+    if (bm) {
+      patched = {
+        ...bm,
+        ...patch,
+      }
+
+      if (_deepJsonEquals(bm, patched)) {
+        // Skipping the save operation, as data is the same
+        return bm
+      }
+    } else {
+      patched = this.create({ ...patch, id }, opt)
+    }
+
+    return await this.save(patched, opt)
+  }
+
+  async patchAsDBM(
+    id: ID,
+    patch: Partial<DBM>,
+    opt: CommonDaoSaveBatchOptions<DBM> = {},
+  ): Promise<DBM> {
+    const dbm = await this.getByIdAsDBM(id, opt)
+    let patched: DBM
+
+    if (dbm) {
+      patched = {
         ...dbm,
         ...patch,
-      },
-      opt,
-    )
+      }
+
+      if (_deepJsonEquals(dbm, patched)) {
+        // Skipping the save operation, as data is the same
+        return dbm
+      }
+    } else {
+      patched = this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM
+    }
+
+    return await this.saveAsDBM(patched, opt)
   }
 
-  async saveAsDBM(dbm: DBM, opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM> {
+  async saveAsDBM(dbm: DBM, opt: CommonDaoSaveBatchOptions<DBM> = {}): Promise<DBM> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
 
@@ -872,7 +936,10 @@ export class CommonDao<
     return row
   }
 
-  async saveBatch(bms: Unsaved<BM>[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<Saved<BM>[]> {
+  async saveBatch(
+    bms: Unsaved<BM>[],
+    opt: CommonDaoSaveBatchOptions<DBM> = {},
+  ): Promise<Saved<BM>[]> {
     if (!bms.length) return []
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
@@ -920,7 +987,7 @@ export class CommonDao<
     return bms as any[]
   }
 
-  async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveOptions<DBM> = {}): Promise<DBM[]> {
+  async saveBatchAsDBM(dbms: DBM[], opt: CommonDaoSaveBatchOptions<DBM> = {}): Promise<DBM[]> {
     if (!dbms.length) return []
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table

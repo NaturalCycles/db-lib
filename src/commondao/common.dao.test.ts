@@ -23,7 +23,7 @@ import {
   testItemDBMJsonSchema,
 } from '../testing'
 import { CommonDao } from './common.dao'
-import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveOptions } from './common.dao.model'
+import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveBatchOptions } from './common.dao.model'
 
 let throwError = false
 
@@ -162,7 +162,7 @@ test('patch', async () => {
 
 // todo: fix jest mock
 test.skip('ensureUniqueId', async () => {
-  const opt: CommonDaoSaveOptions<TestItemBM> = {
+  const opt: CommonDaoSaveBatchOptions<TestItemBM> = {
     ensureUniqueId: true,
   }
 

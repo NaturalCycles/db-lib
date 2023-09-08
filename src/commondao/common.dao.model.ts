@@ -298,10 +298,23 @@ export interface CommonDaoOptions extends CommonDBOptions {
   tx?: boolean
 }
 
+export interface CommonDaoSaveOptions<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>
+  extends CommonDaoSaveBatchOptions<DBM> {
+  /**
+   * If provided - a check will be made.
+   * If the object for saving equals to the object passed to `skipIfEquals` - save operation will be skipped.
+   *
+   * Equality is checked with _deepJsonEquals (aka "deep equals after JSON.stringify/parse", which removes keys with undefined values).
+   *
+   * It's supposed to be used to prevent "unnecessary saves", when data is not changed.
+   */
+  skipIfEquals?: BM
+}
+
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveOptions<DBM extends ObjectWithId>
+export interface CommonDaoSaveBatchOptions<DBM extends ObjectWithId>
   extends CommonDaoOptions,
     CommonDBSaveOptions<DBM> {
   /**
@@ -320,7 +333,7 @@ export interface CommonDaoStreamDeleteOptions<DBM extends ObjectWithId>
   extends CommonDaoStreamOptions<DBM> {}
 
 export interface CommonDaoStreamSaveOptions<DBM extends ObjectWithId>
-  extends CommonDaoSaveOptions<DBM>,
+  extends CommonDaoSaveBatchOptions<DBM>,
     CommonDaoStreamOptions<DBM> {}
 
 export interface CommonDaoStreamForEachOptions<IN>
