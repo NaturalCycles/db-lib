@@ -1,5 +1,13 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, _omit, _range, _sortBy, pTry, pExpectedError } from '@naturalcycles/js-lib'
+import {
+  ErrorMode,
+  _omit,
+  _range,
+  _sortBy,
+  pTry,
+  pExpectedError,
+  Saved,
+} from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -148,16 +156,60 @@ test('should propagate pipe errors', async () => {
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 })
 
-test('patch', async () => {
+test('patchById', async () => {
   const id = '123456'
-  const r = await dao.patch(id, {
+  const r = await dao.patchById(id, {
     k1: 'k111',
   })
 
   const r2 = await dao.getById(id)
   expect(r.id).toBe(id)
   expect(r2).toEqual(r)
-  expect(r).toMatchSnapshot()
+  expect(r).toMatchInlineSnapshot(`
+    {
+      "created": 1529539200,
+      "id": "123456",
+      "k1": "k111",
+      "updated": 1529539200,
+    }
+  `)
+})
+
+test('patch', async () => {
+  const item: Saved<TestItemBM> = await dao.save({
+    id: 'id1',
+    k1: 'k1',
+  })
+
+  // Something changes the item in a different process
+  await dao.save({
+    ...item,
+    k1: 'k2',
+  })
+
+  // item.k1 is still the same in this process
+  expect(item.k1).toBe('k1')
+
+  // We want to set item.k3 to 1
+  // Old-school careless way would be to just `item.k3 = 1` and save.
+  // But that would overwrite the `k1 = k2` change above.
+  // Instead, we apply a patch!
+  // Then we inspect item, and it should reflect the `k1 = k2` change.
+  const patchResult = await dao.patch(item, { k3: 5 })
+
+  // It tracks the same object
+  expect(patchResult).toBe(item)
+  expect(item.k3).toBe(5) // patch is applied
+  expect(item.k1).toBe('k2') // it pulled the change from DB (saved in the separate process)
+  expect(item).toMatchInlineSnapshot(`
+    {
+      "created": 1529539200,
+      "id": "id1",
+      "k1": "k2",
+      "k3": 5,
+      "updated": 1529539200,
+    }
+  `)
 })
 
 // todo: fix jest mock
@@ -209,7 +261,7 @@ test('modifications of immutable objects', async () => {
   await expect(immutableDao.saveBatch(bms)).resolves.not.toThrow()
 
   // Ensure Object can't be patched
-  await expect(immutableDao.patch(item1Saved.id, { k2: 'patchedk2' })).rejects.toThrow()
+  await expect(immutableDao.patchById(item1Saved.id, { k2: 'patchedk2' })).rejects.toThrow()
 
   // Ensure object can't be deleted
   await expect(immutableDao.deleteById(item1Saved.id)).rejects.toThrow()

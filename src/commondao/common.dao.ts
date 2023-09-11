@@ -5,6 +5,7 @@ import {
   _filterNullishValues,
   _filterUndefinedValues,
   _isTruthy,
+  _objectAssignExact,
   _passthroughPredicate,
   _since,
   _truncate,
@@ -844,25 +845,22 @@ export class CommonDao<
    * 1.1 Creates the row (via this.create()) if it doesn't exist
    * (this will cause a validation error if Patch has not enough data for the row to be valid).
    * 2. Applies the patch on top of loaded data.
-   * 3. Saves (as fast as possible since the read) with the Patch applied.
+   * 3. Saves (as fast as possible since the read) with the Patch applied, but only if the data has changed.
    */
-  async patch(
+  async patchById(
     id: ID,
     patch: Partial<BM>,
     opt: CommonDaoSaveBatchOptions<DBM> = {},
   ): Promise<Saved<BM>> {
-    const bm = await this.getById(id, opt)
     let patched: Saved<BM>
+    const loaded = await this.getById(id, opt)
 
-    if (bm) {
-      patched = {
-        ...bm,
-        ...patch,
-      }
+    if (loaded) {
+      patched = { ...loaded, ...patch }
 
-      if (_deepJsonEquals(bm, patched)) {
+      if (_deepJsonEquals(loaded, patched)) {
         // Skipping the save operation, as data is the same
-        return bm
+        return patched
       }
     } else {
       patched = this.create({ ...patch, id }, opt)
@@ -871,29 +869,38 @@ export class CommonDao<
     return await this.save(patched, opt)
   }
 
-  async patchAsDBM(
-    id: ID,
-    patch: Partial<DBM>,
+  /**
+   * Same as patchById, but takes the whole object as input.
+   * This "whole object" is mutated with the patch and returned.
+   * Otherwise, similar behavior as patchById.
+   * It still loads the row from the DB.
+   */
+  async patch(
+    bm: Saved<BM>,
+    patch: Partial<BM>,
     opt: CommonDaoSaveBatchOptions<DBM> = {},
-  ): Promise<DBM> {
-    const dbm = await this.getByIdAsDBM(id, opt)
-    let patched: DBM
+  ): Promise<Saved<BM>> {
+    _assert(bm.id, 'patch argument object should have an id', {
+      bm,
+    })
 
-    if (dbm) {
-      patched = {
-        ...dbm,
-        ...patch,
-      }
+    const loaded = await this.getById(bm.id, opt)
 
-      if (_deepJsonEquals(dbm, patched)) {
+    if (loaded) {
+      Object.assign(loaded, patch)
+
+      if (_deepJsonEquals(loaded, bm)) {
         // Skipping the save operation, as data is the same
-        return dbm
+        return bm
       }
+
+      // Make `bm` exactly the same as `loaded`
+      _objectAssignExact(bm, loaded)
     } else {
-      patched = this.create({ ...patch, id } as Partial<BM>, opt) as any as DBM
+      Object.assign(bm, patch)
     }
 
-    return await this.saveAsDBM(patched, opt)
+    return await this.save(bm, opt)
   }
 
   async saveAsDBM(dbm: DBM, opt: CommonDaoSaveBatchOptions<DBM> = {}): Promise<DBM> {
