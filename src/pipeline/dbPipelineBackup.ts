@@ -8,6 +8,8 @@ import {
   pMap,
   _passthroughMapper,
   localTime,
+  UnixTimestampNumber,
+  StringMap,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -65,10 +67,14 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
 
   /**
    * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated`
-   *
-   * @default undefined
    */
-  sinceUpdated?: number
+  sinceUpdated?: UnixTimestampNumber
+
+  /**
+   * Map for each table a `sinceUpdated` timestamp, or `undefined`.
+   * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated` (on a per table basis)
+   */
+  sinceUpdatedPerTable?: StringMap<UnixTimestampNumber>
 
   /**
    * Directory path to store dumped files. Will create `${tableName}.ndjson` (or .ndjson.gz if gzip=true) files.
@@ -100,7 +106,7 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * @default `{}`
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
-  mapperPerTable?: Record<string, AsyncMapper>
+  mapperPerTable?: StringMap<AsyncMapper>
 
   /**
    * You can alter default `transformMapOptions` here.
@@ -143,7 +149,6 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     db,
     concurrency = 16,
     limit = 0,
-    sinceUpdated,
     outputDirPath,
     protectFromOverwrite = false,
     zlibOptions,
@@ -158,11 +163,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
   let { tables } = opt
 
-  const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(localTime(sinceUpdated).toPretty()) : ''
-
-  console.log(
-    `>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...${sinceUpdatedStr}`,
-  )
+  console.log(`>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...`)
 
   _ensureDirSync(outputDirPath)
 
@@ -175,6 +176,14 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
   await pMap(
     tables,
     async table => {
+      const sinceUpdated = opt.sinceUpdatedPerTable?.[table] || opt.sinceUpdated
+
+      const sinceUpdatedStr = sinceUpdated
+        ? ' since ' + grey(localTime(sinceUpdated).toPretty())
+        : ''
+
+      console.log(`>> ${grey(table)}${sinceUpdatedStr}`)
+
       let q = DBQuery.create(table).limit(limit)
 
       if (sinceUpdated) {
