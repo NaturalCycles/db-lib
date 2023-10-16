@@ -77,6 +77,13 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   sinceUpdatedPerTable?: StringMap<UnixTimestampNumber>
 
   /**
+   * By default, dbPipelineBackup creates a Query based on sinceUpdated.
+   * But if queryPerTable is set for a table - it will override the Query that is ran for that table
+   * (and ignore sinceUpdated, sinceUpdatedPerTable, limit, and any other properties that modify the query).
+   */
+  queryPerTable?: StringMap<DBQuery>
+
+  /**
    * Directory path to store dumped files. Will create `${tableName}.ndjson` (or .ndjson.gz if gzip=true) files.
    * All parent directories will be created.
    *
@@ -107,6 +114,12 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * Default mappers will be "passthroughMapper" (pass all data as-is).
    */
   mapperPerTable?: StringMap<AsyncMapper>
+
+  /**
+   * If defined - it'll use that `logEvery` for that table.
+   * Default logEvery is 1000.
+   */
+  logEveryPerTable?: StringMap<number>
 
   /**
    * You can alter default `transformMapOptions` here.
@@ -153,6 +166,8 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     protectFromOverwrite = false,
     zlibOptions,
     mapperPerTable = {},
+    queryPerTable = {},
+    logEveryPerTable = {},
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
     emitSchemaFromDB = false,
@@ -176,18 +191,23 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
   await pMap(
     tables,
     async table => {
-      const sinceUpdated = opt.sinceUpdatedPerTable?.[table] || opt.sinceUpdated
+      let q = DBQuery.create<any>(table).limit(limit)
 
-      const sinceUpdatedStr = sinceUpdated
-        ? ' since ' + grey(localTime(sinceUpdated).toPretty())
-        : ''
-
-      console.log(`>> ${grey(table)}${sinceUpdatedStr}`)
-
-      let q = DBQuery.create(table).limit(limit)
-
+      const sinceUpdated = opt.sinceUpdatedPerTable?.[table] ?? opt.sinceUpdated
       if (sinceUpdated) {
         q = q.filter('updated', '>=', sinceUpdated)
+      }
+
+      if (queryPerTable[table]) {
+        // Override the Query with this Query, completely ingoring any of the other query-related options
+        q = queryPerTable[table]!
+
+        console.log(`>> ${grey(table)} ${q.pretty()}`)
+      } else {
+        const sinceUpdatedStr = sinceUpdated
+          ? ' since ' + grey(localTime(sinceUpdated).toPretty())
+          : ''
+        console.log(`>> ${grey(table)}${sinceUpdatedStr}`)
       }
 
       const filePath = `${outputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
@@ -202,7 +222,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
       _ensureFileSync(filePath)
 
-      console.log(`>> ${grey(filePath)} started...`)
+      // console.log(`>> ${grey(filePath)} started...`)
 
       if (emitSchemaFromDB) {
         const schema = await db.getTableSchema(table)
@@ -213,8 +233,8 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
       await _pipeline([
         db.streamQuery(q),
         transformLogProgress({
-          logEvery: 1000,
           ...opt,
+          logEvery: logEveryPerTable[table] ?? opt.logEvery ?? 1000,
           metric: table,
         }),
         transformMap(mapperPerTable[table] || _passthroughMapper, {
