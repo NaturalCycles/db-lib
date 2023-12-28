@@ -12,8 +12,8 @@ export function createdUpdatedFields(
 }
 
 export function createdUpdatedIdFields(
-  existingObject?: Partial<CreatedUpdatedId<string>> | null,
-): CreatedUpdatedId<string> {
+  existingObject?: Partial<CreatedUpdatedId> | null,
+): CreatedUpdatedId {
   const now = Math.floor(Date.now() / 1000)
   return {
     created: existingObject?.created || now,
