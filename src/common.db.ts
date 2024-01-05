@@ -50,7 +50,7 @@ export interface CommonDB {
    */
   getByIds: <ROW extends ObjectWithId>(
     table: string,
-    ids: ROW['id'][],
+    ids: string[],
     opt?: CommonDBOptions,
   ) => Promise<ROW[]>
 
