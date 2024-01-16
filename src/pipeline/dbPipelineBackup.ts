@@ -20,14 +20,11 @@ import {
   transformTap,
   transformToNDJson,
   _pipeline,
-  _ensureDirSync,
-  _pathExistsSync,
-  _ensureFileSync,
-  _writeJson,
   boldWhite,
   dimWhite,
   grey,
   yellow,
+  fs2,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBQuery } from '../index'
@@ -180,7 +177,7 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
 
   console.log(`>> ${dimWhite('dbPipelineBackup')} started in ${grey(outputDirPath)}...`)
 
-  _ensureDirSync(outputDirPath)
+  fs2.ensureDir(outputDirPath)
 
   tables ||= await db.getTables()
 
@@ -213,20 +210,20 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
       const filePath = `${outputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
       const schemaFilePath = `${outputDirPath}/${table}.schema.json`
 
-      if (protectFromOverwrite && _pathExistsSync(filePath)) {
+      if (protectFromOverwrite && fs2.pathExists(filePath)) {
         throw new AppError(`dbPipelineBackup: output file exists: ${filePath}`)
       }
 
       const started = Date.now()
       let rows = 0
 
-      _ensureFileSync(filePath)
+      fs2.ensureFile(filePath)
 
       // console.log(`>> ${grey(filePath)} started...`)
 
       if (emitSchemaFromDB) {
         const schema = await db.getTableSchema(table)
-        await _writeJson(schemaFilePath, schema, { spaces: 2 })
+        await fs2.writeJsonAsync(schemaFilePath, schema, { spaces: 2 })
         console.log(`>> ${grey(schemaFilePath)} saved (generated from DB)`)
       }
 

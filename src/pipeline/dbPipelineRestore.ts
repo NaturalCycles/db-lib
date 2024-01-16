@@ -25,12 +25,11 @@ import {
   transformTap,
   writableForEach,
   _pipeline,
-  _ensureDirSync,
-  _readJson,
   boldWhite,
   dimWhite,
   grey,
   yellow,
+  fs2,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { CommonDBSaveOptions } from '../index'
@@ -145,7 +144,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     `>> ${dimWhite('dbPipelineRestore')} started in ${grey(inputDirPath)}...${sinceUpdatedStr}`,
   )
 
-  _ensureDirSync(inputDirPath)
+  fs2.ensureDir(inputDirPath)
 
   const tablesToGzip = new Set<string>()
   const sizeByTable: Record<string, number> = {}
@@ -185,7 +184,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         return
       }
 
-      const schema = await _readJson<JsonSchemaObject<any>>(schemaFilePath)
+      const schema = await fs2.readJsonAsync<JsonSchemaObject<any>>(schemaFilePath)
       await db.createTable(table, schema, { dropIfExists: true })
     })
   }

@@ -25,10 +25,9 @@ import {
   transformToNDJson,
   writablePushToArray,
   _pipeline,
-  _emptyDir,
-  _ensureDir,
   dimGrey,
   yellow,
+  fs2,
 } from '@naturalcycles/nodejs-lib'
 import { CommonDB, DBIncrement, DBPatch, DBTransaction, queryInMemory } from '../..'
 import {
@@ -283,7 +282,7 @@ export class InMemoryDB implements CommonDB {
 
     const started = Date.now()
 
-    await _emptyDir(persistentStoragePath)
+    await fs2.emptyDirAsync(persistentStoragePath)
 
     const transformZip = persistZip ? [createGzip()] : []
     let tables = 0
@@ -318,7 +317,7 @@ export class InMemoryDB implements CommonDB {
 
     const started = Date.now()
 
-    await _ensureDir(persistentStoragePath)
+    await fs2.ensureDirAsync(persistentStoragePath)
 
     this.data = {} // empty it in the beginning!
 
