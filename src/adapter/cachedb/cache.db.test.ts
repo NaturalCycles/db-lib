@@ -12,6 +12,12 @@ const db = new CacheDB({
   logDownstream: true,
 })
 
-describe('runCommonDBTest', () => runCommonDBTest(db))
+describe('runCommonDBTest', () =>
+  runCommonDBTest(db, {
+    transactions: false,
+  }))
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', () =>
+  runCommonDaoTest(db, {
+    transactions: false,
+  }))

@@ -8,9 +8,8 @@ import {
 } from '@naturalcycles/js-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB } from '../../common.db'
-import { CommonDBOptions, DBPatch, RunQueryResult } from '../../db.model'
+import { DBPatch, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
-import { DBTransaction } from '../../transaction/dbTransaction'
 import {
   CacheDBCfg,
   CacheDBCreateOptions,
@@ -283,10 +282,5 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
 
     return updated || 0
-  }
-
-  override async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
-    await this.cfg.downstreamDB.commitTransaction(tx, opt)
-    await this.cfg.cacheDB.commitTransaction(tx, opt)
   }
 }

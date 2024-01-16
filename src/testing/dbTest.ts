@@ -3,7 +3,6 @@ import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB } from '../common.db'
 import { DBIncrement, DBPatch } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
-import { DBTransaction } from '../transaction/dbTransaction'
 import {
   createTestItemDBM,
   createTestItemsDBM,
@@ -370,12 +369,11 @@ export function runCommonDBTest(
       // save item3 with k1: k1_mod
       // delete item2
       // remaining: item1, item3_with_k1_mod
-      const tx = DBTransaction.create()
-        .saveBatch(TEST_TABLE, items)
-        .save(TEST_TABLE, { ...items[2]!, k1: 'k1_mod' })
-        .deleteById(TEST_TABLE, items[1]!.id)
-
-      await db.commitTransaction(tx)
+      const tx = await db.createTransaction()
+      await db.saveBatch(TEST_TABLE, items, { tx })
+      await db.saveBatch(TEST_TABLE, [{ ...items[2]!, k1: 'k1_mod' }], { tx })
+      await db.deleteByIds(TEST_TABLE, [items[1]!.id], { tx })
+      await tx.commit()
 
       const { rows } = await db.runQuery(queryAll())
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
@@ -384,11 +382,18 @@ export function runCommonDBTest(
 
     test('transaction rollback', async () => {
       // It should fail on id == null
-      const tx = DBTransaction.create()
-        .deleteById(TEST_TABLE, items[2]!.id)
-        .save(TEST_TABLE, { ...items[0]!, k1: 5, id: null as any })
+      let err: any
 
-      await expect(db.commitTransaction(tx)).rejects.toThrow()
+      try {
+        const tx = await db.createTransaction()
+        await db.deleteByIds(TEST_TABLE, [items[2]!.id], { tx })
+        await db.saveBatch(TEST_TABLE, [{ ...items[0]!, k1: 5, id: null as any }], { tx })
+        await tx.commit()
+      } catch (err_) {
+        err = err_
+      }
+
+      expect(err).toBeDefined()
 
       const { rows } = await db.runQuery(queryAll())
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]

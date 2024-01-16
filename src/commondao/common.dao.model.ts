@@ -284,7 +284,7 @@ export interface CommonDaoOptions extends CommonDBOptions {
    *
    * @experimental
    */
-  tx?: boolean
+  // tx?: boolean
 }
 
 export interface CommonDaoSaveOptions<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>

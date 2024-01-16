@@ -18,7 +18,13 @@ import {
   Saved,
 } from '@naturalcycles/js-lib'
 import { readableCreate, ReadableTyped, dimGrey } from '@naturalcycles/nodejs-lib'
-import { BaseCommonDB, DBSaveBatchOperation, queryInMemory } from '../..'
+import {
+  BaseCommonDB,
+  DBOperation,
+  DBSaveBatchOperation,
+  DBTransaction,
+  queryInMemory,
+} from '../..'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBOptions,
@@ -27,7 +33,6 @@ import {
   RunQueryResult,
 } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
-import { DBTransaction } from '../../transaction/dbTransaction'
 import { FileDBCfg } from './file.db.model'
 
 /**
@@ -101,72 +106,6 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  /**
-   * Implementation is optimized for loading/saving _whole files_.
-   */
-  override async commitTransaction(tx: DBTransaction, _opt?: CommonDBOptions): Promise<void> {
-    // data[table][id] => row
-    const data: StringMap<StringMap<ObjectWithId>> = {}
-
-    // 1. Load all tables data (concurrently)
-    const tables = _uniq(tx.ops.map(o => o.table))
-
-    await pMap(
-      tables,
-      async table => {
-        const rows = await this.loadFile(table)
-        data[table] = _by(rows, r => r.id)
-      },
-      { concurrency: 16 },
-    )
-
-    const backup = _deepCopy(data)
-
-    // 2. Apply ops one by one (in order)
-    tx.ops.forEach(op => {
-      if (op.type === 'deleteByIds') {
-        op.ids.forEach(id => delete data[op.table]![id])
-      } else if (op.type === 'saveBatch') {
-        op.rows.forEach(r => {
-          if (!r.id) {
-            throw new Error('FileDB: row has an empty id')
-          }
-          data[op.table]![r.id] = r
-        })
-      } else {
-        throw new Error(`DBOperation not supported: ${(op as any).type}`)
-      }
-    })
-
-    // 3. Sort, turn it into ops
-    // Not filtering empty arrays, cause it's already filtered in this.saveFiles()
-    const ops: DBSaveBatchOperation[] = _stringMapEntries(data).map(([table, map]) => {
-      return {
-        type: 'saveBatch',
-        table,
-        rows: this.sortRows(_stringMapValues(map)),
-      }
-    })
-
-    // 4. Save all files
-    try {
-      await this.saveFiles(ops)
-    } catch (err) {
-      const ops: DBSaveBatchOperation[] = _stringMapEntries(backup).map(([table, map]) => {
-        return {
-          type: 'saveBatch',
-          table,
-          rows: this.sortRows(_stringMapValues(map)),
-        }
-      })
-
-      // Rollback, ignore rollback error (if any)
-      await this.saveFiles(ops).catch(_ => {})
-
-      throw err
-    }
-  }
-
   override async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
@@ -216,6 +155,27 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return deleted
   }
 
+  override async deleteByIds(
+    table: string,
+    ids: string[],
+    _opt?: CommonDBOptions,
+  ): Promise<number> {
+    const byId = _by(await this.loadFile(table), r => r.id)
+
+    let deleted = 0
+    ids.forEach(id => {
+      if (!byId[id]) return
+      delete byId[id]
+      deleted++
+    })
+
+    if (deleted > 0) {
+      await this.saveFile(table, _stringMapValues(byId))
+    }
+
+    return deleted
+  }
+
   override async getTableSchema<ROW extends ObjectWithId>(
     table: string,
   ): Promise<JsonSchemaRootObject<ROW>> {
@@ -256,7 +216,11 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.logFinished(started, op)
   }
 
-  private sortRows<ROW extends ObjectWithId>(rows: ROW[]): ROW[] {
+  override async createTransaction(): Promise<FileDBTransaction> {
+    return new FileDBTransaction(this)
+  }
+
+  sortRows<ROW extends ObjectWithId>(rows: ROW[]): ROW[] {
     rows = rows.map(r => _filterUndefinedValues(r))
 
     if (this.cfg.sortOnSave) {
@@ -281,5 +245,81 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   private logFinished(started: number, op: string): void {
     if (!this.cfg.logFinished) return
     this.cfg.logger?.log(`<< ${op} ${dimGrey(`in ${_since(started)}`)}`)
+  }
+}
+
+export class FileDBTransaction implements DBTransaction {
+  constructor(private db: FileDB) {}
+
+  ops: DBOperation[] = []
+
+  /**
+   * Implementation is optimized for loading/saving _whole files_.
+   */
+  async commit(): Promise<void> {
+    // data[table][id] => row
+    const data: StringMap<StringMap<ObjectWithId>> = {}
+
+    // 1. Load all tables data (concurrently)
+    const tables = _uniq(this.ops.map(o => o.table))
+
+    await pMap(
+      tables,
+      async table => {
+        const rows = await this.db.loadFile(table)
+        data[table] = _by(rows, r => r.id)
+      },
+      { concurrency: 16 },
+    )
+
+    const backup = _deepCopy(data)
+
+    // 2. Apply ops one by one (in order)
+    this.ops.forEach(op => {
+      if (op.type === 'deleteByIds') {
+        op.ids.forEach(id => delete data[op.table]![id])
+      } else if (op.type === 'saveBatch') {
+        op.rows.forEach(r => {
+          if (!r.id) {
+            throw new Error('FileDB: row has an empty id')
+          }
+          data[op.table]![r.id] = r
+        })
+      } else {
+        throw new Error(`DBOperation not supported: ${(op as any).type}`)
+      }
+    })
+
+    // 3. Sort, turn it into ops
+    // Not filtering empty arrays, cause it's already filtered in this.saveFiles()
+    const ops: DBSaveBatchOperation[] = _stringMapEntries(data).map(([table, map]) => {
+      return {
+        type: 'saveBatch',
+        table,
+        rows: this.db.sortRows(_stringMapValues(map)),
+      }
+    })
+
+    // 4. Save all files
+    try {
+      await this.db.saveFiles(ops)
+    } catch (err) {
+      const ops: DBSaveBatchOperation[] = _stringMapEntries(backup).map(([table, map]) => {
+        return {
+          type: 'saveBatch',
+          table,
+          rows: this.db.sortRows(_stringMapValues(map)),
+        }
+      })
+
+      // Rollback, ignore rollback error (if any)
+      await this.db.saveFiles(ops).catch(_ => {})
+
+      throw err
+    }
+  }
+
+  async rollback(): Promise<void> {
+    this.ops = []
   }
 }

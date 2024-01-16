@@ -16,6 +16,7 @@ import {
   CommonLogger,
   _deepCopy,
   _assert,
+  _omit,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -30,11 +31,12 @@ import {
   dimGrey,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB, DBIncrement, DBPatch, DBTransaction, queryInMemory } from '../..'
+import { CommonDB, DBIncrement, DBOperation, DBPatch, queryInMemory } from '../..'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
+  DBTransaction,
   RunQueryResult,
 } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
@@ -162,6 +164,17 @@ export class InMemoryDB implements CommonDB {
     rows: ROW[],
     opt: CommonDBSaveOptions<ROW> = {},
   ): Promise<void> {
+    const { tx } = opt
+    if (tx) {
+      ;(tx as InMemoryDBTransaction).ops.push({
+        type: 'saveBatch',
+        table: _table,
+        rows,
+        opt: _omit(opt, ['tx']),
+      })
+      return
+    }
+
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
 
@@ -190,16 +203,48 @@ export class InMemoryDB implements CommonDB {
 
   async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    _opt?: CommonDBOptions,
+    opt: CommonDBOptions = {},
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
-    this.data[table] ||= {}
+    if (!this.data[table]) return 0
+    const ids = queryInMemory(q, Object.values(this.data[table]!) as ROW[]).map(r => r.id)
+
+    const { tx } = opt
+    if (tx) {
+      ;(tx as InMemoryDBTransaction).ops.push({
+        type: 'deleteByIds',
+        table: q.table,
+        ids,
+        opt: _omit(opt, ['tx']),
+      })
+      return ids.length
+    }
+
+    return await this.deleteByIds(q.table, ids)
+  }
+
+  async deleteByIds(_table: string, ids: string[], opt: CommonDBOptions = {}): Promise<number> {
+    const table = this.cfg.tablesPrefix + _table
+    if (!this.data[table]) return 0
+
+    const { tx } = opt
+    if (tx) {
+      ;(tx as InMemoryDBTransaction).ops.push({
+        type: 'deleteByIds',
+        table: _table,
+        ids,
+        opt: _omit(opt, ['tx']),
+      })
+      return ids.length
+    }
+
     let count = 0
-    queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]).forEach(r => {
-      if (!this.data[table]![r.id]) return
-      delete this.data[table]![r.id]
+    ids.forEach(id => {
+      if (!this.data[table]![id]) return
+      delete this.data[table]![id]
       count++
     })
+
     return count
   }
 
@@ -209,6 +254,8 @@ export class InMemoryDB implements CommonDB {
   ): Promise<number> {
     const patchEntries = Object.entries(patch)
     if (!patchEntries.length) return 0
+
+    // todo: can we support tx here? :thinking:
 
     const table = this.cfg.tablesPrefix + q.table
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
@@ -249,29 +296,8 @@ export class InMemoryDB implements CommonDB {
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
-  async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
-    const backup = _deepCopy(this.data)
-
-    try {
-      for await (const op of tx.ops) {
-        if (op.type === 'saveBatch') {
-          await this.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
-        } else if (op.type === 'deleteByIds') {
-          await this.deleteByQuery(DBQuery.create(op.table).filter('id', 'in', op.ids), {
-            ...op.opt,
-            ...opt,
-          })
-        } else {
-          throw new Error(`DBOperation not supported: ${(op as any).type}`)
-        }
-      }
-    } catch (err) {
-      // rollback
-      this.data = backup
-      this.cfg.logger!.log('InMemoryDB transaction rolled back')
-
-      throw err
-    }
+  async createTransaction(): Promise<DBTransaction> {
+    return new InMemoryDBTransaction(this)
   }
 
   /**
@@ -347,5 +373,39 @@ export class InMemoryDB implements CommonDB {
     this.cfg.logger!.log(
       `restoreFromDisk took ${dimGrey(_since(started))} to read ${yellow(files.length)} tables`,
     )
+  }
+}
+
+export class InMemoryDBTransaction implements DBTransaction {
+  constructor(private db: InMemoryDB) {}
+
+  ops: DBOperation[] = []
+
+  async commit(): Promise<void> {
+    const backup = _deepCopy(this.db.data)
+
+    try {
+      for (const op of this.ops) {
+        if (op.type === 'saveBatch') {
+          await this.db.saveBatch(op.table, op.rows, op.opt)
+        } else if (op.type === 'deleteByIds') {
+          await this.db.deleteByIds(op.table, op.ids, op.opt)
+        } else {
+          throw new Error(`DBOperation not supported: ${(op as any).type}`)
+        }
+      }
+
+      this.ops = []
+    } catch (err) {
+      // rollback
+      this.db.data = backup
+      this.db.cfg.logger!.log('InMemoryDB transaction rolled back')
+
+      throw err
+    }
+  }
+
+  async rollback(): Promise<void> {
+    this.ops = []
   }
 }

@@ -6,10 +6,10 @@ import {
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   DBPatch,
+  DBTransaction,
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'
-import { DBTransaction } from './transaction/dbTransaction'
 
 export interface CommonDB {
   /**
@@ -93,6 +93,8 @@ export interface CommonDB {
     opt?: CommonDBOptions,
   ) => Promise<number>
 
+  deleteByIds: (table: string, ids: string[], opt?: CommonDBOptions) => Promise<number>
+
   /**
    * Applies patch to the rows returned by the query.
    *
@@ -122,5 +124,5 @@ export interface CommonDB {
    * Should be implemented as a Transaction (best effort), which means that
    * either ALL or NONE of the operations should be applied.
    */
-  commitTransaction: (tx: DBTransaction, opt?: CommonDBOptions) => Promise<void>
+  createTransaction: () => Promise<DBTransaction>
 }

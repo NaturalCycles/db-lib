@@ -13,9 +13,11 @@ describe('runCommonDBTest', () =>
     update: false,
     updateByQuery: false,
     createTable: false,
+    transactions: false,
   }))
 
 describe('runCommonDaoTest', () =>
   runCommonDaoTest(db, {
     createTable: false,
+    transactions: false,
   }))

@@ -1,4 +1,4 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import type { ObjectWithId } from '@naturalcycles/js-lib'
 
 /**
  * Similar to SQL INSERT, UPDATE.
@@ -10,7 +10,19 @@ import { ObjectWithId } from '@naturalcycles/js-lib'
  */
 export type CommonDBSaveMethod = 'upsert' | 'insert' | 'update'
 
-export interface CommonDBOptions {}
+export interface DBTransaction {
+  commit: () => Promise<void>
+  rollback: () => Promise<void>
+
+  // getByIds: CommonDB['getByIds']
+  // runQuery: CommonDB['runQuery']
+  // saveBatch: CommonDB['saveBatch']
+  // deleteByIds: (table: string, ids: string[], opt?: CommonDBOptions) => Promise<number>
+}
+
+export interface CommonDBOptions {
+  tx?: DBTransaction
+}
 
 /**
  * All properties default to undefined.

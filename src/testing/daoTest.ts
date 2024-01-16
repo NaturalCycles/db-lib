@@ -290,7 +290,11 @@ export function runCommonDaoTest(
 
       // Test that id, created, updated are created
       const now = localTimeNow().unix()
-      await dao.runInTransaction([dao.tx.save(_omit(item1, ['id', 'created', 'updated']))])
+
+      await dao.useTransaction(async tx => {
+        const row = _omit(item1, ['id', 'created', 'updated'])
+        await tx.save(dao, row)
+      })
 
       const loaded = await dao.query().runQuery()
       expect(loaded.length).toBe(1)
@@ -298,17 +302,19 @@ export function runCommonDaoTest(
       expect(loaded[0]!.created).toBeGreaterThanOrEqual(now)
       expect(loaded[0]!.updated).toBe(loaded[0]!.created)
 
-      await dao.runInTransaction([dao.tx.deleteById(loaded[0]!.id)])
+      await dao.useTransaction(async tx => {
+        await tx.deleteById(dao, loaded[0]!.id)
+      })
 
       // saveBatch [item1, 2, 3]
       // save item3 with k1: k1_mod
       // delete item2
       // remaining: item1, item3_with_k1_mod
-      await dao.runInTransaction([
-        dao.tx.saveBatch(items),
-        dao.tx.save({ ...items[2]!, k1: 'k1_mod' }),
-        dao.tx.deleteById(items[1]!.id),
-      ])
+      await dao.useTransaction(async tx => {
+        await tx.saveBatch(dao, items)
+        await tx.save(dao, { ...items[2]!, k1: 'k1_mod' })
+        await tx.deleteById(dao, items[1]!.id)
+      })
 
       const rows = await dao.query().runQuery()
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
@@ -317,10 +323,10 @@ export function runCommonDaoTest(
 
     test('transaction rollback', async () => {
       await expect(
-        dao.runInTransaction([
-          dao.tx.deleteById(items[2]!.id),
-          dao.tx.save({ ...items[0]!, k1: 5 as any }), // it should fail here
-        ]),
+        dao.useTransaction(async tx => {
+          await tx.deleteById(dao, items[2]!.id)
+          await tx.save(dao, { ...items[0]!, k1: 5 as any }) // it should fail here
+        }),
       ).rejects.toThrow()
 
       const rows = await dao.query().runQuery()
