@@ -1330,25 +1330,6 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  // async runInTransaction(ops: Promisable<DBOperation | undefined>[]): Promise<void> {
-  //   const resolvedOps = (await Promise.all(ops)).filter(_isTruthy)
-  //   if (!resolvedOps.length) return
-  //
-  //   const tx = await this.cfg.db.createTransaction()
-  //
-  //   for (const op of resolvedOps) {
-  //     if (op.type === 'saveBatch') {
-  //       await tx.saveBatch(op.table, op.rows, op.opt)
-  //     } else if (op.type === 'deleteByIds') {
-  //       await tx.deleteByIds(op.table, op.ids, op.opt)
-  //     } else {
-  //       throw new Error(`DBOperation not supported: ${(op as any).type}`)
-  //     }
-  //   }
-  //
-  //   await tx.commit()
-  // }
-
   async useTransaction(fn: (tx: CommonDaoTransaction) => Promise<void>): Promise<void> {
     const tx = await this.cfg.db.createTransaction()
     const daoTx = new CommonDaoTransaction(tx)
