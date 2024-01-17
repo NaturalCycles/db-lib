@@ -265,7 +265,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
       // Test that id, created, updated are created
       const now = localTimeNow().unix()
 
-      await dao.useTransaction(async tx => {
+      await dao.runInTransaction(async tx => {
         const row = _omit(item1, ['id', 'created', 'updated'])
         await tx.save(dao, row)
       })
@@ -276,7 +276,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
       expect(loaded[0]!.created).toBeGreaterThanOrEqual(now)
       expect(loaded[0]!.updated).toBe(loaded[0]!.created)
 
-      await dao.useTransaction(async tx => {
+      await dao.runInTransaction(async tx => {
         await tx.deleteById(dao, loaded[0]!.id)
       })
 
@@ -284,7 +284,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
       // save item3 with k1: k1_mod
       // delete item2
       // remaining: item1, item3_with_k1_mod
-      await dao.useTransaction(async tx => {
+      await dao.runInTransaction(async tx => {
         await tx.saveBatch(dao, items)
         await tx.save(dao, { ...items[2]!, k1: 'k1_mod' })
         await tx.deleteById(dao, items[1]!.id)
@@ -297,7 +297,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
 
     test('transaction rollback', async () => {
       await expect(
-        dao.useTransaction(async tx => {
+        dao.runInTransaction(async tx => {
           await tx.deleteById(dao, items[2]!.id)
           await tx.save(dao, { ...items[0]!, k1: 5 as any }) // it should fail here
         }),

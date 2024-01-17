@@ -1,12 +1,12 @@
 import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
-import { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   DBPatch,
-  DBTransaction,
+  DBTransactionFn,
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'
@@ -159,8 +159,12 @@ export interface CommonDB {
   /**
    * Should be implemented as a Transaction (best effort), which means that
    * either ALL or NONE of the operations should be applied.
+   *
+   * Transaction is automatically committed if fn resolves normally.
+   * Transaction is rolled back if fn throws, the error is re-thrown in that case.
+   * Graceful rollback is allowed on tx.rollback()
    */
-  createTransaction: () => Promise<DBTransaction>
+  runInTransaction: (fn: DBTransactionFn) => Promise<void>
 }
 
 /**

@@ -287,11 +287,11 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
       // save item3 with k1: k1_mod
       // delete item2
       // remaining: item1, item3_with_k1_mod
-      const tx = await db.createTransaction()
-      await db.saveBatch(TEST_TABLE, items, { tx })
-      await db.saveBatch(TEST_TABLE, [{ ...items[2]!, k1: 'k1_mod' }], { tx })
-      await db.deleteByIds(TEST_TABLE, [items[1]!.id], { tx })
-      await tx.commit()
+      await db.runInTransaction(async tx => {
+        await tx.saveBatch(TEST_TABLE, items)
+        await tx.saveBatch(TEST_TABLE, [{ ...items[2]!, k1: 'k1_mod' }])
+        await tx.deleteByIds(TEST_TABLE, [items[1]!.id])
+      })
 
       const { rows } = await db.runQuery(queryAll())
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
@@ -299,14 +299,14 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
     })
 
     test('transaction rollback', async () => {
-      // It should fail on id == null
       let err: any
 
       try {
-        const tx = await db.createTransaction()
-        await db.deleteByIds(TEST_TABLE, [items[2]!.id], { tx })
-        await db.saveBatch(TEST_TABLE, [{ ...items[0]!, k1: 5, id: null as any }], { tx })
-        await tx.commit()
+        await db.runInTransaction(async tx => {
+          await tx.deleteByIds(TEST_TABLE, [items[2]!.id])
+          // It should fail on id == null
+          await tx.saveBatch(TEST_TABLE, [{ ...items[0]!, k1: 5, id: null as any }])
+        })
       } catch (err_) {
         err = err_
       }

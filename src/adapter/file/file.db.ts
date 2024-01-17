@@ -1,20 +1,15 @@
 import {
   generateJsonSchemaFromData,
-  pMap,
-  StringMap,
   _by,
   _deepEquals,
   _since,
   _sortBy,
   _sortObjectDeep,
   _stringMapValues,
-  _uniq,
   JsonSchemaRootObject,
   _filterUndefinedValues,
   ObjectWithId,
   _assert,
-  _deepCopy,
-  _stringMapEntries,
   Saved,
 } from '@naturalcycles/js-lib'
 import { readableCreate, ReadableTyped, dimGrey } from '@naturalcycles/nodejs-lib'
@@ -22,9 +17,7 @@ import {
   BaseCommonDB,
   commonDBFullSupport,
   CommonDBSupport,
-  DBOperation,
   DBSaveBatchOperation,
-  DBTransaction,
   queryInMemory,
 } from '../..'
 import { CommonDB } from '../../common.db'
@@ -55,7 +48,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     updateSaveMethod: false,
     updateByQuery: false,
     createTable: false,
-    transactions: false,
+    transactions: false, // todo
   }
 
   constructor(cfg: FileDBCfg) {
@@ -228,9 +221,9 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     this.logFinished(started, op)
   }
 
-  override async createTransaction(): Promise<FileDBTransaction> {
-    return new FileDBTransaction(this)
-  }
+  // override async createTransaction(): Promise<FileDBTransaction> {
+  //   return new FileDBTransaction(this)
+  // }
 
   sortRows<ROW extends ObjectWithId>(rows: ROW[]): ROW[] {
     rows = rows.map(r => _filterUndefinedValues(r))
@@ -260,14 +253,14 @@ export class FileDB extends BaseCommonDB implements CommonDB {
   }
 }
 
+// todo: get back and fix it
+// Implementation is optimized for loading/saving _whole files_.
+/*
 export class FileDBTransaction implements DBTransaction {
   constructor(private db: FileDB) {}
 
   ops: DBOperation[] = []
 
-  /**
-   * Implementation is optimized for loading/saving _whole files_.
-   */
   async commit(): Promise<void> {
     // data[table][id] => row
     const data: StringMap<StringMap<ObjectWithId>> = {}
@@ -335,3 +328,4 @@ export class FileDBTransaction implements DBTransaction {
     this.ops = []
   }
 }
+*/

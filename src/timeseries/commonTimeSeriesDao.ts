@@ -52,19 +52,17 @@ export class CommonTimeSeriesDao {
   async commitTransaction(ops: TimeSeriesSaveBatchOp[]): Promise<void> {
     if (!ops.length) return
 
-    const tx = await this.cfg.db.createTransaction()
+    await this.cfg.db.runInTransaction(async tx => {
+      for (const op of ops) {
+        const rows: ObjectWithId[] = op.dataPoints.map(([ts, v]) => ({
+          id: String(ts), // Convert Number id into String id, as per CommonDB
+          ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
+          v,
+        }))
 
-    for (const op of ops) {
-      const rows: ObjectWithId[] = op.dataPoints.map(([ts, v]) => ({
-        id: String(ts), // Convert Number id into String id, as per CommonDB
-        ts, // to allow querying by ts, since querying by id is not always available (Datastore is one example)
-        v,
-      }))
-
-      await this.cfg.db.saveBatch(`${op.series}${_TIMESERIES_RAW}`, rows, { tx })
-    }
-
-    await tx.commit()
+        await tx.saveBatch(`${op.series}${_TIMESERIES_RAW}`, rows)
+      }
+    })
   }
 
   async deleteById(series: string, tsMillis: number): Promise<void> {

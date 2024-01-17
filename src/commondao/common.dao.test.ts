@@ -467,7 +467,7 @@ async function getEven(): Promise<TestItemBM[]> {
 test('runInTransaction', async () => {
   const items = createTestItemsBM(4)
 
-  await dao.useTransaction(async tx => {
+  await dao.runInTransaction(async tx => {
     await tx.save(dao, items[0]!)
     await tx.save(dao, items[1]!)
     await tx.save(dao, items[3]!)

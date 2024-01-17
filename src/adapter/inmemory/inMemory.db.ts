@@ -16,7 +16,6 @@ import {
   CommonLogger,
   _deepCopy,
   _assert,
-  _omit,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -37,6 +36,7 @@ import {
   DBIncrement,
   DBOperation,
   DBPatch,
+  DBTransactionFn,
   queryInMemory,
 } from '../..'
 import {
@@ -177,17 +177,6 @@ export class InMemoryDB implements CommonDB {
     rows: ROW[],
     opt: CommonDBSaveOptions<ROW> = {},
   ): Promise<void> {
-    const { tx } = opt
-    if (tx) {
-      ;(tx as InMemoryDBTransaction).ops.push({
-        type: 'saveBatch',
-        table: _table,
-        rows,
-        opt: _omit(opt, ['tx']),
-      })
-      return
-    }
-
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
 
@@ -216,40 +205,17 @@ export class InMemoryDB implements CommonDB {
 
   async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt: CommonDBOptions = {},
+    _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
     if (!this.data[table]) return 0
     const ids = queryInMemory(q, Object.values(this.data[table]!) as ROW[]).map(r => r.id)
-
-    const { tx } = opt
-    if (tx) {
-      ;(tx as InMemoryDBTransaction).ops.push({
-        type: 'deleteByIds',
-        table: q.table,
-        ids,
-        opt: _omit(opt, ['tx']),
-      })
-      return ids.length
-    }
-
     return await this.deleteByIds(q.table, ids)
   }
 
-  async deleteByIds(_table: string, ids: string[], opt: CommonDBOptions = {}): Promise<number> {
+  async deleteByIds(_table: string, ids: string[], _opt?: CommonDBOptions): Promise<number> {
     const table = this.cfg.tablesPrefix + _table
     if (!this.data[table]) return 0
-
-    const { tx } = opt
-    if (tx) {
-      ;(tx as InMemoryDBTransaction).ops.push({
-        type: 'deleteByIds',
-        table: _table,
-        ids,
-        opt: _omit(opt, ['tx']),
-      })
-      return ids.length
-    }
 
     let count = 0
     ids.forEach(id => {
@@ -267,8 +233,6 @@ export class InMemoryDB implements CommonDB {
   ): Promise<number> {
     const patchEntries = Object.entries(patch)
     if (!patchEntries.length) return 0
-
-    // todo: can we support tx here? :thinking:
 
     const table = this.cfg.tablesPrefix + q.table
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
@@ -309,8 +273,15 @@ export class InMemoryDB implements CommonDB {
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
-  async createTransaction(): Promise<DBTransaction> {
-    return new InMemoryDBTransaction(this)
+  async runInTransaction(fn: DBTransactionFn): Promise<void> {
+    const tx = new InMemoryDBTransaction(this)
+    try {
+      await fn(tx)
+      await tx.commit()
+    } catch (err) {
+      await tx.rollback()
+      throw err
+    }
   }
 
   /**
@@ -394,6 +365,37 @@ export class InMemoryDBTransaction implements DBTransaction {
 
   ops: DBOperation[] = []
 
+  async getByIds<ROW extends ObjectWithId>(
+    table: string,
+    ids: string[],
+    opt?: CommonDBOptions,
+  ): Promise<ROW[]> {
+    return await this.db.getByIds(table, ids, opt)
+  }
+
+  async saveBatch<ROW extends Partial<ObjectWithId>>(
+    table: string,
+    rows: ROW[],
+    opt?: CommonDBSaveOptions<ROW>,
+  ): Promise<void> {
+    this.ops.push({
+      type: 'saveBatch',
+      table,
+      rows,
+      opt,
+    })
+  }
+
+  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
+    this.ops.push({
+      type: 'deleteByIds',
+      table,
+      ids,
+      opt,
+    })
+    return ids.length
+  }
+
   async commit(): Promise<void> {
     const backup = _deepCopy(this.db.data)
 
@@ -411,6 +413,7 @@ export class InMemoryDBTransaction implements DBTransaction {
       this.ops = []
     } catch (err) {
       // rollback
+      this.ops = []
       this.db.data = backup
       this.db.cfg.logger!.log('InMemoryDB transaction rolled back')
 

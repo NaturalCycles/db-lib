@@ -1,7 +1,6 @@
 import { ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, DBTransaction, RunQueryResult } from '../db.model'
-import { DBQuery } from '../query/dbQuery'
+import { CommonDBOptions, CommonDBSaveOptions, DBTransaction } from '../db.model'
 
 /**
  * Optimizes the Transaction (list of DBOperations) to do less operations.
@@ -98,7 +97,7 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
 export class FakeDBTransaction implements DBTransaction {
   constructor(protected db: CommonDB) {}
 
-  async commit(): Promise<void> {}
+  // no-op
   async rollback(): Promise<void> {}
 
   async getByIds<ROW extends ObjectWithId>(
@@ -108,18 +107,18 @@ export class FakeDBTransaction implements DBTransaction {
   ): Promise<ROW[]> {
     return await this.db.getByIds(table, ids, opt)
   }
-  async runQuery<ROW extends ObjectWithId>(
-    q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<ROW>> {
-    return await this.db.runQuery(q, opt)
-  }
+  // async runQuery<ROW extends ObjectWithId>(
+  //   q: DBQuery<ROW>,
+  //   opt?: CommonDBOptions,
+  // ): Promise<RunQueryResult<ROW>> {
+  //   return await this.db.runQuery(q, opt)
+  // }
   async saveBatch<ROW extends Partial<ObjectWithId>>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void> {
-    return await this.db.saveBatch(table, rows, opt)
+    await this.db.saveBatch(table, rows, opt)
   }
   async deleteByIds(
     table: string,

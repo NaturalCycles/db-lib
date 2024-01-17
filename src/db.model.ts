@@ -1,4 +1,5 @@
 import type { ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonDB } from './common.db'
 
 /**
  * Similar to SQL INSERT, UPDATE.
@@ -10,8 +11,26 @@ import type { ObjectWithId } from '@naturalcycles/js-lib'
  */
 export type CommonDBSaveMethod = 'upsert' | 'insert' | 'update'
 
+/**
+ * Transaction is committed when the function returns resolved Promise (aka "returns normally").
+ *
+ * Transaction is rolled back when the function returns rejected Promise (aka "throws").
+ */
+export type DBTransactionFn = (tx: DBTransaction) => Promise<void>
+
+/**
+ * Transaction context.
+ * Has similar API than CommonDB, but all operations are performed in the context of the transaction.
+ */
 export interface DBTransaction {
-  commit: () => Promise<void>
+  getByIds: CommonDB['getByIds']
+  saveBatch: CommonDB['saveBatch']
+  deleteByIds: CommonDB['deleteByIds']
+
+  /**
+   * Perform a graceful rollback.
+   * It'll rollback the transaction and won't throw/re-throw any errors.
+   */
   rollback: () => Promise<void>
 }
 
