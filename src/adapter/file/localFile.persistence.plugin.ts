@@ -9,8 +9,7 @@ import {
   transformToNDJson,
   writablePushToArray,
   _pipeline,
-  _ensureDir,
-  _pathExists,
+  fs2,
 } from '@naturalcycles/nodejs-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
@@ -50,11 +49,11 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   }
 
   async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
-    await _ensureDir(this.cfg.storagePath)
+    await fs2.ensureDirAsync(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
 
-    if (!(await _pathExists(filePath))) return []
+    if (!(await fs2.pathExistsAsync(filePath))) return []
 
     const transformUnzip = this.cfg.gzip ? [createUnzip()] : []
 
@@ -76,7 +75,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   }
 
   async saveFile<ROW extends ObjectWithId>(table: string, rows: ROW[]): Promise<void> {
-    await _ensureDir(this.cfg.storagePath)
+    await fs2.ensureDirAsync(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
     const transformZip = this.cfg.gzip ? [createGzip()] : []
