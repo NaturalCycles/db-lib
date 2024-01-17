@@ -20,6 +20,8 @@ import {
 import { readableCreate, ReadableTyped, dimGrey } from '@naturalcycles/nodejs-lib'
 import {
   BaseCommonDB,
+  commonDBFullSupport,
+  CommonDBSupport,
   DBOperation,
   DBSaveBatchOperation,
   DBTransaction,
@@ -46,6 +48,16 @@ import { FileDBCfg } from './file.db.model'
  * Each save operation saves *whole* file to the persistence layer.
  */
 export class FileDB extends BaseCommonDB implements CommonDB {
+  override support: CommonDBSupport = {
+    ...commonDBFullSupport,
+    bufferValues: false, // todo: implement
+    insertSaveMethod: false,
+    updateSaveMethod: false,
+    updateByQuery: false,
+    createTable: false,
+    transactions: false,
+  }
+
   constructor(cfg: FileDBCfg) {
     super()
     this.cfg = {

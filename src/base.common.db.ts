@@ -1,6 +1,6 @@
 import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from './common.db'
+import { CommonDB, CommonDBSupport, CommonDBType } from './common.db'
 import {
   CommonDBOptions,
   CommonDBSaveOptions,
@@ -18,6 +18,10 @@ import { FakeDBTransaction } from './transaction/dbTransaction.util'
  * To be extended by actual implementations.
  */
 export class BaseCommonDB implements CommonDB {
+  dbType = CommonDBType.document
+
+  support: CommonDBSupport = {}
+
   async ping(): Promise<void> {
     throw new Error('ping is not implemented')
   }

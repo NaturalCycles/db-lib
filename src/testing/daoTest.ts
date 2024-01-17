@@ -1,10 +1,10 @@
 import { Readable } from 'node:stream'
-import { pDelay, _deepCopy, _pick, _sortBy, _omit, localTimeNow } from '@naturalcycles/js-lib'
+import { _deepCopy, _pick, _sortBy, _omit, localTimeNow } from '@naturalcycles/js-lib'
 import { _pipeline, readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
-import { CommonDBImplementationFeatures, CommonDBImplementationQuirks, expectMatch } from './dbTest'
+import { CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
   createTestItemsBM,
   testItemBMSchema,
@@ -16,11 +16,8 @@ import {
 } from './test.model'
 import { TestItemBM } from '.'
 
-export function runCommonDaoTest(
-  db: CommonDB,
-  features: CommonDBImplementationFeatures = {},
-  quirks: CommonDBImplementationQuirks = {},
-): void {
+export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
+  const { support } = db
   const dao = new CommonDao({
     table: TEST_TABLE,
     db,
@@ -30,26 +27,6 @@ export function runCommonDaoTest(
     logStarted: true,
     logLevel: CommonDaoLogLevel.DATA_FULL,
   })
-
-  const {
-    querying = true,
-    // tableSchemas = true,
-    createTable = true,
-    dbQueryFilter = true,
-    // dbQueryFilterIn = true,
-    dbQueryOrder = true,
-    dbQuerySelectFields = true,
-    streaming = true,
-    strongConsistency = true,
-    nullValues = true,
-    transactions = true,
-  } = features
-
-  // const {
-  // allowExtraPropertiesInResponse,
-  // allowBooleansAsUndefined,
-  // } = quirks
-  const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
 
   const items = createTestItemsBM(3)
   const itemsClone = _deepCopy(items)
@@ -66,13 +43,13 @@ export function runCommonDaoTest(
   })
 
   // CREATE TABLE, DROP
-  if (createTable) {
+  if (support.createTable) {
     test('createTable, dropIfExists=true', async () => {
       await dao.createTable(testItemDBMJsonSchema, { dropIfExists: true })
     })
   }
 
-  if (querying) {
+  if (support.queries) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
       const rows = await dao.query().select(['id']).runQuery()
@@ -87,7 +64,6 @@ export function runCommonDaoTest(
 
     // QUERY empty
     test('runQuery(all), runQueryCount should return empty', async () => {
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect(await dao.query().runQuery()).toEqual([])
       expect(await dao.query().runQueryCount()).toBe(0)
     })
@@ -109,7 +85,7 @@ export function runCommonDaoTest(
   })
 
   // SAVE
-  if (nullValues) {
+  if (support.nullValues) {
     test('should allow to save and load null values', async () => {
       const item3 = {
         ...createTestItemBM(3),
@@ -168,15 +144,14 @@ export function runCommonDaoTest(
   })
 
   // QUERY
-  if (querying) {
+  if (support.queries) {
     test('runQuery(all) should return all items', async () => {
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let rows = await dao.query().runQuery()
       rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)
     })
 
-    if (dbQueryFilter) {
+    if (support.dbQueryFilter) {
       test('query even=true', async () => {
         let rows = await dao.query().filter('even', '==', true).runQuery()
         rows = _sortBy(rows, r => r.id)
@@ -188,14 +163,14 @@ export function runCommonDaoTest(
       })
     }
 
-    if (dbQueryOrder) {
+    if (support.dbQueryOrder) {
       test('query order by k1 desc', async () => {
         const rows = await dao.query().order('k1', true).runQuery()
         expectMatch([...expectedItems].reverse(), rows, quirks)
       })
     }
 
-    if (dbQuerySelectFields) {
+    if (support.dbQuerySelectFields) {
       test('projection query with only ids', async () => {
         let rows = await dao.query().select(['id']).runQuery()
         rows = _sortBy(rows, r => r.id)
@@ -213,7 +188,7 @@ export function runCommonDaoTest(
   }
 
   // STREAM
-  if (streaming) {
+  if (support.streaming) {
     test('streamQueryForEach all', async () => {
       let rows: TestItemBM[] = []
       await dao.query().streamQueryForEach(bm => void rows.push(bm))
@@ -269,11 +244,10 @@ export function runCommonDaoTest(
   }
 
   // DELETE BY
-  if (querying) {
+  if (support.queries) {
     test('deleteByQuery even=false', async () => {
       const deleted = await dao.query().filter('even', '==', false).deleteByQuery()
       expect(deleted).toBe(items.filter(item => !item.even).length)
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect(await dao.query().runQueryCount()).toBe(1)
     })
 
@@ -283,7 +257,7 @@ export function runCommonDaoTest(
     })
   }
 
-  if (transactions) {
+  if (support.transactions) {
     test('transaction happy path', async () => {
       // cleanup
       await dao.query().deleteByQuery()
@@ -334,7 +308,7 @@ export function runCommonDaoTest(
       expectMatch(expected, rows, quirks)
     })
 
-    if (querying) {
+    if (support.queries) {
       test('transaction cleanup', async () => {
         await dao.query().deleteByQuery()
       })

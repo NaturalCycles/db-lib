@@ -274,17 +274,6 @@ export interface CommonDaoOptions extends CommonDBOptions {
    * Useful e.g in AirtableDB where you can have one Dao to control multiple tables.
    */
   table?: string
-
-  /**
-   * If passed - operation will not be performed immediately, but instead "added" to the transaction.
-   * In the end - transaction needs to be committed (by calling `commit`).
-   * This API is inspired by Datastore API.
-   *
-   * Only applicable to save* and delete* operations
-   *
-   * @experimental
-   */
-  // tx?: boolean
 }
 
 export interface CommonDaoSaveOptions<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>

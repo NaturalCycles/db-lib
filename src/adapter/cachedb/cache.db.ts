@@ -7,7 +7,7 @@ import {
   StringMap,
 } from '@naturalcycles/js-lib'
 import { BaseCommonDB } from '../../base.common.db'
-import { CommonDB } from '../../common.db'
+import { CommonDB, commonDBFullSupport, CommonDBSupport } from '../../common.db'
 import { DBPatch, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
 import {
@@ -25,6 +25,11 @@ import {
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
 export class CacheDB extends BaseCommonDB implements CommonDB {
+  override support: CommonDBSupport = {
+    ...commonDBFullSupport,
+    transactions: false,
+  }
+
   constructor(cfg: CacheDBCfg) {
     super()
     this.cfg = {

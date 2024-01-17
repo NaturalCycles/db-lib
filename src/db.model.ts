@@ -13,14 +13,15 @@ export type CommonDBSaveMethod = 'upsert' | 'insert' | 'update'
 export interface DBTransaction {
   commit: () => Promise<void>
   rollback: () => Promise<void>
-
-  // getByIds: CommonDB['getByIds']
-  // runQuery: CommonDB['runQuery']
-  // saveBatch: CommonDB['saveBatch']
-  // deleteByIds: (table: string, ids: string[], opt?: CommonDBOptions) => Promise<number>
 }
 
 export interface CommonDBOptions {
+  /**
+   * If passed - the operation will be performed in the context of that DBTransaction.
+   * Note that not every type of operation supports Transaction
+   * (e.g in Datastore queries cannot be executed inside a Transaction).
+   * Also, not every CommonDB implementation supports Transactions.
+   */
   tx?: DBTransaction
 }
 

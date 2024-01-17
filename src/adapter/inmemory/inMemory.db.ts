@@ -30,7 +30,15 @@ import {
   yellow,
   fs2,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB, DBIncrement, DBOperation, DBPatch, queryInMemory } from '../..'
+import {
+  CommonDB,
+  commonDBFullSupport,
+  CommonDBType,
+  DBIncrement,
+  DBOperation,
+  DBPatch,
+  queryInMemory,
+} from '../..'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
@@ -78,6 +86,12 @@ export interface InMemoryDBCfg {
 }
 
 export class InMemoryDB implements CommonDB {
+  dbType = CommonDBType.document
+
+  support = {
+    ...commonDBFullSupport,
+  }
+
   constructor(cfg?: Partial<InMemoryDBCfg>) {
     this.cfg = {
       // defaults
