@@ -1432,9 +1432,10 @@ export class CommonDaoTransaction {
 
   async getById<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
     dao: CommonDao<BM, DBM, any>,
-    id: string,
+    id?: string | null,
     opt?: CommonDaoOptions,
   ): Promise<Saved<BM> | null> {
+    if (!id) return null
     return (await this.getByIds(dao, [id], opt))[0] || null
   }
 
@@ -1476,7 +1477,12 @@ export class CommonDaoTransaction {
     return await dao.saveBatch(bms, { ...opt, tx: this.tx })
   }
 
-  async deleteById(dao: CommonDao<any>, id: string, opt?: CommonDaoOptions): Promise<number> {
+  async deleteById(
+    dao: CommonDao<any>,
+    id?: string | null,
+    opt?: CommonDaoOptions,
+  ): Promise<number> {
+    if (!id) return 0
     return await this.deleteByIds(dao, [id], opt)
   }
 
