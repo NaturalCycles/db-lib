@@ -1,6 +1,11 @@
 import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from '../../common.db'
-import { CommonDBCreateOptions, CommonDBSaveOptions, CommonDBStreamOptions } from '../../db.model'
+import {
+  CommonDBCreateOptions,
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  CommonDBStreamOptions,
+} from '../../db.model'
 
 export interface CacheDBCfg {
   name: string
@@ -45,7 +50,7 @@ export interface CacheDBCfg {
   logger?: CommonLogger
 }
 
-export interface CacheDBOptions {
+export interface CacheDBOptions extends CommonDBOptions {
   /**
    * @default false
    */

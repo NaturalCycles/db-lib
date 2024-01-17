@@ -1,7 +1,7 @@
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import { CommonDBSaveOptions, DBOperation } from '../db.model'
+import { CommonDBOptions, CommonDBSaveOptions, DBTransaction, RunQueryResult } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
-import { DBTransaction } from './dbTransaction'
 
 /**
  * Optimizes the Transaction (list of DBOperations) to do less operations.
@@ -11,9 +11,9 @@ import { DBTransaction } from './dbTransaction'
  * Currently only takes into account SaveBatch and DeleteByIds ops.
  * Output ops are maximum 1 per entity - save or delete.
  */
-export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
-  return ops // currently "does nothing"
-}
+// export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
+//   return ops // currently "does nothing"
+// }
 
 // Commented out as "overly complicated"
 /*
@@ -70,23 +70,62 @@ export function mergeDBOperations(ops: DBOperation[]): DBOperation[] {
  * Does NOT actually implement a Transaction, cause partial ops application will happen
  * in case of an error in the middle.
  */
-export async function commitDBTransactionSimple(
-  db: CommonDB,
-  tx: DBTransaction,
-  opt?: CommonDBSaveOptions,
-): Promise<void> {
-  // const ops = mergeDBOperations(tx.ops)
+// export async function commitDBTransactionSimple(
+//   db: CommonDB,
+//   ops: DBOperation[],
+//   opt?: CommonDBSaveOptions,
+// ): Promise<void> {
+//   // const ops = mergeDBOperations(tx.ops)
+//
+//   for await (const op of ops) {
+//     if (op.type === 'saveBatch') {
+//       await db.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
+//     } else if (op.type === 'deleteByIds') {
+//       await db.deleteByQuery(DBQuery.create(op.table).filter('id', 'in', op.ids), {
+//         ...op.opt,
+//         ...opt,
+//       })
+//     } else {
+//       throw new Error(`DBOperation not supported: ${(op as any).type}`)
+//     }
+//   }
+// }
 
-  for await (const op of tx.ops) {
-    if (op.type === 'saveBatch') {
-      await db.saveBatch(op.table, op.rows, { ...op.opt, ...opt })
-    } else if (op.type === 'deleteByIds') {
-      await db.deleteByQuery(DBQuery.create(op.table).filter('id', 'in', op.ids), {
-        ...op.opt,
-        ...opt,
-      })
-    } else {
-      throw new Error(`DBOperation not supported: ${(op as any).type}`)
-    }
+/**
+ * Fake implementation of DBTransactionContext,
+ * which executes all operations instantly, without any Transaction involved.
+ */
+export class FakeDBTransaction implements DBTransaction {
+  constructor(protected db: CommonDB) {}
+
+  async commit(): Promise<void> {}
+  async rollback(): Promise<void> {}
+
+  async getByIds<ROW extends ObjectWithId>(
+    table: string,
+    ids: string[],
+    opt?: CommonDBOptions,
+  ): Promise<ROW[]> {
+    return await this.db.getByIds(table, ids, opt)
+  }
+  async runQuery<ROW extends ObjectWithId>(
+    q: DBQuery<ROW>,
+    opt?: CommonDBOptions,
+  ): Promise<RunQueryResult<ROW>> {
+    return await this.db.runQuery(q, opt)
+  }
+  async saveBatch<ROW extends Partial<ObjectWithId>>(
+    table: string,
+    rows: ROW[],
+    opt?: CommonDBSaveOptions<ROW>,
+  ): Promise<void> {
+    return await this.db.saveBatch(table, rows, opt)
+  }
+  async deleteByIds(
+    table: string,
+    ids: string[],
+    opt?: CommonDBOptions | undefined,
+  ): Promise<number> {
+    return await this.db.deleteByIds(table, ids, opt)
   }
 }

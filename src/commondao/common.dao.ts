@@ -18,7 +18,6 @@ import {
   JsonSchemaRootObject,
   ObjectWithId,
   pMap,
-  Promisable,
   Saved,
   SKIP,
   UnixTimestampMillisNumber,
@@ -43,16 +42,8 @@ import {
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import {
-  DBDeleteByIdsOperation,
-  DBModelType,
-  DBOperation,
-  DBPatch,
-  DBSaveBatchOperation,
-  RunQueryResult,
-} from '../db.model'
+import { DBModelType, DBPatch, DBTransaction, RunQueryResult } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
-import { DBTransaction } from '../transaction/dbTransaction'
 import {
   CommonDaoCfg,
   CommonDaoCreateOptions,
@@ -698,68 +689,6 @@ export class CommonDao<
     return obj as any
   }
 
-  tx = {
-    save: async (
-      bm: Unsaved<BM>,
-      opt: CommonDaoSaveBatchOptions<DBM> = {},
-    ): Promise<DBSaveBatchOperation | undefined> => {
-      // .save actually returns DBM (not BM) when it detects `opt.tx === true`
-      const row: DBM | null = (await this.save(bm, { ...opt, tx: true })) as any
-      if (row === null) return
-
-      return {
-        type: 'saveBatch',
-        table: this.cfg.table,
-        rows: [row],
-        opt: {
-          excludeFromIndexes: this.cfg.excludeFromIndexes,
-          ...opt,
-        },
-      }
-    },
-    saveBatch: async (
-      bms: Unsaved<BM>[],
-      opt: CommonDaoSaveBatchOptions<DBM> = {},
-    ): Promise<DBSaveBatchOperation | undefined> => {
-      const rows: DBM[] = (await this.saveBatch(bms, { ...opt, tx: true })) as any
-      if (!rows.length) return
-
-      return {
-        type: 'saveBatch',
-        table: this.cfg.table,
-        rows,
-        opt: {
-          excludeFromIndexes: this.cfg.excludeFromIndexes,
-          ...opt,
-        },
-      }
-    },
-    deleteByIds: async (
-      ids: string[],
-      opt: CommonDaoOptions = {},
-    ): Promise<DBDeleteByIdsOperation | undefined> => {
-      if (!ids.length) return
-      return {
-        type: 'deleteByIds',
-        table: this.cfg.table,
-        ids,
-        opt,
-      }
-    },
-    deleteById: async (
-      id: string | null | undefined,
-      opt: CommonDaoOptions = {},
-    ): Promise<DBDeleteByIdsOperation | undefined> => {
-      if (!id) return
-      return {
-        type: 'deleteByIds',
-        table: this.cfg.table,
-        ids: [id],
-        opt,
-      }
-    },
-  }
-
   // SAVE
   /**
    * Mutates with id, created, updated
@@ -778,12 +707,7 @@ export class CommonDao<
 
     if (this.cfg.hooks!.beforeSave) {
       dbm = (await this.cfg.hooks!.beforeSave(dbm))!
-      if (dbm === null && !opt.tx) return bm as any
-    }
-
-    if (opt.tx) {
-      // May return `null`, in which case it'll be skipped
-      return dbm as any
+      if (dbm === null) return bm as any
     }
 
     const table = opt.table || this.cfg.table
@@ -960,10 +884,6 @@ export class CommonDao<
       )
     }
 
-    if (opt.tx) {
-      return dbms as any
-    }
-
     if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
@@ -1071,7 +991,7 @@ export class CommonDao<
 
           if (beforeSave) {
             dbm = (await beforeSave(dbm))!
-            if (dbm === null && !opt.tx) return SKIP
+            if (dbm === null) return SKIP
           }
 
           return dbm
@@ -1118,7 +1038,7 @@ export class CommonDao<
     const op = `deleteById(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const count = await this.cfg.db.deleteByQuery(DBQuery.create(table).filterEq('id', id))
+    const count = await this.cfg.db.deleteByIds(table, [id], opt)
     this.logSaveResult(started, op, table)
     return count
   }
@@ -1130,7 +1050,7 @@ export class CommonDao<
     const op = `deleteByIds(${ids.join(', ')})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    const count = await this.cfg.db.deleteByQuery(DBQuery.create(table).filterIn('id', ids))
+    const count = await this.cfg.db.deleteByIds(table, ids, opt)
     this.logSaveResult(started, op, table)
     return count
   }
@@ -1410,11 +1330,22 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  async runInTransaction(ops: Promisable<DBOperation | undefined>[]): Promise<void> {
-    const resolvedOps = (await Promise.all(ops)).filter(_isTruthy)
-    if (!resolvedOps.length) return
+  async useTransaction(fn: (tx: CommonDaoTransaction) => Promise<void>): Promise<void> {
+    const tx = await this.cfg.db.createTransaction()
+    const daoTx = new CommonDaoTransaction(tx)
 
-    await this.cfg.db.commitTransaction(DBTransaction.create(resolvedOps))
+    try {
+      await fn(daoTx)
+      await daoTx.commit()
+    } catch (err) {
+      await daoTx.rollback()
+      throw err
+    }
+  }
+
+  async createTransaction(): Promise<CommonDaoTransaction> {
+    const tx = await this.cfg.db.createTransaction()
+    return new CommonDaoTransaction(tx)
   }
 
   protected logResult(started: number, op: string, res: any, table: string): void {
@@ -1471,5 +1402,88 @@ export class CommonDao<
     }
 
     return Date.now()
+  }
+}
+
+export class CommonDaoTransaction {
+  constructor(private tx: DBTransaction) {}
+
+  async commit(): Promise<void> {
+    await this.tx.commit()
+  }
+  async rollback(): Promise<void> {
+    try {
+      await this.tx.rollback()
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  async getById<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
+    dao: CommonDao<BM, DBM, any>,
+    id: string,
+    opt?: CommonDaoOptions,
+  ): Promise<Saved<BM> | null> {
+    return (await this.getByIds(dao, [id], opt))[0] || null
+  }
+
+  async getByIds<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
+    dao: CommonDao<BM, DBM, any>,
+    ids: string[],
+    opt?: CommonDaoOptions,
+  ): Promise<Saved<BM>[]> {
+    try {
+      return await dao.getByIds(ids, { ...opt, tx: this.tx })
+    } catch (err) {
+      await this.rollback()
+      throw err
+    }
+  }
+
+  async runQuery<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
+    dao: CommonDao<BM, DBM, any>,
+    q: DBQuery<DBM>,
+    opt?: CommonDaoOptions,
+  ): Promise<Saved<BM>[]> {
+    try {
+      return await dao.runQuery(q, { ...opt, tx: this.tx })
+    } catch (err) {
+      await this.rollback()
+      throw err
+    }
+  }
+
+  async save<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
+    dao: CommonDao<BM, DBM, any>,
+    bm: Unsaved<BM>,
+    opt?: CommonDaoSaveBatchOptions<DBM>,
+  ): Promise<Saved<BM>> {
+    return (await this.saveBatch(dao, [bm], opt))[0]!
+  }
+
+  async saveBatch<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>(
+    dao: CommonDao<BM, DBM, any>,
+    bms: Unsaved<BM>[],
+    opt?: CommonDaoSaveBatchOptions<DBM>,
+  ): Promise<Saved<BM>[]> {
+    try {
+      return await dao.saveBatch(bms, { ...opt, tx: this.tx })
+    } catch (err) {
+      await this.rollback()
+      throw err
+    }
+  }
+
+  async deleteById(dao: CommonDao<any>, id: string, opt?: CommonDaoOptions): Promise<number> {
+    return await this.deleteByIds(dao, [id], opt)
+  }
+
+  async deleteByIds(dao: CommonDao<any>, ids: string[], opt?: CommonDaoOptions): Promise<number> {
+    try {
+      return await dao.deleteByIds(ids, { ...opt, tx: this.tx })
+    } catch (err) {
+      await this.rollback()
+      throw err
+    }
   }
 }

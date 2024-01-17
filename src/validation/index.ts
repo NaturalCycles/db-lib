@@ -17,8 +17,8 @@ import {
 } from '../query/dbQuery'
 
 export const commonDBOptionsSchema = objectSchema<CommonDBOptions>({
-  onlyCache: booleanSchema.optional(),
-  skipCache: booleanSchema.optional(),
+  ['onlyCache' as any]: booleanSchema.optional(),
+  ['skipCache' as any]: booleanSchema.optional(),
 })
 
 export const commonDBSaveOptionsSchema = objectSchema<CommonDBSaveOptions>({

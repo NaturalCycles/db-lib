@@ -1,68 +1,21 @@
-import { pDelay, pMap, _filterObject, _pick, _sortBy } from '@naturalcycles/js-lib'
+import { _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
 import { readableToArray } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from '../common.db'
+import { CommonDB, CommonDBType } from '../common.db'
 import { DBIncrement, DBPatch } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
-import { DBTransaction } from '../transaction/dbTransaction'
 import {
   createTestItemDBM,
   createTestItemsDBM,
-  TestItemDBM,
   TEST_TABLE,
+  TestItemDBM,
   testItemDBMJsonSchema,
 } from './test.model'
 import { deepFreeze } from './test.util'
-
-export interface CommonDBImplementationFeatures {
-  /**
-   * All querying functionality.
-   */
-  querying?: boolean
-
-  dbQueryFilter?: boolean
-  dbQueryFilterIn?: boolean
-  dbQueryOrder?: boolean
-  dbQuerySelectFields?: boolean
-  insert?: boolean
-  update?: boolean
-
-  updateByQuery?: boolean
-
-  dbIncrement?: boolean
-
-  createTable?: boolean
-  tableSchemas?: boolean
-
-  /**
-   * Queries should return fresh results immediately.
-   * Datastore is the one known to NOT have strong consistency for queries (not for getById though).
-   */
-  strongConsistency?: boolean
-
-  streaming?: boolean
-
-  bufferSupport?: boolean
-  nullValues?: boolean
-
-  /**
-   * Set false for SQL (relational) databases,
-   * they will return `null` for all missing properties.
-   */
-  documentDB?: boolean
-
-  transactions?: boolean
-}
 
 /**
  * All options default to `false`.
  */
 export interface CommonDBImplementationQuirks {
-  /**
-   * Applicable to e.g Datastore.
-   * Time in milliseconds to wait for eventual consistency to propagate.
-   */
-  eventualConsistencyDelay?: number
-
   /**
    * Example: airtableId
    */
@@ -74,40 +27,8 @@ export interface CommonDBImplementationQuirks {
   allowBooleansAsUndefined?: boolean
 }
 
-/**
- * All unclaimed features will default to 'true'
- */
-export function runCommonDBTest(
-  db: CommonDB,
-  features: CommonDBImplementationFeatures = {},
-  quirks: CommonDBImplementationQuirks = {},
-): void {
-  const {
-    querying = true,
-    tableSchemas = true,
-    createTable = true,
-    dbQueryFilter = true,
-    // dbQueryFilterIn = true,
-    dbQueryOrder = true,
-    dbQuerySelectFields = true,
-    insert = true,
-    update = true,
-    updateByQuery = true,
-    dbIncrement = true,
-    streaming = true,
-    strongConsistency = true,
-    bufferSupport = true,
-    nullValues = true,
-    documentDB = true,
-    transactions = true,
-  } = features
-
-  // const {
-  // allowExtraPropertiesInResponse,
-  // allowBooleansAsUndefined,
-  // } = quirks
-  const eventualConsistencyDelay = !strongConsistency && quirks.eventualConsistencyDelay
-
+export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
+  const { support } = db
   const items = createTestItemsDBM(3)
   deepFreeze(items)
   const item1 = items[0]!
@@ -119,13 +40,13 @@ export function runCommonDBTest(
   })
 
   // CREATE TABLE, DROP
-  if (createTable) {
+  if (support.createTable) {
     test('createTable, dropIfExists=true', async () => {
       await db.createTable(TEST_TABLE, testItemDBMJsonSchema, { dropIfExists: true })
     })
   }
 
-  if (querying) {
+  if (support.queries) {
     // DELETE ALL initially
     test('deleteByIds test items', async () => {
       const { rows } = await db.runQuery(queryAll().select(['id']))
@@ -139,7 +60,6 @@ export function runCommonDBTest(
 
     // QUERY empty
     test('runQuery(all), runQueryCount should return empty', async () => {
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       expect((await db.runQuery(queryAll())).rows).toEqual([])
       expect(await db.runQueryCount(queryAll())).toBe(0)
     })
@@ -161,7 +81,7 @@ export function runCommonDBTest(
   })
 
   // SAVE
-  if (nullValues) {
+  if (support.nullValues) {
     test('should allow to save and load null values', async () => {
       const item3 = {
         ...createTestItemDBM(3),
@@ -175,7 +95,7 @@ export function runCommonDBTest(
     })
   }
 
-  if (documentDB) {
+  if (db.dbType === CommonDBType.document) {
     test('undefined values should not be saved/loaded', async () => {
       const item3 = {
         ...createTestItemDBM(3),
@@ -193,7 +113,7 @@ export function runCommonDBTest(
     })
   }
 
-  if (update) {
+  if (support.updateSaveMethod) {
     test('saveBatch UPDATE method should throw', async () => {
       await expect(db.saveBatch(TEST_TABLE, items, { saveMethod: 'update' })).rejects.toThrow()
     })
@@ -207,13 +127,13 @@ export function runCommonDBTest(
     await expect(db.saveBatch(TEST_TABLE, [{ ...item1, id: null as any }])).rejects.toThrow()
   })
 
-  if (insert) {
+  if (support.insertSaveMethod) {
     test('saveBatch INSERT method should throw', async () => {
       await expect(db.saveBatch(TEST_TABLE, items, { saveMethod: 'insert' })).rejects.toThrow()
     })
   }
 
-  if (update) {
+  if (support.updateSaveMethod) {
     test('saveBatch UPDATE method should pass', async () => {
       await db.saveBatch(TEST_TABLE, items, { saveMethod: 'update' })
     })
@@ -230,19 +150,18 @@ export function runCommonDBTest(
   })
 
   // QUERY
-  if (querying) {
+  if (support.queries) {
     test('runQuery(all) should return all items', async () => {
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
       let { rows } = await db.runQuery(queryAll())
       rows = _sortBy(rows, r => r.id) // because query doesn't specify order here
       expectMatch(items, rows, quirks)
     })
 
-    if (dbQueryFilter) {
+    if (support.dbQueryFilter) {
       test('query even=true', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '==', true)
         let { rows } = await db.runQuery(q)
-        if (!dbQueryOrder) rows = _sortBy(rows, r => r.id)
+        if (!support.dbQueryOrder) rows = _sortBy(rows, r => r.id)
         expectMatch(
           items.filter(i => i.even),
           rows,
@@ -251,7 +170,7 @@ export function runCommonDBTest(
       })
     }
 
-    if (dbQueryOrder) {
+    if (support.dbQueryOrder) {
       test('query order by k1 desc', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).order('k1', true)
         const { rows } = await db.runQuery(q)
@@ -259,7 +178,7 @@ export function runCommonDBTest(
       })
     }
 
-    if (dbQuerySelectFields) {
+    if (support.dbQuerySelectFields) {
       test('projection query with only ids', async () => {
         const q = new DBQuery<TestItemDBM>(TEST_TABLE).select(['id'])
         let { rows } = await db.runQuery(q)
@@ -299,7 +218,7 @@ export function runCommonDBTest(
   }
 
   // STREAM
-  if (streaming) {
+  if (support.streaming) {
     test('streamQuery all', async () => {
       let rows = await readableToArray(db.streamQuery(queryAll()))
 
@@ -313,7 +232,7 @@ export function runCommonDBTest(
     const tables = await db.getTables()
     // console.log({ tables })
 
-    if (tableSchemas) {
+    if (support.tableSchemas) {
       await pMap(tables, async table => {
         const schema = await db.getTableSchema(table)
         // console.log(schema)
@@ -323,21 +242,19 @@ export function runCommonDBTest(
   })
 
   // DELETE BY
-  if (querying && dbQueryFilter) {
+  if (support.queries && support.dbQueryFilter) {
     test('deleteByQuery even=false', async () => {
       const q = new DBQuery<TestItemDBM>(TEST_TABLE).filter('even', '==', false)
       const deleted = await db.deleteByQuery(q)
       expect(deleted).toBe(items.filter(item => !item.even).length)
-
-      if (eventualConsistencyDelay) await pDelay(eventualConsistencyDelay)
 
       expect(await db.runQueryCount(queryAll())).toBe(1)
     })
   }
 
   // BUFFER
-  if (bufferSupport) {
-    test('buffer support', async () => {
+  if (support.bufferValues) {
+    test('buffer values', async () => {
       const s = 'helloWorld 1'
       const b1 = Buffer.from(s)
 
@@ -361,7 +278,7 @@ export function runCommonDBTest(
     })
   }
 
-  if (transactions) {
+  if (support.transactions) {
     test('transaction happy path', async () => {
       // cleanup
       await db.deleteByQuery(queryAll())
@@ -370,12 +287,11 @@ export function runCommonDBTest(
       // save item3 with k1: k1_mod
       // delete item2
       // remaining: item1, item3_with_k1_mod
-      const tx = DBTransaction.create()
-        .saveBatch(TEST_TABLE, items)
-        .save(TEST_TABLE, { ...items[2]!, k1: 'k1_mod' })
-        .deleteById(TEST_TABLE, items[1]!.id)
-
-      await db.commitTransaction(tx)
+      const tx = await db.createTransaction()
+      await db.saveBatch(TEST_TABLE, items, { tx })
+      await db.saveBatch(TEST_TABLE, [{ ...items[2]!, k1: 'k1_mod' }], { tx })
+      await db.deleteByIds(TEST_TABLE, [items[1]!.id], { tx })
+      await tx.commit()
 
       const { rows } = await db.runQuery(queryAll())
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
@@ -384,11 +300,18 @@ export function runCommonDBTest(
 
     test('transaction rollback', async () => {
       // It should fail on id == null
-      const tx = DBTransaction.create()
-        .deleteById(TEST_TABLE, items[2]!.id)
-        .save(TEST_TABLE, { ...items[0]!, k1: 5, id: null as any })
+      let err: any
 
-      await expect(db.commitTransaction(tx)).rejects.toThrow()
+      try {
+        const tx = await db.createTransaction()
+        await db.deleteByIds(TEST_TABLE, [items[2]!.id], { tx })
+        await db.saveBatch(TEST_TABLE, [{ ...items[0]!, k1: 5, id: null as any }], { tx })
+        await tx.commit()
+      } catch (err_) {
+        err = err_
+      }
+
+      expect(err).toBeDefined()
 
       const { rows } = await db.runQuery(queryAll())
       const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
@@ -396,7 +319,7 @@ export function runCommonDBTest(
     })
   }
 
-  if (updateByQuery) {
+  if (support.updateByQuery) {
     test('updateByQuery simple', async () => {
       // cleanup, reset initial data
       await db.deleteByQuery(queryAll())
@@ -419,7 +342,7 @@ export function runCommonDBTest(
       expectMatch(expected, rows, quirks)
     })
 
-    if (dbIncrement) {
+    if (support.dbIncrement) {
       test('updateByQuery DBIncrement', async () => {
         // cleanup, reset initial data
         await db.deleteByQuery(queryAll())
@@ -447,7 +370,7 @@ export function runCommonDBTest(
     }
   }
 
-  if (querying) {
+  if (support.queries) {
     test('cleanup', async () => {
       // CLEAN UP
       await db.deleteByQuery(queryAll())

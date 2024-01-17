@@ -7,10 +7,9 @@ import {
   StringMap,
 } from '@naturalcycles/js-lib'
 import { BaseCommonDB } from '../../base.common.db'
-import { CommonDB } from '../../common.db'
-import { CommonDBOptions, DBPatch, RunQueryResult } from '../../db.model'
+import { CommonDB, commonDBFullSupport, CommonDBSupport } from '../../common.db'
+import { DBPatch, RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
-import { DBTransaction } from '../../transaction/dbTransaction'
 import {
   CacheDBCfg,
   CacheDBCreateOptions,
@@ -26,6 +25,11 @@ import {
  * Queries always hit downstream (unless `onlyCache` is passed)
  */
 export class CacheDB extends BaseCommonDB implements CommonDB {
+  override support: CommonDBSupport = {
+    ...commonDBFullSupport,
+    transactions: false,
+  }
+
   constructor(cfg: CacheDBCfg) {
     super()
     this.cfg = {
@@ -283,10 +287,5 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
 
     return updated || 0
-  }
-
-  override async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
-    await this.cfg.downstreamDB.commitTransaction(tx, opt)
-    await this.cfg.cacheDB.commitTransaction(tx, opt)
   }
 }

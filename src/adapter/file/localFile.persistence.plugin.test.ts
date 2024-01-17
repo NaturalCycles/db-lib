@@ -8,16 +8,6 @@ const db = new FileDB({
   }),
 })
 
-describe('runCommonDBTest', () =>
-  runCommonDBTest(db, {
-    bufferSupport: false, // todo: use bufferReviver
-    insert: false,
-    update: false,
-    updateByQuery: false,
-    createTable: false,
-  }))
+describe('runCommonDBTest', () => runCommonDBTest(db))
 
-describe('runCommonDaoTest', () =>
-  runCommonDaoTest(db, {
-    createTable: false,
-  }))
+describe('runCommonDaoTest', () => runCommonDaoTest(db))

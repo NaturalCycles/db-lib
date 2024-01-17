@@ -1,9 +1,15 @@
 import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from './common.db'
-import { CommonDBOptions, CommonDBSaveOptions, DBPatch, RunQueryResult } from './db.model'
+import { CommonDB, CommonDBSupport, CommonDBType } from './common.db'
+import {
+  CommonDBOptions,
+  CommonDBSaveOptions,
+  DBPatch,
+  DBTransaction,
+  RunQueryResult,
+} from './db.model'
 import { DBQuery } from './query/dbQuery'
-import { DBTransaction } from './transaction/dbTransaction'
+import { FakeDBTransaction } from './transaction/dbTransaction.util'
 
 /* eslint-disable unused-imports/no-unused-vars */
 
@@ -12,6 +18,10 @@ import { DBTransaction } from './transaction/dbTransaction'
  * To be extended by actual implementations.
  */
 export class BaseCommonDB implements CommonDB {
+  dbType = CommonDBType.document
+
+  support: CommonDBSupport = {}
+
   async ping(): Promise<void> {
     throw new Error('ping is not implemented')
   }
@@ -33,7 +43,7 @@ export class BaseCommonDB implements CommonDB {
     // no-op
   }
 
-  async getByIds<ROW extends ObjectWithId>(table: string, ids: ROW['id'][]): Promise<ROW[]> {
+  async getByIds<ROW extends ObjectWithId>(table: string, ids: string[]): Promise<ROW[]> {
     throw new Error('getByIds is not implemented')
   }
 
@@ -69,12 +79,11 @@ export class BaseCommonDB implements CommonDB {
     throw new Error('streamQuery is not implemented')
   }
 
-  /**
-   * Naive implementation.
-   * Doesn't support rollback on error, hence doesn't pass dbTest.
-   * To be extended.
-   */
-  async commitTransaction(tx: DBTransaction, opt?: CommonDBOptions): Promise<void> {
-    throw new Error('commitTransaction is not implemented')
+  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
+    throw new Error('deleteByIds is not implemented')
+  }
+
+  async createTransaction(): Promise<DBTransaction> {
+    return new FakeDBTransaction(this)
   }
 }

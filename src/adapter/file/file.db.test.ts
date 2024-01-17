@@ -6,16 +6,6 @@ const db = new FileDB({
   plugin: new InMemoryPersistencePlugin(),
 })
 
-describe('runCommonDBTest', () =>
-  runCommonDBTest(db, {
-    bufferSupport: false, // todo: implement
-    insert: false,
-    update: false,
-    updateByQuery: false,
-    createTable: false,
-  }))
+describe('runCommonDBTest', () => runCommonDBTest(db))
 
-describe('runCommonDaoTest', () =>
-  runCommonDaoTest(db, {
-    createTable: false,
-  }))
+describe('runCommonDaoTest', () => runCommonDaoTest(db))

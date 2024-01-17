@@ -6,12 +6,44 @@ import {
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   DBPatch,
+  DBTransaction,
   RunQueryResult,
 } from './db.model'
 import { DBQuery } from './query/dbQuery'
-import { DBTransaction } from './transaction/dbTransaction'
+
+export enum CommonDBType {
+  'document' = 'document',
+  'relational' = 'relational',
+}
 
 export interface CommonDB {
+  /**
+   * Relational databases are expected to return `null` for all missing properties.
+   */
+  dbType: CommonDBType
+
+  /**
+   * Manifest of supported features.
+   */
+  support: CommonDBSupport
+
+  // Support flags indicate which of the CommonDB features are supported by this implementation.
+  supportsQueries?: boolean
+  supportsDBQueryFilter?: boolean
+  supportsDBQueryFilterIn?: boolean
+  supportsDBQueryOrder?: boolean
+  supportsDBQuerySelectFields?: boolean
+  supportsInsertSaveMethod?: boolean
+  supportsUpdateSaveMethod?: boolean
+  supportsUpdateByQuery?: boolean
+  supportsDBIncrement?: boolean
+  supportsCreateTable?: boolean
+  supportsTableSchemas?: boolean
+  supportsStreaming?: boolean
+  supportsBufferValues?: boolean
+  supportsNullValues?: boolean
+  supportsTransactions?: boolean
+
   /**
    * Checks that connection/credentials/etc is ok.
    * Also acts as a "warmup request" for a DB.
@@ -88,6 +120,12 @@ export interface CommonDB {
    * Returns number of deleted items.
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
+  deleteByIds: (table: string, ids: string[], opt?: CommonDBOptions) => Promise<number>
+
+  /**
+   * Returns number of deleted items.
+   * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
+   */
   deleteByQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
@@ -122,5 +160,44 @@ export interface CommonDB {
    * Should be implemented as a Transaction (best effort), which means that
    * either ALL or NONE of the operations should be applied.
    */
-  commitTransaction: (tx: DBTransaction, opt?: CommonDBOptions) => Promise<void>
+  createTransaction: () => Promise<DBTransaction>
+}
+
+/**
+ * Manifest of supported features.
+ */
+export interface CommonDBSupport {
+  queries?: boolean
+  dbQueryFilter?: boolean
+  dbQueryFilterIn?: boolean
+  dbQueryOrder?: boolean
+  dbQuerySelectFields?: boolean
+  insertSaveMethod?: boolean
+  updateSaveMethod?: boolean
+  updateByQuery?: boolean
+  dbIncrement?: boolean
+  createTable?: boolean
+  tableSchemas?: boolean
+  streaming?: boolean
+  bufferValues?: boolean
+  nullValues?: boolean
+  transactions?: boolean
+}
+
+export const commonDBFullSupport: CommonDBSupport = {
+  queries: true,
+  dbQueryFilter: true,
+  dbQueryFilterIn: true,
+  dbQueryOrder: true,
+  dbQuerySelectFields: true,
+  insertSaveMethod: true,
+  updateSaveMethod: true,
+  updateByQuery: true,
+  dbIncrement: true,
+  createTable: true,
+  tableSchemas: true,
+  streaming: true,
+  bufferValues: true,
+  nullValues: true,
+  transactions: true,
 }
