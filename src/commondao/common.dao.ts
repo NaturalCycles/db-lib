@@ -43,7 +43,13 @@ import {
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import { DBModelType, DBPatch, DBTransaction, RunQueryResult } from '../db.model'
+import {
+  CommonDBTransactionOptions,
+  DBModelType,
+  DBPatch,
+  DBTransaction,
+  RunQueryResult,
+} from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import {
   CommonDaoCfg,
@@ -1331,7 +1337,10 @@ export class CommonDao<
     await this.cfg.db.ping()
   }
 
-  async runInTransaction(fn: CommonDaoTransactionFn): Promise<void> {
+  async runInTransaction(
+    fn: CommonDaoTransactionFn,
+    opt?: CommonDBTransactionOptions,
+  ): Promise<void> {
     await this.cfg.db.runInTransaction(async tx => {
       const daoTx = new CommonDaoTransaction(tx, this.cfg.logger!)
 
@@ -1341,7 +1350,7 @@ export class CommonDao<
         await daoTx.rollback()
         throw err
       }
-    })
+    }, opt)
   }
 
   protected logResult(started: number, op: string, res: any, table: string): void {
