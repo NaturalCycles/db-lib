@@ -4,6 +4,7 @@ import { CommonDB, CommonDBSupport, CommonDBType } from './common.db'
 import {
   CommonDBOptions,
   CommonDBSaveOptions,
+  CommonDBTransactionOptions,
   DBPatch,
   DBTransactionFn,
   RunQueryResult,
@@ -83,7 +84,7 @@ export class BaseCommonDB implements CommonDB {
     throw new Error('deleteByIds is not implemented')
   }
 
-  async runInTransaction(fn: DBTransactionFn): Promise<void> {
+  async runInTransaction(fn: DBTransactionFn, opt?: CommonDBTransactionOptions): Promise<void> {
     const tx = new FakeDBTransaction(this)
     await fn(tx)
     // there's no try/catch and rollback, as there's nothing to rollback

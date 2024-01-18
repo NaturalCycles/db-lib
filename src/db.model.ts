@@ -34,6 +34,14 @@ export interface DBTransaction {
   rollback: () => Promise<void>
 }
 
+export interface CommonDBTransactionOptions {
+  /**
+   * Default is false.
+   * If set to true - Transaction is created as read-only.
+   */
+  readOnly?: boolean
+}
+
 export interface CommonDBOptions {
   /**
    * If passed - the operation will be performed in the context of that DBTransaction.

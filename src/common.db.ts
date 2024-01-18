@@ -5,6 +5,7 @@ import {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
+  CommonDBTransactionOptions,
   DBPatch,
   DBTransactionFn,
   RunQueryResult,
@@ -163,8 +164,11 @@ export interface CommonDB {
    * Transaction is automatically committed if fn resolves normally.
    * Transaction is rolled back if fn throws, the error is re-thrown in that case.
    * Graceful rollback is allowed on tx.rollback()
+   *
+   * By default, transaction is read-write,
+   * unless specified as readOnly in CommonDBTransactionOptions.
    */
-  runInTransaction: (fn: DBTransactionFn) => Promise<void>
+  runInTransaction: (fn: DBTransactionFn, opt?: CommonDBTransactionOptions) => Promise<void>
 }
 
 /**

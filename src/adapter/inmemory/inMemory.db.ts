@@ -32,6 +32,7 @@ import {
 import {
   CommonDB,
   commonDBFullSupport,
+  CommonDBTransactionOptions,
   CommonDBType,
   DBIncrement,
   DBOperation,
@@ -57,6 +58,17 @@ export interface InMemoryDBCfg {
    * Reset cache respects this prefix (won't touch other namespaces!)
    */
   tablesPrefix: string
+
+  /**
+   * Many DB implementations (e.g Datastore and Firestore) forbid doing
+   * read operations after a write/delete operation was done inside a Transaction.
+   *
+   * To help spot that type of bug - InMemoryDB by default has this setting to `true`,
+   * which will throw on such occasions.
+   *
+   * Defaults to true.
+   */
+  forbidTransactionReadAfterWrite?: boolean
 
   /**
    * @default false
@@ -96,6 +108,7 @@ export class InMemoryDB implements CommonDB {
     this.cfg = {
       // defaults
       tablesPrefix: '',
+      forbidTransactionReadAfterWrite: true,
       persistenceEnabled: false,
       persistZip: true,
       persistentStoragePath: './tmp/inmemorydb',
@@ -273,8 +286,12 @@ export class InMemoryDB implements CommonDB {
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
 
-  async runInTransaction(fn: DBTransactionFn): Promise<void> {
-    const tx = new InMemoryDBTransaction(this)
+  async runInTransaction(fn: DBTransactionFn, opt: CommonDBTransactionOptions = {}): Promise<void> {
+    const tx = new InMemoryDBTransaction(this, {
+      readOnly: false,
+      ...opt,
+    })
+
     try {
       await fn(tx)
       await tx.commit()
@@ -361,15 +378,28 @@ export class InMemoryDB implements CommonDB {
 }
 
 export class InMemoryDBTransaction implements DBTransaction {
-  constructor(private db: InMemoryDB) {}
+  constructor(
+    private db: InMemoryDB,
+    private opt: Required<CommonDBTransactionOptions>,
+  ) {}
 
   ops: DBOperation[] = []
+
+  // used to enforce forbidReadAfterWrite setting
+  writeOperationHappened = false
 
   async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
   ): Promise<ROW[]> {
+    if (this.db.cfg.forbidTransactionReadAfterWrite) {
+      _assert(
+        !this.writeOperationHappened,
+        `InMemoryDBTransaction: read operation attempted after write operation`,
+      )
+    }
+
     return await this.db.getByIds(table, ids, opt)
   }
 
@@ -378,6 +408,13 @@ export class InMemoryDBTransaction implements DBTransaction {
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,
   ): Promise<void> {
+    _assert(
+      !this.opt.readOnly,
+      `InMemoryDBTransaction: saveBatch(${table}) called in readOnly mode`,
+    )
+
+    this.writeOperationHappened = true
+
     this.ops.push({
       type: 'saveBatch',
       table,
@@ -387,6 +424,13 @@ export class InMemoryDBTransaction implements DBTransaction {
   }
 
   async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
+    _assert(
+      !this.opt.readOnly,
+      `InMemoryDBTransaction: deleteByIds(${table}) called in readOnly mode`,
+    )
+
+    this.writeOperationHappened = true
+
     this.ops.push({
       type: 'deleteByIds',
       table,
