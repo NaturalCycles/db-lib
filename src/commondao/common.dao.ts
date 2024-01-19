@@ -88,8 +88,8 @@ export class CommonDao<
       logLevel: isGAE || isCI ? CommonDaoLogLevel.NONE : CommonDaoLogLevel.OPERATIONS,
       createId: true,
       assignGeneratedIds: false,
-      created: true,
-      updated: true,
+      useCreatedProperty: true,
+      useUpdatedProperty: true,
       logger: console,
       ...cfg,
       hooks: {
@@ -680,11 +680,11 @@ export class CommonDao<
   assignIdCreatedUpdated(obj: DBM | BM | Unsaved<BM>, opt: CommonDaoOptions = {}): DBM | Saved<BM> {
     const now = Math.floor(Date.now() / 1000)
 
-    if (this.cfg.created) {
+    if (this.cfg.useCreatedProperty) {
       ;(obj as any)['created'] ||= (obj as any)['updated'] || now
     }
 
-    if (this.cfg.updated) {
+    if (this.cfg.useUpdatedProperty) {
       ;(obj as any)['updated'] =
         opt.preserveUpdatedCreated && (obj as any)['updated'] ? (obj as any)['updated'] : now
     }
@@ -1347,7 +1347,7 @@ export class CommonDao<
       try {
         await fn(daoTx)
       } catch (err) {
-        await daoTx.rollback()
+        await daoTx.rollback() // graceful rollback that "never throws"
         throw err
       }
     }, opt)

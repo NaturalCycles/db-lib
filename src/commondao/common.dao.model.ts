@@ -200,13 +200,13 @@ export interface CommonDaoCfg<
    * Defaults to true
    * Set to false to disable `created` field management.
    */
-  created?: boolean
+  useCreatedProperty?: boolean
 
   /**
    * Defaults to true
    * Set to false to disable `updated` field management.
    */
-  updated?: boolean
+  useUpdatedProperty?: boolean
 
   /**
    * Default is false.
