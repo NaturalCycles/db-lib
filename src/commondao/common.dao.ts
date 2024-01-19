@@ -13,6 +13,7 @@ import {
   AnyObject,
   AppError,
   AsyncMapper,
+  BaseDBEntity,
   CommonLogger,
   ErrorMode,
   JsonSchemaObject,
@@ -116,7 +117,7 @@ export class CommonDao<
   create(part: Partial<BM> = {}, opt: CommonDaoOptions = {}): Saved<BM> {
     const bm = this.cfg.hooks!.beforeCreate!(part)
     // First assignIdCreatedUpdated, then validate!
-    this.assignIdCreatedUpdated(bm as BM, opt)
+    this.assignIdCreatedUpdated(bm, opt)
     return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
   }
 
@@ -674,28 +675,22 @@ export class CommonDao<
    * Mutates!
    * "Returns", just to have a type of "Saved"
    */
-  assignIdCreatedUpdated(obj: Partial<DBM>, opt?: CommonDaoOptions): Saved<Partial<DBM>>
-  assignIdCreatedUpdated(obj: Partial<BM>, opt?: CommonDaoOptions): Saved<Partial<BM>>
-  assignIdCreatedUpdated(
-    obj: Partial<DBM> | Partial<BM>,
-    opt: CommonDaoOptions = {},
-  ): Saved<Partial<DBM>> | Saved<Partial<BM>> {
+  assignIdCreatedUpdated<T extends BaseDBEntity>(obj: T, opt: CommonDaoOptions = {}): Saved<T> {
     const now = Math.floor(Date.now() / 1000)
 
     if (this.cfg.useCreatedProperty) {
-      ;(obj as any)['created'] ||= (obj as any)['updated'] || now
+      obj.created ||= obj.updated || now
     }
 
     if (this.cfg.useUpdatedProperty) {
-      ;(obj as any)['updated'] =
-        opt.preserveUpdatedCreated && (obj as any)['updated'] ? (obj as any)['updated'] : now
+      obj.updated = opt.preserveUpdatedCreated && obj.updated ? obj.updated : now
     }
 
     if (this.cfg.createId) {
-      obj.id ||= this.cfg.hooks!.createNaturalId?.(obj as BM) || this.cfg.hooks!.createRandomId!()
+      obj.id ||= this.cfg.hooks!.createNaturalId?.(obj as any) || this.cfg.hooks!.createRandomId!()
     }
 
-    return obj as any
+    return obj as Saved<T>
   }
 
   // SAVE

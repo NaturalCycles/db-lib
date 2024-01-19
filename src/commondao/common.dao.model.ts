@@ -1,4 +1,5 @@
 import {
+  AnyObject,
   CommonLogger,
   ErrorMode,
   PartialObjectWithId,
@@ -138,7 +139,7 @@ export enum CommonDaoLogLevel {
 export interface CommonDaoCfg<
   BM extends PartialObjectWithId,
   DBM extends PartialObjectWithId = BM,
-  TM = BM,
+  TM extends AnyObject = BM,
 > {
   db: CommonDB
   table: string
