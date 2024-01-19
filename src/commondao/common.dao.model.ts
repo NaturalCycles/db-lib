@@ -1,7 +1,7 @@
 import {
   CommonLogger,
   ErrorMode,
-  ObjectWithId,
+  PartialObjectWithId,
   Promisable,
   Saved,
   ZodError,
@@ -18,7 +18,11 @@ import {
 import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
-export interface CommonDaoHooks<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId, TM> {
+export interface CommonDaoHooks<
+  BM extends PartialObjectWithId,
+  DBM extends PartialObjectWithId,
+  TM,
+> {
   /**
    * Allows to override the id generation function.
    * By default it uses `stringId` from nodejs-lib
@@ -59,7 +63,7 @@ export interface CommonDaoHooks<BM extends Partial<ObjectWithId>, DBM extends Ob
    */
   beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
 
-  beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
+  beforeDBMToBM: (dbm: Saved<DBM>) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
   beforeBMToTM: (bm: BM) => Partial<TM>
 
@@ -75,7 +79,7 @@ export interface CommonDaoHooks<BM extends Partial<ObjectWithId>, DBM extends Ob
    *
    * You can do validations as needed here and throw errors, they will be propagated.
    */
-  afterLoad?: (dbm: DBM) => Promisable<DBM | null>
+  afterLoad?: (dbm: Saved<DBM>) => Promisable<Saved<DBM> | null>
 
   /**
    * Allows to access the DBM just before it's supposed to be saved to the DB.
@@ -90,7 +94,7 @@ export interface CommonDaoHooks<BM extends Partial<ObjectWithId>, DBM extends Ob
    *
    * You can do validations as needed here and throw errors, they will be propagated.
    */
-  beforeSave?: (dbm: DBM) => Promisable<DBM | null>
+  beforeSave?: (dbm: Saved<DBM>) => Promisable<Saved<DBM> | null>
 
   /**
    * Called in:
@@ -101,7 +105,7 @@ export interface CommonDaoHooks<BM extends Partial<ObjectWithId>, DBM extends Ob
    * It still applies to BM "transitively", during dbmToBM
    * (e.g after loaded from the Database).
    */
-  anonymize: (dbm: DBM) => DBM
+  anonymize: (dbm: Saved<DBM>) => Saved<DBM>
 
   /**
    * If hook is defined - allows to prevent or modify the error thrown.
@@ -132,8 +136,8 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<
-  BM extends Partial<ObjectWithId>,
-  DBM extends ObjectWithId = Saved<BM>,
+  BM extends PartialObjectWithId,
+  DBM extends PartialObjectWithId = BM,
   TM = BM,
 > {
   db: CommonDB
@@ -276,8 +280,10 @@ export interface CommonDaoOptions extends CommonDBOptions {
   table?: string
 }
 
-export interface CommonDaoSaveOptions<BM extends Partial<ObjectWithId>, DBM extends ObjectWithId>
-  extends CommonDaoSaveBatchOptions<DBM> {
+export interface CommonDaoSaveOptions<
+  BM extends PartialObjectWithId,
+  DBM extends PartialObjectWithId,
+> extends CommonDaoSaveBatchOptions<DBM> {
   /**
    * If provided - a check will be made.
    * If the object for saving equals to the object passed to `skipIfEquals` - save operation will be skipped.
@@ -292,7 +298,7 @@ export interface CommonDaoSaveOptions<BM extends Partial<ObjectWithId>, DBM exte
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveBatchOptions<DBM extends ObjectWithId>
+export interface CommonDaoSaveBatchOptions<DBM extends PartialObjectWithId>
   extends CommonDaoOptions,
     CommonDBSaveOptions<DBM> {
   /**
@@ -307,10 +313,10 @@ export interface CommonDaoSaveBatchOptions<DBM extends ObjectWithId>
   ensureUniqueId?: boolean
 }
 
-export interface CommonDaoStreamDeleteOptions<DBM extends ObjectWithId>
+export interface CommonDaoStreamDeleteOptions<DBM extends PartialObjectWithId>
   extends CommonDaoStreamOptions<DBM> {}
 
-export interface CommonDaoStreamSaveOptions<DBM extends ObjectWithId>
+export interface CommonDaoStreamSaveOptions<DBM extends PartialObjectWithId>
   extends CommonDaoSaveBatchOptions<DBM>,
     CommonDaoStreamOptions<DBM> {}
 

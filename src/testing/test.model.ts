@@ -5,7 +5,6 @@ import {
   booleanSchema,
   numberSchema,
   objectSchema,
-  savedDBEntitySchema,
   stringSchema,
 } from '@naturalcycles/nodejs-lib'
 
@@ -14,7 +13,6 @@ const MOCK_TS_2018_06_21 = 1529539200
 export const TEST_TABLE = 'TEST_TABLE'
 
 export interface TestItemBM extends BaseDBEntity {
-  id: string
   k1: string
   k2?: string | null
   k3?: number
@@ -22,7 +20,7 @@ export interface TestItemBM extends BaseDBEntity {
   b1?: Buffer
 }
 
-export interface TestItemDBM extends Saved<TestItemBM> {}
+export interface TestItemDBM extends TestItemBM {}
 
 export interface TestItemTM {
   k1: string
@@ -43,7 +41,7 @@ export const testItemDBMSchema = objectSchema<TestItemDBM>({
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
-}).concat(savedDBEntitySchema as any)
+}).concat(baseDBEntitySchema as any)
 
 export const testItemTMSchema = objectSchema<TestItemTM>({
   k1: stringSchema,
@@ -76,7 +74,7 @@ export const testItemDBMJsonSchema: JsonSchemaObject<TestItemDBM> = jsonSchema
   })
   .build()
 
-export function createTestItemDBM(num = 1): TestItemDBM {
+export function createTestItemDBM(num = 1): Saved<TestItemDBM> {
   return {
     id: `id${num}`,
     k1: `v${num}`,
@@ -92,7 +90,7 @@ export function createTestItemBM(num = 1): Saved<TestItemBM> {
   return createTestItemDBM(num)
 }
 
-export function createTestItemsDBM(count = 1): TestItemDBM[] {
+export function createTestItemsDBM(count = 1): Saved<TestItemDBM>[] {
   return _range(1, count + 1).map(num => createTestItemDBM(num))
 }
 

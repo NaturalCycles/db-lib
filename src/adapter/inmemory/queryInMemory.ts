@@ -1,4 +1,4 @@
-import { _pick, ObjectWithId } from '@naturalcycles/js-lib'
+import { _pick, PartialObjectWithId } from '@naturalcycles/js-lib'
 import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
@@ -18,7 +18,10 @@ const FILTER_FNS: Record<DBQueryFilterOperator, FilterFn> = {
 
 // Important: q.table is not used in this function, so tablesPrefix is not needed.
 // But should be careful here..
-export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: ROW[] = []): ROW[] {
+export function queryInMemory<ROW extends PartialObjectWithId>(
+  q: DBQuery<ROW>,
+  rows: ROW[] = [],
+): ROW[] {
   // .filter
   // eslint-disable-next-line unicorn/no-array-reduce
   rows = q._filters.reduce((rows, filter) => {

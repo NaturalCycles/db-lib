@@ -1,4 +1,4 @@
-import type { ObjectWithId } from '@naturalcycles/js-lib'
+import type { PartialObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from './common.db'
 
 /**
@@ -55,7 +55,7 @@ export interface CommonDBOptions {
 /**
  * All properties default to undefined.
  */
-export interface CommonDBSaveOptions<ROW extends Partial<ObjectWithId> = any>
+export interface CommonDBSaveOptions<ROW extends PartialObjectWithId = any>
   extends CommonDBOptions {
   excludeFromIndexes?: (keyof ROW)[]
 
@@ -91,7 +91,7 @@ export interface RunQueryResult<T> {
 
 export type DBOperation = DBSaveBatchOperation | DBDeleteByIdsOperation
 
-export interface DBSaveBatchOperation<ROW extends Partial<ObjectWithId> = any> {
+export interface DBSaveBatchOperation<ROW extends PartialObjectWithId = any> {
   type: 'saveBatch'
   table: string
   rows: ROW[]
@@ -131,6 +131,6 @@ export class DBIncrement {
   }
 }
 
-export type DBPatch<ROW extends Partial<ObjectWithId>> = Partial<
+export type DBPatch<ROW extends PartialObjectWithId> = Partial<
   Record<keyof ROW, ROW[keyof ROW] | DBIncrement>
 >

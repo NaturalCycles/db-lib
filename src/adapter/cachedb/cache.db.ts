@@ -3,9 +3,11 @@ import {
   _isTruthy,
   JsonSchemaObject,
   JsonSchemaRootObject,
-  ObjectWithId,
+  PartialObjectWithId,
+  Saved,
   StringMap,
 } from '@naturalcycles/js-lib'
+import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB, commonDBFullSupport, CommonDBSupport } from '../../common.db'
 import { DBPatch, RunQueryResult } from '../../db.model'
@@ -57,13 +59,13 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return await this.cfg.downstreamDB.getTables()
   }
 
-  override async getTableSchema<ROW extends ObjectWithId>(
+  override async getTableSchema<ROW extends PartialObjectWithId>(
     table: string,
   ): Promise<JsonSchemaRootObject<ROW>> {
     return await this.cfg.downstreamDB.getTableSchema<ROW>(table)
   }
 
-  override async createTable<ROW extends ObjectWithId>(
+  override async createTable<ROW extends PartialObjectWithId>(
     table: string,
     schema: JsonSchemaObject<ROW>,
     opt: CacheDBCreateOptions = {},
@@ -77,13 +79,13 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  override async getByIds<ROW extends ObjectWithId>(
+  override async getByIds<ROW extends PartialObjectWithId>(
     table: string,
-    ids: ROW['id'][],
+    ids: string[],
     opt: CacheDBSaveOptions<ROW> = {},
-  ): Promise<ROW[]> {
-    const resultMap: StringMap<ROW> = {}
-    const missingIds: ROW['id'][] = []
+  ): Promise<Saved<ROW>[]> {
+    const resultMap: StringMap<Saved<ROW>> = {}
+    const missingIds: string[] = []
 
     if (!opt.skipCache && !this.cfg.skipCache) {
       const results = await this.cfg.cacheDB.getByIds<ROW>(table, ids, opt)
@@ -123,7 +125,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return ids.map(id => resultMap[id]).filter(_isTruthy)
   }
 
-  override async saveBatch<ROW extends Partial<ObjectWithId>>(
+  override async saveBatch<ROW extends PartialObjectWithId>(
     table: string,
     rows: ROW[],
     opt: CacheDBSaveOptions<ROW> = {},
@@ -152,10 +154,10 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     }
   }
 
-  override async runQuery<ROW extends ObjectWithId>(
+  override async runQuery<ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBSaveOptions<ROW> = {},
-  ): Promise<RunQueryResult<ROW>> {
+  ): Promise<RunQueryResult<Saved<ROW>>> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const { rows, ...queryResult } = await this.cfg.downstreamDB.runQuery(q, opt)
 
@@ -182,7 +184,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return { rows, ...queryResult }
   }
 
-  override async runQueryCount<ROW extends ObjectWithId>(
+  override async runQueryCount<ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<number> {
@@ -199,10 +201,10 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return count
   }
 
-  override streamQuery<ROW extends ObjectWithId>(
+  override streamQuery<ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBStreamOptions = {},
-  ): Readable {
+  ): ReadableTyped<Saved<ROW>> {
     if (!opt.onlyCache && !this.cfg.onlyCache) {
       const stream = this.cfg.downstreamDB.streamQuery<ROW>(q, opt)
 
@@ -238,7 +240,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return stream
   }
 
-  override async deleteByQuery<ROW extends ObjectWithId>(
+  override async deleteByQuery<ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<number> {
@@ -270,7 +272,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return deletedIds
   }
 
-  override async updateByQuery<ROW extends ObjectWithId>(
+  override async updateByQuery<ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
     opt: CacheDBOptions = {},

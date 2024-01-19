@@ -1,4 +1,4 @@
-import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
+import { CommonLogger, PartialObjectWithId } from '@naturalcycles/js-lib'
 import { CommonDB } from '../../common.db'
 import {
   CommonDBCreateOptions,
@@ -62,7 +62,7 @@ export interface CacheDBOptions extends CommonDBOptions {
   onlyCache?: boolean
 }
 
-export interface CacheDBSaveOptions<ROW extends Partial<ObjectWithId>>
+export interface CacheDBSaveOptions<ROW extends PartialObjectWithId>
   extends CacheDBOptions,
     CommonDBSaveOptions<ROW> {}
 

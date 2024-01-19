@@ -1,11 +1,11 @@
 import {
-  AnyObjectWithId,
-  ObjectWithId,
   AsyncMapper,
   _truncate,
   Saved,
   AnyObject,
   _objectAssign,
+  PartialObjectWithId,
+  AnyPartialObjectWithId,
 } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
@@ -62,13 +62,13 @@ export const dbQueryFilterOperatorValues: DBQueryFilterOperator[] = [
   'array-contains-any',
 ]
 
-export interface DBQueryFilter<ROW extends ObjectWithId = AnyObjectWithId> {
+export interface DBQueryFilter<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
   name: keyof ROW
   op: DBQueryFilterOperator
   val: any
 }
 
-export interface DBQueryOrder<ROW extends ObjectWithId = AnyObjectWithId> {
+export interface DBQueryOrder<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
   name: keyof ROW
   descending?: boolean
 }
@@ -83,17 +83,19 @@ export interface DBQueryOrder<ROW extends ObjectWithId = AnyObjectWithId> {
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
+export class DBQuery<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
   constructor(public table: string) {}
 
   /**
    * Convenience method.
    */
-  static create<ROW extends ObjectWithId = AnyObjectWithId>(table: string): DBQuery<ROW> {
+  static create<ROW extends PartialObjectWithId = AnyPartialObjectWithId>(
+    table: string,
+  ): DBQuery<ROW> {
     return new DBQuery(table)
   }
 
-  static fromPlainObject<ROW extends ObjectWithId = AnyObjectWithId>(
+  static fromPlainObject<ROW extends PartialObjectWithId = AnyPartialObjectWithId>(
     obj: Partial<DBQuery<ROW>> & { table: string },
   ): DBQuery<ROW> {
     return Object.assign(new DBQuery<ROW>(obj.table), obj)
@@ -237,8 +239,8 @@ export class DBQuery<ROW extends ObjectWithId = AnyObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends Partial<ObjectWithId>,
-  DBM extends ObjectWithId = Saved<BM>,
+  BM extends PartialObjectWithId,
+  DBM extends PartialObjectWithId = BM,
   TM extends AnyObject = BM,
 > extends DBQuery<DBM> {
   /**
@@ -259,7 +261,7 @@ export class RunnableDBQuery<
     return await this.dao.runQuerySingleColumn<T>(this, opt)
   }
 
-  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
+  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<Saved<DBM>[]> {
     return await this.dao.runQueryAsDBM(this, opt)
   }
 
@@ -271,7 +273,7 @@ export class RunnableDBQuery<
     return await this.dao.runQueryExtended(this, opt)
   }
 
-  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
+  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<DBM>>> {
     return await this.dao.runQueryExtendedAsDBM(this, opt)
   }
 

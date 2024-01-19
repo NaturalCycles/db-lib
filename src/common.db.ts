@@ -1,4 +1,9 @@
-import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
+import {
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  PartialObjectWithId,
+  Saved,
+} from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
@@ -64,13 +69,15 @@ export interface CommonDB {
    *
    * This is important for the code to rely on it, and it's verified by dbTest
    */
-  getTableSchema: <ROW extends ObjectWithId>(table: string) => Promise<JsonSchemaRootObject<ROW>>
+  getTableSchema: <ROW extends PartialObjectWithId>(
+    table: string,
+  ) => Promise<JsonSchemaRootObject<ROW>>
 
   /**
    * Will do like `create table ...` for mysql.
    * Caution! dropIfExists defaults to false. If set to true - will actually DROP the table!
    */
-  createTable: <ROW extends ObjectWithId>(
+  createTable: <ROW extends PartialObjectWithId>(
     table: string,
     schema: JsonSchemaObject<ROW>,
     opt?: CommonDBCreateOptions,
@@ -81,36 +88,36 @@ export interface CommonDB {
    * Order of items returned is not guaranteed to match order of ids.
    * (Such limitation exists because Datastore doesn't support it).
    */
-  getByIds: <ROW extends ObjectWithId>(
+  getByIds: <ROW extends PartialObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
-  ) => Promise<ROW[]>
+  ) => Promise<Saved<ROW>[]>
 
   // QUERY
   /**
    * Order by 'id' is not supported by all implementations (for example, Datastore doesn't support it).
    */
-  runQuery: <ROW extends ObjectWithId>(
+  runQuery: <ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
-  ) => Promise<RunQueryResult<ROW>>
+  ) => Promise<RunQueryResult<Saved<ROW>>>
 
-  runQueryCount: <ROW extends ObjectWithId>(
+  runQueryCount: <ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ) => Promise<number>
 
-  streamQuery: <ROW extends ObjectWithId>(
+  streamQuery: <ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBStreamOptions,
-  ) => ReadableTyped<ROW>
+  ) => ReadableTyped<Saved<ROW>>
 
   // SAVE
   /**
    * rows can have missing ids only if DB supports auto-generating them (like mysql auto_increment).
    */
-  saveBatch: <ROW extends Partial<ObjectWithId>>(
+  saveBatch: <ROW extends PartialObjectWithId>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,
@@ -127,7 +134,7 @@ export interface CommonDB {
    * Returns number of deleted items.
    * Not supported by all implementations (e.g Datastore will always return same number as number of ids).
    */
-  deleteByQuery: <ROW extends ObjectWithId>(
+  deleteByQuery: <ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     opt?: CommonDBOptions,
   ) => Promise<number>
@@ -150,7 +157,7 @@ export interface CommonDB {
    *
    * Returns number of rows affected.
    */
-  updateByQuery: <ROW extends ObjectWithId>(
+  updateByQuery: <ROW extends PartialObjectWithId>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
     opt?: CommonDBOptions,
