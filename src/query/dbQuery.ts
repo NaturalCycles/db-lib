@@ -297,7 +297,7 @@ export class RunnableDBQuery<
   }
 
   async streamQueryAsDBMForEach(
-    mapper: AsyncMapper<DBM, void>,
+    mapper: AsyncMapper<Saved<DBM>, void>,
     opt?: CommonDaoStreamForEachOptions<DBM>,
   ): Promise<void> {
     await this.dao.streamQueryAsDBMForEach(this, mapper, opt)
@@ -307,7 +307,7 @@ export class RunnableDBQuery<
     return this.dao.streamQuery(this, opt)
   }
 
-  streamQueryAsDBM(opt?: CommonDaoStreamOptions<DBM>): ReadableTyped<DBM> {
+  streamQueryAsDBM(opt?: CommonDaoStreamOptions<DBM>): ReadableTyped<Saved<DBM>> {
     return this.dao.streamQueryAsDBM(this, opt)
   }
 

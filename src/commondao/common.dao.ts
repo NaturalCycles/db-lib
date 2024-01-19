@@ -484,7 +484,7 @@ export class CommonDao<
 
   async streamQueryAsDBMForEach(
     q: DBQuery<DBM>,
-    mapper: AsyncMapper<DBM, void>,
+    mapper: AsyncMapper<Saved<DBM>, void>,
     opt: CommonDaoStreamForEachOptions<DBM> = {},
   ): Promise<void> {
     q.table = opt.table || q.table
@@ -515,7 +515,7 @@ export class CommonDao<
           errorMode: opt.errorMode,
         },
       ),
-      transformMap<DBM, void>(mapper, {
+      transformMap<Saved<DBM>, void>(mapper, {
         ...opt,
         predicate: _passthroughPredicate, // to be able to logProgress
       }),
@@ -535,7 +535,10 @@ export class CommonDao<
   /**
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
-  streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<DBM> = {}): ReadableTyped<DBM> {
+  streamQueryAsDBM(
+    q: DBQuery<DBM>,
+    opt: CommonDaoStreamOptions<DBM> = {},
+  ): ReadableTyped<Saved<DBM>> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.skipConversion = opt.skipConversion !== false // default true
