@@ -193,7 +193,7 @@ export interface CommonDaoCfg<
    * Set to false to disable auto-generation of `id`.
    * Useful e.g when your DB is generating ids by itself (e.g mysql auto_increment).
    */
-  createId?: boolean
+  generateId?: boolean
 
   /**
    * See the same option in CommonDB.
@@ -223,6 +223,14 @@ export interface CommonDaoCfg<
    * @deprecated
    */
   filterNullishValues?: boolean
+
+  /**
+   * Defaults to false.
+   * If true - run patch operations (patch, patchById) in a Transaction.
+   *
+   * @experimental
+   */
+  patchInTransaction?: boolean
 }
 
 /**
