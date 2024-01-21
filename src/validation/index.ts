@@ -21,7 +21,7 @@ export const commonDBOptionsSchema = objectSchema<CommonDBOptions>({
   ['skipCache' as any]: booleanSchema.optional(),
 })
 
-export const commonDBSaveOptionsSchema = objectSchema<CommonDBSaveOptions>({
+export const commonDBSaveOptionsSchema = objectSchema<CommonDBSaveOptions<any>>({
   excludeFromIndexes: arraySchema(stringSchema).optional(),
 }).concat(commonDBOptionsSchema)
 
@@ -29,13 +29,13 @@ export const dbQueryFilterOperatorSchema = Joi.string<DBQueryFilterOperator>().v
   ...dbQueryFilterOperatorValues,
 )
 
-export const dbQueryFilterSchema = objectSchema<DBQueryFilter>({
+export const dbQueryFilterSchema = objectSchema<DBQueryFilter<any>>({
   name: stringSchema,
   op: dbQueryFilterOperatorSchema,
   val: anySchema,
 })
 
-export const dbQueryOrderSchema = objectSchema<DBQueryOrder>({
+export const dbQueryOrderSchema = objectSchema<DBQueryOrder<any>>({
   name: stringSchema,
   descending: booleanSchema.optional(),
 })

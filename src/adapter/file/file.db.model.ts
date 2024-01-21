@@ -1,11 +1,11 @@
-import { CommonLogger, PartialObjectWithId, Saved } from '@naturalcycles/js-lib'
+import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import type { DBQueryOrder } from '../../query/dbQuery'
 
 export interface FileDBPersistencePlugin {
   ping: () => Promise<void>
   getTables: () => Promise<string[]>
-  loadFile: <ROW extends PartialObjectWithId>(table: string) => Promise<Saved<ROW>[]>
+  loadFile: <ROW extends ObjectWithId>(table: string) => Promise<ROW[]>
   saveFiles: (ops: DBSaveBatchOperation<any>[]) => Promise<void>
 }
 
@@ -15,7 +15,7 @@ export interface FileDBCfg {
   /**
    * @default undefined, which means "insertion order"
    */
-  sortOnSave?: DBQueryOrder
+  sortOnSave?: DBQueryOrder<any>
 
   /**
    * @default true

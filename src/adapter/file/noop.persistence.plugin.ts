@@ -1,4 +1,4 @@
-import { PartialObjectWithId, Saved } from '@naturalcycles/js-lib'
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -9,9 +9,9 @@ export class NoopPersistencePlugin implements FileDBPersistencePlugin {
     return []
   }
 
-  async loadFile<ROW extends PartialObjectWithId>(_table: string): Promise<Saved<ROW>[]> {
+  async loadFile<ROW extends ObjectWithId>(_table: string): Promise<ROW[]> {
     return []
   }
 
-  async saveFiles(_ops: DBSaveBatchOperation[]): Promise<void> {}
+  async saveFiles(_ops: DBSaveBatchOperation<any>[]): Promise<void> {}
 }

@@ -1,4 +1,11 @@
-import { AsyncMapper, ErrorMode, pMap, _passthroughMapper, localTime } from '@naturalcycles/js-lib'
+import {
+  AsyncMapper,
+  ErrorMode,
+  pMap,
+  _passthroughMapper,
+  localTime,
+  BaseDBEntity,
+} from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
   transformBuffer,
@@ -80,7 +87,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
    */
   transformMapOptions?: TransformMapOptions
 
-  saveOptionsPerTable?: Record<string, CommonDBSaveOptions>
+  saveOptionsPerTable?: Record<string, CommonDBSaveOptions<any>>
 }
 
 /**
@@ -118,13 +125,13 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
   await pMap(
     tables,
     async table => {
-      let q = DBQuery.create(table).limit(limit)
+      let q = DBQuery.create<BaseDBEntity>(table).limit(limit)
 
       if (sinceUpdated) {
         q = q.filter('updated', '>=', sinceUpdated)
       }
 
-      const saveOptions: CommonDBSaveOptions = saveOptionsPerTable[table] || {}
+      const saveOptions: CommonDBSaveOptions<any> = saveOptionsPerTable[table] || {}
       const mapper = mapperPerTable[table] || _passthroughMapper
 
       const stream = dbInput.streamQuery(q)

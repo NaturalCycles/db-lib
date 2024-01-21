@@ -1,4 +1,4 @@
-import { PartialObjectWithId } from '@naturalcycles/js-lib'
+import { ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
 import { CommonDBOptions, CommonDBSaveOptions, DBTransaction } from '../db.model'
 
@@ -100,7 +100,7 @@ export class FakeDBTransaction implements DBTransaction {
   // no-op
   async rollback(): Promise<void> {}
 
-  async getByIds<ROW extends PartialObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -113,7 +113,7 @@ export class FakeDBTransaction implements DBTransaction {
   // ): Promise<RunQueryResult<ROW>> {
   //   return await this.db.runQuery(q, opt)
   // }
-  async saveBatch<ROW extends PartialObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,

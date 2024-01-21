@@ -4,8 +4,8 @@ import {
   Saved,
   AnyObject,
   _objectAssign,
-  PartialObjectWithId,
-  AnyPartialObjectWithId,
+  BaseDBEntity,
+  ObjectWithId,
 } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
@@ -62,13 +62,13 @@ export const dbQueryFilterOperatorValues: DBQueryFilterOperator[] = [
   'array-contains-any',
 ]
 
-export interface DBQueryFilter<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
+export interface DBQueryFilter<ROW extends ObjectWithId> {
   name: keyof ROW
   op: DBQueryFilterOperator
   val: any
 }
 
-export interface DBQueryOrder<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
+export interface DBQueryOrder<ROW extends ObjectWithId> {
   name: keyof ROW
   descending?: boolean
 }
@@ -83,19 +83,17 @@ export interface DBQueryOrder<ROW extends PartialObjectWithId = AnyPartialObject
  *
  * <DBM> is the type of **queried** object (so e.g `key of DBM` can be used), not **returned** object.
  */
-export class DBQuery<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
+export class DBQuery<ROW extends ObjectWithId> {
   constructor(public table: string) {}
 
   /**
    * Convenience method.
    */
-  static create<ROW extends PartialObjectWithId = AnyPartialObjectWithId>(
-    table: string,
-  ): DBQuery<ROW> {
+  static create<ROW extends ObjectWithId>(table: string): DBQuery<ROW> {
     return new DBQuery(table)
   }
 
-  static fromPlainObject<ROW extends PartialObjectWithId = AnyPartialObjectWithId>(
+  static fromPlainObject<ROW extends ObjectWithId>(
     obj: Partial<DBQuery<ROW>> & { table: string },
   ): DBQuery<ROW> {
     return Object.assign(new DBQuery<ROW>(obj.table), obj)
@@ -239,8 +237,8 @@ export class DBQuery<ROW extends PartialObjectWithId = AnyPartialObjectWithId> {
  * DBQuery that has additional method to support Fluent API style.
  */
 export class RunnableDBQuery<
-  BM extends PartialObjectWithId,
-  DBM extends PartialObjectWithId = BM,
+  BM extends BaseDBEntity,
+  DBM extends BaseDBEntity = BM,
   TM extends AnyObject = BM,
 > extends DBQuery<DBM> {
   /**

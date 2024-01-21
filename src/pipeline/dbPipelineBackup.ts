@@ -78,7 +78,7 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * But if queryPerTable is set for a table - it will override the Query that is ran for that table
    * (and ignore sinceUpdated, sinceUpdatedPerTable, limit, and any other properties that modify the query).
    */
-  queryPerTable?: StringMap<DBQuery>
+  queryPerTable?: StringMap<DBQuery<any>>
 
   /**
    * Directory path to store dumped files. Will create `${tableName}.ndjson` (or .ndjson.gz if gzip=true) files.

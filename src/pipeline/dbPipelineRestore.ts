@@ -7,9 +7,10 @@ import {
   _hb,
   _mapValues,
   _passthroughMapper,
-  SavedDBEntity,
   localTime,
   JsonSchemaObject,
+  BaseDBEntity,
+  Saved,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -111,7 +112,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
    */
   transformMapOptions?: TransformMapOptions
 
-  saveOptionsPerTable?: Record<string, CommonDBSaveOptions>
+  saveOptionsPerTable?: Record<string, CommonDBSaveOptions<any>>
 }
 
 /**
@@ -194,7 +195,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     async table => {
       const gzip = tablesToGzip.has(table)
       const filePath = `${inputDirPath}/${table}.ndjson` + (gzip ? '.gz' : '')
-      const saveOptions: CommonDBSaveOptions = saveOptionsPerTable[table] || {}
+      const saveOptions: CommonDBSaveOptions<any> = saveOptionsPerTable[table] || {}
 
       const started = Date.now()
       let rows = 0
@@ -216,7 +217,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         }),
         transformLimit({ limit }),
         ...(sinceUpdated
-          ? [transformFilterSync<SavedDBEntity>(r => r.updated >= sinceUpdated)]
+          ? [transformFilterSync<Saved<BaseDBEntity>>(r => r.updated >= sinceUpdated)]
           : []),
         transformMap(mapperPerTable[table] || _passthroughMapper, {
           errorMode,

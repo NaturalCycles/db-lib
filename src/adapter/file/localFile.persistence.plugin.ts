@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import { Readable } from 'node:stream'
 import { createGzip, createUnzip } from 'node:zlib'
-import { pMap, PartialObjectWithId, Saved } from '@naturalcycles/js-lib'
+import { ObjectWithId, pMap } from '@naturalcycles/js-lib'
 import {
   transformJsonParse,
   transformSplit,
@@ -48,7 +48,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
       .map(f => f.split('.ndjson')[0]!)
   }
 
-  async loadFile<ROW extends PartialObjectWithId>(table: string): Promise<Saved<ROW>[]> {
+  async loadFile<ROW extends ObjectWithId>(table: string): Promise<ROW[]> {
     await fs2.ensureDirAsync(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
@@ -57,7 +57,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
 
     const transformUnzip = this.cfg.gzip ? [createUnzip()] : []
 
-    const rows: Saved<ROW>[] = []
+    const rows: ROW[] = []
 
     await _pipeline([
       fs.createReadStream(filePath),
@@ -70,11 +70,11 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
     return rows
   }
 
-  async saveFiles(ops: DBSaveBatchOperation[]): Promise<void> {
+  async saveFiles(ops: DBSaveBatchOperation<any>[]): Promise<void> {
     await pMap(ops, async op => await this.saveFile(op.table, op.rows), { concurrency: 16 })
   }
 
-  async saveFile<ROW extends PartialObjectWithId>(table: string, rows: ROW[]): Promise<void> {
+  async saveFile<ROW extends ObjectWithId>(table: string, rows: ROW[]): Promise<void> {
     await fs2.ensureDirAsync(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`

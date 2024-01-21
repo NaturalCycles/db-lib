@@ -1,13 +1,5 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import {
-  ErrorMode,
-  _omit,
-  _range,
-  _sortBy,
-  pTry,
-  pExpectedError,
-  Saved,
-} from '@naturalcycles/js-lib'
+import { ErrorMode, _omit, _range, _sortBy, pTry, pExpectedError } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -176,7 +168,7 @@ test('patchById', async () => {
 })
 
 test('patch', async () => {
-  const item: Saved<TestItemBM> = await dao.save({
+  const item: TestItemBM = await dao.save({
     id: 'id1',
     k1: 'k1',
   })

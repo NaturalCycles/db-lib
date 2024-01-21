@@ -16,8 +16,6 @@ import {
   CommonLogger,
   _deepCopy,
   _assert,
-  PartialObjectWithId,
-  Saved,
 } from '@naturalcycles/js-lib'
 import {
   bufferReviver,
@@ -154,7 +152,7 @@ export class InMemoryDB implements CommonDB {
     return Object.keys(this.data).filter(t => t.startsWith(this.cfg.tablesPrefix))
   }
 
-  async getTableSchema<ROW extends PartialObjectWithId>(
+  async getTableSchema<ROW extends ObjectWithId>(
     _table: string,
   ): Promise<JsonSchemaRootObject<ROW>> {
     const table = this.cfg.tablesPrefix + _table
@@ -164,7 +162,7 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async createTable<ROW extends PartialObjectWithId>(
+  async createTable<ROW extends ObjectWithId>(
     _table: string,
     _schema: JsonSchemaObject<ROW>,
     opt: CommonDBCreateOptions = {},
@@ -177,17 +175,17 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
-  async getByIds<ROW extends PartialObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     _table: string,
     ids: string[],
     _opt?: CommonDBOptions,
-  ): Promise<Saved<ROW>[]> {
+  ): Promise<ROW[]> {
     const table = this.cfg.tablesPrefix + _table
     this.data[table] ||= {}
-    return ids.map(id => this.data[table]![id] as Saved<ROW>).filter(Boolean)
+    return ids.map(id => this.data[table]![id] as ROW).filter(Boolean)
   }
 
-  async saveBatch<ROW extends PartialObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     _table: string,
     rows: ROW[],
     opt: CommonDBSaveOptions<ROW> = {},
@@ -218,13 +216,13 @@ export class InMemoryDB implements CommonDB {
     })
   }
 
-  async deleteByQuery<ROW extends PartialObjectWithId>(
+  async deleteByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
     const table = this.cfg.tablesPrefix + q.table
     if (!this.data[table]) return 0
-    const ids = queryInMemory(q, Object.values(this.data[table]!) as Saved<ROW>[]).map(r => r.id)
+    const ids = queryInMemory(q, Object.values(this.data[table]!) as ROW[]).map(r => r.id)
     return await this.deleteByIds(q.table, ids)
   }
 
@@ -242,7 +240,7 @@ export class InMemoryDB implements CommonDB {
     return count
   }
 
-  async updateByQuery<ROW extends PartialObjectWithId>(
+  async updateByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     patch: DBPatch<ROW>,
   ): Promise<number> {
@@ -264,15 +262,15 @@ export class InMemoryDB implements CommonDB {
     return rows.length
   }
 
-  async runQuery<ROW extends PartialObjectWithId>(
+  async runQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
-  ): Promise<RunQueryResult<Saved<ROW>>> {
+  ): Promise<RunQueryResult<ROW>> {
     const table = this.cfg.tablesPrefix + q.table
-    return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as Saved<ROW>[]) }
+    return { rows: queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]) }
   }
 
-  async runQueryCount<ROW extends PartialObjectWithId>(
+  async runQueryCount<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
@@ -280,10 +278,10 @@ export class InMemoryDB implements CommonDB {
     return queryInMemory<any>(q, Object.values(this.data[table] || {})).length
   }
 
-  streamQuery<ROW extends PartialObjectWithId>(
+  streamQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     _opt?: CommonDBOptions,
-  ): ReadableTyped<Saved<ROW>> {
+  ): ReadableTyped<ROW> {
     const table = this.cfg.tablesPrefix + q.table
     return Readable.from(queryInMemory(q, Object.values(this.data[table] || {}) as ROW[]))
   }
@@ -390,7 +388,7 @@ export class InMemoryDBTransaction implements DBTransaction {
   // used to enforce forbidReadAfterWrite setting
   writeOperationHappened = false
 
-  async getByIds<ROW extends PartialObjectWithId>(
+  async getByIds<ROW extends ObjectWithId>(
     table: string,
     ids: string[],
     opt?: CommonDBOptions,
@@ -405,7 +403,7 @@ export class InMemoryDBTransaction implements DBTransaction {
     return await this.db.getByIds(table, ids, opt)
   }
 
-  async saveBatch<ROW extends PartialObjectWithId>(
+  async saveBatch<ROW extends ObjectWithId>(
     table: string,
     rows: ROW[],
     opt?: CommonDBSaveOptions<ROW>,

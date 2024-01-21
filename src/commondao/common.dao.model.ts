@@ -1,8 +1,8 @@
 import {
   AnyObject,
+  BaseDBEntity,
   CommonLogger,
   ErrorMode,
-  PartialObjectWithId,
   Promisable,
   Saved,
   ZodError,
@@ -19,11 +19,7 @@ import {
 import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
-export interface CommonDaoHooks<
-  BM extends PartialObjectWithId,
-  DBM extends PartialObjectWithId,
-  TM,
-> {
+export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity, TM> {
   /**
    * Allows to override the id generation function.
    * By default it uses `stringId` from nodejs-lib
@@ -64,7 +60,7 @@ export interface CommonDaoHooks<
    */
   beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
 
-  beforeDBMToBM: (dbm: Saved<DBM>) => Partial<BM> | Promise<Partial<BM>>
+  beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
   beforeBMToTM: (bm: BM) => Partial<TM>
 
@@ -106,7 +102,7 @@ export interface CommonDaoHooks<
    * It still applies to BM "transitively", during dbmToBM
    * (e.g after loaded from the Database).
    */
-  anonymize: (dbm: Saved<DBM>) => Saved<DBM>
+  anonymize: (dbm: DBM) => DBM
 
   /**
    * If hook is defined - allows to prevent or modify the error thrown.
@@ -137,8 +133,8 @@ export enum CommonDaoLogLevel {
 }
 
 export interface CommonDaoCfg<
-  BM extends PartialObjectWithId,
-  DBM extends PartialObjectWithId = BM,
+  BM extends BaseDBEntity,
+  DBM extends BaseDBEntity = BM,
   TM extends AnyObject = BM,
 > {
   db: CommonDB
@@ -289,10 +285,8 @@ export interface CommonDaoOptions extends CommonDBOptions {
   table?: string
 }
 
-export interface CommonDaoSaveOptions<
-  BM extends PartialObjectWithId,
-  DBM extends PartialObjectWithId,
-> extends CommonDaoSaveBatchOptions<DBM> {
+export interface CommonDaoSaveOptions<BM extends BaseDBEntity, DBM extends BaseDBEntity>
+  extends CommonDaoSaveBatchOptions<DBM> {
   /**
    * If provided - a check will be made.
    * If the object for saving equals to the object passed to `skipIfEquals` - save operation will be skipped.
@@ -307,7 +301,7 @@ export interface CommonDaoSaveOptions<
 /**
  * All properties default to undefined.
  */
-export interface CommonDaoSaveBatchOptions<DBM extends PartialObjectWithId>
+export interface CommonDaoSaveBatchOptions<DBM extends BaseDBEntity>
   extends CommonDaoOptions,
     CommonDBSaveOptions<DBM> {
   /**
@@ -322,10 +316,10 @@ export interface CommonDaoSaveBatchOptions<DBM extends PartialObjectWithId>
   ensureUniqueId?: boolean
 }
 
-export interface CommonDaoStreamDeleteOptions<DBM extends PartialObjectWithId>
+export interface CommonDaoStreamDeleteOptions<DBM extends BaseDBEntity>
   extends CommonDaoStreamOptions<DBM> {}
 
-export interface CommonDaoStreamSaveOptions<DBM extends PartialObjectWithId>
+export interface CommonDaoStreamSaveOptions<DBM extends BaseDBEntity>
   extends CommonDaoSaveBatchOptions<DBM>,
     CommonDaoStreamOptions<DBM> {}
 
