@@ -10,7 +10,6 @@ import {
   localTime,
   JsonSchemaObject,
   BaseDBEntity,
-  Saved,
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
@@ -217,7 +216,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
         }),
         transformLimit({ limit }),
         ...(sinceUpdated
-          ? [transformFilterSync<Saved<BaseDBEntity>>(r => r.updated >= sinceUpdated)]
+          ? [transformFilterSync<BaseDBEntity>(r => r.updated >= sinceUpdated)]
           : []),
         transformMap(mapperPerTable[table] || _passthroughMapper, {
           errorMode,

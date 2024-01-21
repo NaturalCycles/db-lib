@@ -1,4 +1,4 @@
-import { jsonSchema, _range, BaseDBEntity, Saved, JsonSchemaObject } from '@naturalcycles/js-lib'
+import { jsonSchema, _range, BaseDBEntity, JsonSchemaObject } from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,
@@ -50,7 +50,10 @@ export const testItemTMSchema = objectSchema<TestItemTM>({
 
 export const testItemBMJsonSchema: JsonSchemaObject<TestItemBM> = jsonSchema
   .rootObject<TestItemBM>({
+    // todo: figure out how to not copy-paste these 3 fields
     id: jsonSchema.string(), // todo: not strictly needed here
+    created: jsonSchema.unixTimestamp(),
+    updated: jsonSchema.unixTimestamp(),
     k1: jsonSchema.string(),
     k2: jsonSchema.oneOf<string | null>([jsonSchema.string(), jsonSchema.null()]).optional(),
     k3: jsonSchema.number().optional(),
@@ -74,7 +77,7 @@ export const testItemDBMJsonSchema: JsonSchemaObject<TestItemDBM> = jsonSchema
   })
   .build()
 
-export function createTestItemDBM(num = 1): Saved<TestItemDBM> {
+export function createTestItemDBM(num = 1): TestItemDBM {
   return {
     id: `id${num}`,
     k1: `v${num}`,
@@ -86,14 +89,14 @@ export function createTestItemDBM(num = 1): Saved<TestItemDBM> {
   }
 }
 
-export function createTestItemBM(num = 1): Saved<TestItemBM> {
+export function createTestItemBM(num = 1): TestItemBM {
   return createTestItemDBM(num)
 }
 
-export function createTestItemsDBM(count = 1): Saved<TestItemDBM>[] {
+export function createTestItemsDBM(count = 1): TestItemDBM[] {
   return _range(1, count + 1).map(num => createTestItemDBM(num))
 }
 
-export function createTestItemsBM(count = 1): Saved<TestItemBM>[] {
+export function createTestItemsBM(count = 1): TestItemBM[] {
   return _range(1, count + 1).map(num => createTestItemBM(num))
 }

@@ -1,5 +1,13 @@
 import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
-import { ErrorMode, _omit, _range, _sortBy, pTry, pExpectedError } from '@naturalcycles/js-lib'
+import {
+  ErrorMode,
+  _omit,
+  _range,
+  _sortBy,
+  pTry,
+  pExpectedError,
+  BaseDBEntity,
+} from '@naturalcycles/js-lib'
 import {
   AjvSchema,
   AjvValidationError,
@@ -400,7 +408,7 @@ test('ajvSchema', async () => {
   console.log((err as any).data)
 })
 
-interface Item {
+interface Item extends BaseDBEntity {
   id: string
   obj: any
 }

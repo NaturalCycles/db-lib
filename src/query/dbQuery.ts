@@ -1,7 +1,6 @@
 import {
   AsyncMapper,
   _truncate,
-  Saved,
   AnyObject,
   _objectAssign,
   BaseDBEntity,
@@ -251,7 +250,7 @@ export class RunnableDBQuery<
     super(table || dao.cfg.table)
   }
 
-  async runQuery(opt?: CommonDaoOptions): Promise<Saved<BM>[]> {
+  async runQuery(opt?: CommonDaoOptions): Promise<BM[]> {
     return await this.dao.runQuery(this, opt)
   }
 
@@ -259,7 +258,7 @@ export class RunnableDBQuery<
     return await this.dao.runQuerySingleColumn<T>(this, opt)
   }
 
-  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<Saved<DBM>[]> {
+  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
     return await this.dao.runQueryAsDBM(this, opt)
   }
 
@@ -267,11 +266,11 @@ export class RunnableDBQuery<
     return await this.dao.runQueryAsTM(this, opt)
   }
 
-  async runQueryExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<BM>>> {
+  async runQueryExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<BM>> {
     return await this.dao.runQueryExtended(this, opt)
   }
 
-  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<Saved<DBM>>> {
+  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
     return await this.dao.runQueryExtendedAsDBM(this, opt)
   }
 
@@ -288,24 +287,24 @@ export class RunnableDBQuery<
   }
 
   async streamQueryForEach(
-    mapper: AsyncMapper<Saved<BM>, void>,
-    opt?: CommonDaoStreamForEachOptions<Saved<BM>>,
+    mapper: AsyncMapper<BM, void>,
+    opt?: CommonDaoStreamForEachOptions<BM>,
   ): Promise<void> {
     await this.dao.streamQueryForEach(this, mapper, opt)
   }
 
   async streamQueryAsDBMForEach(
-    mapper: AsyncMapper<Saved<DBM>, void>,
+    mapper: AsyncMapper<DBM, void>,
     opt?: CommonDaoStreamForEachOptions<DBM>,
   ): Promise<void> {
     await this.dao.streamQueryAsDBMForEach(this, mapper, opt)
   }
 
-  streamQuery(opt?: CommonDaoStreamOptions<Saved<BM>>): ReadableTyped<Saved<BM>> {
+  streamQuery(opt?: CommonDaoStreamOptions<BM>): ReadableTyped<BM> {
     return this.dao.streamQuery(this, opt)
   }
 
-  streamQueryAsDBM(opt?: CommonDaoStreamOptions<DBM>): ReadableTyped<Saved<DBM>> {
+  streamQueryAsDBM(opt?: CommonDaoStreamOptions<DBM>): ReadableTyped<DBM> {
     return this.dao.streamQueryAsDBM(this, opt)
   }
 

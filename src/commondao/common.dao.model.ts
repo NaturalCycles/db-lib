@@ -4,7 +4,6 @@ import {
   CommonLogger,
   ErrorMode,
   Promisable,
-  Saved,
   ZodError,
   ZodSchema,
 } from '@naturalcycles/js-lib'
@@ -76,7 +75,7 @@ export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntit
    *
    * You can do validations as needed here and throw errors, they will be propagated.
    */
-  afterLoad?: (dbm: Saved<DBM>) => Promisable<Saved<DBM> | null>
+  afterLoad?: (dbm: DBM) => Promisable<DBM | null>
 
   /**
    * Allows to access the DBM just before it's supposed to be saved to the DB.
@@ -91,7 +90,7 @@ export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntit
    *
    * You can do validations as needed here and throw errors, they will be propagated.
    */
-  beforeSave?: (dbm: Saved<DBM>) => Promisable<Saved<DBM> | null>
+  beforeSave?: (dbm: DBM) => Promisable<DBM | null>
 
   /**
    * Called in:
