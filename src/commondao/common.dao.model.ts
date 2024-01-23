@@ -1,5 +1,4 @@
 import {
-  AnyObject,
   BaseDBEntity,
   CommonLogger,
   ErrorMode,
@@ -18,7 +17,7 @@ import {
 import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
-export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity, TM> {
+export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity> {
   /**
    * Allows to override the id generation function.
    * By default it uses `stringId` from nodejs-lib
@@ -61,7 +60,6 @@ export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntit
 
   beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
-  beforeBMToTM: (bm: BM) => Partial<TM>
 
   /**
    * Allows to access the DBM just after it has been loaded from the DB.
@@ -131,11 +129,7 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<
-  BM extends BaseDBEntity,
-  DBM extends BaseDBEntity = BM,
-  TM extends AnyObject = BM,
-> {
+export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   db: CommonDB
   table: string
 
@@ -144,7 +138,6 @@ export interface CommonDaoCfg<
    */
   dbmSchema?: ObjectSchema<DBM> | AjvSchema<DBM> | ZodSchema<DBM>
   bmSchema?: ObjectSchema<BM> | AjvSchema<BM> | ZodSchema<BM>
-  tmSchema?: ObjectSchema<TM> | AjvSchema<TM> | ZodSchema<TM>
 
   excludeFromIndexes?: (keyof DBM)[]
 
@@ -181,7 +174,7 @@ export interface CommonDaoCfg<
   logStarted?: boolean
 
   // Hooks are designed with inspiration from got/ky interface
-  hooks?: Partial<CommonDaoHooks<BM, DBM, TM>>
+  hooks?: Partial<CommonDaoHooks<BM, DBM>>
 
   /**
    * Defaults to true.

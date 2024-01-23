@@ -11,7 +11,6 @@ import {
   _truncate,
   _typeCast,
   _uniqBy,
-  AnyObject,
   AppError,
   AsyncMapper,
   BaseDBEntity,
@@ -76,12 +75,8 @@ const isCI = !!process.env['CI']
  * BM = Backend model (optimized for API access)
  * TM = Transport model (optimized to be sent over the wire)
  */
-export class CommonDao<
-  BM extends BaseDBEntity,
-  DBM extends BaseDBEntity = BM,
-  TM extends AnyObject = BM,
-> {
-  constructor(public cfg: CommonDaoCfg<BM, DBM, TM>) {
+export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
+  constructor(public cfg: CommonDaoCfg<BM, DBM>) {
     this.cfg = {
       // Default is to NOT log in AppEngine and in CI,
       // otherwise to log Operations
@@ -99,11 +94,10 @@ export class CommonDao<
         beforeDBMValidate: dbm => dbm,
         beforeDBMToBM: dbm => dbm as any,
         beforeBMToDBM: bm => bm as any,
-        beforeBMToTM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,
         ...cfg.hooks,
-      } satisfies Partial<CommonDaoHooks<BM, DBM, TM>>,
+      } satisfies Partial<CommonDaoHooks<BM, DBM>>,
     }
 
     if (this.cfg.generateId) {
@@ -176,28 +170,6 @@ export class CommonDao<
     }
     this.logResult(started, op, dbm, table)
     return dbm || null
-  }
-
-  async getByIdAsTM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsTM(id?: string | null, opt?: CommonDaoOptions): Promise<TM | null>
-  async getByIdAsTM(id?: string | null, opt: CommonDaoOptions = {}): Promise<TM | null> {
-    if (!id) return null
-    const op = `getByIdAsTM(${id})`
-    const table = opt.table || this.cfg.table
-    const started = this.logStarted(op, table)
-    let [dbm] = await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id])
-    if (dbm && !opt.raw && this.cfg.hooks!.afterLoad) {
-      dbm = (await this.cfg.hooks!.afterLoad(dbm)) || undefined
-    }
-
-    if (opt.raw) {
-      this.logResult(started, op, dbm, table)
-      return (dbm as any) || null
-    }
-    const bm = await this.dbmToBM(dbm, opt)
-    const tm = this.bmToTM(bm, opt)
-    this.logResult(started, op, tm, table)
-    return tm || null
   }
 
   async getByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<BM[]> {
@@ -307,8 +279,8 @@ export class CommonDao<
   /**
    * Pass `table` to override table
    */
-  query(table?: string): RunnableDBQuery<BM, DBM, TM> {
-    return new RunnableDBQuery<BM, DBM, TM>(this, table)
+  query(table?: string): RunnableDBQuery<BM, DBM> {
+    return new RunnableDBQuery<BM, DBM>(this, table)
   }
 
   async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<BM[]> {
@@ -383,35 +355,6 @@ export class CommonDao<
     const dbms = partialQuery || opt.raw ? rows : this.anyToDBMs(rows, opt)
     this.logResult(started, op, dbms, q.table)
     return { rows: dbms, ...queryResult }
-  }
-
-  async runQueryAsTM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<TM[]> {
-    const { rows } = await this.runQueryExtendedAsTM(q, opt)
-    return rows
-  }
-
-  async runQueryExtendedAsTM(
-    q: DBQuery<DBM>,
-    opt: CommonDaoOptions = {},
-  ): Promise<RunQueryResult<TM>> {
-    q.table = opt.table || q.table
-    const op = `runQueryAsTM(${q.pretty()})`
-    const started = this.logStarted(op, q.table)
-    let { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
-    if (!opt.raw && this.cfg.hooks!.afterLoad && rows.length) {
-      rows = (await pMap(rows, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
-        _isTruthy,
-      )
-    }
-
-    const partialQuery = !!q._selectedFieldNames
-    const tms =
-      partialQuery || opt.raw ? (rows as any[]) : this.bmsToTM(await this.dbmsToBM(rows, opt), opt)
-    this.logResult(started, op, tms, q.table)
-    return {
-      rows: tms,
-      ...queryResult,
-    }
   }
 
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
@@ -1239,28 +1182,6 @@ export class CommonDao<
     return entities.map(entity => this.anyToDBM(entity, opt))
   }
 
-  bmToTM(bm: undefined, opt?: CommonDaoOptions): TM | undefined
-  bmToTM(bm?: BM, opt?: CommonDaoOptions): TM
-  bmToTM(bm?: BM, opt?: CommonDaoOptions): TM | undefined {
-    if (bm === undefined) return
-
-    // optimization: 1 validation is enough
-    // Validate/convert BM
-    // bm gets assigned to the new reference
-    // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-
-    // BM > TM
-    const tm = this.cfg.hooks!.beforeBMToTM!(bm)
-
-    // Validate/convert DBM
-    return this.validateAndConvert(tm, this.cfg.tmSchema, DBModelType.TM, opt)
-  }
-
-  bmsToTM(bms: BM[], opt: CommonDaoOptions = {}): TM[] {
-    // try/catch?
-    return bms.map(bm => this.bmToTM(bm, opt))
-  }
-
   /**
    * Returns *converted value*.
    * Validates (unless `skipValidation=true` passed).
@@ -1270,7 +1191,7 @@ export class CommonDao<
   validateAndConvert<T>(
     obj: Partial<T>,
     schema: ObjectSchema<T> | AjvSchema<T> | ZodSchema<T> | undefined,
-    modelType: DBModelType,
+    modelType?: DBModelType,
     opt: CommonDaoOptions = {},
   ): any {
     // `raw` option completely bypasses any processing
@@ -1460,7 +1381,7 @@ export class CommonDaoTransaction {
   }
 
   async getById<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
-    dao: CommonDao<BM, DBM, any>,
+    dao: CommonDao<BM, DBM>,
     id?: string | null,
     opt?: CommonDaoOptions,
   ): Promise<BM | null> {
@@ -1468,7 +1389,7 @@ export class CommonDaoTransaction {
   }
 
   async getByIds<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
-    dao: CommonDao<BM, DBM, any>,
+    dao: CommonDao<BM, DBM>,
     ids: string[],
     opt?: CommonDaoOptions,
   ): Promise<BM[]> {
@@ -1490,7 +1411,7 @@ export class CommonDaoTransaction {
   // }
 
   async save<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
-    dao: CommonDao<BM, DBM, any>,
+    dao: CommonDao<BM, DBM>,
     bm: Unsaved<BM>,
     opt?: CommonDaoSaveBatchOptions<DBM>,
   ): Promise<BM> {
@@ -1498,7 +1419,7 @@ export class CommonDaoTransaction {
   }
 
   async saveBatch<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
-    dao: CommonDao<BM, DBM, any>,
+    dao: CommonDao<BM, DBM>,
     bms: Unsaved<BM>[],
     opt?: CommonDaoSaveBatchOptions<DBM>,
   ): Promise<BM[]> {

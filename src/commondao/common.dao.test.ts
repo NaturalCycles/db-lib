@@ -22,11 +22,9 @@ import {
   createTestItemsBM,
   testItemBMSchema,
   testItemDBMSchema,
-  testItemTMSchema,
   TEST_TABLE,
   TestItemBM,
   TestItemDBM,
-  TestItemTM,
   testItemBMJsonSchema,
   testItemDBMJsonSchema,
 } from '../testing'
@@ -36,12 +34,11 @@ import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveBatchOptions } from './co
 let throwError = false
 
 const db = new InMemoryDB()
-const daoCfg: CommonDaoCfg<TestItemBM, TestItemDBM, TestItemTM> = {
+const daoCfg: CommonDaoCfg<TestItemBM, TestItemDBM> = {
   table: TEST_TABLE,
   db,
   dbmSchema: testItemDBMSchema,
   bmSchema: testItemBMSchema,
-  tmSchema: testItemTMSchema,
   // logStarted: true,
   logLevel: CommonDaoLogLevel.OPERATIONS,
   hooks: {
@@ -74,8 +71,6 @@ test('common', async () => {
   expect(await dao.getById('non-existing')).toBeNull()
   expect(await dao.getByIdAsDBM(undefined)).toBeNull()
   expect(await dao.getByIdAsDBM('123')).toBeNull()
-  expect(await dao.getByIdAsTM(undefined)).toBeNull()
-  expect(await dao.getByIdAsTM('123')).toBeNull()
 
   expect(await dao.deleteById(undefined)).toBe(0)
   expect(await dao.deleteById('123')).toBe(0)

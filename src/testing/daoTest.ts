@@ -9,7 +9,6 @@ import {
   createTestItemsBM,
   testItemBMSchema,
   testItemDBMSchema,
-  testItemTMSchema,
   TEST_TABLE,
   createTestItemBM,
   testItemDBMJsonSchema,
@@ -23,7 +22,6 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
     db,
     dbmSchema: testItemDBMSchema,
     bmSchema: testItemBMSchema,
-    tmSchema: testItemTMSchema,
     logStarted: true,
     logLevel: CommonDaoLogLevel.DATA_FULL,
   })

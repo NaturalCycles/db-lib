@@ -1,7 +1,6 @@
 import {
   AsyncMapper,
   _truncate,
-  AnyObject,
   _objectAssign,
   BaseDBEntity,
   ObjectWithId,
@@ -238,13 +237,12 @@ export class DBQuery<ROW extends ObjectWithId> {
 export class RunnableDBQuery<
   BM extends BaseDBEntity,
   DBM extends BaseDBEntity = BM,
-  TM extends AnyObject = BM,
 > extends DBQuery<DBM> {
   /**
    * Pass `table` to override table.
    */
   constructor(
-    public dao: CommonDao<BM, DBM, TM>,
+    public dao: CommonDao<BM, DBM>,
     table?: string,
   ) {
     super(table || dao.cfg.table)
@@ -262,20 +260,12 @@ export class RunnableDBQuery<
     return await this.dao.runQueryAsDBM(this, opt)
   }
 
-  async runQueryAsTM(opt?: CommonDaoOptions): Promise<TM[]> {
-    return await this.dao.runQueryAsTM(this, opt)
-  }
-
   async runQueryExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<BM>> {
     return await this.dao.runQueryExtended(this, opt)
   }
 
   async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
     return await this.dao.runQueryExtendedAsDBM(this, opt)
-  }
-
-  async runQueryExtendedAsTM(opt?: CommonDaoOptions): Promise<RunQueryResult<TM>> {
-    return await this.dao.runQueryExtendedAsTM(this, opt)
   }
 
   async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
