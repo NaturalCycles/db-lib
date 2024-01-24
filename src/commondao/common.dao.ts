@@ -125,11 +125,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const started = this.logStarted(op, table)
 
     let dbm = (await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id]))[0]
-    if (dbm && !opt.raw && this.cfg.hooks!.afterLoad) {
+    if (dbm && this.cfg.hooks!.afterLoad) {
       dbm = (await this.cfg.hooks!.afterLoad(dbm)) || undefined
     }
 
-    const bm = opt.raw ? (dbm as any) : await this.dbmToBM(dbm, opt)
+    const bm = await this.dbmToBM(dbm, opt)
     this.logResult(started, op, bm, table)
     return bm || null
   }
@@ -161,13 +161,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     let [dbm] = await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id])
-    if (dbm && !opt.raw && this.cfg.hooks!.afterLoad) {
+    if (dbm && this.cfg.hooks!.afterLoad) {
       dbm = (await this.cfg.hooks!.afterLoad(dbm)) || undefined
     }
 
-    if (!opt.raw) {
-      dbm = this.anyToDBM(dbm!, opt)
-    }
+    dbm = this.anyToDBM(dbm!, opt)
     this.logResult(started, op, dbm, table)
     return dbm || null
   }
@@ -178,13 +176,13 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids)
-    if (!opt.raw && this.cfg.hooks!.afterLoad && dbms.length) {
+    if (this.cfg.hooks!.afterLoad && dbms.length) {
       dbms = (await pMap(dbms, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
       )
     }
 
-    const bms = opt.raw ? (dbms as any) : await this.dbmsToBM(dbms, opt)
+    const bms = await this.dbmsToBM(dbms, opt)
     this.logResult(started, op, bms, table)
     return bms
   }
@@ -195,7 +193,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
     let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids)
-    if (!opt.raw && this.cfg.hooks!.afterLoad && dbms.length) {
+    if (this.cfg.hooks!.afterLoad && dbms.length) {
       dbms = (await pMap(dbms, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
       )
@@ -318,13 +316,13 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const started = this.logStarted(op, q.table)
     let { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    if (!opt.raw && this.cfg.hooks!.afterLoad && rows.length) {
+    if (this.cfg.hooks!.afterLoad && rows.length) {
       rows = (await pMap(rows, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
       )
     }
 
-    const bms = partialQuery || opt.raw ? (rows as any[]) : await this.dbmsToBM(rows, opt)
+    const bms = partialQuery ? (rows as any[]) : await this.dbmsToBM(rows, opt)
     this.logResult(started, op, bms, q.table)
     return {
       rows: bms,
@@ -345,14 +343,14 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
     let { rows, ...queryResult } = await this.cfg.db.runQuery<DBM>(q, opt)
-    if (!opt.raw && this.cfg.hooks!.afterLoad && rows.length) {
+    if (this.cfg.hooks!.afterLoad && rows.length) {
       rows = (await pMap(rows, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
       )
     }
 
     const partialQuery = !!q._selectedFieldNames
-    const dbms = partialQuery || opt.raw ? rows : this.anyToDBMs(rows, opt)
+    const dbms = partialQuery ? rows : this.anyToDBMs(rows, opt)
     this.logResult(started, op, dbms, q.table)
     return { rows: dbms, ...queryResult }
   }
@@ -388,7 +386,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       transformMap<DBM, BM>(
         async dbm => {
           count++
-          if (partialQuery || opt.raw) return dbm as any
+          if (partialQuery) return dbm as any
 
           if (this.cfg.hooks!.afterLoad) {
             dbm = (await this.cfg.hooks!.afterLoad(dbm))!
@@ -438,7 +436,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       transformMap<any, DBM>(
         async dbm => {
           count++
-          if (partialQuery || opt.raw) return dbm
+          if (partialQuery) return dbm
 
           if (this.cfg.hooks!.afterLoad) {
             dbm = (await this.cfg.hooks!.afterLoad(dbm))!
@@ -480,7 +478,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const partialQuery = !!q._selectedFieldNames
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
-    if (partialQuery || opt.raw) return stream
+    if (partialQuery) return stream
 
     return stream
       .on('error', err => stream.emit('error', err))
@@ -518,7 +516,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    if (partialQuery || opt.raw) return stream
+    if (partialQuery) return stream
 
     return (
       stream
@@ -800,13 +798,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     // assigning id in case it misses the id
     // will override/set `updated` field, unless opts.preserveUpdated is set
-    let row = dbm as DBM
-    if (!opt.raw) {
-      const idWasGenerated = !dbm.id && this.cfg.generateId
-      this.assignIdCreatedUpdated(dbm, opt) // mutates
-      row = this.anyToDBM(dbm, opt)
-      if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, row)
-    }
+    const idWasGenerated = !dbm.id && this.cfg.generateId
+    this.assignIdCreatedUpdated(dbm, opt) // mutates
+    let row = this.anyToDBM(dbm, opt)
+    if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, row)
+
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
     }
@@ -885,12 +881,10 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     if (!dbms.length) return []
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
-    let rows = dbms as DBM[]
-    if (!opt.raw) {
-      dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
-      rows = this.anyToDBMs(dbms as DBM[], opt)
-      if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
-    }
+    dbms.forEach(dbm => this.assignIdCreatedUpdated(dbm, opt)) // mutates
+    let rows = this.anyToDBMs(dbms as DBM[], opt)
+    if (opt.ensureUniqueId) throw new AppError('ensureUniqueId is not supported in saveBatch')
+
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
       opt = { ...opt, saveMethod: 'insert' }
     }
@@ -1194,9 +1188,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     modelType?: DBModelType,
     opt: CommonDaoOptions = {},
   ): any {
-    // `raw` option completely bypasses any processing
-    if (opt.raw) return obj as any
-
     // Kirill 2021-10-18: I realized that there's little reason to keep removing null values
     // So, from now on we'll preserve them
     // "undefined" values, I believe, are/were not saved to/from DB anyway (due to e.g JSON.stringify removing them)

@@ -243,16 +243,6 @@ export interface CommonDaoOptions extends CommonDBOptions {
   skipConversion?: boolean
 
   /**
-   * If true - will SKIP ANY transformation/processing, will return DB objects as they are. Will also skip created/updated/id
-   * generation.
-   *
-   * Useful for performance/streaming/pipelines.
-   *
-   * @default false
-   */
-  raw?: boolean
-
-  /**
    * @default false
    */
   preserveUpdatedCreated?: boolean
