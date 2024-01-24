@@ -35,14 +35,6 @@ export const testItemBMSchema = objectSchema<TestItemBM>({
   b1: binarySchema.optional(),
 }).concat(baseDBEntitySchema as any)
 
-export const testItemDBMSchema = objectSchema<TestItemDBM>({
-  k1: stringSchema,
-  k2: stringSchema.allow(null).optional(),
-  k3: numberSchema.optional(),
-  even: booleanSchema.optional(),
-  b1: binarySchema.optional(),
-}).concat(baseDBEntitySchema as any)
-
 export const testItemTMSchema = objectSchema<TestItemTM>({
   k1: stringSchema,
   even: booleanSchema.optional(),
@@ -61,20 +53,6 @@ export const testItemBMJsonSchema: JsonSchemaObject<TestItemBM> = jsonSchema
     b1: jsonSchema.buffer().optional(),
   })
   .baseDBEntity()
-  .build()
-
-export const testItemDBMJsonSchema: JsonSchemaObject<TestItemDBM> = jsonSchema
-  .rootObject<TestItemDBM>({
-    // todo: figure out how to not copy-paste these 3 fields
-    id: jsonSchema.string(),
-    created: jsonSchema.unixTimestamp(),
-    updated: jsonSchema.unixTimestamp(),
-    k1: jsonSchema.string(),
-    k2: jsonSchema.string().optional(),
-    k3: jsonSchema.number().optional(),
-    even: jsonSchema.boolean().optional(),
-    b1: jsonSchema.buffer().optional(),
-  })
   .build()
 
 export function createTestItemDBM(num = 1): TestItemDBM {

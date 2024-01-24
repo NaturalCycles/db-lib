@@ -21,12 +21,10 @@ import { DBLibError } from '../cnst'
 import {
   createTestItemsBM,
   testItemBMSchema,
-  testItemDBMSchema,
   TEST_TABLE,
   TestItemBM,
   TestItemDBM,
   testItemBMJsonSchema,
-  testItemDBMJsonSchema,
 } from '../testing'
 import { CommonDao } from './common.dao'
 import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveBatchOptions } from './common.dao.model'
@@ -37,7 +35,6 @@ const db = new InMemoryDB()
 const daoCfg: CommonDaoCfg<TestItemBM, TestItemDBM> = {
   table: TEST_TABLE,
   db,
-  dbmSchema: testItemDBMSchema,
   bmSchema: testItemBMSchema,
   // logStarted: true,
   logLevel: CommonDaoLogLevel.OPERATIONS,
@@ -375,7 +372,6 @@ test('ajvSchema', async () => {
     table: TEST_TABLE,
     db,
     bmSchema: AjvSchema.create(testItemBMJsonSchema),
-    dbmSchema: AjvSchema.create(testItemDBMJsonSchema),
   })
 
   const items = createTestItemsBM(3)
@@ -396,9 +392,9 @@ test('ajvSchema', async () => {
   )
   expect(err).toBeInstanceOf(AjvValidationError)
   expect(err).toMatchInlineSnapshot(`
-    [AjvValidationError: TEST_TABLEDBM.id123/k1 must be string
-    Input: { id: 'id123', k1: 5, created: 1529539200, updated: 1529539200 }]
-  `)
+[AjvValidationError: TEST_TABLE.id123/k1 must be string
+Input: { id: 'id123', k1: 5, created: 1529539200, updated: 1529539200 }]
+`)
 
   console.log((err as any).data)
 })

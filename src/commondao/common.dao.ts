@@ -2,7 +2,6 @@ import { Transform } from 'node:stream'
 import {
   _assert,
   _deepJsonEquals,
-  _filterNullishValues,
   _filterUndefinedValues,
   _isTruthy,
   _objectAssignExact,
@@ -43,13 +42,7 @@ import {
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import {
-  CommonDBTransactionOptions,
-  DBModelType,
-  DBPatch,
-  DBTransaction,
-  RunQueryResult,
-} from '../db.model'
+import { CommonDBTransactionOptions, DBPatch, DBTransaction, RunQueryResult } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import {
   CommonDaoCfg,
@@ -91,9 +84,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       hooks: {
         parseNaturalId: () => ({}),
         beforeCreate: bm => bm as BM,
-        beforeDBMValidate: dbm => dbm,
-        beforeDBMToBM: dbm => dbm as any,
-        beforeBMToDBM: bm => bm as any,
         anonymize: dbm => dbm,
         onValidationError: err => err,
         ...cfg.hooks,
@@ -112,7 +102,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const bm = this.cfg.hooks!.beforeCreate!(part)
     // First assignIdCreatedUpdated, then validate!
     this.assignIdCreatedUpdated(bm, opt)
-    return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
+    return this.validateAndConvert(bm, this.cfg.bmSchema, opt)
   }
 
   // GET
@@ -639,7 +629,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const idWasGenerated = !bm.id && this.cfg.generateId
     this.assignIdCreatedUpdated(bm, opt) // mutates
     _typeCast<BM>(bm)
-    let dbm = await this.bmToDBM(bm, opt)
+    let dbm = await this.bmToDBM(bm, opt) // validates BM
 
     if (this.cfg.hooks!.beforeSave) {
       dbm = (await this.cfg.hooks!.beforeSave(dbm))!
@@ -1113,11 +1103,16 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     // DBM > BM
-    const bm = await this.cfg.hooks!.beforeDBMToBM!(dbm)
+    let bm: Partial<BM>
+    if (this.cfg.hooks!.beforeDBMToBM) {
+      bm = await this.cfg.hooks!.beforeDBMToBM(dbm)
+    } else {
+      bm = dbm as any
+    }
 
     // Validate/convert BM
 
-    return this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
+    return this.validateAndConvert(bm, this.cfg.bmSchema, opt)
   }
 
   async dbmsToBM(dbms: DBM[], opt: CommonDaoOptions = {}): Promise<BM[]> {
@@ -1133,20 +1128,23 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async bmToDBM(bm?: BM, opt?: CommonDaoOptions): Promise<DBM | undefined> {
     if (bm === undefined) return
 
-    // optimization: no need to run the BM validation, since DBM will be validated anyway
-    // Validate/convert BM
-    // bm gets assigned to the new reference
-    // bm = this.validateAndConvert(bm, this.cfg.bmSchema, DBModelType.BM, opt)
-
     // should not do it on load, but only on save!
     // this.assignIdCreatedUpdated(bm, opt)
 
+    // bm gets assigned to the new reference
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, opt)
+
     // BM > DBM
-    const dbm = { ...(await this.cfg.hooks!.beforeBMToDBM!(bm)) }
+    let dbm: DBM
+    if (this.cfg.hooks!.beforeBMToDBM) {
+      dbm = { ...((await this.cfg.hooks!.beforeBMToDBM(bm!)) as DBM) }
+    } else {
+      dbm = bm as any
+    }
 
     // Validate/convert DBM
-
-    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
+    // return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
+    return dbm
   }
 
   async bmsToDBM(bms: BM[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
@@ -1164,12 +1162,15 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     dbm = { ...dbm, ...this.cfg.hooks!.parseNaturalId!(dbm.id) }
 
+    // todo: is this the right place?
+    // todo: is anyToDBM even needed?
     if (opt.anonymize) {
       dbm = this.cfg.hooks!.anonymize!(dbm)
     }
 
     // Validate/convert DBM
-    return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
+    // return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
+    return dbm
   }
 
   anyToDBMs(entities: DBM[], opt: CommonDaoOptions = {}): DBM[] {
@@ -1185,7 +1186,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   validateAndConvert<T>(
     obj: Partial<T>,
     schema: ObjectSchema<T> | AjvSchema<T> | ZodSchema<T> | undefined,
-    modelType?: DBModelType,
     opt: CommonDaoOptions = {},
   ): any {
     // Kirill 2021-10-18: I realized that there's little reason to keep removing null values
@@ -1197,16 +1197,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     // obj = _filterNullishValues(obj as any)
     // We still filter `undefined` values here, because `beforeDBMToBM` can return undefined values
     // and they can be annoying with snapshot tests
-    if (this.cfg.filterNullishValues) {
-      obj = _filterNullishValues(obj)
-    } else {
-      obj = _filterUndefinedValues(obj)
-    }
-
-    // Pre-validation hooks
-    if (modelType === DBModelType.DBM) {
-      obj = this.cfg.hooks!.beforeDBMValidate!(obj as any) as T
-    }
+    obj = _filterUndefinedValues(obj)
 
     // Return as is if no schema is passed or if `skipConversion` is set
     if (!schema || opt.skipConversion) {
@@ -1215,7 +1206,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     // This will Convert and Validate
     const table = opt.table || this.cfg.table
-    const objectName = table + (modelType || '')
+    const objectName = table
 
     let error: JoiValidationError | AjvValidationError | ZodValidationError<T> | undefined
     let convertedValue: any

@@ -7,8 +7,8 @@ import {
   createTestItemDBM,
   createTestItemsDBM,
   TEST_TABLE,
+  testItemBMJsonSchema,
   TestItemDBM,
-  testItemDBMJsonSchema,
 } from './test.model'
 import { deepFreeze } from './test.util'
 
@@ -42,7 +42,7 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
   // CREATE TABLE, DROP
   if (support.createTable) {
     test('createTable, dropIfExists=true', async () => {
-      await db.createTable(TEST_TABLE, testItemDBMJsonSchema, { dropIfExists: true })
+      await db.createTable(TEST_TABLE, testItemBMJsonSchema, { dropIfExists: true })
     })
   }
 

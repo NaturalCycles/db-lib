@@ -47,17 +47,6 @@ export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntit
    */
   beforeCreate: (bm: Partial<BM>) => Partial<BM>
 
-  /**
-   * Called when loading things "as DBM" and validation is not skipped.
-   * When loading things as BM/TM - other hooks get involved instead:
-   * - beforeDBMToBM
-   * - beforeBMToTM
-   *
-   * TODO: maybe rename those to `validateAs(model)`
-   * as it only validates "final state", not intermediate
-   */
-  beforeDBMValidate: (dbm: Partial<DBM>) => Partial<DBM>
-
   beforeDBMToBM: (dbm: DBM) => Partial<BM> | Promise<Partial<BM>>
   beforeBMToDBM: (bm: BM) => Partial<DBM> | Promise<Partial<DBM>>
 
@@ -136,7 +125,6 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
   /**
    * Joi, AjvSchema or ZodSchema is supported.
    */
-  dbmSchema?: ObjectSchema<DBM> | AjvSchema<DBM> | ZodSchema<DBM>
   bmSchema?: ObjectSchema<BM> | AjvSchema<BM> | ZodSchema<BM>
 
   excludeFromIndexes?: (keyof DBM)[]
@@ -200,17 +188,6 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
    * Set to false to disable `updated` field management.
    */
   useUpdatedProperty?: boolean
-
-  /**
-   * Default is false.
-   * If true - will run `_filterNullishValues` inside `validateAndConvert` function
-   * (instead of `_filterUndefinedValues`).
-   * This was the old db-lib behavior.
-   * This option allows to keep backwards-compatible behavior.
-   *
-   * @deprecated
-   */
-  filterNullishValues?: boolean
 
   /**
    * Defaults to false.

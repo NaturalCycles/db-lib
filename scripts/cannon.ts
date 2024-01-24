@@ -9,7 +9,7 @@ import { expressFunctionFactory, runCannon } from '@naturalcycles/bench-lib'
 import { _omit } from '@naturalcycles/js-lib'
 import { getValidationResult, stringId, runScript } from '@naturalcycles/nodejs-lib'
 import { CommonDao, InMemoryDB } from '../src'
-import { createTestItemsBM, testItemBMSchema, testItemDBMSchema, TEST_TABLE } from '../src/testing'
+import { createTestItemsBM, testItemBMSchema, TEST_TABLE } from '../src/testing'
 
 runScript(async () => {
   await runCannon(
@@ -35,7 +35,6 @@ const db = new InMemoryDB()
 const dao = new CommonDao({
   table: TEST_TABLE,
   db,
-  dbmSchema: testItemDBMSchema,
   bmSchema: testItemBMSchema,
 })
 

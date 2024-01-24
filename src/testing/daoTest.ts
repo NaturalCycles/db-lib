@@ -8,10 +8,9 @@ import { CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
   createTestItemsBM,
   testItemBMSchema,
-  testItemDBMSchema,
   TEST_TABLE,
   createTestItemBM,
-  testItemDBMJsonSchema,
+  testItemBMJsonSchema,
 } from './test.model'
 import { TestItemBM } from '.'
 
@@ -20,7 +19,6 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
   const dao = new CommonDao({
     table: TEST_TABLE,
     db,
-    dbmSchema: testItemDBMSchema,
     bmSchema: testItemBMSchema,
     logStarted: true,
     logLevel: CommonDaoLogLevel.DATA_FULL,
@@ -43,7 +41,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
   // CREATE TABLE, DROP
   if (support.createTable) {
     test('createTable, dropIfExists=true', async () => {
-      await dao.createTable(testItemDBMJsonSchema, { dropIfExists: true })
+      await dao.createTable(testItemBMJsonSchema, { dropIfExists: true })
     })
   }
 
