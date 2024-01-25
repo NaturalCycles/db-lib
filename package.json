@@ -1,7 +1,7 @@
 {
   "name": "@naturalcycles/db-lib",
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "dependencies": {
     "@naturalcycles/js-lib": "^14.116.0",
