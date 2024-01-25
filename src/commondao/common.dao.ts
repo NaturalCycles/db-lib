@@ -732,9 +732,15 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<BM, DBM> = {}): Promise<BM> {
     this.requireWriteAccess()
 
-    if (opt.skipIfEquals && _deepJsonEquals(bm, opt.skipIfEquals)) {
-      // Skipping the save operation
-      return bm as BM
+    if (opt.skipIfEquals) {
+      // We compare with convertedBM, to account for cases when some extra property is assigned to bm,
+      // which should be removed post-validation, but it breaks the "equality check"
+      // Post-validation the equality check should work as intended
+      const convertedBM = this.validateAndConvert(bm as Partial<BM>, this.cfg.bmSchema, opt)
+      if (_deepJsonEquals(convertedBM, opt.skipIfEquals)) {
+        // Skipping the save operation
+        return bm as BM
+      }
     }
 
     const idWasGenerated = !bm.id && this.cfg.generateId
@@ -1083,15 +1089,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     // DBM > BM
-    let bm: Partial<BM>
-    if (this.cfg.hooks!.beforeDBMToBM) {
-      bm = await this.cfg.hooks!.beforeDBMToBM(dbm)
-    } else {
-      bm = dbm as any
-    }
+    const bm = ((await this.cfg.hooks!.beforeDBMToBM?.(dbm)) || dbm) as Partial<BM>
 
     // Validate/convert BM
-
     return this.validateAndConvert(bm, this.cfg.bmSchema, opt)
   }
 
@@ -1108,23 +1108,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async bmToDBM(bm?: BM, opt?: CommonDaoOptions): Promise<DBM | undefined> {
     if (bm === undefined) return
 
-    // should not do it on load, but only on save!
-    // this.assignIdCreatedUpdated(bm, opt)
-
     // bm gets assigned to the new reference
     bm = this.validateAndConvert(bm, this.cfg.bmSchema, opt)
 
     // BM > DBM
-    let dbm: DBM
-    if (this.cfg.hooks!.beforeBMToDBM) {
-      dbm = { ...((await this.cfg.hooks!.beforeBMToDBM(bm!)) as DBM) }
-    } else {
-      dbm = bm as any
-    }
-
-    // Validate/convert DBM
-    // return this.validateAndConvert(dbm, this.cfg.dbmSchema, DBModelType.DBM, opt)
-    return dbm
+    return ((await this.cfg.hooks!.beforeBMToDBM?.(bm!)) || bm) as DBM
   }
 
   async bmsToDBM(bms: BM[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
@@ -1158,10 +1146,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   }
 
   /**
-   * Returns *converted value*.
-   * Validates (unless `skipValidation=true` passed).
-   *
+   * Returns *converted value* (NOT the same reference).
    * Does NOT mutate the object.
+   * Validates (unless `skipValidation=true` passed).
    */
   validateAndConvert<T>(
     obj: Partial<T>,

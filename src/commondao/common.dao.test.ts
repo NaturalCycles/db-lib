@@ -7,6 +7,7 @@ import {
   pTry,
   pExpectedError,
   BaseDBEntity,
+  _deepFreeze,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -25,6 +26,7 @@ import {
   TestItemBM,
   TestItemDBM,
   testItemBMJsonSchema,
+  createTestItemBM,
 } from '../testing'
 import { CommonDao } from './common.dao'
 import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveBatchOptions } from './common.dao.model'
@@ -289,14 +291,21 @@ test('mutation', async () => {
 
   const saved = await dao.save(obj)
 
-  // Should be a new object, not the same (by reference)
-  // Non-mutation should only be ensured inside `validateAndConvert` method
-  // NO: should return the original object
+  // Should return the original object
   // eslint-disable-next-line jest/prefer-equality-matcher
   expect(obj === saved).toBe(true)
 
   // But `created`, `updated` should be "mutated" on the original object
   expect((obj as any).created).toBe(MOCK_TS_2018_06_21)
+})
+
+test('validateAndConvert does not mutate and returns new reference', async () => {
+  const bm = createTestItemBM()
+  _deepFreeze(bm)
+
+  const bm2 = dao.validateAndConvert(bm, testItemBMSchema)
+  // eslint-disable-next-line jest/prefer-equality-matcher
+  expect(bm === bm2).toBe(false)
 })
 
 test('should preserve null on load and save', async () => {
