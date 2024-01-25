@@ -1,6 +1,7 @@
 import { Transform } from 'node:stream'
 import {
   _assert,
+  _deepCopy,
   _deepJsonEquals,
   _filterUndefinedValues,
   _isTruthy,
@@ -129,18 +130,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     if (bm) return bm
 
     return this.create({ ...part, id }, opt)
-  }
-
-  async getByIdAsDBMOrEmpty(
-    id: string,
-    part: Partial<BM> = {},
-    opt?: CommonDaoOptions,
-  ): Promise<DBM> {
-    const dbm = await this.getByIdAsDBM(id, opt)
-    if (dbm) return dbm
-
-    const bm = this.create({ ...part, id }, opt)
-    return await this.bmToDBM(bm, opt)
   }
 
   async getByIdAsDBM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
@@ -616,51 +605,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
   // SAVE
   /**
-   * Mutates with id, created, updated
-   */
-  async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<BM, DBM> = {}): Promise<BM> {
-    this.requireWriteAccess()
-
-    if (opt.skipIfEquals && _deepJsonEquals(bm, opt.skipIfEquals)) {
-      // Skipping the save operation
-      return bm as BM
-    }
-
-    const idWasGenerated = !bm.id && this.cfg.generateId
-    this.assignIdCreatedUpdated(bm, opt) // mutates
-    _typeCast<BM>(bm)
-    let dbm = await this.bmToDBM(bm, opt) // validates BM
-
-    if (this.cfg.hooks!.beforeSave) {
-      dbm = (await this.cfg.hooks!.beforeSave(dbm))!
-      if (dbm === null) return bm
-    }
-
-    const table = opt.table || this.cfg.table
-    if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
-    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
-      opt = { ...opt, saveMethod: 'insert' }
-    }
-    const op = `save(${dbm.id})`
-    const started = this.logSaveStarted(op, bm, table)
-    const { excludeFromIndexes } = this.cfg
-    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
-
-    await (opt.tx || this.cfg.db).saveBatch(table, [dbm], {
-      excludeFromIndexes,
-      assignGeneratedIds,
-      ...opt,
-    })
-
-    if (assignGeneratedIds) {
-      bm.id = dbm.id
-    }
-
-    this.logSaveResult(started, op, table)
-    return bm
-  }
-
-  /**
    * 1. Applies the patch
    * 2. If object is the same after patching - skips saving it
    * 3. Otherwise - saves the patched object and returns it
@@ -782,7 +726,52 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     })
   }
 
-  async saveAsDBM(dbm: Unsaved<DBM>, opt: CommonDaoSaveBatchOptions<DBM> = {}): Promise<DBM> {
+  /**
+   * Mutates with id, created, updated
+   */
+  async save(bm: Unsaved<BM>, opt: CommonDaoSaveOptions<BM, DBM> = {}): Promise<BM> {
+    this.requireWriteAccess()
+
+    if (opt.skipIfEquals && _deepJsonEquals(bm, opt.skipIfEquals)) {
+      // Skipping the save operation
+      return bm as BM
+    }
+
+    const idWasGenerated = !bm.id && this.cfg.generateId
+    this.assignIdCreatedUpdated(bm, opt) // mutates
+    _typeCast<BM>(bm)
+    let dbm = await this.bmToDBM(bm, opt) // validates BM
+
+    if (this.cfg.hooks!.beforeSave) {
+      dbm = (await this.cfg.hooks!.beforeSave(dbm))!
+      if (dbm === null) return bm
+    }
+
+    const table = opt.table || this.cfg.table
+    if (opt.ensureUniqueId && idWasGenerated) await this.ensureUniqueId(table, dbm)
+    if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
+      opt = { ...opt, saveMethod: 'insert' }
+    }
+    const op = `save(${dbm.id})`
+    const started = this.logSaveStarted(op, bm, table)
+    const { excludeFromIndexes } = this.cfg
+    const assignGeneratedIds = opt.assignGeneratedIds || this.cfg.assignGeneratedIds
+
+    await (opt.tx || this.cfg.db).saveBatch(table, [dbm], {
+      excludeFromIndexes,
+      assignGeneratedIds,
+      ...opt,
+    })
+
+    if (assignGeneratedIds) {
+      bm.id = dbm.id
+    }
+
+    this.logSaveResult(started, op, table)
+    return bm
+  }
+
+  async saveAsDBM(dbm: Unsaved<DBM>, opt: CommonDaoSaveOptions<BM, DBM> = {}): Promise<DBM> {
     this.requireWriteAccess()
     const table = opt.table || this.cfg.table
 
@@ -979,18 +968,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   /**
    * @returns number of deleted items
    */
-  async deleteById(id: undefined | null, opt?: CommonDaoOptions): Promise<0>
-  async deleteById(id?: string | null, opt?: CommonDaoOptions): Promise<number>
   async deleteById(id?: string | null, opt: CommonDaoOptions = {}): Promise<number> {
     if (!id) return 0
-    this.requireWriteAccess()
-    this.requireObjectMutability(opt)
-    const op = `deleteById(${id})`
-    const table = opt.table || this.cfg.table
-    const started = this.logStarted(op, table)
-    const count = await this.cfg.db.deleteByIds(table, [id], opt)
-    this.logSaveResult(started, op, table)
-    return count
+    return await this.deleteByIds([id], opt)
   }
 
   async deleteByIds(ids: string[], opt: CommonDaoOptions = {}): Promise<number> {
@@ -1395,9 +1375,9 @@ export class CommonDaoTransaction {
   async save<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
     dao: CommonDao<BM, DBM>,
     bm: Unsaved<BM>,
-    opt?: CommonDaoSaveBatchOptions<DBM>,
+    opt?: CommonDaoSaveOptions<BM, DBM>,
   ): Promise<BM> {
-    return (await this.saveBatch(dao, [bm], opt))[0]!
+    return await dao.save(bm, { ...opt, tx: this.tx })
   }
 
   async saveBatch<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
@@ -1406,6 +1386,24 @@ export class CommonDaoTransaction {
     opt?: CommonDaoSaveBatchOptions<DBM>,
   ): Promise<BM[]> {
     return await dao.saveBatch(bms, { ...opt, tx: this.tx })
+  }
+
+  /**
+   * DaoTransaction.patch does not load from DB.
+   * It assumes the bm was previously loaded in the same Transaction, hence could not be
+   * concurrently modified. Hence it's safe to not sync with DB.
+   *
+   * So, this method is a rather simple convenience "Object.assign and then save".
+   */
+  async patch<BM extends BaseDBEntity, DBM extends BaseDBEntity>(
+    dao: CommonDao<BM, DBM>,
+    bm: BM,
+    patch: Partial<BM>,
+    opt?: CommonDaoSaveOptions<BM, DBM>,
+  ): Promise<BM> {
+    const skipIfEquals = _deepCopy(bm)
+    Object.assign(bm, patch)
+    return await dao.save(bm, { ...opt, skipIfEquals, tx: this.tx })
   }
 
   async deleteById(
