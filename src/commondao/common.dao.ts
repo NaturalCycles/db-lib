@@ -612,7 +612,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * Similar to `save` with skipIfEquals.
    * Similar to `patch`, but doesn't load the object from the Database.
    */
-  async savePatch(bm: BM, patch: Partial<BM>, opt: CommonDaoSaveBatchOptions<DBM>): Promise<BM> {
+  async savePatch(bm: BM, patch: Partial<BM>, opt?: CommonDaoSaveBatchOptions<DBM>): Promise<BM> {
     const patched: BM = {
       ...bm,
       ...patch,
