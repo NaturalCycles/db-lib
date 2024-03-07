@@ -51,6 +51,7 @@ import {
   CommonDaoHooks,
   CommonDaoLogLevel,
   CommonDaoOptions,
+  CommonDaoPatchOptions,
   CommonDaoSaveBatchOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamDeleteOptions,
@@ -605,31 +606,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
   // SAVE
   /**
-   * 1. Applies the patch
-   * 2. If object is the same after patching - skips saving it
-   * 3. Otherwise - saves the patched object and returns it
-   *
-   * Similar to `save` with skipIfEquals.
-   * Similar to `patch`, but doesn't load the object from the Database.
-   */
-  async savePatch(bm: BM, patch: Partial<BM>, opt?: CommonDaoSaveBatchOptions<DBM>): Promise<BM> {
-    const patched: BM = {
-      ...bm,
-      ...patch,
-    }
-
-    if (_deepJsonEquals(bm, patched)) {
-      // Skipping the save operation, as data is the same
-      return bm
-    }
-
-    // Actually apply the patch by mutating the original object (by design)
-    Object.assign(bm, patch)
-
-    return await this.save(bm, opt)
-  }
-
-  /**
    * Convenience method to replace 3 operations (loading+patching+saving) with one:
    *
    * 1. Loads the row by id.
@@ -686,7 +662,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * Otherwise, similar behavior as patchById.
    * It still loads the row from the DB.
    */
-  async patch(bm: BM, patch: Partial<BM>, opt: CommonDaoSaveBatchOptions<DBM> = {}): Promise<BM> {
+  async patch(bm: BM, patch: Partial<BM>, opt: CommonDaoPatchOptions<DBM> = {}): Promise<BM> {
     if (this.cfg.patchInTransaction && !opt.tx) {
       // patchInTransaction means that we should run this op in Transaction
       // But if opt.tx is passed - means that we are already in a Transaction,
@@ -694,20 +670,29 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       return await this.patchInTransaction(bm, patch, opt)
     }
 
-    const loaded = await this.getById(bm.id, opt)
-
-    if (loaded) {
-      Object.assign(loaded, patch)
-
-      if (_deepJsonEquals(loaded, bm)) {
+    if (opt.skipDBRead) {
+      const bmBefore = _deepCopy(bm)
+      Object.assign(bm, patch)
+      if (_deepJsonEquals(bm, bmBefore)) {
         // Skipping the save operation, as data is the same
         return bm
       }
-
-      // Make `bm` exactly the same as `loaded`
-      _objectAssignExact(bm, loaded)
     } else {
-      Object.assign(bm, patch)
+      const loaded = await this.getById(bm.id, opt)
+
+      if (loaded) {
+        Object.assign(loaded, patch)
+
+        if (_deepJsonEquals(loaded, bm)) {
+          // Skipping the save operation, as data is the same
+          return bm
+        }
+
+        // Make `bm` exactly the same as `loaded`
+        _objectAssignExact(bm, loaded)
+      } else {
+        Object.assign(bm, patch)
+      }
     }
 
     return await this.save(bm, opt)

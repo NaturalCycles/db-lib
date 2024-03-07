@@ -257,6 +257,14 @@ export interface CommonDaoSaveOptions<BM extends BaseDBEntity, DBM extends BaseD
   skipIfEquals?: BM
 }
 
+export interface CommonDaoPatchOptions<DBM extends BaseDBEntity>
+  extends CommonDaoSaveBatchOptions<DBM> {
+  /**
+   * If true - patch will skip loading from DB, and will just optimistically patch passed object.
+   */
+  skipDBRead?: boolean
+}
+
 /**
  * All properties default to undefined.
  */
