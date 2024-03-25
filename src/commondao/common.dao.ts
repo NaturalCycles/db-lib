@@ -355,7 +355,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
-    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -405,7 +404,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   ): Promise<void> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
-    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -454,7 +452,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<DBM> = {}): ReadableTyped<DBM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
-    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     const partialQuery = !!q._selectedFieldNames
@@ -493,7 +490,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   streamQuery(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<BM> = {}): ReadableTyped<BM> {
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
-    opt.skipConversion = opt.skipConversion !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
@@ -902,7 +898,6 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     const table = opt.table || this.cfg.table
     opt.skipValidation ??= true
-    opt.skipConversion ??= true
     opt.errorMode ||= ErrorMode.SUPPRESS
 
     if (this.cfg.immutable && !opt.allowMutability && !opt.saveMethod) {
@@ -1157,7 +1152,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     // Return as is if no schema is passed or if `skipConversion` is set
     if (
       !schema ||
-      opt.skipConversion ||
+      opt.skipValidation ||
       (op === 'load' && !this.cfg.validateOnLoad) ||
       (op === 'save' && !this.cfg.validateOnSave)
     ) {
@@ -1191,7 +1186,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     // If we care about validation and there's an error
-    if (error && !opt.skipValidation) {
+    if (error) {
       const processedError = this.cfg.hooks!.onValidationError!(error)
 
       if (processedError) throw processedError

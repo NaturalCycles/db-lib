@@ -215,21 +215,12 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
  */
 export interface CommonDaoOptions extends CommonDBOptions {
   /**
-   * If true - will ignore the validation result, but will STILL DO the validation step, which will DO conversion
-   * (according to Joi schema).
+   * Defaults to false.
    *
-   * Set skipConversion=true (or raw=true) to bypass conversion step as well (e.g for performance reasons).
-   *
-   * @default false
+   * If set to true - will disable validation (and conversion).
+   * One possible use case of doing this is - performance (as validation/conversion takes time, especially with Joi).
    */
   skipValidation?: boolean
-
-  /**
-   * If true - will SKIP the joi validation AND conversion steps alltogether. To improve performance of DAO.
-   *
-   * @default false
-   */
-  skipConversion?: boolean
 
   /**
    * @default false
@@ -313,11 +304,6 @@ export interface CommonDaoStreamOptions<IN>
    * @default true (for streams)
    */
   skipValidation?: boolean
-
-  /**
-   * @default true (for streams)
-   */
-  skipConversion?: boolean
 
   /**
    * @default ErrorMode.SUPPRESS for returning ReadableStream, because .pipe() has no concept of "error propagation"

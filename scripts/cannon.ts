@@ -53,12 +53,6 @@ async function register2(): Promise<any> {
 
 async function register3(): Promise<any> {
   let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
-  item = await dao.save(item, { skipConversion: true })
-  return { item }
-}
-
-async function register4(): Promise<any> {
-  let item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item = await dao.save(item, { skipValidation: true })
   return { item }
 }
