@@ -130,6 +130,18 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
   excludeFromIndexes?: (keyof DBM)[]
 
   /**
+   * Defaults to true.
+   * If set to false - load (read) operations will skip validation (and conversion).
+   */
+  validateOnLoad?: boolean
+
+  /**
+   * Defaults to true.
+   * If set to false - save (write) operations will skip validation (and conversion).
+   */
+  validateOnSave?: boolean
+
+  /**
    * Defaults to false.
    * Setting it to true will set saveMethod to `insert` for save/saveBatch, which will
    * fail for rows that already exist in the DB (if CommonDB implementation supports it).

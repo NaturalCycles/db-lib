@@ -81,6 +81,8 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       assignGeneratedIds: false,
       useCreatedProperty: true,
       useUpdatedProperty: true,
+      validateOnLoad: true,
+      validateOnSave: true,
       logger: console,
       ...cfg,
       hooks: {
@@ -104,7 +106,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const bm = this.cfg.hooks!.beforeCreate!(part)
     // First assignIdCreatedUpdated, then validate!
     this.assignIdCreatedUpdated(bm, opt)
-    return this.validateAndConvert(bm, this.cfg.bmSchema, opt)
+    return this.validateAndConvert(bm, this.cfg.bmSchema, undefined, opt)
   }
 
   // GET
@@ -721,7 +723,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       // We compare with convertedBM, to account for cases when some extra property is assigned to bm,
       // which should be removed post-validation, but it breaks the "equality check"
       // Post-validation the equality check should work as intended
-      const convertedBM = this.validateAndConvert(bm as Partial<BM>, this.cfg.bmSchema, opt)
+      const convertedBM = this.validateAndConvert(bm as Partial<BM>, this.cfg.bmSchema, 'save', opt)
       if (_deepJsonEquals(convertedBM, opt.skipIfEquals)) {
         // Skipping the save operation
         return bm as BM
@@ -1077,7 +1079,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const bm = ((await this.cfg.hooks!.beforeDBMToBM?.(dbm)) || dbm) as Partial<BM>
 
     // Validate/convert BM
-    return this.validateAndConvert(bm, this.cfg.bmSchema, opt)
+    return this.validateAndConvert(bm, this.cfg.bmSchema, 'load', opt)
   }
 
   async dbmsToBM(dbms: DBM[], opt: CommonDaoOptions = {}): Promise<BM[]> {
@@ -1094,7 +1096,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     if (bm === undefined) return
 
     // bm gets assigned to the new reference
-    bm = this.validateAndConvert(bm, this.cfg.bmSchema, opt)
+    bm = this.validateAndConvert(bm, this.cfg.bmSchema, 'save', opt)
 
     // BM > DBM
     return ((await this.cfg.hooks!.beforeBMToDBM?.(bm!)) || bm) as DBM
@@ -1138,6 +1140,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   validateAndConvert<T>(
     obj: Partial<T>,
     schema: ObjectSchema<T> | AjvSchema<T> | ZodSchema<T> | undefined,
+    op?: 'load' | 'save', // this is to skip validation if validateOnLoad/Save is false
     opt: CommonDaoOptions = {},
   ): any {
     // Kirill 2021-10-18: I realized that there's little reason to keep removing null values
@@ -1152,7 +1155,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     obj = _filterUndefinedValues(obj)
 
     // Return as is if no schema is passed or if `skipConversion` is set
-    if (!schema || opt.skipConversion) {
+    if (
+      !schema ||
+      opt.skipConversion ||
+      (op === 'load' && !this.cfg.validateOnLoad) ||
+      (op === 'save' && !this.cfg.validateOnSave)
+    ) {
       return obj
     }
 
