@@ -669,25 +669,32 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }
 
     if (opt.skipDBRead) {
-      const bmBefore = _deepCopy(bm)
-      Object.assign(bm, patch)
-      if (_deepJsonEquals(bm, bmBefore)) {
+      const patched: BM = {
+        ...bm,
+        ...patch,
+      }
+
+      if (_deepJsonEquals(bm, patched)) {
         // Skipping the save operation, as data is the same
         return bm
       }
+      Object.assign(bm, patch)
     } else {
       const loaded = await this.getById(bm.id, opt)
 
       if (loaded) {
-        Object.assign(loaded, patch)
+        const loadedWithPatch: BM = {
+          ...loaded,
+          ...patch,
+        }
 
-        if (_deepJsonEquals(loaded, bm)) {
+        // Make `bm` exactly the same as `loadedWithPatch`
+        _objectAssignExact(bm, loadedWithPatch)
+
+        if (_deepJsonEquals(loaded, loadedWithPatch)) {
           // Skipping the save operation, as data is the same
           return bm
         }
-
-        // Make `bm` exactly the same as `loaded`
-        _objectAssignExact(bm, loaded)
       } else {
         Object.assign(bm, patch)
       }
