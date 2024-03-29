@@ -206,6 +206,47 @@ test('patch', async () => {
   `)
 })
 
+test('patch cyclerStatus-like', async () => {
+  const item: TestItemBM = await dao.save({
+    id: 'id1',
+    k1: 'k1',
+  })
+
+  // We mutate it, but it wasn't yet saved to DB
+  item.k1 = 'k2'
+
+  // Now we gonna call `patch`
+  // It should compare item+patch with loaded (not loaded+patch with item!), and still do save
+  await dao.patch(item, { k1: 'k2' })
+  const loaded = await dao.requireById('id1')
+  expect(loaded.k1).toBe('k2')
+})
+
+test('patch where item is stale', async () => {
+  const item: TestItemBM = await dao.save({
+    id: 'id1',
+    k1: 'k1',
+  })
+
+  // Some external process saves k2 (different property, which was undefined)
+  await dao.save({
+    ...item,
+    k2: 'k2',
+  })
+
+  // item stays as before
+  expect(item.k2).toBeUndefined()
+
+  // The patch should succeed, but item should be patched with k2=k2
+  await dao.patch(item, { k1: 'k2' })
+  expect(item.k2).toBe('k2')
+  const loaded = await dao.requireById('id1')
+  expect(loaded).toMatchObject({
+    k1: 'k2',
+    k2: 'k2',
+  })
+})
+
 // todo: fix jest mock
 test.skip('ensureUniqueId', async () => {
   const opt: CommonDaoSaveBatchOptions<TestItemBM> = {
