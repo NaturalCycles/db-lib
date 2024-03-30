@@ -1,4 +1,4 @@
-import { AsyncMemoCache } from '@naturalcycles/js-lib'
+import { AsyncMemoCache, MISS } from '@naturalcycles/js-lib'
 import { CommonKeyValueDao } from './commonKeyValueDao'
 
 /**
@@ -12,16 +12,11 @@ import { CommonKeyValueDao } from './commonKeyValueDao'
 export class CommonKeyValueDaoMemoCache<VALUE = any> implements AsyncMemoCache<string, VALUE> {
   constructor(private dao: CommonKeyValueDao<VALUE>) {}
 
-  async get(k: string): Promise<VALUE | Error | undefined> {
-    return (await this.dao.getById(k)) || undefined
+  async get(k: string): Promise<VALUE | typeof MISS> {
+    return (await this.dao.getById(k)) || MISS
   }
 
-  async set(k: string, v: VALUE | Error): Promise<void> {
-    if (v instanceof Error) {
-      // We currently don't persist errors there
-      return
-    }
-
+  async set(k: string, v: VALUE): Promise<void> {
     await this.dao.save(k, v)
   }
 
