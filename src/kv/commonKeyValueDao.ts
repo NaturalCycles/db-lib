@@ -156,7 +156,7 @@ export class CommonKeyValueDao<T> {
   }
 
   async saveBatch(entries: KeyValueTuple<string, T>[]): Promise<void> {
-    let bufferEntries: KeyValueDBTuple[] = []
+    let bufferEntries: KeyValueDBTuple[]
 
     if (!this.cfg.hooks?.mapValueToBuffer) {
       bufferEntries = entries as any
