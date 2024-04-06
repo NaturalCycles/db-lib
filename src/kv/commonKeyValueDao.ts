@@ -201,15 +201,15 @@ export class CommonKeyValueDao<T> {
     const { mapBufferToValue } = this.cfg.hooks
 
     if (!mapBufferToValue) {
-      return this.cfg.db.streamValues(this.cfg.table, limit)
+      return this.cfg.db.streamValues(this.cfg.table, limit) as ReadableTyped<T>
     }
 
     const stream: ReadableTyped<T> = this.cfg.db
       .streamValues(this.cfg.table, limit)
-      .on('error', err => stream.emit('error', err))
-      .flatMap(async (buf: Buffer) => {
+      // .on('error', err => stream.emit('error', err))
+      .flatMap(async buf => {
         try {
-          return [await mapBufferToValue(buf)] satisfies T[]
+          return [await mapBufferToValue(buf)]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
@@ -223,15 +223,17 @@ export class CommonKeyValueDao<T> {
     const { mapBufferToValue } = this.cfg.hooks
 
     if (!mapBufferToValue) {
-      return this.cfg.db.streamEntries(this.cfg.table, limit)
+      return this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<
+        KeyValueTuple<string, T>
+      >
     }
 
     const stream: ReadableTyped<KeyValueTuple<string, T>> = this.cfg.db
       .streamEntries(this.cfg.table, limit)
-      .on('error', err => stream.emit('error', err))
-      .flatMap(async ([id, buf]: KeyValueTuple<string, Buffer>) => {
+      // .on('error', err => stream.emit('error', err))
+      .flatMap(async ([id, buf]) => {
         try {
-          return [[id, await mapBufferToValue(buf)]] satisfies KeyValueTuple<string, T>[]
+          return [[id, await mapBufferToValue(buf)]]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP

@@ -1,5 +1,4 @@
 import { _range, _sortBy } from '@naturalcycles/js-lib'
-import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
 import { TEST_TABLE } from './test.model'
 
@@ -42,13 +41,13 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   })
 
   test('streamIds', async () => {
-    const ids = await readableToArray(db.streamIds(TEST_TABLE))
+    const ids = await db.streamIds(TEST_TABLE).toArray()
     ids.sort()
     expect(ids).toEqual(testIds)
   })
 
   test('streamIds limited', async () => {
-    const idsLimited = await readableToArray(db.streamIds(TEST_TABLE, 2))
+    const idsLimited = await db.streamIds(TEST_TABLE, 2).toArray()
     // Order is non-deterministic, so, cannot compare values
     // idsLimited.sort()
     // expect(idsLimited).toEqual(testIds.slice(0, 2))
@@ -56,26 +55,26 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   })
 
   test('streamValues', async () => {
-    const values = await readableToArray(db.streamValues(TEST_TABLE))
+    const values = await db.streamValues(TEST_TABLE).toArray()
     values.sort()
     expect(values).toEqual(testEntries.map(e => e[1]))
   })
 
   test('streamValues limited', async () => {
-    const valuesLimited = await readableToArray(db.streamValues(TEST_TABLE, 2))
+    const valuesLimited = await db.streamValues(TEST_TABLE, 2).toArray()
     // valuesLimited.sort()
     // expect(valuesLimited).toEqual(testEntries.map(e => e[1]).slice(0, 2))
     expect(valuesLimited.length).toBe(2)
   })
 
   test('streamEntries', async () => {
-    const entries = await readableToArray(db.streamEntries(TEST_TABLE))
+    const entries = await db.streamEntries(TEST_TABLE).toArray()
     entries.sort()
     expect(entries).toEqual(testEntries)
   })
 
   test('streamEntries limited', async () => {
-    const entriesLimited = await readableToArray(db.streamEntries(TEST_TABLE, 2))
+    const entriesLimited = await db.streamEntries(TEST_TABLE, 2).toArray()
     // entriesLimited.sort()
     // expect(entriesLimited).toEqual(testEntries.slice(0, 2))
     expect(entriesLimited.length).toBe(2)

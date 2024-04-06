@@ -879,9 +879,9 @@
     zod "^3.20.2"
 
 "@naturalcycles/nodejs-lib@^13.0.1", "@naturalcycles/nodejs-lib@^13.0.2", "@naturalcycles/nodejs-lib@^13.1.1":
-  version "13.10.0"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-13.10.0.tgz#0914dea4fced163a9642f09def35f242b9daf565"
-  integrity sha512-KKxpAb6oK250Lk7t2nGTrc+T3YD6R0Ba0c19wbuJNXDZToZ0FRooQc1vgcrjksMpHDebWBPYz0g9IIIbA+gQzA==
+  version "13.11.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/nodejs-lib/-/nodejs-lib-13.11.0.tgz#b6835d5eb053029cee4645fd8f4c1e0c84ad4590"
+  integrity sha512-cjkuW9exFUlBxPRhOR8SCweJmn1UP8HmgB98Fsph4vjKaYOuRZUivuPTFIrHGxpvLrOedMXhMh4Ft8SHAnA+aw==
   dependencies:
     "@naturalcycles/js-lib" "^14.0.0"
     "@types/js-yaml" "^4.0.9"

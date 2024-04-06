@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 import { _deepCopy, _pick, _sortBy, _omit, localTimeNow } from '@naturalcycles/js-lib'
-import { _pipeline, readableToArray } from '@naturalcycles/nodejs-lib'
+import { _pipeline } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
@@ -212,7 +212,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
     })
 
     test('streamQueryIds all', async () => {
-      let ids = await readableToArray(dao.query().streamQueryIds())
+      let ids = await dao.query().streamQueryIds().toArray()
       ids = ids.sort()
       expectMatch(
         expectedItems.map(i => i.id),

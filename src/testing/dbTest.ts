@@ -1,5 +1,4 @@
 import { _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
-import { readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDB, CommonDBType } from '../common.db'
 import { DBIncrement, DBPatch } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
@@ -220,7 +219,7 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
   // STREAM
   if (support.streaming) {
     test('streamQuery all', async () => {
-      let rows = await readableToArray(db.streamQuery(queryAll()))
+      let rows = await db.streamQuery(queryAll()).toArray()
 
       rows = _sortBy(rows, r => r.id) // cause order is not specified in DBQuery
       expectMatch(items, rows, quirks)

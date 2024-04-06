@@ -495,7 +495,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
     const stream = this.cfg.db.streamQuery<DBM>(q, opt)
     const partialQuery = !!q._selectedFieldNames
-    if (partialQuery) return stream
+    if (partialQuery) return stream as any
 
     // This almost works, but hard to implement `errorMode: THROW_AGGREGATED` in this case
     // return stream.flatMap(async (dbm: DBM) => {
@@ -551,7 +551,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     // Experimental: using `.map()`
     const stream: ReadableTyped<string> = this.cfg.db
       .streamQuery<DBM>(q.select(['id']), opt)
-      .on('error', err => stream.emit('error', err))
+      // .on('error', err => stream.emit('error', err))
       .map((r: ObjectWithId) => r.id)
 
     // const stream: ReadableTyped<string> = this.cfg.db
