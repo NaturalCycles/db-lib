@@ -12,8 +12,6 @@ import {
 import {
   AjvSchema,
   AjvValidationError,
-  writableForEach,
-  _pipeline,
   deflateString,
   inflateToString,
 } from '@naturalcycles/nodejs-lib'
@@ -29,7 +27,12 @@ import {
   createTestItemBM,
 } from '../testing'
 import { CommonDao } from './common.dao'
-import { CommonDaoCfg, CommonDaoLogLevel, CommonDaoSaveBatchOptions } from './common.dao.model'
+import {
+  CommonDaoCfg,
+  CommonDaoLogLevel,
+  CommonDaoOptions,
+  CommonDaoSaveBatchOptions,
+} from './common.dao.model'
 
 let throwError = false
 
@@ -102,7 +105,7 @@ test('should propagate pipe errors', async () => {
 
   throwError = true
 
-  const opt = {
+  const opt: CommonDaoOptions = {
     // logEvery: 1,
   }
 
@@ -145,8 +148,8 @@ test('should propagate pipe errors', async () => {
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
   // .stream should suppress by default
-  results = []
-  await _pipeline([dao.query().streamQuery(opt), writableForEach(r => void results.push(r))])
+  results = await dao.query().streamQuery(opt).toArray()
+
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 })
 

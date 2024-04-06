@@ -150,7 +150,7 @@ Returns `ReadableTyped` (typed wrapper of Node.js
 
 Streams in Node.js support back-pressure by default (if piped properly by the consumer).
 
-```typescript
+```ts
 const q = DBQuery.create('table1') // "return all items" query
 
 await _pipeline([
@@ -163,6 +163,14 @@ await _pipeline([
 // { item1 }
 // { item2 }
 // ...
+```
+
+Alternative:
+
+```ts
+await db.streamQuery(q).forEach(item => {
+  console.log(item)
+})
 ```
 
 ###### saveBatch

@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 import { _deepCopy, _pick, _sortBy, _omit, localTimeNow } from '@naturalcycles/js-lib'
-import { _pipeline, readableToArray, transformNoOp } from '@naturalcycles/nodejs-lib'
+import { _pipeline, readableToArray } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
@@ -194,11 +194,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
     })
 
     test('streamQuery all', async () => {
-      // let rows = await readableToArray(dao.query().streamQuery())
-      // todo: remove transformNoOp after `transformMap` learns to be async-iteration-friendly
-      let rows: TestItemBM[] = await readableToArray(
-        dao.query().streamQuery().pipe(transformNoOp()),
-      )
+      let rows: TestItemBM[] = await dao.query().streamQuery().toArray()
 
       rows = _sortBy(rows, r => r.id)
       expectMatch(expectedItems, rows, quirks)

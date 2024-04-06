@@ -1,10 +1,5 @@
-import { AppError, ErrorMode, KeyValueTuple, pMap } from '@naturalcycles/js-lib'
-import {
-  deflateString,
-  inflateToString,
-  ReadableTyped,
-  transformMap,
-} from '@naturalcycles/nodejs-lib'
+import { AppError, CommonLogger, KeyValueTuple, pMap } from '@naturalcycles/js-lib'
+import { deflateString, inflateToString, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
 import { CommonKeyValueDB, KeyValueDBTuple } from './commonKeyValueDB'
@@ -19,6 +14,11 @@ export interface CommonKeyValueDaoCfg<T> {
    * Set to true to limit DB writing (will throw an error is such case).
    */
   readOnly?: boolean
+
+  /**
+   * Default to console
+   */
+  logger?: CommonLogger
 
   /**
    * @default OPERATIONS
@@ -48,14 +48,25 @@ export interface CommonKeyValueDaoCfg<T> {
 // todo: readonly
 
 export class CommonKeyValueDao<T> {
-  constructor(public cfg: CommonKeyValueDaoCfg<T>) {
+  constructor(cfg: CommonKeyValueDaoCfg<T>) {
+    this.cfg = {
+      hooks: {},
+      logger: console,
+      ...cfg,
+    }
+
     if (cfg.deflatedJsonValue) {
-      cfg.hooks = {
+      this.cfg.hooks = {
         mapValueToBuffer: async v => await deflateString(JSON.stringify(v)),
         mapBufferToValue: async buf => JSON.parse(await inflateToString(buf)),
         ...cfg.hooks,
       }
     }
+  }
+
+  cfg: CommonKeyValueDaoCfg<T> & {
+    hooks: NonNullable<CommonKeyValueDaoCfg<T>['hooks']>
+    logger: CommonLogger
   }
 
   async ping(): Promise<void> {
@@ -68,7 +79,7 @@ export class CommonKeyValueDao<T> {
 
   create(input: Partial<T> = {}): T {
     return {
-      ...this.cfg.hooks?.beforeCreate?.(input),
+      ...this.cfg.hooks.beforeCreate?.(input),
     } as T
   }
 
@@ -117,7 +128,7 @@ export class CommonKeyValueDao<T> {
     if (r) return r[1]
 
     return {
-      ...this.cfg.hooks?.beforeCreate?.({}),
+      ...this.cfg.hooks.beforeCreate?.({}),
       ...part,
     } as T
   }
@@ -135,11 +146,11 @@ export class CommonKeyValueDao<T> {
 
   async getByIds(ids: string[]): Promise<KeyValueTuple<string, T>[]> {
     const entries = await this.cfg.db.getByIds(this.cfg.table, ids)
-    if (!this.cfg.hooks?.mapBufferToValue) return entries as any
+    if (!this.cfg.hooks.mapBufferToValue) return entries as any
 
     return await pMap(entries, async ([id, buf]) => [
       id,
-      await this.cfg.hooks!.mapBufferToValue!(buf),
+      await this.cfg.hooks.mapBufferToValue!(buf),
     ])
   }
 
@@ -158,12 +169,12 @@ export class CommonKeyValueDao<T> {
   async saveBatch(entries: KeyValueTuple<string, T>[]): Promise<void> {
     let bufferEntries: KeyValueDBTuple[]
 
-    if (!this.cfg.hooks?.mapValueToBuffer) {
+    if (!this.cfg.hooks.mapValueToBuffer) {
       bufferEntries = entries as any
     } else {
       bufferEntries = await pMap(entries, async ([id, v]) => [
         id,
-        await this.cfg.hooks!.mapValueToBuffer!(v),
+        await this.cfg.hooks.mapValueToBuffer!(v),
       ])
     }
 
@@ -187,37 +198,45 @@ export class CommonKeyValueDao<T> {
   }
 
   streamValues(limit?: number): ReadableTyped<T> {
-    if (!this.cfg.hooks?.mapBufferToValue) {
+    const { mapBufferToValue } = this.cfg.hooks
+
+    if (!mapBufferToValue) {
       return this.cfg.db.streamValues(this.cfg.table, limit)
     }
 
-    // todo: consider it when readableMap supports `errorMode: SUPPRESS`
-    // readableMap(this.cfg.db.streamValues(this.cfg.table, limit), async buf => await this.cfg.hooks!.mapBufferToValue(buf))
     const stream: ReadableTyped<T> = this.cfg.db
       .streamValues(this.cfg.table, limit)
       .on('error', err => stream.emit('error', err))
-      .pipe(
-        transformMap(async buf => await this.cfg.hooks!.mapBufferToValue!(buf), {
-          errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
-        }),
-      )
+      .flatMap(async (buf: Buffer) => {
+        try {
+          return [await mapBufferToValue(buf)] satisfies T[]
+        } catch (err) {
+          this.cfg.logger.error(err)
+          return [] // SKIP
+        }
+      })
 
     return stream
   }
 
   streamEntries(limit?: number): ReadableTyped<KeyValueTuple<string, T>> {
-    if (!this.cfg.hooks?.mapBufferToValue) {
+    const { mapBufferToValue } = this.cfg.hooks
+
+    if (!mapBufferToValue) {
       return this.cfg.db.streamEntries(this.cfg.table, limit)
     }
 
     const stream: ReadableTyped<KeyValueTuple<string, T>> = this.cfg.db
       .streamEntries(this.cfg.table, limit)
       .on('error', err => stream.emit('error', err))
-      .pipe(
-        transformMap(async ([id, buf]) => [id, await this.cfg.hooks!.mapBufferToValue!(buf)], {
-          errorMode: ErrorMode.SUPPRESS, // cause .pipe cannot propagate errors
-        }),
-      )
+      .flatMap(async ([id, buf]: KeyValueTuple<string, Buffer>) => {
+        try {
+          return [[id, await mapBufferToValue(buf)]] satisfies KeyValueTuple<string, T>[]
+        } catch (err) {
+          this.cfg.logger.error(err)
+          return [] // SKIP
+        }
+      })
 
     return stream
   }

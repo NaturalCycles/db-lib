@@ -40,6 +40,7 @@ import {
   transformLogProgress,
   transformMap,
   transformMapSimple,
+  transformNoOp,
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
@@ -496,6 +497,18 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const partialQuery = !!q._selectedFieldNames
     if (partialQuery) return stream
 
+    // This almost works, but hard to implement `errorMode: THROW_AGGREGATED` in this case
+    // return stream.flatMap(async (dbm: DBM) => {
+    //   if (this.cfg.hooks!.afterLoad) {
+    //     dbm = (await this.cfg.hooks!.afterLoad(dbm))!
+    //     if (dbm === null) return [] // SKIP
+    //   }
+    //
+    //   return [await this.dbmToBM(dbm, opt)] satisfies BM[]
+    // }, {
+    //   concurrency: 16,
+    // })
+
     return (
       stream
         // optimization: 1 validation is enough
@@ -517,9 +530,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
             },
           ),
         )
-      // this can make the stream async-iteration-friendly
-      // but not applying it now for perf reasons
-      // .pipe(transformNoOp())
+        // this can make the stream async-iteration-friendly
+        // but not applying it now for perf reasons
+        // UPD: applying, to be compliant with `.toArray()`, etc.
+        .on('error', err => stream.emit('error', err))
+        .pipe(transformNoOp())
     )
   }
 
@@ -533,14 +548,20 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
+    // Experimental: using `.map()`
     const stream: ReadableTyped<string> = this.cfg.db
       .streamQuery<DBM>(q.select(['id']), opt)
       .on('error', err => stream.emit('error', err))
-      .pipe(
-        transformMapSimple<DBM, string>(r => r.id, {
-          errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
-        }),
-      )
+      .map((r: ObjectWithId) => r.id)
+
+    // const stream: ReadableTyped<string> = this.cfg.db
+    //   .streamQuery<DBM>(q.select(['id']), opt)
+    //   .on('error', err => stream.emit('error', err))
+    //   .pipe(
+    //     transformMapSimple<DBM, string>(r => r.id, {
+    //       errorMode: ErrorMode.SUPPRESS, // cause .pipe() cannot propagate errors
+    //     }),
+    //   )
 
     return stream
   }
