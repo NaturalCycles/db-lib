@@ -2,7 +2,11 @@ import { AppError, CommonLogger, KeyValueTuple, pMap } from '@naturalcycles/js-l
 import { deflateString, inflateToString, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel } from '../commondao/common.dao.model'
 import { CommonDBCreateOptions } from '../db.model'
-import { CommonKeyValueDB, KeyValueDBTuple } from './commonKeyValueDB'
+import {
+  CommonKeyValueDB,
+  CommonKeyValueDBSaveBatchOptions,
+  KeyValueDBTuple,
+} from './commonKeyValueDB'
 
 export interface CommonKeyValueDaoCfg<T> {
   db: CommonKeyValueDB
@@ -43,6 +47,8 @@ export interface CommonKeyValueDaoCfg<T> {
    */
   deflatedJsonValue?: boolean
 }
+
+export type CommonKeyValueDaoSaveOptions = CommonKeyValueDBSaveBatchOptions
 
 // todo: logging
 // todo: readonly
@@ -133,13 +139,13 @@ export class CommonKeyValueDao<T> {
     } as T
   }
 
-  async patch(id: string, patch: Partial<T>): Promise<T> {
+  async patch(id: string, patch: Partial<T>, opt?: CommonKeyValueDaoSaveOptions): Promise<T> {
     const v: T = {
       ...(await this.getByIdOrEmpty(id)),
       ...patch,
     }
 
-    await this.save(id, v)
+    await this.save(id, v, opt)
 
     return v
   }
@@ -158,31 +164,35 @@ export class CommonKeyValueDao<T> {
     return await this.cfg.db.getByIds(this.cfg.table, ids)
   }
 
-  async save(id: string, value: T): Promise<void> {
-    await this.saveBatch([[id, value]])
+  async save(id: string, value: T, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+    await this.saveBatch([[id, value]], opt)
   }
 
-  async saveAsBuffer(id: string, value: Buffer): Promise<void> {
-    await this.cfg.db.saveBatch(this.cfg.table, [[id, value]])
+  async saveAsBuffer(id: string, value: Buffer, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+    await this.cfg.db.saveBatch(this.cfg.table, [[id, value]], opt)
   }
 
-  async saveBatch(entries: KeyValueTuple<string, T>[]): Promise<void> {
+  async saveBatch(
+    entries: KeyValueTuple<string, T>[],
+    opt?: CommonKeyValueDaoSaveOptions,
+  ): Promise<void> {
+    const { mapValueToBuffer } = this.cfg.hooks
     let bufferEntries: KeyValueDBTuple[]
 
-    if (!this.cfg.hooks.mapValueToBuffer) {
+    if (!mapValueToBuffer) {
       bufferEntries = entries as any
     } else {
-      bufferEntries = await pMap(entries, async ([id, v]) => [
-        id,
-        await this.cfg.hooks.mapValueToBuffer!(v),
-      ])
+      bufferEntries = await pMap(entries, async ([id, v]) => [id, await mapValueToBuffer(v)])
     }
 
-    await this.cfg.db.saveBatch(this.cfg.table, bufferEntries)
+    await this.cfg.db.saveBatch(this.cfg.table, bufferEntries, opt)
   }
 
-  async saveBatchAsBuffer(entries: KeyValueDBTuple[]): Promise<void> {
-    await this.cfg.db.saveBatch(this.cfg.table, entries)
+  async saveBatchAsBuffer(
+    entries: KeyValueDBTuple[],
+    opt?: CommonKeyValueDaoSaveOptions,
+  ): Promise<void> {
+    await this.cfg.db.saveBatch(this.cfg.table, entries, opt)
   }
 
   async deleteByIds(ids: string[]): Promise<void> {
@@ -204,19 +214,19 @@ export class CommonKeyValueDao<T> {
       return this.cfg.db.streamValues(this.cfg.table, limit) as ReadableTyped<T>
     }
 
-    const stream: ReadableTyped<T> = this.cfg.db
-      .streamValues(this.cfg.table, limit)
-      // .on('error', err => stream.emit('error', err))
-      .flatMap(async buf => {
+    return this.cfg.db.streamValues(this.cfg.table, limit).flatMap(
+      async buf => {
         try {
           return [await mapBufferToValue(buf)]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
         }
-      })
-
-    return stream
+      },
+      {
+        concurrency: 16,
+      },
+    )
   }
 
   streamEntries(limit?: number): ReadableTyped<KeyValueTuple<string, T>> {
@@ -228,18 +238,18 @@ export class CommonKeyValueDao<T> {
       >
     }
 
-    const stream: ReadableTyped<KeyValueTuple<string, T>> = this.cfg.db
-      .streamEntries(this.cfg.table, limit)
-      // .on('error', err => stream.emit('error', err))
-      .flatMap(async ([id, buf]) => {
+    return this.cfg.db.streamEntries(this.cfg.table, limit).flatMap(
+      async ([id, buf]) => {
         try {
           return [[id, await mapBufferToValue(buf)]]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
         }
-      })
-
-    return stream
+      },
+      {
+        concurrency: 16,
+      },
+    )
   }
 }

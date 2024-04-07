@@ -1,10 +1,10 @@
-import { CreatedUpdated, CreatedUpdatedId } from '@naturalcycles/js-lib'
+import { CreatedUpdated, CreatedUpdatedId, nowUnix } from '@naturalcycles/js-lib'
 import { stringId } from '@naturalcycles/nodejs-lib'
 
 export function createdUpdatedFields(
   existingObject?: Partial<CreatedUpdated> | null,
 ): CreatedUpdated {
-  const now = Math.floor(Date.now() / 1000)
+  const now = nowUnix()
   return {
     created: existingObject?.created || now,
     updated: now,
@@ -14,7 +14,7 @@ export function createdUpdatedFields(
 export function createdUpdatedIdFields(
   existingObject?: Partial<CreatedUpdatedId> | null,
 ): CreatedUpdatedId {
-  const now = Math.floor(Date.now() / 1000)
+  const now = nowUnix()
   return {
     created: existingObject?.created || now,
     id: existingObject?.id || stringId(),

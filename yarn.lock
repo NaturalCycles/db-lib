@@ -836,9 +836,9 @@
     typescript "^5.0.2"
 
 "@naturalcycles/dev-lib@^13.0.0":
-  version "13.51.1"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-13.51.1.tgz#0b96023d5cdccff5f844296ed03edbd0c7eb3d14"
-  integrity sha512-kKul83X8hysRzeyx9KbjmoStYYFG7+zbBebEyb1WEFTdFRjx6W509pVCrqxmXSS7z7Zit0O6dVT1u5EmqQwTvA==
+  version "13.51.2"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/dev-lib/-/dev-lib-13.51.2.tgz#7f8ea46a936849051527a958a6b17d3e970287b0"
+  integrity sha512-N1TUk/F7iFlrtHqlNdABD0bJ3j2D9+EutH1jb7xFKg6b0R2SOEGmUr+OKG8GL75FwkJ2DEBtPXfdIbxwfRqnBw==
   dependencies:
     "@commitlint/cli" "^19.0.0"
     "@commitlint/config-conventional" "^19.0.0"
@@ -871,9 +871,9 @@
     yargs "^17.0.0"
 
 "@naturalcycles/js-lib@^14.0.0", "@naturalcycles/js-lib@^14.116.0":
-  version "14.219.2"
-  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.219.2.tgz#95cc0e875e3befba83f541856ecb84b0d94667a5"
-  integrity sha512-m68SFGyDT6s/j9kOxLsQs/5kfy4xWdJyyw/RIdR8m2svstA0bkZsgS4xYCaIX+onXDQWyEPKKH8EgqfUXPhHIA==
+  version "14.221.0"
+  resolved "https://registry.yarnpkg.com/@naturalcycles/js-lib/-/js-lib-14.221.0.tgz#cfd70eec1c2678f202f0982da18ff34bf7abaf6e"
+  integrity sha512-jF00+CgTxIjwgQNGFjoZKsjrnhs5sz4CTsH0RTQfODRWfvHwld7XqY1Tzc7Rf/Patb4hTH2IwtHvGGczhPj6Zw==
   dependencies:
     tslib "^2.0.0"
     zod "^3.20.2"
@@ -2377,9 +2377,9 @@ eslint-plugin-import@^2.22.1:
     tsconfig-paths "^3.15.0"
 
 eslint-plugin-jest@^28.0.0:
-  version "28.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-28.0.0.tgz#b18f22977c3c216de928eeae6643c231c5b47316"
-  integrity sha512-FHiVI/nMYy48juLJKIt34MWPemvZyl0XT8JC3HTiUu/jgKJzoGgrNTCsyq4DzMlEjPZfmXKc0ogIzfrm6DJEuQ==
+  version "28.2.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-28.2.0.tgz#863e2b2bda95eb41981ba9bcf4c44f57dce40a73"
+  integrity sha512-yRDti/a+f+SMSmNTiT9/M/MzXGkitl8CfzUxnpoQcTyfq8gUrXMriVcWU36W1X6BZSUoyUCJrDAWWUA2N4hE5g==
   dependencies:
     "@typescript-eslint/utils" "^6.0.0"
 

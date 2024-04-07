@@ -1,5 +1,14 @@
-import { AsyncMemoCache, MISS } from '@naturalcycles/js-lib'
+import { AsyncMemoCache, MISS, nowUnix, NumberOfSeconds } from '@naturalcycles/js-lib'
 import { CommonKeyValueDao } from './commonKeyValueDao'
+
+export interface CommonKeyValueDaoMemoCacheCfg<VALUE> {
+  dao: CommonKeyValueDao<VALUE>
+
+  /**
+   * If set, every `set()` will set `expireAt` (TTL) option.
+   */
+  ttl?: NumberOfSeconds
+}
 
 /**
  * AsyncMemoCache implementation, backed by CommonKeyValueDao.
@@ -10,14 +19,16 @@ import { CommonKeyValueDao } from './commonKeyValueDao'
  * clear the whole table/cache.
  */
 export class CommonKeyValueDaoMemoCache<VALUE = any> implements AsyncMemoCache<string, VALUE> {
-  constructor(private dao: CommonKeyValueDao<VALUE>) {}
+  constructor(private cfg: CommonKeyValueDaoMemoCacheCfg<VALUE>) {}
 
   async get(k: string): Promise<VALUE | typeof MISS> {
-    return (await this.dao.getById(k)) || MISS
+    return (await this.cfg.dao.getById(k)) || MISS
   }
 
   async set(k: string, v: VALUE): Promise<void> {
-    await this.dao.save(k, v)
+    const opt = this.cfg.ttl ? { expireAt: nowUnix() + this.cfg.ttl } : undefined
+
+    await this.cfg.dao.save(k, v, opt)
   }
 
   async clear(): Promise<void> {

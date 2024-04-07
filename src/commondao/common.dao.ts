@@ -18,6 +18,7 @@ import {
   ErrorMode,
   JsonSchemaObject,
   JsonSchemaRootObject,
+  nowUnix,
   ObjectWithId,
   pMap,
   SKIP,
@@ -606,7 +607,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * "Returns", just to have a type of "Saved"
    */
   assignIdCreatedUpdated<T extends BaseDBEntity>(obj: Partial<T>, opt: CommonDaoOptions = {}): T {
-    const now = Math.floor(Date.now() / 1000)
+    const now = nowUnix()
 
     if (this.cfg.useCreatedProperty) {
       obj.created ||= obj.updated || now
