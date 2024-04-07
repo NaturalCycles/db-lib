@@ -1,7 +1,16 @@
+import { UnixTimestampNumber } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../db.model'
 
 export type KeyValueDBTuple = [key: string, value: Buffer]
+
+export interface CommonKeyValueDBSaveBatchOptions {
+  /**
+   * If set (and if it's implemented by the driver) - will set expiry TTL for each key of the batch.
+   * E.g EXAT in Redis.
+   */
+  expireAt?: UnixTimestampNumber
+}
 
 /**
  * Common interface for Key-Value database implementations.
@@ -29,7 +38,11 @@ export interface CommonKeyValueDB {
 
   deleteByIds: (table: string, ids: string[]) => Promise<void>
 
-  saveBatch: (table: string, entries: KeyValueDBTuple[]) => Promise<void>
+  saveBatch: (
+    table: string,
+    entries: KeyValueDBTuple[],
+    opt?: CommonKeyValueDBSaveBatchOptions,
+  ) => Promise<void>
 
   streamIds: (table: string, limit?: number) => ReadableTyped<string>
   streamValues: (table: string, limit?: number) => ReadableTyped<Buffer>
