@@ -920,7 +920,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * "Streaming" is implemented by buffering incoming rows into **batches**
    * (of size opt.chunkSize, which defaults to 500),
    * and then executing db.saveBatch(chunk) with the concurrency
-   * of opt.chunkConcurrency (which defaults to 16).
+   * of opt.chunkConcurrency (which defaults to 32).
    */
   streamSaveTransform(opt: CommonDaoStreamSaveOptions<DBM> = {}): Transform[] {
     this.requireWriteAccess()
@@ -936,7 +936,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const excludeFromIndexes = opt.excludeFromIndexes || this.cfg.excludeFromIndexes
     const { beforeSave } = this.cfg.hooks!
 
-    const { chunkSize = 500, chunkConcurrency = 16, errorMode } = opt
+    const { chunkSize = 500, chunkConcurrency = 32, errorMode } = opt
 
     return [
       transformMap<BM, DBM>(
@@ -1019,7 +1019,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     let deleted = 0
 
     if (opt.chunkSize) {
-      const { chunkSize, chunkConcurrency = 16 } = opt
+      const { chunkSize, chunkConcurrency = 32 } = opt
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),

@@ -321,7 +321,7 @@ export interface CommonDaoStreamOptions<IN>
 
   /**
    * When chunkSize is set - this option controls how many chunks to run concurrently.
-   * Defaults to 16, "the magic number of JavaScript concurrency".
+   * Defaults to 32.
    */
   chunkConcurrency?: number
 }

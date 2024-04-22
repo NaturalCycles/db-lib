@@ -224,7 +224,7 @@ export class CommonKeyValueDao<T> {
         }
       },
       {
-        concurrency: 16,
+        concurrency: 32,
       },
     )
   }
@@ -248,7 +248,7 @@ export class CommonKeyValueDao<T> {
         }
       },
       {
-        concurrency: 16,
+        concurrency: 32,
       },
     )
   }

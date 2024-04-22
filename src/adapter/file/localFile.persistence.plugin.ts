@@ -71,7 +71,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   }
 
   async saveFiles(ops: DBSaveBatchOperation<any>[]): Promise<void> {
-    await pMap(ops, async op => await this.saveFile(op.table, op.rows), { concurrency: 16 })
+    await pMap(ops, async op => await this.saveFile(op.table, op.rows), { concurrency: 32 })
   }
 
   async saveFile<ROW extends ObjectWithId>(table: string, rows: ROW[]): Promise<void> {
