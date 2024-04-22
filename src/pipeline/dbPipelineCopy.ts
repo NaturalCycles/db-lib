@@ -8,7 +8,7 @@ import {
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
-  transformBuffer,
+  transformChunk,
   transformLogProgress,
   TransformLogProgressOptions,
   transformMap,
@@ -47,7 +47,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
    *
    * Determines the size of .saveBatch()
    */
-  batchSize?: number
+  chunkSize?: number
 
   /**
    * @default ErrorMode.SUPPRESS
@@ -98,7 +98,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
  */
 export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJsonStats> {
   const {
-    batchSize = 100,
+    chunkSize = 100,
     dbInput,
     dbOutput,
     concurrency = 16,
@@ -153,7 +153,7 @@ export async function dbPipelineCopy(opt: DBPipelineCopyOptions): Promise<NDJson
           metric: table,
         }),
         transformTap(() => rows++),
-        transformBuffer({ batchSize }),
+        transformChunk({ chunkSize }),
         writableForEach(async dbms => {
           await dbOutput.saveBatch(table, dbms, saveOptions)
         }),

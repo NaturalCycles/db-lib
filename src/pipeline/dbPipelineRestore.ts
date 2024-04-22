@@ -13,7 +13,7 @@ import {
 } from '@naturalcycles/js-lib'
 import {
   NDJsonStats,
-  transformBuffer,
+  transformChunk,
   transformFilterSync,
   transformJsonParse,
   transformLimit,
@@ -125,7 +125,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   const {
     db,
     concurrency = 16,
-    batchSize = 100,
+    chunkSize = 100,
     limit,
     sinceUpdated,
     inputDirPath,
@@ -224,7 +224,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
           ...transformMapOptions,
           metric: table,
         }),
-        transformBuffer({ batchSize }),
+        transformChunk({ chunkSize }),
         writableForEach(async dbms => {
           await db.saveBatch(table, dbms, saveOptions)
         }),

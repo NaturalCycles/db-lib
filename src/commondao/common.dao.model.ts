@@ -313,17 +313,17 @@ export interface CommonDaoStreamOptions<IN>
 
   /**
    * Applicable to some of stream operations, e.g deleteByQuery.
-   * If set - `deleteByQuery` won't execute it "all at once", but in batches.
+   * If set - `deleteByQuery` won't execute it "all at once", but in batches (chunks).
    *
    * Defaults to undefined, so the operation is executed "all at once".
    */
-  batchSize?: number
+  chunkSize?: number
 
   /**
-   * When batchSize is set - this option controls how many batches to run concurrently.
+   * When chunkSize is set - this option controls how many chunks to run concurrently.
    * Defaults to 16, "the magic number of JavaScript concurrency".
    */
-  batchConcurrency?: number
+  chunkConcurrency?: number
 }
 
 export type CommonDaoCreateOptions = CommonDBCreateOptions

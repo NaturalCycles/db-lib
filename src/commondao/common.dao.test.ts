@@ -77,7 +77,7 @@ test('common', async () => {
   expect(await dao.deleteById(undefined)).toBe(0)
   expect(await dao.deleteById('123')).toBe(0)
   expect(await dao.deleteByQuery(dao.query())).toBe(0)
-  expect(await dao.deleteByQuery(dao.query(), { batchSize: 500 })).toBe(0)
+  expect(await dao.deleteByQuery(dao.query(), { chunkSize: 500 })).toBe(0)
 
   expect(dao.anyToDBM(undefined)).toBeUndefined()
   expect(dao.anyToDBM({}, { skipValidation: true })).toMatchObject({})

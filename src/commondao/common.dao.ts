@@ -37,7 +37,7 @@ import {
   ObjectSchema,
   ReadableTyped,
   stringId,
-  transformBuffer,
+  transformChunk,
   transformLogProgress,
   transformMap,
   transformMapSimple,
@@ -918,9 +918,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
 
   /**
    * "Streaming" is implemented by buffering incoming rows into **batches**
-   * (of size opt.batchSize, which defaults to 500),
-   * and then executing db.saveBatch(batch) with the concurrency
-   * of opt.batchConcurrency (which defaults to 16).
+   * (of size opt.chunkSize, which defaults to 500),
+   * and then executing db.saveBatch(chunk) with the concurrency
+   * of opt.chunkConcurrency (which defaults to 16).
    */
   streamSaveTransform(opt: CommonDaoStreamSaveOptions<DBM> = {}): Transform[] {
     this.requireWriteAccess()
@@ -936,7 +936,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const excludeFromIndexes = opt.excludeFromIndexes || this.cfg.excludeFromIndexes
     const { beforeSave } = this.cfg.hooks!
 
-    const { batchSize = 500, batchConcurrency = 16, errorMode } = opt
+    const { chunkSize = 500, chunkConcurrency = 16, errorMode } = opt
 
     return [
       transformMap<BM, DBM>(
@@ -956,7 +956,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
           errorMode,
         },
       ),
-      transformBuffer<DBM>({ batchSize }),
+      transformChunk<DBM>({ chunkSize }),
       transformMap<DBM[], DBM[]>(
         async batch => {
           await this.cfg.db.saveBatch(table, batch, {
@@ -966,7 +966,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
           return batch
         },
         {
-          concurrency: batchConcurrency,
+          concurrency: chunkConcurrency,
           errorMode,
           flattenArrayOutput: true,
         },
@@ -1003,9 +1003,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   }
 
   /**
-   * Pass `stream: true` option to use Streaming: it will Stream the query, batch by 500, and execute
-   * `deleteByIds` for each batch concurrently (infinite concurrency).
-   * This is expected to be more memory-efficient way of deleting big numbers of rows.
+   * Pass `chunkSize: number` (e.g 500) option to use Streaming: it will Stream the query, chunk by 500, and execute
+   * `deleteByIds` for each chunk concurrently (infinite concurrency).
+   * This is expected to be more memory-efficient way of deleting large number of rows.
    */
   async deleteByQuery(
     q: DBQuery<DBM>,
@@ -1018,15 +1018,15 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     const started = this.logStarted(op, q.table)
     let deleted = 0
 
-    if (opt.batchSize) {
-      const { batchSize, batchConcurrency = 16 } = opt
+    if (opt.chunkSize) {
+      const { chunkSize, chunkConcurrency = 16 } = opt
 
       await _pipeline([
         this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
         transformMapSimple<ObjectWithId, string>(r => r.id, {
           errorMode: ErrorMode.SUPPRESS,
         }),
-        transformBuffer<string>({ batchSize }),
+        transformChunk<string>({ chunkSize }),
         transformMap<string[], void>(
           async ids => {
             deleted += await this.cfg.db.deleteByQuery(
@@ -1036,14 +1036,14 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
           },
           {
             predicate: _passthroughPredicate,
-            concurrency: batchConcurrency,
+            concurrency: chunkConcurrency,
           },
         ),
         // LogProgress should be AFTER the mapper, to be able to report correct stats
         transformLogProgress({
           metric: q.table,
           logEvery: 2, // 500 * 2 === 1000
-          batchSize,
+          chunkSize,
           ...opt,
         }),
         writableVoid(),
