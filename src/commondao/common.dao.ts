@@ -40,7 +40,6 @@ import {
   transformChunk,
   transformLogProgress,
   transformMap,
-  transformMapSimple,
   transformNoOp,
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
@@ -580,8 +579,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     let count = 0
 
     await _pipeline([
-      this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-      transformMapSimple<DBM, string>(r => {
+      this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).map(r => {
         count++
         return r.id
       }),
@@ -1022,17 +1020,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
       const { chunkSize, chunkConcurrency = 32 } = opt
 
       await _pipeline([
-        this.cfg.db.streamQuery<DBM>(q.select(['id']), opt),
-        transformMapSimple<ObjectWithId, string>(r => r.id, {
-          errorMode: ErrorMode.SUPPRESS,
-        }),
+        this.cfg.db.streamQuery<DBM>(q.select(['id']), opt).map(r => r.id),
         transformChunk<string>({ chunkSize }),
         transformMap<string[], void>(
           async ids => {
-            deleted += await this.cfg.db.deleteByQuery(
-              DBQuery.create(q.table).filterIn('id', ids),
-              opt,
-            )
+            await this.cfg.db.deleteByIds(q.table, ids, opt)
+            deleted += ids.length
           },
           {
             predicate: _passthroughPredicate,
