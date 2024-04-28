@@ -1,16 +1,6 @@
-import fs from 'node:fs'
-import fsp from 'node:fs/promises'
 import { Readable } from 'node:stream'
-import { createGzip, createUnzip } from 'node:zlib'
 import { ObjectWithId, pMap } from '@naturalcycles/js-lib'
-import {
-  transformJsonParse,
-  transformSplit,
-  transformToNDJson,
-  writablePushToArray,
-  _pipeline,
-  fs2,
-} from '@naturalcycles/nodejs-lib'
+import { _pipeline, fs2 } from '@naturalcycles/nodejs-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 
@@ -43,7 +33,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
   async ping(): Promise<void> {}
 
   async getTables(): Promise<string[]> {
-    return (await fsp.readdir(this.cfg.storagePath))
+    return (await fs2.readdirAsync(this.cfg.storagePath))
       .filter(f => f.includes('.ndjson'))
       .map(f => f.split('.ndjson')[0]!)
   }
@@ -55,19 +45,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
 
     if (!(await fs2.pathExistsAsync(filePath))) return []
 
-    const transformUnzip = this.cfg.gzip ? [createUnzip()] : []
-
-    const rows: ROW[] = []
-
-    await _pipeline([
-      fs.createReadStream(filePath),
-      ...transformUnzip,
-      transformSplit(), // splits by \n
-      transformJsonParse(),
-      writablePushToArray(rows),
-    ])
-
-    return rows
+    return await fs2.createReadStreamAsNDJSON(filePath).toArray()
   }
 
   async saveFiles(ops: DBSaveBatchOperation<any>[]): Promise<void> {
@@ -78,13 +56,7 @@ export class LocalFilePersistencePlugin implements FileDBPersistencePlugin {
     await fs2.ensureDirAsync(this.cfg.storagePath)
     const ext = `ndjson${this.cfg.gzip ? '.gz' : ''}`
     const filePath = `${this.cfg.storagePath}/${table}.${ext}`
-    const transformZip = this.cfg.gzip ? [createGzip()] : []
 
-    await _pipeline([
-      Readable.from(rows),
-      transformToNDJson(),
-      ...transformZip,
-      fs.createWriteStream(filePath),
-    ])
+    await _pipeline([Readable.from(rows), ...fs2.createWriteStreamAsNDJSON(filePath)])
   }
 }

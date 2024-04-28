@@ -1,6 +1,3 @@
-import fs from 'node:fs'
-import fsp from 'node:fs/promises'
-import { createGzip, ZlibOptions } from 'node:zlib'
 import {
   AppError,
   AsyncMapper,
@@ -18,7 +15,6 @@ import {
   transformMap,
   TransformMapOptions,
   transformTap,
-  transformToNDJson,
   _pipeline,
   boldWhite,
   dimWhite,
@@ -101,8 +97,9 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
 
   /**
    * Only applicable if `gzip` is enabled
+   * Currently not available.
    */
-  zlibOptions?: ZlibOptions
+  // zlibOptions?: ZlibOptions
 
   /**
    * Optionally you can provide mapper that is going to run for each table.
@@ -138,11 +135,6 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
    * If true - will use CommonDB.getTableSchema() and emit schema.
    */
   emitSchemaFromDB?: boolean
-
-  /**
-   * @default false
-   */
-  sortObjects?: boolean
 }
 
 /**
@@ -161,16 +153,13 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
     limit = 0,
     outputDirPath,
     protectFromOverwrite = false,
-    zlibOptions,
     mapperPerTable = {},
     queryPerTable = {},
     logEveryPerTable = {},
     transformMapOptions,
     errorMode = ErrorMode.SUPPRESS,
     emitSchemaFromDB = false,
-    sortObjects = false,
   } = opt
-  const strict = errorMode !== ErrorMode.SUPPRESS
   const gzip = opt.gzip !== false // default to true
 
   let { tables } = opt
@@ -243,12 +232,10 @@ export async function dbPipelineBackup(opt: DBPipelineBackupOptions): Promise<ND
         transformTap(() => {
           rows++
         }),
-        transformToNDJson({ strict, sortObjects }),
-        ...(gzip ? [createGzip(zlibOptions)] : []), // optional gzip
-        fs.createWriteStream(filePath),
+        ...fs2.createWriteStreamAsNDJSON(filePath),
       ])
 
-      const { size: sizeBytes } = await fsp.stat(filePath)
+      const { size: sizeBytes } = await fs2.statAsync(filePath)
 
       const stats = NDJsonStats.create({
         tookMillis: Date.now() - started,

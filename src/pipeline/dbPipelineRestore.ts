@@ -1,5 +1,3 @@
-import fs from 'node:fs'
-import { createUnzip } from 'node:zlib'
 import {
   AsyncMapper,
   ErrorMode,
@@ -15,13 +13,10 @@ import {
   NDJsonStats,
   transformChunk,
   transformFilterSync,
-  transformJsonParse,
-  transformLimit,
   transformLogProgress,
   TransformLogProgressOptions,
   transformMap,
   TransformMapOptions,
-  transformSplit,
   transformTap,
   writableForEach,
   _pipeline,
@@ -135,7 +130,6 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
     errorMode = ErrorMode.SUPPRESS,
     recreateTables = false,
   } = opt
-  const strict = errorMode !== ErrorMode.SUPPRESS
   const onlyTables = opt.tables && new Set(opt.tables)
 
   const sinceUpdatedStr = sinceUpdated ? ' since ' + grey(localTime(sinceUpdated).toPretty()) : ''
@@ -150,7 +144,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   const sizeByTable: Record<string, number> = {}
   const statsPerTable: Record<string, NDJsonStats> = {}
   const tables: string[] = []
-  fs.readdirSync(inputDirPath).forEach(f => {
+  fs2.readdir(inputDirPath).forEach(f => {
     let table: string
     let gzip = false
 
@@ -167,7 +161,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
 
     tables.push(table)
     if (gzip) tablesToGzip.add(table)
-    sizeByTable[table] = fs.statSync(`${inputDirPath}/${f}`).size
+    sizeByTable[table] = fs2.stat(`${inputDirPath}/${f}`).size
   })
 
   const sizeStrByTable = _mapValues(sizeByTable, (_k, b) => _hb(b))
@@ -179,7 +173,7 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
   if (recreateTables) {
     await pMap(tables, async table => {
       const schemaFilePath = `${inputDirPath}/${table}.schema.json`
-      if (!fs.existsSync(schemaFilePath)) {
+      if (!fs2.pathExists(schemaFilePath)) {
         console.warn(`${schemaFilePath} does not exist!`)
         return
       }
@@ -204,17 +198,13 @@ export async function dbPipelineRestore(opt: DBPipelineRestoreOptions): Promise<
       console.log(`<< ${grey(filePath)} ${dimWhite(_hb(sizeBytes))} started...`)
 
       await _pipeline([
-        fs.createReadStream(filePath),
-        ...(gzip ? [createUnzip()] : []),
-        transformSplit(), // splits by \n
-        transformJsonParse({ strict }),
+        fs2.createReadStreamAsNDJSON(filePath).take(limit || Number.POSITIVE_INFINITY),
         transformTap(() => rows++),
         transformLogProgress({
           logEvery: 1000,
           ...opt,
           metric: table,
         }),
-        transformLimit({ limit }),
         ...(sinceUpdated
           ? [transformFilterSync<BaseDBEntity>(r => r.updated >= sinceUpdated)]
           : []),

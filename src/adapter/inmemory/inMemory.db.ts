@@ -1,7 +1,4 @@
-import fs from 'node:fs'
-import fsp from 'node:fs/promises'
 import { Readable } from 'node:stream'
-import { createGzip, createUnzip } from 'node:zlib'
 import {
   generateJsonSchemaFromData,
   JsonSchemaObject,
@@ -20,10 +17,6 @@ import {
 import {
   bufferReviver,
   ReadableTyped,
-  transformJsonParse,
-  transformSplit,
-  transformToNDJson,
-  writablePushToArray,
   _pipeline,
   dimGrey,
   yellow,
@@ -78,7 +71,7 @@ export interface InMemoryDBCfg {
   persistenceEnabled: boolean
 
   /**
-   * @default ./tmp/inmemorydb
+   * @default ./tmp/inmemorydb.ndjson.gz
    *
    * Will store one ndjson file per table.
    * Will only flush on demand (see .flushToDisk() and .restoreFromDisk() methods).
@@ -312,7 +305,6 @@ export class InMemoryDB implements CommonDB {
 
     await fs2.emptyDirAsync(persistentStoragePath)
 
-    const transformZip = persistZip ? [createGzip()] : []
     let tables = 0
 
     // infinite concurrency for now
@@ -323,12 +315,7 @@ export class InMemoryDB implements CommonDB {
       tables++
       const fname = `${persistentStoragePath}/${table}.ndjson${persistZip ? '.gz' : ''}`
 
-      await _pipeline([
-        Readable.from(rows),
-        transformToNDJson(),
-        ...transformZip,
-        fs.createWriteStream(fname),
-      ])
+      await _pipeline([Readable.from(rows), ...fs2.createWriteStreamAsNDJSON(fname)])
     })
 
     this.cfg.logger!.log(
@@ -349,24 +336,14 @@ export class InMemoryDB implements CommonDB {
 
     this.data = {} // empty it in the beginning!
 
-    const files = (await fsp.readdir(persistentStoragePath)).filter(f => f.includes('.ndjson'))
+    const files = (await fs2.readdirAsync(persistentStoragePath)).filter(f => f.includes('.ndjson'))
 
     // infinite concurrency for now
     await pMap(files, async file => {
       const fname = `${persistentStoragePath}/${file}`
       const table = file.split('.ndjson')[0]!
 
-      const transformUnzip = file.endsWith('.gz') ? [createUnzip()] : []
-
-      const rows: any[] = []
-
-      await _pipeline([
-        fs.createReadStream(fname),
-        ...transformUnzip,
-        transformSplit(), // splits by \n
-        transformJsonParse(),
-        writablePushToArray(rows),
-      ])
+      const rows = await fs2.createReadStreamAsNDJSON(fname).toArray()
 
       this.data[table] = _by(rows, r => r.id)
     })
