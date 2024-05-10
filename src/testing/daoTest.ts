@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream'
-import { _deepCopy, _pick, _sortBy, _omit, localTimeNow } from '@naturalcycles/js-lib'
+import { _deepCopy, _pick, _sortBy, _omit, nowUnix } from '@naturalcycles/js-lib'
 import { _pipeline } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
@@ -255,7 +255,7 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
       await dao.query().deleteByQuery()
 
       // Test that id, created, updated are created
-      const now = localTimeNow().unix()
+      const now = nowUnix()
 
       await dao.runInTransaction(async tx => {
         const row = _omit(item1, ['id', 'created', 'updated'])
