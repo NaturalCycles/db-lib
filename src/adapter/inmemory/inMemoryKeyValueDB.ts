@@ -45,6 +45,6 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
 
   async count(table: string): Promise<number> {
     this.data[table] ||= {}
-    return Object.keys(this.data[table]!).length
+    return Object.keys(this.data[table]).length
   }
 }
