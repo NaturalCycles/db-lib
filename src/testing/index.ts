@@ -6,27 +6,27 @@ import {
   createTestItemDBM,
   createTestItemsBM,
   createTestItemsDBM,
+  TEST_TABLE,
   TestItemBM,
   testItemBMJsonSchema,
   testItemBMSchema,
   TestItemDBM,
   TestItemTM,
   testItemTMSchema,
-  TEST_TABLE,
 } from './test.model'
 
-export type { TestItemDBM, TestItemBM, TestItemTM, CommonDBImplementationQuirks }
+export type { CommonDBImplementationQuirks, TestItemBM, TestItemDBM, TestItemTM }
 
 export {
-  TEST_TABLE,
-  createTestItemDBM,
   createTestItemBM,
-  createTestItemsDBM,
+  createTestItemDBM,
   createTestItemsBM,
+  createTestItemsDBM,
+  runCommonDaoTest,
+  runCommonDBTest,
+  runCommonKeyValueDBTest,
+  TEST_TABLE,
+  testItemBMJsonSchema,
   testItemBMSchema,
   testItemTMSchema,
-  testItemBMJsonSchema,
-  runCommonDBTest,
-  runCommonDaoTest,
-  runCommonKeyValueDBTest,
 }

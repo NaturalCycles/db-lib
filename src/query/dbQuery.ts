@@ -1,7 +1,7 @@
 import {
-  AsyncMapper,
-  _truncate,
   _objectAssign,
+  _truncate,
+  AsyncMapper,
   BaseDBEntity,
   ObjectWithId,
 } from '@naturalcycles/js-lib'

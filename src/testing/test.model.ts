@@ -1,4 +1,4 @@
-import { jsonSchema, _range, BaseDBEntity, JsonSchemaObject } from '@naturalcycles/js-lib'
+import { _range, BaseDBEntity, jsonSchema, JsonSchemaObject } from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,

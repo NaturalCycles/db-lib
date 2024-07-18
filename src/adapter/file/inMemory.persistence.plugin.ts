@@ -1,4 +1,4 @@
-import { StringMap, _by, ObjectWithId } from '@naturalcycles/js-lib'
+import { _by, ObjectWithId, StringMap } from '@naturalcycles/js-lib'
 import { DBSaveBatchOperation } from '../../db.model'
 import { FileDBPersistencePlugin } from './file.db.model'
 

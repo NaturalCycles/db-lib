@@ -1,18 +1,18 @@
 import { Readable } from 'node:stream'
-import { _deepCopy, _pick, _sortBy, _omit, nowUnix } from '@naturalcycles/js-lib'
+import { _deepCopy, _omit, _pick, _sortBy, nowUnix } from '@naturalcycles/js-lib'
 import { _pipeline } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
+import { TestItemBM } from '.'
 import { CommonDBImplementationQuirks, expectMatch } from './dbTest'
 import {
-  createTestItemsBM,
-  testItemBMSchema,
-  TEST_TABLE,
   createTestItemBM,
+  createTestItemsBM,
+  TEST_TABLE,
   testItemBMJsonSchema,
+  testItemBMSchema,
 } from './test.model'
-import { TestItemBM } from '.'
 
 export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
   const { support } = db

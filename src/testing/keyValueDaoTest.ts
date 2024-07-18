@@ -1,6 +1,6 @@
 import { _range, _sortBy } from '@naturalcycles/js-lib'
-import { KeyValueDBTuple } from '../kv/commonKeyValueDB'
 import { CommonKeyValueDao } from '../kv/commonKeyValueDao'
+import { KeyValueDBTuple } from '../kv/commonKeyValueDB'
 
 const testIds = _range(1, 4).map(n => `id${n}`)
 const testEntries: KeyValueDBTuple[] = testIds.map(id => [id, Buffer.from(`${id}value`)])

@@ -1,13 +1,13 @@
-import { mockTime, MOCK_TS_2018_06_21 } from '@naturalcycles/dev-lib/dist/testing'
+import { MOCK_TS_2018_06_21, mockTime } from '@naturalcycles/dev-lib/dist/testing'
 import {
-  ErrorMode,
+  _deepFreeze,
   _omit,
   _range,
   _sortBy,
-  pTry,
-  pExpectedError,
   BaseDBEntity,
-  _deepFreeze,
+  ErrorMode,
+  pExpectedError,
+  pTry,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -18,13 +18,13 @@ import {
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
 import {
+  createTestItemBM,
   createTestItemsBM,
-  testItemBMSchema,
   TEST_TABLE,
   TestItemBM,
-  TestItemDBM,
   testItemBMJsonSchema,
-  createTestItemBM,
+  testItemBMSchema,
+  TestItemDBM,
 } from '../testing'
 import { CommonDao } from './common.dao'
 import {
