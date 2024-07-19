@@ -1,4 +1,4 @@
-import { AsyncMemoCache, MISS, nowUnix, NumberOfSeconds } from '@naturalcycles/js-lib'
+import { AsyncMemoCache, localTime, MISS, NumberOfSeconds } from '@naturalcycles/js-lib'
 import { CommonKeyValueDao } from './commonKeyValueDao'
 
 export interface CommonKeyValueDaoMemoCacheCfg<VALUE> {
@@ -26,7 +26,7 @@ export class CommonKeyValueDaoMemoCache<VALUE = any> implements AsyncMemoCache<s
   }
 
   async set(k: string, v: VALUE): Promise<void> {
-    const opt = this.cfg.ttl ? { expireAt: nowUnix() + this.cfg.ttl } : undefined
+    const opt = this.cfg.ttl ? { expireAt: localTime.nowUnix() + this.cfg.ttl } : undefined
 
     await this.cfg.dao.save(k, v, opt)
   }
