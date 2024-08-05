@@ -11,6 +11,8 @@ import {
 } from './test.model'
 import { deepFreeze } from './test.util'
 
+/* eslint-disable jest/no-export */
+
 /**
  * All options default to `false`.
  */

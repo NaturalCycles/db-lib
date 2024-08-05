@@ -14,6 +14,7 @@ import {
   testItemBMSchema,
 } from './test.model'
 
+// eslint-disable-next-line jest/no-export
 export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
   const { support } = db
   const dao = new CommonDao({

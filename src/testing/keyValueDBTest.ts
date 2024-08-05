@@ -2,6 +2,8 @@ import { _range, _sortBy } from '@naturalcycles/js-lib'
 import { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
 import { TEST_TABLE } from './test.model'
 
+/* eslint-disable jest/no-export */
+
 const testIds = _range(1, 4).map(n => `id${n}`)
 
 const testEntries: KeyValueDBTuple[] = testIds.map(id => [id, Buffer.from(`${id}value`)])

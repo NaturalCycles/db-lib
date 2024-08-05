@@ -4,5 +4,3 @@ test('should not leak memory', () => {
   require('./testing')
   require('./adapter/cachedb')
 })
-
-export {}

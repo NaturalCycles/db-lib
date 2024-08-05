@@ -128,6 +128,9 @@ export class DBQuery<ROW extends ObjectWithId> {
     return this
   }
 
+  /**
+   * Passing 0 means "no limit".
+   */
   limit(limit: number): this {
     this._limitValue = limit
     return this
