@@ -187,7 +187,7 @@ test('patchById requireToExist', async () => {
         },
       ),
     ),
-  ).toMatchInlineSnapshot(`"AssertionError: TEST_TABLE.patchById(123456) is required, but missing"`)
+  ).toMatchInlineSnapshot(`"AssertionError: TEST_TABLE.patchById row is required, but missing"`)
 })
 
 test('patch', async () => {

@@ -656,7 +656,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
         return patched
       }
     } else {
-      _assert(!opt.requireToExist, `${this.cfg.table}.patchById(${id}) is required, but missing`)
+      const table = opt.table || this.cfg.table
+      _assert(!opt.requireToExist, `${table}.patchById row is required, but missing`, {
+        id,
+        table,
+      })
       patched = this.create({ ...patch, id }, opt)
     }
 
