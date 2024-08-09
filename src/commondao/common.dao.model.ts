@@ -203,7 +203,7 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
 
   /**
    * Defaults to false.
-   * If true - run patch operations (patch, patchById) in a Transaction.
+   * If true - run patch operations (patch, patchById, patchByIdOrCreate) in a Transaction.
    *
    * @experimental
    */
@@ -258,6 +258,18 @@ export interface CommonDaoSaveOptions<BM extends BaseDBEntity, DBM extends BaseD
    * It's supposed to be used to prevent "unnecessary saves", when data is not changed.
    */
   skipIfEquals?: BM
+}
+
+export interface CommonDaoPatchByIdOptions<DBM extends BaseDBEntity>
+  extends CommonDaoSaveBatchOptions<DBM> {
+  /**
+   * Defaults to false.
+   * With false, if the row doesn't exist - it will be auto-created with `dao.create`.
+   * With true, if the row doesn't exist - it will throw an error.
+   *
+   * Use true when you expect the row to exist and it would be an error if it doesn't.
+   */
+  requireToExist?: boolean
 }
 
 export interface CommonDaoPatchOptions<DBM extends BaseDBEntity>

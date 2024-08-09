@@ -7,6 +7,7 @@ import {
   BaseDBEntity,
   ErrorMode,
   pExpectedError,
+  pExpectedErrorString,
   pTry,
 } from '@naturalcycles/js-lib'
 import {
@@ -170,6 +171,23 @@ test('patchById', async () => {
       "updated": 1529539200,
     }
   `)
+})
+
+test('patchById requireToExist', async () => {
+  const id = '123456'
+  expect(
+    await pExpectedErrorString(
+      dao.patchById(
+        id,
+        {
+          k1: 'k111',
+        },
+        {
+          requireToExist: true,
+        },
+      ),
+    ),
+  ).toMatchInlineSnapshot(`"AssertionError: TEST_TABLE.patchById(123456) is required, but missing"`)
 })
 
 test('patch', async () => {

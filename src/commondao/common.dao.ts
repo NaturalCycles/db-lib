@@ -52,6 +52,7 @@ import {
   CommonDaoHooks,
   CommonDaoLogLevel,
   CommonDaoOptions,
+  CommonDaoPatchByIdOptions,
   CommonDaoPatchOptions,
   CommonDaoSaveBatchOptions,
   CommonDaoSaveOptions,
@@ -635,7 +636,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async patchById(
     id: string,
     patch: Partial<BM>,
-    opt: CommonDaoSaveBatchOptions<DBM> = {},
+    opt: CommonDaoPatchByIdOptions<DBM> = {},
   ): Promise<BM> {
     if (this.cfg.patchInTransaction && !opt.tx) {
       // patchInTransaction means that we should run this op in Transaction
@@ -655,6 +656,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
         return patched
       }
     } else {
+      _assert(!opt.requireToExist, `${this.cfg.table}.patchById(${id}) is required, but missing`)
       patched = this.create({ ...patch, id }, opt)
     }
 
@@ -667,7 +669,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   async patchByIdInTransaction(
     id: string,
     patch: Partial<BM>,
-    opt?: CommonDaoSaveBatchOptions<DBM>,
+    opt?: CommonDaoPatchByIdOptions<DBM>,
   ): Promise<BM> {
     return await this.runInTransaction(async daoTx => {
       return await this.patchById(id, patch, { ...opt, tx: daoTx.tx })
