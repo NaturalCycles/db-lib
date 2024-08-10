@@ -1,4 +1,4 @@
-import { _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
+import { _deepFreeze, _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
 import { CommonDB, CommonDBType } from '../common.db'
 import { DBIncrement, DBPatch } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
@@ -9,7 +9,6 @@ import {
   testItemBMJsonSchema,
   TestItemDBM,
 } from './test.model'
-import { deepFreeze } from './test.util'
 
 /* eslint-disable jest/no-export */
 
@@ -31,7 +30,7 @@ export interface CommonDBImplementationQuirks {
 export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
   const { support } = db
   const items = createTestItemsDBM(3)
-  deepFreeze(items)
+  _deepFreeze(items)
   const item1 = items[0]!
 
   const queryAll = (): DBQuery<TestItemDBM> => DBQuery.create<TestItemDBM>(TEST_TABLE)
@@ -88,7 +87,7 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
         ...createTestItemDBM(3),
         k2: null,
       }
-      deepFreeze(item3)
+      _deepFreeze(item3)
       await db.saveBatch(TEST_TABLE, [item3])
       const item3Loaded = (await db.getByIds<TestItemDBM>(TEST_TABLE, [item3.id]))[0]!
       expectMatch([item3], [item3Loaded], quirks)
@@ -102,7 +101,7 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
         ...createTestItemDBM(3),
         k2: undefined,
       }
-      deepFreeze(item3)
+      _deepFreeze(item3)
       const expected = { ...item3 }
       delete expected.k2
 

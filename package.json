@@ -13,6 +13,7 @@
     "@naturalcycles/nodejs-lib": "^13.1.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
     "@naturalcycles/bench-lib": "^3.0.0",
     "@naturalcycles/dev-lib": "^15.4.1",
     "@types/node": "^22.1.0",

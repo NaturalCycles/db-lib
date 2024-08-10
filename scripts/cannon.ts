@@ -4,7 +4,6 @@ yarn tsn cannon
 
  */
 
-/* eslint-disable unused-imports/no-unused-vars */
 import { expressFunctionFactory, runCannon } from '@naturalcycles/bench-lib'
 import { _omit } from '@naturalcycles/js-lib'
 import { getValidationResult, runScript, stringId } from '@naturalcycles/nodejs-lib'
@@ -38,12 +37,14 @@ const dao = new CommonDao({
   bmSchema: testItemBMSchema,
 })
 
+// biome-ignore lint: ok
 async function register1(): Promise<any> {
   const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
   return { item }
 }
 
+// biome-ignore lint: ok
 async function register2(): Promise<any> {
   const item = createTestItemsBM(1).map(r => _omit(r, ['id']))[0]!
   item.id = stringId()
