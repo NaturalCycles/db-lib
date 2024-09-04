@@ -10,8 +10,6 @@ import {
   TestItemDBM,
 } from './test.model'
 
-/* eslint-disable jest/no-export */
-
 /**
  * All options default to `false`.
  */
