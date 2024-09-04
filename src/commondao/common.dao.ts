@@ -295,6 +295,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   }
 
   async runQueryExtended(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<RunQueryResult<BM>> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const op = `runQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -323,6 +324,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     q: DBQuery<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<RunQueryResult<DBM>> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const op = `runQueryAsDBM(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -340,6 +342,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   }
 
   async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const op = `runQueryCount(${q.pretty()})`
     const started = this.logStarted(op, q.table)
@@ -355,6 +358,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     mapper: AsyncMapper<BM, void>,
     opt: CommonDaoStreamForEachOptions<BM> = {},
   ): Promise<void> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
@@ -404,6 +408,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     mapper: AsyncMapper<DBM, void>,
     opt: CommonDaoStreamForEachOptions<DBM> = {},
   ): Promise<void> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
@@ -452,6 +457,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * Stream as Readable, to be able to .pipe() it further with support of backpressure.
    */
   streamQueryAsDBM(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<DBM> = {}): ReadableTyped<DBM> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
@@ -490,6 +496,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
    * You can do `.pipe(transformNoOp)` to make it "valid again".
    */
   streamQuery(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<BM> = {}): ReadableTyped<BM> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.skipValidation = opt.skipValidation !== false // default true
     opt.errorMode ||= ErrorMode.SUPPRESS
@@ -540,12 +547,14 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
   }
 
   async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<string[]> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
     return rows.map(r => r.id)
   }
 
   streamQueryIds(q: DBQuery<DBM>, opt: CommonDaoStreamOptions<string> = {}): ReadableTyped<string> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
@@ -572,6 +581,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     mapper: AsyncMapper<string, void>,
     opt: CommonDaoStreamForEachOptions<string> = {},
   ): Promise<void> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     opt.errorMode ||= ErrorMode.SUPPRESS
 
@@ -1015,6 +1025,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     q: DBQuery<DBM>,
     opt: CommonDaoStreamDeleteOptions<DBM> = {},
   ): Promise<number> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     this.requireWriteAccess()
     this.requireObjectMutability(opt)
     q.table = opt.table || q.table
@@ -1073,6 +1084,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     patch: DBPatch<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<number> {
+    this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     this.requireWriteAccess()
     this.requireObjectMutability(opt)
     q.table = opt.table || q.table
@@ -1257,6 +1269,24 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
     }, opt)
 
     return r!
+  }
+
+  /**
+   * Throws if query uses a property that is in `excludeFromIndexes` list.
+   */
+  private validateQueryIndexes(q: DBQuery<DBM>): void {
+    const { excludeFromIndexes } = this.cfg
+    if (!excludeFromIndexes) return
+
+    for (const f of q._filters) {
+      _assert(
+        !excludeFromIndexes.includes(f.name),
+        `cannot query on non-indexed property: ${this.cfg.table}.${f.name as string}`,
+        {
+          query: q.pretty(),
+        },
+      )
+    }
   }
 
   protected logResult(started: number, op: string, res: any, table: string): void {

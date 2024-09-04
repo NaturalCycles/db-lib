@@ -62,7 +62,6 @@ const daoCfg: CommonDaoCfg<TestItemBM, TestItemDBM> = {
 const dao = new CommonDao(daoCfg)
 
 beforeEach(async () => {
-  jest.resetAllMocks()
   await db.resetCache()
   mockTime()
 })
@@ -538,4 +537,24 @@ test('runInTransaction', async () => {
 
   const items2 = await dao.query().runQuery()
   expect(items2.map(i => i.id).sort()).toEqual(['id1', 'id4'])
+})
+
+test('should not be able to query by a non-indexed property', async () => {
+  const db = new InMemoryDB()
+  const dao = new CommonDao<TestItemBM>({
+    table: TEST_TABLE,
+    db,
+    excludeFromIndexes: ['k1'],
+  })
+
+  await dao.saveBatch(createTestItemsBM(5))
+
+  expect(await dao.query().filterEq('k2', 'v2').runQueryCount()).toBe(1)
+  expect(await dao.query().filterEq('k2', 'v-non-existing').runQueryCount()).toBe(0)
+
+  await expect(
+    dao.query().filterEq('k1', 'v1').runQueryCount(),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `"cannot query on non-indexed property: TEST_TABLE.k1"`,
+  )
 })
