@@ -17,26 +17,26 @@ import {
 import { CommonDB } from '../common.db'
 import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
-export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity> {
+export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity, ID = BM['id']> {
   /**
    * Allows to override the id generation function.
    * By default it uses `stringId` from nodejs-lib
    * (which uses lowercase alphanumberic alphabet and the size of 16).
    */
-  createRandomId: () => string
+  createRandomId: () => ID
 
   /**
    * createNaturalId hook is called (tried) first.
    * If it doesn't exist - createRandomId is called.
    */
-  createNaturalId: (obj: DBM | BM) => string
+  createNaturalId: (obj: DBM | BM) => ID
 
   /**
    * It's a counter-part of `createNaturalId`.
    * Allows to provide a parser function to parse "natural id" into
    * DBM components (e.g accountId and some other property that is part of the id).
    */
-  parseNaturalId: (id: string) => Partial<DBM>
+  parseNaturalId: (id: ID) => Partial<DBM>
 
   /**
    * It is called only on `dao.create` method.
@@ -118,7 +118,11 @@ export enum CommonDaoLogLevel {
   DATA_FULL = 30,
 }
 
-export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM> {
+export interface CommonDaoCfg<
+  BM extends BaseDBEntity,
+  DBM extends BaseDBEntity = BM,
+  ID = BM['id'],
+> {
   db: CommonDB
   table: string
 
@@ -174,7 +178,7 @@ export interface CommonDaoCfg<BM extends BaseDBEntity, DBM extends BaseDBEntity 
   logStarted?: boolean
 
   // Hooks are designed with inspiration from got/ky interface
-  hooks?: Partial<CommonDaoHooks<BM, DBM>>
+  hooks?: Partial<CommonDaoHooks<BM, DBM, ID>>
 
   /**
    * Defaults to true.
