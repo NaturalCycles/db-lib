@@ -112,8 +112,9 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
   }
 
   // GET
-  async getById(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
-  async getById(id?: ID | null, opt?: CommonDaoOptions): Promise<BM | null>
+  // overrides are disabled now, as they obfuscate errors when ID branded type is used
+  // async getById(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
+  // async getById(id?: ID | null, opt?: CommonDaoOptions): Promise<BM | null>
   async getById(id?: ID | null, opt: CommonDaoOptions = {}): Promise<BM | null> {
     if (!id) return null
     const op = `getById(${id})`
@@ -137,8 +138,8 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return this.create({ ...part, id }, opt)
   }
 
-  async getByIdAsDBM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
-  async getByIdAsDBM(id?: ID | null, opt?: CommonDaoOptions): Promise<DBM | null>
+  // async getByIdAsDBM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
+  // async getByIdAsDBM(id?: ID | null, opt?: CommonDaoOptions): Promise<DBM | null>
   async getByIdAsDBM(id?: ID | null, opt: CommonDaoOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
