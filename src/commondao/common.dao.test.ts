@@ -124,7 +124,7 @@ test('should propagate pipe errors', async () => {
   expect(results).toEqual(items.filter(i => i.id !== 'id3'))
 
   // THROW_IMMEDIATELY
-  const results2 = []
+  const results2: any[] = []
   await expect(
     dao.query().streamQueryForEach(r => void results2.push(r), {
       ...opt,

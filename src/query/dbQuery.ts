@@ -193,7 +193,7 @@ export class DBQuery<ROW extends ObjectWithId> {
   }
 
   prettyConditions(): string[] {
-    const tokens = []
+    const tokens: string[] = []
 
     // if (this.name) {
     //   tokens.push(`"${this.name}"`)

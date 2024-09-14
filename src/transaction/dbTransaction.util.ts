@@ -120,11 +120,7 @@ export class FakeDBTransaction implements DBTransaction {
   ): Promise<void> {
     await this.db.saveBatch(table, rows, opt)
   }
-  async deleteByIds(
-    table: string,
-    ids: string[],
-    opt?: CommonDBOptions | undefined,
-  ): Promise<number> {
+  async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
     return await this.db.deleteByIds(table, ids, opt)
   }
 }
