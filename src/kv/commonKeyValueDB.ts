@@ -49,4 +49,6 @@ export interface CommonKeyValueDB {
   streamEntries: (table: string, limit?: number) => ReadableTyped<KeyValueDBTuple>
 
   count: (table: string) => Promise<number>
+
+  increment: (table: string, id: string, by?: number) => Promise<number>
 }

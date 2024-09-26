@@ -1,5 +1,6 @@
 import { runCommonDaoTest } from './daoTest'
 import { CommonDBImplementationQuirks, runCommonDBTest } from './dbTest'
+import { runCommonHashKeyValueDBTest } from './hashKeyValueDBTest'
 import { runCommonKeyValueDBTest } from './keyValueDBTest'
 import {
   createTestItemBM,
@@ -24,6 +25,7 @@ export {
   createTestItemsDBM,
   runCommonDaoTest,
   runCommonDBTest,
+  runCommonHashKeyValueDBTest,
   runCommonKeyValueDBTest,
   TEST_TABLE,
   testItemBMJsonSchema,

@@ -47,4 +47,14 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     this.data[table] ||= {}
     return Object.keys(this.data[table]).length
   }
+
+  async increment(table: string, id: string, by = 1): Promise<number> {
+    this.data[table] ||= {}
+
+    const currentValue = this.data[table][id] ? parseInt(this.data[table][id].toString()) : 0
+    const newValue = currentValue + by
+    this.data[table][id] = Buffer.from(String(newValue))
+
+    return newValue
+  }
 }
