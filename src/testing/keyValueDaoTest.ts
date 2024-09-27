@@ -85,16 +85,6 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     expect(entriesLimited.length).toBe(2)
   })
 
-  test('getAllEntries should get all entries', async () => {
-    const entries = await dao.getAllEntries()
-    _sortBy(entries, e => e[0], true)
-    expect(entries).toEqual([
-      ['id1', Buffer.from('id1value')],
-      ['id2', Buffer.from('id2value')],
-      ['id3', Buffer.from('id3value')],
-    ])
-  })
-
   test('deleteByIds should clear', async () => {
     await dao.deleteByIds(testIds)
     const results = await dao.getByIds(testIds)

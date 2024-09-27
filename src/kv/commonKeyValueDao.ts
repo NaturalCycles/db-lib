@@ -256,8 +256,4 @@ export class CommonKeyValueDao<T> {
   async increment(id: string, by = 1): Promise<number> {
     return await this.cfg.db.increment(this.cfg.table, id, by)
   }
-
-  async getAllEntries(): Promise<KeyValueTuple<string, T>[]> {
-    return await this.streamEntries().toArray()
-  }
 }
