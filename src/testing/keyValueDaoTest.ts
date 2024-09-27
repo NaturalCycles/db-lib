@@ -6,6 +6,20 @@ const testIds = _range(1, 4).map(n => `id${n}`)
 const testEntries: KeyValueDBTuple[] = testIds.map(id => [id, Buffer.from(`${id}value`)])
 
 export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
+  beforeAll(async () => {
+    // Tests in this suite are not isolated,
+    // and failing tests can leave the DB in an unexpected state for other tests,
+    // including the following test run.
+    // Here we clear the table before running the tests.
+    const ids = await dao.streamIds().toArray()
+    await dao.deleteByIds(ids)
+  })
+
+  afterAll(async () => {
+    const ids = await dao.streamIds().toArray()
+    await dao.deleteByIds(ids)
+  })
+
   test('ping', async () => {
     await dao.ping()
   })
@@ -71,9 +85,34 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     expect(entriesLimited.length).toBe(2)
   })
 
+  test('getAllEntries should get all entries', async () => {
+    const entries = await dao.getAllEntries()
+    _sortBy(entries, e => e[0], true)
+    expect(entries).toEqual([
+      ['id1', Buffer.from('id1value')],
+      ['id2', Buffer.from('id2value')],
+      ['id3', Buffer.from('id3value')],
+    ])
+  })
+
   test('deleteByIds should clear', async () => {
     await dao.deleteByIds(testIds)
     const results = await dao.getByIds(testIds)
     expect(results).toEqual([])
+  })
+
+  test('increment on a non-existing field should set the value to 1', async () => {
+    const result = await dao.increment('nonExistingField')
+    expect(result).toBe(1)
+  })
+
+  test('increment on a existing field should increase the value by one', async () => {
+    const result = await dao.increment('nonExistingField')
+    expect(result).toBe(2)
+  })
+
+  test('increment should increase the value by the specified amount', async () => {
+    const result = await dao.increment('nonExistingField', 2)
+    expect(result).toBe(4)
   })
 }
