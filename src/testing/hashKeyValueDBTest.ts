@@ -13,6 +13,11 @@ export function runCommonHashKeyValueDBTest(db: CommonKeyValueDB): void {
     await db.deleteByIds(TEST_TABLE, ids)
   })
 
+  afterAll(async () => {
+    const ids = await db.streamIds(TEST_TABLE).toArray()
+    await db.deleteByIds(TEST_TABLE, ids)
+  })
+
   runCommonKeyValueDBTest(db)
 
   test('increment on a non-existing field should set the value to 1', async () => {
