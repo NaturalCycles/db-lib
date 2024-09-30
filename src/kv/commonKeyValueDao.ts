@@ -253,6 +253,12 @@ export class CommonKeyValueDao<T> {
     )
   }
 
+  /**
+   * Increments the `id` field by the amount specified in `by`,
+   * or by 1 if `by` is not specified.
+   *
+   * Returns the new value of the field.
+   */
   async increment(id: string, by = 1): Promise<number> {
     return await this.cfg.db.increment(this.cfg.table, id, by)
   }

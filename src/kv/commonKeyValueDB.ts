@@ -50,5 +50,12 @@ export interface CommonKeyValueDB {
 
   count: (table: string) => Promise<number>
 
+  /**
+   *
+   * Increments the value of a key in a table by a given amount.
+   * Default increment is 1 when `by` is not provided.
+   *
+   * Returns the new value.
+   */
   increment: (table: string, id: string, by?: number) => Promise<number>
 }
