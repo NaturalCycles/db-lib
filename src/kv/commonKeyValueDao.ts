@@ -53,7 +53,7 @@ export type CommonKeyValueDaoSaveOptions = CommonKeyValueDBSaveBatchOptions
 // todo: logging
 // todo: readonly
 
-export class CommonKeyValueDao<T> {
+export class CommonKeyValueDao<T, Key extends string = string> {
   constructor(cfg: CommonKeyValueDaoCfg<T>) {
     this.cfg = {
       hooks: {},
@@ -89,19 +89,19 @@ export class CommonKeyValueDao<T> {
     } as T
   }
 
-  async getById(id?: string): Promise<T | null> {
+  async getById(id?: Key): Promise<T | null> {
     if (!id) return null
     const [r] = await this.getByIds([id])
     return r?.[1] || null
   }
 
-  async getByIdAsBuffer(id?: string): Promise<Buffer | null> {
+  async getByIdAsBuffer(id?: Key): Promise<Buffer | null> {
     if (!id) return null
     const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
     return r?.[1] || null
   }
 
-  async requireById(id: string): Promise<T> {
+  async requireById(id: Key): Promise<T> {
     const [r] = await this.getByIds([id])
 
     if (!r) {
@@ -115,7 +115,7 @@ export class CommonKeyValueDao<T> {
     return r[1]
   }
 
-  async requireByIdAsBuffer(id: string): Promise<Buffer> {
+  async requireByIdAsBuffer(id: Key): Promise<Buffer> {
     const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
 
     if (!r) {
@@ -129,7 +129,7 @@ export class CommonKeyValueDao<T> {
     return r[1]
   }
 
-  async getByIdOrEmpty(id: string, part: Partial<T> = {}): Promise<T> {
+  async getByIdOrEmpty(id: Key, part: Partial<T> = {}): Promise<T> {
     const [r] = await this.getByIds([id])
     if (r) return r[1]
 
@@ -139,7 +139,7 @@ export class CommonKeyValueDao<T> {
     } as T
   }
 
-  async patch(id: string, patch: Partial<T>, opt?: CommonKeyValueDaoSaveOptions): Promise<T> {
+  async patch(id: Key, patch: Partial<T>, opt?: CommonKeyValueDaoSaveOptions): Promise<T> {
     const v: T = {
       ...(await this.getByIdOrEmpty(id)),
       ...patch,
@@ -150,7 +150,7 @@ export class CommonKeyValueDao<T> {
     return v
   }
 
-  async getByIds(ids: string[]): Promise<KeyValueTuple<string, T>[]> {
+  async getByIds(ids: Key[]): Promise<KeyValueTuple<string, T>[]> {
     const entries = await this.cfg.db.getByIds(this.cfg.table, ids)
     if (!this.cfg.hooks.mapBufferToValue) return entries as any
 
@@ -160,20 +160,20 @@ export class CommonKeyValueDao<T> {
     ])
   }
 
-  async getByIdsAsBuffer(ids: string[]): Promise<KeyValueTuple<string, Buffer>[]> {
-    return await this.cfg.db.getByIds(this.cfg.table, ids)
+  async getByIdsAsBuffer(ids: Key[]): Promise<KeyValueTuple<Key, Buffer>[]> {
+    return (await this.cfg.db.getByIds(this.cfg.table, ids)) as KeyValueTuple<Key, Buffer>[]
   }
 
-  async save(id: string, value: T, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+  async save(id: Key, value: T, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
     await this.saveBatch([[id, value]], opt)
   }
 
-  async saveAsBuffer(id: string, value: Buffer, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+  async saveAsBuffer(id: Key, value: Buffer, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
     await this.cfg.db.saveBatch(this.cfg.table, [[id, value]], opt)
   }
 
   async saveBatch(
-    entries: KeyValueTuple<string, T>[],
+    entries: KeyValueTuple<Key, T>[],
     opt?: CommonKeyValueDaoSaveOptions,
   ): Promise<void> {
     const { mapValueToBuffer } = this.cfg.hooks
@@ -195,11 +195,11 @@ export class CommonKeyValueDao<T> {
     await this.cfg.db.saveBatch(this.cfg.table, entries, opt)
   }
 
-  async deleteByIds(ids: string[]): Promise<void> {
+  async deleteByIds(ids: Key[]): Promise<void> {
     await this.cfg.db.deleteByIds(this.cfg.table, ids)
   }
 
-  async deleteById(id: string): Promise<void> {
+  async deleteById(id: Key): Promise<void> {
     await this.cfg.db.deleteByIds(this.cfg.table, [id])
   }
 
@@ -259,7 +259,7 @@ export class CommonKeyValueDao<T> {
    *
    * Returns the new value of the field.
    */
-  async increment(id: string, by = 1): Promise<number> {
+  async increment(id: Key, by = 1): Promise<number> {
     return await this.cfg.db.increment(this.cfg.table, id, by)
   }
 }
