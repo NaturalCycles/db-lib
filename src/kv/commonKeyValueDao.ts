@@ -53,8 +53,8 @@ export type CommonKeyValueDaoSaveOptions = CommonKeyValueDBSaveBatchOptions
 // todo: logging
 // todo: readonly
 
-export class CommonKeyValueDao<T, Key extends string = string> {
-  constructor(cfg: CommonKeyValueDaoCfg<T>) {
+export class CommonKeyValueDao<V, K extends string = string> {
+  constructor(cfg: CommonKeyValueDaoCfg<V>) {
     this.cfg = {
       hooks: {},
       logger: console,
@@ -70,8 +70,8 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     }
   }
 
-  cfg: CommonKeyValueDaoCfg<T> & {
-    hooks: NonNullable<CommonKeyValueDaoCfg<T>['hooks']>
+  cfg: CommonKeyValueDaoCfg<V> & {
+    hooks: NonNullable<CommonKeyValueDaoCfg<V>['hooks']>
     logger: CommonLogger
   }
 
@@ -83,25 +83,25 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     await this.cfg.db.createTable(this.cfg.table, opt)
   }
 
-  create(input: Partial<T> = {}): T {
+  create(input: Partial<V> = {}): V {
     return {
       ...this.cfg.hooks.beforeCreate?.(input),
-    } as T
+    } as V
   }
 
-  async getById(id?: Key): Promise<T | null> {
+  async getById(id?: K): Promise<V | null> {
     if (!id) return null
     const [r] = await this.getByIds([id])
     return r?.[1] || null
   }
 
-  async getByIdAsBuffer(id?: Key): Promise<Buffer | null> {
+  async getByIdAsBuffer(id?: K): Promise<Buffer | null> {
     if (!id) return null
     const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
     return r?.[1] || null
   }
 
-  async requireById(id: Key): Promise<T> {
+  async requireById(id: K): Promise<V> {
     const [r] = await this.getByIds([id])
 
     if (!r) {
@@ -115,7 +115,7 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     return r[1]
   }
 
-  async requireByIdAsBuffer(id: Key): Promise<Buffer> {
+  async requireByIdAsBuffer(id: K): Promise<Buffer> {
     const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
 
     if (!r) {
@@ -129,18 +129,18 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     return r[1]
   }
 
-  async getByIdOrEmpty(id: Key, part: Partial<T> = {}): Promise<T> {
+  async getByIdOrEmpty(id: K, part: Partial<V> = {}): Promise<V> {
     const [r] = await this.getByIds([id])
     if (r) return r[1]
 
     return {
       ...this.cfg.hooks.beforeCreate?.({}),
       ...part,
-    } as T
+    } as V
   }
 
-  async patch(id: Key, patch: Partial<T>, opt?: CommonKeyValueDaoSaveOptions): Promise<T> {
-    const v: T = {
+  async patch(id: K, patch: Partial<V>, opt?: CommonKeyValueDaoSaveOptions): Promise<V> {
+    const v: V = {
       ...(await this.getByIdOrEmpty(id)),
       ...patch,
     }
@@ -150,7 +150,7 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     return v
   }
 
-  async getByIds(ids: Key[]): Promise<KeyValueTuple<string, T>[]> {
+  async getByIds(ids: K[]): Promise<KeyValueTuple<string, V>[]> {
     const entries = await this.cfg.db.getByIds(this.cfg.table, ids)
     if (!this.cfg.hooks.mapBufferToValue) return entries as any
 
@@ -160,20 +160,20 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     ])
   }
 
-  async getByIdsAsBuffer(ids: Key[]): Promise<KeyValueTuple<Key, Buffer>[]> {
-    return (await this.cfg.db.getByIds(this.cfg.table, ids)) as KeyValueTuple<Key, Buffer>[]
+  async getByIdsAsBuffer(ids: K[]): Promise<KeyValueTuple<K, Buffer>[]> {
+    return (await this.cfg.db.getByIds(this.cfg.table, ids)) as KeyValueTuple<K, Buffer>[]
   }
 
-  async save(id: Key, value: T, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+  async save(id: K, value: V, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
     await this.saveBatch([[id, value]], opt)
   }
 
-  async saveAsBuffer(id: Key, value: Buffer, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
+  async saveAsBuffer(id: K, value: Buffer, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
     await this.cfg.db.saveBatch(this.cfg.table, [[id, value]], opt)
   }
 
   async saveBatch(
-    entries: KeyValueTuple<Key, T>[],
+    entries: KeyValueTuple<K, V>[],
     opt?: CommonKeyValueDaoSaveOptions,
   ): Promise<void> {
     const { mapValueToBuffer } = this.cfg.hooks
@@ -195,11 +195,11 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     await this.cfg.db.saveBatch(this.cfg.table, entries, opt)
   }
 
-  async deleteByIds(ids: Key[]): Promise<void> {
+  async deleteByIds(ids: K[]): Promise<void> {
     await this.cfg.db.deleteByIds(this.cfg.table, ids)
   }
 
-  async deleteById(id: Key): Promise<void> {
+  async deleteById(id: K): Promise<void> {
     await this.cfg.db.deleteByIds(this.cfg.table, [id])
   }
 
@@ -207,11 +207,11 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     return this.cfg.db.streamIds(this.cfg.table, limit)
   }
 
-  streamValues(limit?: number): ReadableTyped<T> {
+  streamValues(limit?: number): ReadableTyped<V> {
     const { mapBufferToValue } = this.cfg.hooks
 
     if (!mapBufferToValue) {
-      return this.cfg.db.streamValues(this.cfg.table, limit) as ReadableTyped<T>
+      return this.cfg.db.streamValues(this.cfg.table, limit) as ReadableTyped<V>
     }
 
     return this.cfg.db.streamValues(this.cfg.table, limit).flatMap(
@@ -229,19 +229,17 @@ export class CommonKeyValueDao<T, Key extends string = string> {
     )
   }
 
-  streamEntries(limit?: number): ReadableTyped<KeyValueTuple<string, T>> {
+  streamEntries(limit?: number): ReadableTyped<KeyValueTuple<K, V>> {
     const { mapBufferToValue } = this.cfg.hooks
 
     if (!mapBufferToValue) {
-      return this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<
-        KeyValueTuple<string, T>
-      >
+      return this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<KeyValueTuple<K, V>>
     }
 
     return this.cfg.db.streamEntries(this.cfg.table, limit).flatMap(
       async ([id, buf]) => {
         try {
-          return [[id, await mapBufferToValue(buf)]]
+          return [[id as K, await mapBufferToValue(buf)]]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
@@ -259,7 +257,7 @@ export class CommonKeyValueDao<T, Key extends string = string> {
    *
    * Returns the new value of the field.
    */
-  async increment(id: Key, by = 1): Promise<number> {
+  async increment(id: K, by = 1): Promise<number> {
     return await this.cfg.db.increment(this.cfg.table, id, by)
   }
 }
