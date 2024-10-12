@@ -20,6 +20,8 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     await dao.deleteByIds(ids)
   })
 
+  const { support } = dao.cfg.db
+
   test('ping', async () => {
     await dao.ping()
   })
@@ -91,18 +93,20 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     expect(results).toEqual([])
   })
 
-  test('increment on a non-existing field should set the value to 1', async () => {
-    const result = await dao.increment('nonExistingField')
-    expect(result).toBe(1)
-  })
+  if (support.increment) {
+    test('increment on a non-existing field should set the value to 1', async () => {
+      const result = await dao.increment('nonExistingField')
+      expect(result).toBe(1)
+    })
 
-  test('increment on a existing field should increase the value by one', async () => {
-    const result = await dao.increment('nonExistingField')
-    expect(result).toBe(2)
-  })
+    test('increment on a existing field should increase the value by one', async () => {
+      const result = await dao.increment('nonExistingField')
+      expect(result).toBe(2)
+    })
 
-  test('increment should increase the value by the specified amount', async () => {
-    const result = await dao.increment('nonExistingField', 2)
-    expect(result).toBe(4)
-  })
+    test('increment should increase the value by the specified amount', async () => {
+      const result = await dao.increment('nonExistingField', 2)
+      expect(result).toBe(4)
+    })
+  }
 }

@@ -28,23 +28,6 @@ export interface CommonDB {
    */
   support: CommonDBSupport
 
-  // Support flags indicate which of the CommonDB features are supported by this implementation.
-  supportsQueries?: boolean
-  supportsDBQueryFilter?: boolean
-  supportsDBQueryFilterIn?: boolean
-  supportsDBQueryOrder?: boolean
-  supportsDBQuerySelectFields?: boolean
-  supportsInsertSaveMethod?: boolean
-  supportsUpdateSaveMethod?: boolean
-  supportsUpdateByQuery?: boolean
-  supportsDBIncrement?: boolean
-  supportsCreateTable?: boolean
-  supportsTableSchemas?: boolean
-  supportsStreaming?: boolean
-  supportsBufferValues?: boolean
-  supportsNullValues?: boolean
-  supportsTransactions?: boolean
-
   /**
    * Checks that connection/credentials/etc is ok.
    * Also acts as a "warmup request" for a DB.

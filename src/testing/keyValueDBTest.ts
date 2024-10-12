@@ -21,6 +21,8 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
     await db.deleteByIds(TEST_TABLE, ids)
   })
 
+  const { support } = db
+
   test('ping', async () => {
     await db.ping()
   })
@@ -50,9 +52,11 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
     expect(entries).toEqual(testEntries)
   })
 
-  test('count should be 3', async () => {
-    expect(await db.count(TEST_TABLE)).toBe(3)
-  })
+  if (support.count) {
+    test('count should be 3', async () => {
+      expect(await db.count(TEST_TABLE)).toBe(3)
+    })
+  }
 
   test('streamIds', async () => {
     const ids = await db.streamIds(TEST_TABLE).toArray()
@@ -100,18 +104,20 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
     expect(results).toEqual([])
   })
 
-  test('increment on a non-existing field should set the value to 1', async () => {
-    const result = await db.increment(TEST_TABLE, 'nonExistingField')
-    expect(result).toBe(1)
-  })
+  if (support.increment) {
+    test('increment on a non-existing field should set the value to 1', async () => {
+      const result = await db.increment(TEST_TABLE, 'nonExistingField')
+      expect(result).toBe(1)
+    })
 
-  test('increment on a existing field should increase the value by one', async () => {
-    const result = await db.increment(TEST_TABLE, 'nonExistingField')
-    expect(result).toBe(2)
-  })
+    test('increment on a existing field should increase the value by one', async () => {
+      const result = await db.increment(TEST_TABLE, 'nonExistingField')
+      expect(result).toBe(2)
+    })
 
-  test('increment should increase the value by the specified amount', async () => {
-    const result = await db.increment(TEST_TABLE, 'nonExistingField', 2)
-    expect(result).toBe(4)
-  })
+    test('increment should increase the value by the specified amount', async () => {
+      const result = await db.increment(TEST_TABLE, 'nonExistingField', 2)
+      expect(result).toBe(4)
+    })
+  }
 }

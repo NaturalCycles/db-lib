@@ -2,12 +2,20 @@ import { Readable } from 'node:stream'
 import { StringMap } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../../db.model'
-import { CommonKeyValueDB, KeyValueDBTuple } from '../../kv/commonKeyValueDB'
+import {
+  CommonKeyValueDB,
+  commonKeyValueDBFullSupport,
+  KeyValueDBTuple,
+} from '../../kv/commonKeyValueDB'
 
 export interface InMemoryKeyValueDBCfg {}
 
 export class InMemoryKeyValueDB implements CommonKeyValueDB {
   constructor(public cfg: InMemoryKeyValueDBCfg = {}) {}
+
+  support = {
+    ...commonKeyValueDBFullSupport,
+  }
 
   // data[table][id] > Buffer
   data: StringMap<StringMap<Buffer>> = {}
