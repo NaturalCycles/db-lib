@@ -1,4 +1,4 @@
-import { UnixTimestampNumber } from '@naturalcycles/js-lib'
+import { StringMap, UnixTimestampNumber } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../db.model'
 
@@ -46,13 +46,28 @@ export interface CommonKeyValueDB {
   count: (table: string) => Promise<number>
 
   /**
-   *
    * Increments the value of a key in a table by a given amount.
    * Default increment is 1 when `by` is not provided.
    *
    * Returns the new value.
+   *
+   * @experimental
    */
   increment: (table: string, id: string, by?: number) => Promise<number>
+
+  /**
+   * Perform a batch of Increment operations.
+   * Given incrementMap, increment each key of it by the given amount (value of the map).
+   *
+   * Example:
+   * { key1: 2, key2: 3 }
+   * would increment `key1` by 2, and `key2` by 3.
+   *
+   * Returns the incrementMap with the same keys and updated values.
+   *
+   * @experimental
+   */
+  incrementBatch: (table: string, incrementMap: StringMap<number>) => Promise<StringMap<number>>
 }
 
 export type KeyValueDBTuple = [key: string, value: Buffer]

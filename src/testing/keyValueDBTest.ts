@@ -105,19 +105,33 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   })
 
   if (support.increment) {
+    const id = 'nonExistingField'
+    const id2 = 'nonExistingField2'
+
     test('increment on a non-existing field should set the value to 1', async () => {
-      const result = await db.increment(TEST_TABLE, 'nonExistingField')
+      const result = await db.increment(TEST_TABLE, id)
       expect(result).toBe(1)
     })
 
     test('increment on a existing field should increase the value by one', async () => {
-      const result = await db.increment(TEST_TABLE, 'nonExistingField')
+      const result = await db.increment(TEST_TABLE, id)
       expect(result).toBe(2)
     })
 
     test('increment should increase the value by the specified amount', async () => {
-      const result = await db.increment(TEST_TABLE, 'nonExistingField', 2)
+      const result = await db.increment(TEST_TABLE, id, 2)
       expect(result).toBe(4)
+    })
+
+    test('increment 2 ids at the same time', async () => {
+      const result = await db.incrementBatch(TEST_TABLE, {
+        [id]: 1,
+        [id2]: 2,
+      })
+      expect(result).toEqual({
+        [id]: 5,
+        [id2]: 2,
+      })
     })
   }
 }

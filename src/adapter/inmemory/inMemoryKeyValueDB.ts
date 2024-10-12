@@ -1,5 +1,5 @@
 import { Readable } from 'node:stream'
-import { StringMap } from '@naturalcycles/js-lib'
+import { _stringMapEntries, StringMap } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../../db.model'
 import {
@@ -29,6 +29,7 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ids.forEach(id => delete this.data[table]![id])
   }
 
+  // todo: but should we work with Tuples or Objects?
   async getByIds(table: string, ids: string[]): Promise<KeyValueDBTuple[]> {
     this.data[table] ||= {}
     return ids.map(id => [id, this.data[table]![id]!] as KeyValueDBTuple).filter(e => e[1])
@@ -64,5 +65,20 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     this.data[table][id] = Buffer.from(String(newValue))
 
     return newValue
+  }
+
+  async incrementBatch(table: string, incrementMap: StringMap<number>): Promise<StringMap<number>> {
+    this.data[table] ||= {}
+
+    const result: StringMap<number> = {}
+
+    for (const [id, by] of _stringMapEntries(incrementMap)) {
+      const newValue = parseInt(this.data[table][id]?.toString() || '0') + by
+      // todo: but should this.data store Buffer or number for incremented values?
+      this.data[table][id] = Buffer.from(String(newValue))
+      result[id] = newValue
+    }
+
+    return result
   }
 }
