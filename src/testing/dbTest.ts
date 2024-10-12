@@ -1,6 +1,5 @@
 import { _deepFreeze, _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
 import { CommonDB, CommonDBType } from '../common.db'
-import { DBIncrement, DBPatch } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
 import {
   createTestItemDBM,
@@ -317,18 +316,18 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
     })
   }
 
-  if (support.updateByQuery) {
-    test('updateByQuery simple', async () => {
+  if (support.patchByQuery) {
+    test('patchByQuery', async () => {
       // cleanup, reset initial data
       await db.deleteByQuery(queryAll())
       await db.saveBatch(TEST_TABLE, items)
 
-      const patch: DBPatch<TestItemDBM> = {
+      const patch: Partial<TestItemDBM> = {
         k3: 5,
         k2: 'abc',
       }
 
-      await db.updateByQuery(DBQuery.create<TestItemDBM>(TEST_TABLE).filterEq('even', true), patch)
+      await db.patchByQuery(DBQuery.create<TestItemDBM>(TEST_TABLE).filterEq('even', true), patch)
 
       const { rows } = await db.runQuery(queryAll())
       const expected = items.map(r => {
@@ -339,33 +338,28 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
       })
       expectMatch(expected, rows, quirks)
     })
+  }
 
-    if (support.dbIncrement) {
-      test('updateByQuery DBIncrement', async () => {
-        // cleanup, reset initial data
-        await db.deleteByQuery(queryAll())
-        await db.saveBatch(TEST_TABLE, items)
+  if (support.increment) {
+    test('incrementBatch', async () => {
+      // cleanup, reset initial data
+      await db.deleteByQuery(queryAll())
+      await db.saveBatch(TEST_TABLE, items)
 
-        const patch: DBPatch<TestItemDBM> = {
-          k3: DBIncrement.of(1),
-          k2: 'abcd',
+      await db.incrementBatch(TEST_TABLE, 'k3', { id1: 1, id2: 2 })
+
+      const { rows } = await db.runQuery(queryAll())
+      const expected = items.map(r => {
+        if (r.id === 'id1') {
+          return { ...r, k3: 2 }
         }
-
-        await db.updateByQuery(
-          DBQuery.create<TestItemDBM>(TEST_TABLE).filterEq('even', true),
-          patch,
-        )
-
-        const { rows } = await db.runQuery(queryAll())
-        const expected = items.map(r => {
-          if (r.even) {
-            return { ...r, ...patch, k3: (r.k3 || 0) + 1 }
-          }
-          return r
-        })
-        expectMatch(expected, rows, quirks)
+        if (r.id === 'id2') {
+          return { ...r, k3: 4 }
+        }
+        return r
       })
-    }
+      expectMatch(expected, rows, quirks)
+    })
   }
 
   if (support.queries) {

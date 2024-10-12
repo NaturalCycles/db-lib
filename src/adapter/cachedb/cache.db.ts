@@ -9,7 +9,7 @@ import {
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
 import { CommonDB, commonDBFullSupport, CommonDBSupport } from '../../common.db'
-import { DBPatch, RunQueryResult } from '../../db.model'
+import { RunQueryResult } from '../../db.model'
 import { DBQuery } from '../../query/dbQuery'
 import {
   CacheDBCfg,
@@ -29,6 +29,7 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
   override support: CommonDBSupport = {
     ...commonDBFullSupport,
     transactions: false,
+    increment: false,
   }
 
   constructor(cfg: CacheDBCfg) {
@@ -271,19 +272,19 @@ export class CacheDB extends BaseCommonDB implements CommonDB {
     return deletedIds
   }
 
-  override async updateByQuery<ROW extends ObjectWithId>(
+  override async patchByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    patch: DBPatch<ROW>,
+    patch: Partial<ROW>,
     opt: CacheDBOptions = {},
   ): Promise<number> {
     let updated: number | undefined
 
     if (!opt.onlyCache && !this.cfg.onlyCache) {
-      updated = await this.cfg.downstreamDB.updateByQuery(q, patch, opt)
+      updated = await this.cfg.downstreamDB.patchByQuery(q, patch, opt)
     }
 
     if (!opt.skipCache && !this.cfg.skipCache) {
-      const cacheResult = this.cfg.cacheDB.updateByQuery(q, patch, opt)
+      const cacheResult = this.cfg.cacheDB.patchByQuery(q, patch, opt)
       if (this.cfg.awaitCache) updated ??= await cacheResult
     }
 

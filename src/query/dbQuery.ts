@@ -11,7 +11,6 @@ import {
   CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
-  DBPatch,
 } from '..'
 import { CommonDao } from '../commondao/common.dao'
 import { RunQueryResult } from '../db.model'
@@ -276,8 +275,8 @@ export class RunnableDBQuery<
     return await this.dao.runQueryCount(this, opt)
   }
 
-  async updateByQuery(patch: DBPatch<DBM>, opt?: CommonDaoOptions): Promise<number> {
-    return await this.dao.updateByQuery(this, patch, opt)
+  async patchByQuery(patch: Partial<DBM>, opt?: CommonDaoOptions): Promise<number> {
+    return await this.dao.patchByQuery(this, patch, opt)
   }
 
   async streamQueryForEach(

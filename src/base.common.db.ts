@@ -1,11 +1,15 @@
-import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
+import {
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  ObjectWithId,
+  StringMap,
+} from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDB, CommonDBSupport, CommonDBType } from './common.db'
 import {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBTransactionOptions,
-  DBPatch,
   DBTransactionFn,
   RunQueryResult,
 } from './db.model'
@@ -50,12 +54,12 @@ export class BaseCommonDB implements CommonDB {
     throw new Error('deleteByQuery is not implemented')
   }
 
-  async updateByQuery<ROW extends ObjectWithId>(
+  async patchByQuery<ROW extends ObjectWithId>(
     _q: DBQuery<ROW>,
-    _patch: DBPatch<ROW>,
+    _patch: Partial<ROW>,
     _opt?: CommonDBOptions,
   ): Promise<number> {
-    throw new Error('updateByQuery is not implemented')
+    throw new Error('patchByQuery is not implemented')
   }
 
   async runQuery<ROW extends ObjectWithId>(_q: DBQuery<ROW>): Promise<RunQueryResult<ROW>> {
@@ -86,5 +90,14 @@ export class BaseCommonDB implements CommonDB {
     const tx = new FakeDBTransaction(this)
     await fn(tx)
     // there's no try/catch and rollback, as there's nothing to rollback
+  }
+
+  async incrementBatch(
+    _table: string,
+    _prop: string,
+    _incrementMap: StringMap<number>,
+    _opt?: CommonDBOptions,
+  ): Promise<StringMap<number>> {
+    throw new Error('incrementBatch is not implemented')
   }
 }

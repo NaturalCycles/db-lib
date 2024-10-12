@@ -3,9 +3,12 @@ import {
   _assert,
   _by,
   _deepCopy,
+  _isEmptyObject,
   _since,
   _sortObjectDeep,
+  _stringMapEntries,
   _stringMapValues,
+  AnyObjectWithId,
   CommonLogger,
   generateJsonSchemaFromData,
   JsonSchemaObject,
@@ -27,9 +30,7 @@ import {
   commonDBFullSupport,
   CommonDBTransactionOptions,
   CommonDBType,
-  DBIncrement,
   DBOperation,
-  DBPatch,
   DBTransactionFn,
   queryInMemory,
 } from '../..'
@@ -113,7 +114,7 @@ export class InMemoryDB implements CommonDB {
   cfg: InMemoryDBCfg
 
   // data[table][id] > {id: 'a', created: ... }
-  data: StringMap<StringMap<ObjectWithId>> = {}
+  data: StringMap<StringMap<AnyObjectWithId>> = {}
 
   /**
    * Returns internal "Data snapshot".
@@ -233,25 +234,14 @@ export class InMemoryDB implements CommonDB {
     return count
   }
 
-  async updateByQuery<ROW extends ObjectWithId>(
+  async patchByQuery<ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    patch: DBPatch<ROW>,
+    patch: Partial<ROW>,
   ): Promise<number> {
-    const patchEntries = Object.entries(patch)
-    if (!patchEntries.length) return 0
-
+    if (_isEmptyObject(patch)) return 0
     const table = this.cfg.tablesPrefix + q.table
     const rows = queryInMemory(q, Object.values(this.data[table] || {}) as ROW[])
-    rows.forEach((row: any) => {
-      patchEntries.forEach(([k, v]) => {
-        if (v instanceof DBIncrement) {
-          row[k] = (row[k] || 0) + v.amount
-        } else {
-          row[k] = v
-        }
-      })
-    })
-
+    rows.forEach(row => Object.assign(row, patch))
     return rows.length
   }
 
@@ -292,6 +282,27 @@ export class InMemoryDB implements CommonDB {
       await tx.rollback()
       throw err
     }
+  }
+
+  async incrementBatch(
+    table: string,
+    prop: string,
+    incrementMap: StringMap<number>,
+    _opt?: CommonDBOptions,
+  ): Promise<StringMap<number>> {
+    const tbl = this.cfg.tablesPrefix + table
+    this.data[tbl] ||= {}
+
+    const result: StringMap<number> = {}
+
+    for (const [id, by] of _stringMapEntries(incrementMap)) {
+      this.data[tbl][id] ||= { id }
+      const newValue = ((this.data[tbl][id][prop] as number) || 0) + by
+      this.data[tbl][id][prop] = newValue
+      result[id] = newValue
+    }
+
+    return result
   }
 
   /**

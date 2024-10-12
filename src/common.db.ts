@@ -1,4 +1,9 @@
-import { JsonSchemaObject, JsonSchemaRootObject, ObjectWithId } from '@naturalcycles/js-lib'
+import {
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  ObjectWithId,
+  StringMap,
+} from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
@@ -6,7 +11,6 @@ import {
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   CommonDBTransactionOptions,
-  DBPatch,
   DBTransactionFn,
   RunQueryResult,
 } from './db.model'
@@ -116,7 +120,7 @@ export interface CommonDB {
   ) => Promise<number>
 
   /**
-   * Applies patch to the rows returned by the query.
+   * Applies patch to all the rows that are matched by the query.
    *
    * Example:
    *
@@ -124,18 +128,11 @@ export interface CommonDB {
    *
    * patch would be { A: 'B' } for that query.
    *
-   * Supports "increment query", example:
-   *
-   * UPDATE table SET A = A + 1
-   *
-   * In that case patch would look like:
-   * { A: DBIncrement(1) }
-   *
-   * Returns number of rows affected.
+   * Returns the number of rows affected.
    */
-  updateByQuery: <ROW extends ObjectWithId>(
+  patchByQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    patch: DBPatch<ROW>,
+    patch: Partial<ROW>,
     opt?: CommonDBOptions,
   ) => Promise<number>
 
@@ -152,6 +149,28 @@ export interface CommonDB {
    * unless specified as readOnly in CommonDBTransactionOptions.
    */
   runInTransaction: (fn: DBTransactionFn, opt?: CommonDBTransactionOptions) => Promise<void>
+
+  /**
+   * Increments a value of a property by a given amount.
+   * This is a batch operation, so it allows to increment multiple rows at once.
+   *
+   * - table - the table to apply operations on
+   * - prop - name of the property to increment (in each of the rows passed)
+   * - incrementMap - map from id to increment value
+   *
+   * Example of incrementMap:
+   * { rowId1: 2, rowId2: 3 }
+   *
+   * Returns the incrementMap with the same keys and updated values.
+   *
+   * @experimental
+   */
+  incrementBatch: (
+    table: string,
+    prop: string,
+    incrementMap: StringMap<number>,
+    opt?: CommonDBOptions,
+  ) => Promise<StringMap<number>>
 }
 
 /**
@@ -165,8 +184,8 @@ export interface CommonDBSupport {
   dbQuerySelectFields?: boolean
   insertSaveMethod?: boolean
   updateSaveMethod?: boolean
-  updateByQuery?: boolean
-  dbIncrement?: boolean
+  patchByQuery?: boolean
+  increment?: boolean
   createTable?: boolean
   tableSchemas?: boolean
   streaming?: boolean
@@ -183,8 +202,8 @@ export const commonDBFullSupport: CommonDBSupport = {
   dbQuerySelectFields: true,
   insertSaveMethod: true,
   updateSaveMethod: true,
-  updateByQuery: true,
-  dbIncrement: true,
+  patchByQuery: true,
+  increment: true,
   createTable: true,
   tableSchemas: true,
   streaming: true,

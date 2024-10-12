@@ -45,9 +45,10 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     bufferValues: false, // todo: implement
     insertSaveMethod: false,
     updateSaveMethod: false,
-    updateByQuery: false,
+    patchByQuery: false,
     createTable: false,
     transactions: false, // todo
+    increment: false,
   }
 
   constructor(cfg: FileDBCfg) {

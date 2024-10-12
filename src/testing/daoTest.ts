@@ -129,6 +129,34 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
     expectMatch(expectedItems, itemsSaved, quirks)
   })
 
+  if (support.increment) {
+    test('increment', async () => {
+      await dao.incrementBatch('k3', { id1: 1, id2: 2 })
+      let rows = await dao.query().runQuery()
+      rows = _sortBy(rows, r => r.id)
+      const expected = expectedItems.map(r => {
+        if (r.id === 'id1') {
+          return {
+            ...r,
+            k3: r.k3! + 1,
+          }
+        }
+        if (r.id === 'id2') {
+          return {
+            ...r,
+            k3: r.k3! + 2,
+          }
+        }
+        return r
+      })
+      expectMatch(expected, rows, quirks)
+
+      // reset the changes
+      await dao.increment('k3', 'id1', -1)
+      await dao.increment('k3', 'id2', -2)
+    })
+  }
+
   // GET not empty
   test('getByIds all items', async () => {
     const rows = await dao.getByIds(items.map(i => i.id).concat('abcd'))

@@ -22,6 +22,7 @@ import {
   ObjectWithId,
   pMap,
   SKIP,
+  StringMap,
   UnixTimestampMillisNumber,
   Unsaved,
   ZodSchema,
@@ -44,7 +45,7 @@ import {
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
 import { DBLibError } from '../cnst'
-import { CommonDBTransactionOptions, DBPatch, DBTransaction, RunQueryResult } from '../db.model'
+import { CommonDBTransactionOptions, DBTransaction, RunQueryResult } from '../db.model'
 import { DBQuery, RunnableDBQuery } from '../query/dbQuery'
 import {
   CommonDaoCfg,
@@ -1068,29 +1069,63 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return deleted
   }
 
-  async updateById(id: ID, patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
-    return await this.updateByQuery(this.query().filterEq('id', id), patch, opt)
-  }
-
-  async updateByIds(ids: ID[], patch: DBPatch<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+  async patchByIds(ids: ID[], patch: Partial<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
     if (!ids.length) return 0
-    return await this.updateByQuery(this.query().filterIn('id', ids), patch, opt)
+    return await this.patchByQuery(this.query().filterIn('id', ids), patch, opt)
   }
 
-  async updateByQuery(
+  async patchByQuery(
     q: DBQuery<DBM>,
-    patch: DBPatch<DBM>,
+    patch: Partial<DBM>,
     opt: CommonDaoOptions = {},
   ): Promise<number> {
     this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     this.requireWriteAccess()
     this.requireObjectMutability(opt)
     q.table = opt.table || q.table
-    const op = `updateByQuery(${q.pretty()})`
+    const op = `patchByQuery(${q.pretty()})`
     const started = this.logStarted(op, q.table)
-    const updated = await this.cfg.db.updateByQuery(q, patch, opt)
+    const updated = await this.cfg.db.patchByQuery(q, patch, opt)
     this.logSaveResult(started, op, q.table)
     return updated
+  }
+
+  /**
+   * Caveat: it doesn't update created/updated props.
+   *
+   * @experimental
+   */
+  async increment(prop: keyof DBM, id: ID, by = 1, opt: CommonDaoOptions = {}): Promise<number> {
+    this.requireWriteAccess()
+    this.requireObjectMutability(opt)
+    const { table } = this.cfg
+    const op = `increment`
+    const started = this.logStarted(op, table)
+    const result = await this.cfg.db.incrementBatch(table, prop as string, {
+      [id as string]: by,
+    })
+    this.logSaveResult(started, op, table)
+    return result[id as string]!
+  }
+
+  /**
+   * Caveat: it doesn't update created/updated props.
+   *
+   * @experimental
+   */
+  async incrementBatch(
+    prop: keyof DBM,
+    incrementMap: StringMap<number>,
+    opt: CommonDaoOptions = {},
+  ): Promise<StringMap<number>> {
+    this.requireWriteAccess()
+    this.requireObjectMutability(opt)
+    const { table } = this.cfg
+    const op = `incrementBatch`
+    const started = this.logStarted(op, table)
+    const result = await this.cfg.db.incrementBatch(table, prop as string, incrementMap)
+    this.logSaveResult(started, op, table)
+    return result
   }
 
   // CONVERSIONS
