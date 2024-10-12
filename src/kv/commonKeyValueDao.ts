@@ -8,7 +8,7 @@ import {
   KeyValueDBTuple,
 } from './commonKeyValueDB'
 
-export interface CommonKeyValueDaoCfg<T> {
+export interface CommonKeyValueDaoCfg<V> {
   db: CommonKeyValueDB
 
   table: string
@@ -35,9 +35,9 @@ export interface CommonKeyValueDaoCfg<T> {
   logStarted?: boolean
 
   hooks?: {
-    mapValueToBuffer?: (v: T) => Promise<Buffer>
-    mapBufferToValue?: (b: Buffer) => Promise<T>
-    beforeCreate?: (v: Partial<T>) => Partial<T>
+    mapValueToBuffer?: (v: V) => Promise<Buffer>
+    mapBufferToValue?: (b: Buffer) => Promise<V>
+    beforeCreate?: (v: Partial<V>) => Partial<V>
   }
 
   /**
@@ -203,8 +203,8 @@ export class CommonKeyValueDao<V, K extends string = string> {
     await this.cfg.db.deleteByIds(this.cfg.table, [id])
   }
 
-  streamIds(limit?: number): ReadableTyped<string> {
-    return this.cfg.db.streamIds(this.cfg.table, limit)
+  streamIds(limit?: number): ReadableTyped<K> {
+    return this.cfg.db.streamIds(this.cfg.table, limit) as ReadableTyped<K>
   }
 
   streamValues(limit?: number): ReadableTyped<V> {
@@ -236,10 +236,12 @@ export class CommonKeyValueDao<V, K extends string = string> {
       return this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<KeyValueTuple<K, V>>
     }
 
-    return this.cfg.db.streamEntries(this.cfg.table, limit).flatMap(
+    return (
+      this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<KeyValueTuple<K, Buffer>>
+    ).flatMap(
       async ([id, buf]) => {
         try {
-          return [[id as K, await mapBufferToValue(buf)]]
+          return [[id, await mapBufferToValue(buf)]]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
@@ -249,6 +251,18 @@ export class CommonKeyValueDao<V, K extends string = string> {
         concurrency: 32,
       },
     )
+  }
+
+  async getAllKeys(limit?: number): Promise<K[]> {
+    return await this.streamIds(limit).toArray()
+  }
+
+  async getAllValues(limit?: number): Promise<V[]> {
+    return await this.streamValues(limit).toArray()
+  }
+
+  async getAllEntries(limit?: number): Promise<KeyValueTuple<K, V>[]> {
+    return await this.streamEntries(limit).toArray()
   }
 
   /**
