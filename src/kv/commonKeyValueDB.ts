@@ -7,7 +7,7 @@ import { CommonDBCreateOptions } from '../db.model'
  *
  * @experimental
  */
-export interface CommonKeyValueDB {
+export interface CommonKeyValueDB<V> {
   /**
    * Manifest of supported features.
    */
@@ -29,19 +29,19 @@ export interface CommonKeyValueDB {
    *
    * Currently it is NOT required to maintain the same order as input `ids`.
    */
-  getByIds: <V>(table: string, ids: string[]) => Promise<KeyValueTuple<string, V>[]>
+  getByIds: (table: string, ids: string[]) => Promise<KeyValueTuple<string, V>[]>
 
   deleteByIds: (table: string, ids: string[]) => Promise<void>
 
-  saveBatch: <V>(
+  saveBatch: (
     table: string,
     entries: KeyValueTuple<string, V>[],
     opt?: CommonKeyValueDBSaveBatchOptions,
   ) => Promise<void>
 
   streamIds: (table: string, limit?: number) => ReadableTyped<string>
-  streamValues: <V>(table: string, limit?: number) => ReadableTyped<V>
-  streamEntries: <V>(table: string, limit?: number) => ReadableTyped<KeyValueTuple<string, V>>
+  streamValues: (table: string, limit?: number) => ReadableTyped<V>
+  streamEntries: (table: string, limit?: number) => ReadableTyped<KeyValueTuple<string, V>>
 
   count: (table: string) => Promise<number>
 

@@ -9,7 +9,7 @@ const testEntries: KeyValueTuple<string, Buffer>[] = testIds.map(id => [
   Buffer.from(`${id}value`),
 ])
 
-export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
+export function runCommonKeyValueDBTest(db: CommonKeyValueDB<Buffer>): void {
   beforeAll(async () => {
     // Tests in this suite are not isolated,
     // and failing tests can leave the DB in an unexpected state for other tests,
@@ -50,7 +50,7 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   test('saveBatch, then getByIds', async () => {
     await db.saveBatch(TEST_TABLE, testEntries)
 
-    const entries = await db.getByIds<Buffer>(TEST_TABLE, testIds)
+    const entries = await db.getByIds(TEST_TABLE, testIds)
     _sortBy(entries, e => e[0], true)
     expect(entries).toEqual(testEntries)
   })
@@ -76,26 +76,26 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   })
 
   test('streamValues', async () => {
-    const values = await db.streamValues<Buffer>(TEST_TABLE).toArray()
+    const values = await db.streamValues(TEST_TABLE).toArray()
     values.sort()
     expect(values).toEqual(testEntries.map(e => e[1]))
   })
 
   test('streamValues limited', async () => {
-    const valuesLimited = await db.streamValues<Buffer>(TEST_TABLE, 2).toArray()
+    const valuesLimited = await db.streamValues(TEST_TABLE, 2).toArray()
     // valuesLimited.sort()
     // expect(valuesLimited).toEqual(testEntries.map(e => e[1]).slice(0, 2))
     expect(valuesLimited.length).toBe(2)
   })
 
   test('streamEntries', async () => {
-    const entries = await db.streamEntries<Buffer>(TEST_TABLE).toArray()
+    const entries = await db.streamEntries(TEST_TABLE).toArray()
     entries.sort()
     expect(entries).toEqual(testEntries)
   })
 
   test('streamEntries limited', async () => {
-    const entriesLimited = await db.streamEntries<Buffer>(TEST_TABLE, 2).toArray()
+    const entriesLimited = await db.streamEntries(TEST_TABLE, 2).toArray()
     // entriesLimited.sort()
     // expect(entriesLimited).toEqual(testEntries.slice(0, 2))
     expect(entriesLimited.length).toBe(2)

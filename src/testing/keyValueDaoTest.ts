@@ -7,7 +7,7 @@ const testItems = createTestItemsBM(4)
 const testIds = testItems.map(e => e.id)
 const testEntries: KeyValueTuple<string, TestItemBM>[] = testItems.map(e => [e.id, e])
 
-export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
+export function runCommonKeyValueDaoTest(db: CommonKeyValueDB<TestItemBM>): void {
   const dao = new CommonKeyValueDao<string, TestItemBM>({
     db,
     table: TEST_TABLE,

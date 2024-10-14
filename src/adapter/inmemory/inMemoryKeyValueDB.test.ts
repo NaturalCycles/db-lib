@@ -1,7 +1,8 @@
-import { runCommonKeyValueDaoTest, runCommonKeyValueDBTest } from '../../testing'
+import { runCommonKeyValueDaoTest, runCommonKeyValueDBTest, TestItemBM } from '../../testing'
 import { InMemoryKeyValueDB } from './inMemoryKeyValueDB'
 
-const db = new InMemoryKeyValueDB()
+const dbDb = new InMemoryKeyValueDB<Buffer>()
+const dbDao = new InMemoryKeyValueDB<TestItemBM>()
 
-describe('runCommonKeyValueDBTest', () => runCommonKeyValueDBTest(db))
-describe('runCommonKeyValueDaoTest', () => runCommonKeyValueDaoTest(db))
+describe('runCommonKeyValueDBTest', () => runCommonKeyValueDBTest(dbDb))
+describe('runCommonKeyValueDaoTest', () => runCommonKeyValueDaoTest(dbDao))

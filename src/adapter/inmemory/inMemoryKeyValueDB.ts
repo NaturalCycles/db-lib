@@ -10,7 +10,7 @@ import {
 
 export interface InMemoryKeyValueDBCfg {}
 
-export class InMemoryKeyValueDB implements CommonKeyValueDB {
+export class InMemoryKeyValueDB<V> implements CommonKeyValueDB<V> {
   constructor(public cfg: InMemoryKeyValueDBCfg = {}) {}
 
   support = {
@@ -29,12 +29,12 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ids.forEach(id => delete this.data[table]![id])
   }
 
-  async getByIds<V>(table: string, ids: string[]): Promise<KeyValueTuple<string, V>[]> {
+  async getByIds(table: string, ids: string[]): Promise<KeyValueTuple<string, V>[]> {
     this.data[table] ||= {}
     return ids.map(id => [id, this.data[table]![id]!] as KeyValueTuple<string, V>).filter(e => e[1])
   }
 
-  async saveBatch<V>(table: string, entries: KeyValueTuple<string, V>[]): Promise<void> {
+  async saveBatch(table: string, entries: KeyValueTuple<string, V>[]): Promise<void> {
     this.data[table] ||= {}
     entries.forEach(([id, v]) => (this.data[table]![id] = v))
   }
@@ -43,11 +43,11 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     return Readable.from(Object.keys(this.data[table] || {}).slice(0, limit))
   }
 
-  streamValues<V>(table: string, limit?: number): ReadableTyped<V> {
+  streamValues(table: string, limit?: number): ReadableTyped<V> {
     return Readable.from(Object.values(this.data[table] || {}).slice(0, limit))
   }
 
-  streamEntries<V>(table: string, limit?: number): ReadableTyped<KeyValueTuple<string, V>> {
+  streamEntries(table: string, limit?: number): ReadableTyped<KeyValueTuple<string, V>> {
     return Readable.from(Object.entries(this.data[table] || {}).slice(0, limit))
   }
 

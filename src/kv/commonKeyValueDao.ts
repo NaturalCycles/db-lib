@@ -9,7 +9,7 @@ import {
 } from './commonKeyValueDB'
 
 export interface CommonKeyValueDaoCfg<RAW_V, V = RAW_V> {
-  db: CommonKeyValueDB
+  db: CommonKeyValueDB<RAW_V>
 
   table: string
 
@@ -80,7 +80,7 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
 
   async getByIdRaw(id?: K): Promise<RAW_V | null> {
     if (!id) return null
-    const [r] = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, [id])
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
     return r?.[1] || null
   }
 
@@ -99,7 +99,7 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
   }
 
   async requireByIdRaw(id: K): Promise<RAW_V> {
-    const [r] = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, [id])
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
 
     if (!r) {
       const { table } = this.cfg
@@ -113,7 +113,7 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
   }
 
   async getByIds(ids: K[]): Promise<KeyValueTuple<string, V>[]> {
-    const entries = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, ids)
+    const entries = await this.cfg.db.getByIds(this.cfg.table, ids)
     if (!this.cfg.transformer) return entries as any
 
     return await pMap(entries, async ([id, raw]) => [
@@ -173,10 +173,10 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     const { transformer } = this.cfg
 
     if (!transformer) {
-      return this.cfg.db.streamValues<V>(this.cfg.table, limit)
+      return this.cfg.db.streamValues(this.cfg.table, limit) as unknown as ReadableTyped<V>
     }
 
-    return this.cfg.db.streamValues<RAW_V>(this.cfg.table, limit).flatMap(
+    return this.cfg.db.streamValues(this.cfg.table, limit).flatMap(
       async raw => {
         try {
           return [await transformer.rawToValue(raw)]
@@ -195,7 +195,7 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     const { transformer } = this.cfg
 
     if (!transformer) {
-      return this.cfg.db.streamEntries<V>(this.cfg.table, limit) as any
+      return this.cfg.db.streamEntries(this.cfg.table, limit) as any
     }
 
     return (
