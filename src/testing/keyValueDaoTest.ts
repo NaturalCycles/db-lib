@@ -1,11 +1,20 @@
-import { _range, _sortBy } from '@naturalcycles/js-lib'
+import { _sortBy, KeyValueTuple } from '@naturalcycles/js-lib'
 import { CommonKeyValueDao } from '../kv/commonKeyValueDao'
-import { KeyValueDBTuple } from '../kv/commonKeyValueDB'
+import { CommonKeyValueDB } from '../kv/commonKeyValueDB'
+import { createTestItemsBM, TEST_TABLE, TestItemBM } from './test.model'
 
-const testIds = _range(1, 4).map(n => `id${n}`)
-const testEntries: KeyValueDBTuple[] = testIds.map(id => [id, Buffer.from(`${id}value`)])
+const testItems = createTestItemsBM(4)
+const testIds = testItems.map(e => e.id)
+const testEntries: KeyValueTuple<string, TestItemBM>[] = testItems.map(e => [e.id, e])
 
-export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
+export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
+  const dao = new CommonKeyValueDao<string, TestItemBM>({
+    db,
+    table: TEST_TABLE,
+    // todo: make this test support "deflatedJson" transformer
+  })
+  const { support } = db
+
   beforeAll(async () => {
     // Tests in this suite are not isolated,
     // and failing tests can leave the DB in an unexpected state for other tests,
@@ -19,8 +28,6 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     const ids = await dao.streamIds().toArray()
     await dao.deleteByIds(ids)
   })
-
-  const { support } = dao.cfg.db
 
   test('ping', async () => {
     await dao.ping()
@@ -43,8 +50,12 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
     await dao.saveBatch(testEntries)
 
     const entries = await dao.getByIds(testIds)
+    // console.log(typeof entries[0]![1], entries[0]![1])
+
     _sortBy(entries, e => e[0], true)
-    expect(entries).toEqual(testEntries)
+    expect(entries).toEqual(testEntries) // Jest doesn't allow to compare Buffers directly
+    // expect(entries.map(e => e[0])).toEqual(testEntries.map(e => e[0]))
+    // expect(entries.map(e => e[1].toString())).toEqual(testEntries.map(e => e[1].toString()))
   })
 
   test('streamIds', async () => {
@@ -94,19 +105,33 @@ export function runCommonKeyValueDaoTest(dao: CommonKeyValueDao<Buffer>): void {
   })
 
   if (support.increment) {
+    const id = 'nonExistingField'
+    const id2 = 'nonExistingField2'
+
     test('increment on a non-existing field should set the value to 1', async () => {
-      const result = await dao.increment('nonExistingField')
+      const result = await dao.increment(id)
       expect(result).toBe(1)
     })
 
     test('increment on a existing field should increase the value by one', async () => {
-      const result = await dao.increment('nonExistingField')
+      const result = await dao.increment(id)
       expect(result).toBe(2)
     })
 
     test('increment should increase the value by the specified amount', async () => {
-      const result = await dao.increment('nonExistingField', 2)
+      const result = await dao.increment(id, 2)
       expect(result).toBe(4)
+    })
+
+    test('increment 2 ids at the same time', async () => {
+      const result = await dao.incrementBatch([
+        [id, 1],
+        [id2, 2],
+      ])
+      expect(Object.fromEntries(result)).toEqual({
+        [id]: 5,
+        [id2]: 2,
+      })
     })
   }
 }

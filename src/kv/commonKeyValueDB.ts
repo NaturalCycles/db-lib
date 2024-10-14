@@ -1,4 +1,4 @@
-import { StringMap, UnixTimestampNumber } from '@naturalcycles/js-lib'
+import { Integer, KeyValueTuple, UnixTimestampNumber } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../db.model'
 
@@ -29,48 +29,41 @@ export interface CommonKeyValueDB {
    *
    * Currently it is NOT required to maintain the same order as input `ids`.
    */
-  getByIds: (table: string, ids: string[]) => Promise<KeyValueDBTuple[]>
+  getByIds: <V>(table: string, ids: string[]) => Promise<KeyValueTuple<string, V>[]>
 
   deleteByIds: (table: string, ids: string[]) => Promise<void>
 
-  saveBatch: (
+  saveBatch: <V>(
     table: string,
-    entries: KeyValueDBTuple[],
+    entries: KeyValueTuple<string, V>[],
     opt?: CommonKeyValueDBSaveBatchOptions,
   ) => Promise<void>
 
   streamIds: (table: string, limit?: number) => ReadableTyped<string>
-  streamValues: (table: string, limit?: number) => ReadableTyped<Buffer>
-  streamEntries: (table: string, limit?: number) => ReadableTyped<KeyValueDBTuple>
+  streamValues: <V>(table: string, limit?: number) => ReadableTyped<V>
+  streamEntries: <V>(table: string, limit?: number) => ReadableTyped<KeyValueTuple<string, V>>
 
   count: (table: string) => Promise<number>
 
   /**
-   * Increments the value of a key in a table by a given amount.
-   * Default increment is 1 when `by` is not provided.
-   *
-   * Returns the new value.
-   *
-   * @experimental
-   */
-  increment: (table: string, id: string, by?: number) => Promise<number>
-
-  /**
    * Perform a batch of Increment operations.
-   * Given incrementMap, increment each key of it by the given amount (value of the map).
+   * Given entries array, increment each key of it (1st index of the tuple) by the given amount (2nd index of the tuple).
    *
    * Example:
-   * { key1: 2, key2: 3 }
+   * [
+   *   ['key1', 2],
+   *   ['key2', 3],
+   * ]
    * would increment `key1` by 2, and `key2` by 3.
    *
-   * Returns the incrementMap with the same keys and updated values.
+   * Returns the entries array with tuples of the same structure, with updated numbers.
    *
    * @experimental
    */
-  incrementBatch: (table: string, incrementMap: StringMap<number>) => Promise<StringMap<number>>
+  incrementBatch: (table: string, entries: IncrementTuple[]) => Promise<IncrementTuple[]>
 }
 
-export type KeyValueDBTuple = [key: string, value: Buffer]
+export type IncrementTuple = [key: string, value: Integer]
 
 export interface CommonKeyValueDBSaveBatchOptions {
   /**

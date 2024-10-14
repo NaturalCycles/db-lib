@@ -2,7 +2,7 @@ import { AsyncMemoCache, localTime, MISS, NumberOfSeconds } from '@naturalcycles
 import { CommonKeyValueDao } from './commonKeyValueDao'
 
 export interface CommonKeyValueDaoMemoCacheCfg<VALUE> {
-  dao: CommonKeyValueDao<VALUE>
+  dao: CommonKeyValueDao<string, VALUE>
 
   /**
    * If set, every `set()` will set `expireAt` (TTL) option.
@@ -18,7 +18,7 @@ export interface CommonKeyValueDaoMemoCacheCfg<VALUE> {
  * Also, does not support .clear(), as it's more dangerous than useful to actually
  * clear the whole table/cache.
  */
-export class CommonKeyValueDaoMemoCache<VALUE = any> implements AsyncMemoCache<string, VALUE> {
+export class CommonKeyValueDaoMemoCache<VALUE> implements AsyncMemoCache<string, VALUE> {
   constructor(private cfg: CommonKeyValueDaoMemoCacheCfg<VALUE>) {}
 
   async get(k: string): Promise<VALUE | typeof MISS> {

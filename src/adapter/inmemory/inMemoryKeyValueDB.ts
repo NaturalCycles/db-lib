@@ -1,11 +1,11 @@
 import { Readable } from 'node:stream'
-import { _stringMapEntries, StringMap } from '@naturalcycles/js-lib'
+import { KeyValueTuple, StringMap } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../../db.model'
 import {
   CommonKeyValueDB,
   commonKeyValueDBFullSupport,
-  KeyValueDBTuple,
+  IncrementTuple,
 } from '../../kv/commonKeyValueDB'
 
 export interface InMemoryKeyValueDBCfg {}
@@ -17,8 +17,8 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ...commonKeyValueDBFullSupport,
   }
 
-  // data[table][id] > Buffer
-  data: StringMap<StringMap<Buffer>> = {}
+  // data[table][id] => V
+  data: StringMap<StringMap<any>> = {}
 
   async ping(): Promise<void> {}
 
@@ -29,26 +29,25 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ids.forEach(id => delete this.data[table]![id])
   }
 
-  // todo: but should we work with Tuples or Objects?
-  async getByIds(table: string, ids: string[]): Promise<KeyValueDBTuple[]> {
+  async getByIds<V>(table: string, ids: string[]): Promise<KeyValueTuple<string, V>[]> {
     this.data[table] ||= {}
-    return ids.map(id => [id, this.data[table]![id]!] as KeyValueDBTuple).filter(e => e[1])
+    return ids.map(id => [id, this.data[table]![id]!] as KeyValueTuple<string, V>).filter(e => e[1])
   }
 
-  async saveBatch(table: string, entries: KeyValueDBTuple[]): Promise<void> {
+  async saveBatch<V>(table: string, entries: KeyValueTuple<string, V>[]): Promise<void> {
     this.data[table] ||= {}
-    entries.forEach(([id, buf]) => (this.data[table]![id] = buf))
+    entries.forEach(([id, v]) => (this.data[table]![id] = v))
   }
 
   streamIds(table: string, limit?: number): ReadableTyped<string> {
     return Readable.from(Object.keys(this.data[table] || {}).slice(0, limit))
   }
 
-  streamValues(table: string, limit?: number): ReadableTyped<Buffer> {
+  streamValues<V>(table: string, limit?: number): ReadableTyped<V> {
     return Readable.from(Object.values(this.data[table] || {}).slice(0, limit))
   }
 
-  streamEntries(table: string, limit?: number): ReadableTyped<KeyValueDBTuple> {
+  streamEntries<V>(table: string, limit?: number): ReadableTyped<KeyValueTuple<string, V>> {
     return Readable.from(Object.entries(this.data[table] || {}).slice(0, limit))
   }
 
@@ -57,28 +56,13 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     return Object.keys(this.data[table]).length
   }
 
-  async increment(table: string, id: string, by = 1): Promise<number> {
+  async incrementBatch(table: string, entries: IncrementTuple[]): Promise<IncrementTuple[]> {
     this.data[table] ||= {}
 
-    const currentValue = this.data[table][id] ? parseInt(this.data[table][id].toString()) : 0
-    const newValue = currentValue + by
-    this.data[table][id] = Buffer.from(String(newValue))
-
-    return newValue
-  }
-
-  async incrementBatch(table: string, incrementMap: StringMap<number>): Promise<StringMap<number>> {
-    this.data[table] ||= {}
-
-    const result: StringMap<number> = {}
-
-    for (const [id, by] of _stringMapEntries(incrementMap)) {
-      const newValue = parseInt(this.data[table][id]?.toString() || '0') + by
-      // todo: but should this.data store Buffer or number for incremented values?
-      this.data[table][id] = Buffer.from(String(newValue))
-      result[id] = newValue
-    }
-
-    return result
+    return entries.map(([id, by]) => {
+      const newValue = ((this.data[table]![id] as number | undefined) || 0) + by
+      this.data[table]![id] = newValue
+      return [id, newValue]
+    })
   }
 }
