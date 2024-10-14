@@ -1,10 +1,13 @@
-import { _range, _sortBy } from '@naturalcycles/js-lib'
-import { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
+import { _range, _sortBy, KeyValueTuple } from '@naturalcycles/js-lib'
+import { CommonKeyValueDB } from '../kv/commonKeyValueDB'
 import { TEST_TABLE } from './test.model'
 
 const testIds = _range(1, 4).map(n => `id${n}`)
 
-const testEntries: KeyValueDBTuple[] = testIds.map(id => [id, Buffer.from(`${id}value`)])
+const testEntries: KeyValueTuple<string, Buffer>[] = testIds.map(id => [
+  id,
+  Buffer.from(`${id}value`),
+])
 
 export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   beforeAll(async () => {
@@ -47,7 +50,7 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   test('saveBatch, then getByIds', async () => {
     await db.saveBatch(TEST_TABLE, testEntries)
 
-    const entries = await db.getByIds(TEST_TABLE, testIds)
+    const entries = await db.getByIds<Buffer>(TEST_TABLE, testIds)
     _sortBy(entries, e => e[0], true)
     expect(entries).toEqual(testEntries)
   })
@@ -73,26 +76,26 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
   })
 
   test('streamValues', async () => {
-    const values = await db.streamValues(TEST_TABLE).toArray()
+    const values = await db.streamValues<Buffer>(TEST_TABLE).toArray()
     values.sort()
     expect(values).toEqual(testEntries.map(e => e[1]))
   })
 
   test('streamValues limited', async () => {
-    const valuesLimited = await db.streamValues(TEST_TABLE, 2).toArray()
+    const valuesLimited = await db.streamValues<Buffer>(TEST_TABLE, 2).toArray()
     // valuesLimited.sort()
     // expect(valuesLimited).toEqual(testEntries.map(e => e[1]).slice(0, 2))
     expect(valuesLimited.length).toBe(2)
   })
 
   test('streamEntries', async () => {
-    const entries = await db.streamEntries(TEST_TABLE).toArray()
+    const entries = await db.streamEntries<Buffer>(TEST_TABLE).toArray()
     entries.sort()
     expect(entries).toEqual(testEntries)
   })
 
   test('streamEntries limited', async () => {
-    const entriesLimited = await db.streamEntries(TEST_TABLE, 2).toArray()
+    const entriesLimited = await db.streamEntries<Buffer>(TEST_TABLE, 2).toArray()
     // entriesLimited.sort()
     // expect(entriesLimited).toEqual(testEntries.slice(0, 2))
     expect(entriesLimited.length).toBe(2)
@@ -109,26 +112,26 @@ export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
     const id2 = 'nonExistingField2'
 
     test('increment on a non-existing field should set the value to 1', async () => {
-      const result = await db.increment(TEST_TABLE, id)
-      expect(result).toBe(1)
+      const result = await db.incrementBatch(TEST_TABLE, [[id, 1]])
+      expect(result).toEqual([[id, 1]])
     })
 
     test('increment on a existing field should increase the value by one', async () => {
-      const result = await db.increment(TEST_TABLE, id)
-      expect(result).toBe(2)
+      const result = await db.incrementBatch(TEST_TABLE, [[id, 1]])
+      expect(result).toEqual([[id, 2]])
     })
 
     test('increment should increase the value by the specified amount', async () => {
-      const result = await db.increment(TEST_TABLE, id, 2)
-      expect(result).toBe(4)
+      const result = await db.incrementBatch(TEST_TABLE, [[id, 2]])
+      expect(result).toEqual([[id, 4]])
     })
 
     test('increment 2 ids at the same time', async () => {
-      const result = await db.incrementBatch(TEST_TABLE, {
-        [id]: 1,
-        [id2]: 2,
-      })
-      expect(result).toEqual({
+      const result = await db.incrementBatch(TEST_TABLE, [
+        [id, 1],
+        [id2, 2],
+      ])
+      expect(Object.fromEntries(result)).toEqual({
         [id]: 5,
         [id2]: 2,
       })
