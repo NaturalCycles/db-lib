@@ -6,9 +6,10 @@ import {
   CommonKeyValueDB,
   CommonKeyValueDBSaveBatchOptions,
   IncrementTuple,
+  KeyValueDBTuple,
 } from './commonKeyValueDB'
 
-export interface CommonKeyValueDaoCfg<RAW_V, V = RAW_V> {
+export interface CommonKeyValueDaoCfg<V> {
   db: CommonKeyValueDB
 
   table: string
@@ -34,33 +35,33 @@ export interface CommonKeyValueDaoCfg<RAW_V, V = RAW_V> {
    */
   logStarted?: boolean
 
-  transformer?: CommonKeyValueDaoTransformer<V, RAW_V>
+  transformer?: CommonKeyValueDaoTransformer<V>
 }
 
 export type CommonKeyValueDaoSaveOptions = CommonKeyValueDBSaveBatchOptions
 
-export interface CommonKeyValueDaoTransformer<V, RAW_V> {
-  valueToRaw: (v: V) => Promise<RAW_V>
-  rawToValue: (raw: RAW_V) => Promise<V>
+export interface CommonKeyValueDaoTransformer<V> {
+  valueToBuffer: (v: V) => Promise<Buffer>
+  bufferToValue: (buf: Buffer) => Promise<V>
 }
 
-export const commonKeyValueDaoDeflatedJsonTransformer: CommonKeyValueDaoTransformer<any, Buffer> = {
-  valueToRaw: async v => await deflateString(JSON.stringify(v)),
-  rawToValue: async raw => JSON.parse(await inflateToString(raw)),
+export const commonKeyValueDaoDeflatedJsonTransformer: CommonKeyValueDaoTransformer<any> = {
+  valueToBuffer: async v => await deflateString(JSON.stringify(v)),
+  bufferToValue: async buf => JSON.parse(await inflateToString(buf)),
 }
 
 // todo: logging
 // todo: readonly
 
-export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
-  constructor(cfg: CommonKeyValueDaoCfg<RAW_V, V>) {
+export class CommonKeyValueDao<K extends string = string, V = Buffer> {
+  constructor(cfg: CommonKeyValueDaoCfg<V>) {
     this.cfg = {
       logger: console,
       ...cfg,
     }
   }
 
-  cfg: CommonKeyValueDaoCfg<RAW_V, V> & {
+  cfg: CommonKeyValueDaoCfg<V> & {
     logger: CommonLogger
   }
 
@@ -78,9 +79,9 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     return r?.[1] || null
   }
 
-  async getByIdRaw(id?: K): Promise<RAW_V | null> {
+  async getByIdAsBuffer(id?: K): Promise<Buffer | null> {
     if (!id) return null
-    const [r] = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, [id])
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
     return r?.[1] || null
   }
 
@@ -98,8 +99,8 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     return r[1]
   }
 
-  async requireByIdRaw(id: K): Promise<RAW_V> {
-    const [r] = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, [id])
+  async requireByIdAsBuffer(id: K): Promise<Buffer> {
+    const [r] = await this.cfg.db.getByIds(this.cfg.table, [id])
 
     if (!r) {
       const { table } = this.cfg
@@ -113,25 +114,21 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
   }
 
   async getByIds(ids: K[]): Promise<KeyValueTuple<string, V>[]> {
-    const entries = await this.cfg.db.getByIds<RAW_V>(this.cfg.table, ids)
+    const entries = await this.cfg.db.getByIds(this.cfg.table, ids)
     if (!this.cfg.transformer) return entries as any
 
     return await pMap(entries, async ([id, raw]) => [
       id,
-      await this.cfg.transformer!.rawToValue(raw),
+      await this.cfg.transformer!.bufferToValue(raw),
     ])
   }
 
-  async getByIdsRaw(ids: K[]): Promise<KeyValueTuple<K, RAW_V>[]> {
-    return (await this.cfg.db.getByIds(this.cfg.table, ids)) as KeyValueTuple<K, RAW_V>[]
+  async getByIdsAsBuffer(ids: K[]): Promise<KeyValueDBTuple[]> {
+    return await this.cfg.db.getByIds(this.cfg.table, ids)
   }
 
   async save(id: K, value: V, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
     await this.saveBatch([[id, value]], opt)
-  }
-
-  async saveRaw(id: K, value: RAW_V, opt?: CommonKeyValueDaoSaveOptions): Promise<void> {
-    await this.cfg.db.saveBatch(this.cfg.table, [[id, value]], opt)
   }
 
   async saveBatch(
@@ -139,22 +136,15 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     opt?: CommonKeyValueDaoSaveOptions,
   ): Promise<void> {
     const { transformer } = this.cfg
-    let rawEntries: KeyValueTuple<string, RAW_V>[]
+    let rawEntries: KeyValueDBTuple[]
 
     if (!transformer) {
       rawEntries = entries as any
     } else {
-      rawEntries = await pMap(entries, async ([id, v]) => [id, await transformer.valueToRaw(v)])
+      rawEntries = await pMap(entries, async ([id, v]) => [id, await transformer.valueToBuffer(v)])
     }
 
     await this.cfg.db.saveBatch(this.cfg.table, rawEntries, opt)
-  }
-
-  async saveBatchRaw(
-    entries: KeyValueTuple<K, RAW_V>[],
-    opt?: CommonKeyValueDaoSaveOptions,
-  ): Promise<void> {
-    await this.cfg.db.saveBatch(this.cfg.table, entries, opt)
   }
 
   async deleteByIds(ids: K[]): Promise<void> {
@@ -173,13 +163,13 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     const { transformer } = this.cfg
 
     if (!transformer) {
-      return this.cfg.db.streamValues<V>(this.cfg.table, limit)
+      return this.cfg.db.streamValues(this.cfg.table, limit) as ReadableTyped<V>
     }
 
-    return this.cfg.db.streamValues<RAW_V>(this.cfg.table, limit).flatMap(
-      async raw => {
+    return this.cfg.db.streamValues(this.cfg.table, limit).flatMap(
+      async buf => {
         try {
-          return [await transformer.rawToValue(raw)]
+          return [await transformer.bufferToValue(buf)]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP
@@ -195,15 +185,13 @@ export class CommonKeyValueDao<K extends string, RAW_V, V = RAW_V> {
     const { transformer } = this.cfg
 
     if (!transformer) {
-      return this.cfg.db.streamEntries<V>(this.cfg.table, limit) as any
+      return this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<KeyValueTuple<K, V>>
     }
 
-    return (
-      this.cfg.db.streamEntries(this.cfg.table, limit) as ReadableTyped<KeyValueTuple<K, RAW_V>>
-    ).flatMap(
-      async ([id, raw]) => {
+    return this.cfg.db.streamEntries(this.cfg.table, limit).flatMap(
+      async ([id, buf]) => {
         try {
-          return [[id, await transformer.rawToValue(raw)]]
+          return [[id as K, await transformer.bufferToValue(buf)]]
         } catch (err) {
           this.cfg.logger.error(err)
           return [] // SKIP

@@ -1,4 +1,4 @@
-import { Integer, KeyValueTuple, UnixTimestampNumber } from '@naturalcycles/js-lib'
+import { Integer, UnixTimestampNumber } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../db.model'
 
@@ -29,19 +29,19 @@ export interface CommonKeyValueDB {
    *
    * Currently it is NOT required to maintain the same order as input `ids`.
    */
-  getByIds: <V>(table: string, ids: string[]) => Promise<KeyValueTuple<string, V>[]>
+  getByIds: (table: string, ids: string[]) => Promise<KeyValueDBTuple[]>
 
   deleteByIds: (table: string, ids: string[]) => Promise<void>
 
-  saveBatch: <V>(
+  saveBatch: (
     table: string,
-    entries: KeyValueTuple<string, V>[],
+    entries: KeyValueDBTuple[],
     opt?: CommonKeyValueDBSaveBatchOptions,
   ) => Promise<void>
 
   streamIds: (table: string, limit?: number) => ReadableTyped<string>
-  streamValues: <V>(table: string, limit?: number) => ReadableTyped<V>
-  streamEntries: <V>(table: string, limit?: number) => ReadableTyped<KeyValueTuple<string, V>>
+  streamValues: (table: string, limit?: number) => ReadableTyped<Buffer>
+  streamEntries: (table: string, limit?: number) => ReadableTyped<KeyValueDBTuple>
 
   count: (table: string) => Promise<number>
 
@@ -62,6 +62,8 @@ export interface CommonKeyValueDB {
    */
   incrementBatch: (table: string, entries: IncrementTuple[]) => Promise<IncrementTuple[]>
 }
+
+export type KeyValueDBTuple = [key: string, value: Buffer]
 
 export type IncrementTuple = [key: string, value: Integer]
 

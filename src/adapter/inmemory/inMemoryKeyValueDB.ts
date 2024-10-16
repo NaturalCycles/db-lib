@@ -1,11 +1,12 @@
 import { Readable } from 'node:stream'
-import { KeyValueTuple, StringMap } from '@naturalcycles/js-lib'
+import { StringMap } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../../db.model'
 import {
   CommonKeyValueDB,
   commonKeyValueDBFullSupport,
   IncrementTuple,
+  KeyValueDBTuple,
 } from '../../kv/commonKeyValueDB'
 
 export interface InMemoryKeyValueDBCfg {}
@@ -17,7 +18,7 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ...commonKeyValueDBFullSupport,
   }
 
-  // data[table][id] => V
+  // data[table][id] => any (can be Buffer, or number)
   data: StringMap<StringMap<any>> = {}
 
   async ping(): Promise<void> {}
@@ -29,12 +30,12 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     ids.forEach(id => delete this.data[table]![id])
   }
 
-  async getByIds<V>(table: string, ids: string[]): Promise<KeyValueTuple<string, V>[]> {
+  async getByIds(table: string, ids: string[]): Promise<KeyValueDBTuple[]> {
     this.data[table] ||= {}
-    return ids.map(id => [id, this.data[table]![id]!] as KeyValueTuple<string, V>).filter(e => e[1])
+    return ids.map(id => [id, this.data[table]![id]!] as KeyValueDBTuple).filter(e => e[1])
   }
 
-  async saveBatch<V>(table: string, entries: KeyValueTuple<string, V>[]): Promise<void> {
+  async saveBatch(table: string, entries: KeyValueDBTuple[]): Promise<void> {
     this.data[table] ||= {}
     entries.forEach(([id, v]) => (this.data[table]![id] = v))
   }
@@ -43,11 +44,11 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     return Readable.from(Object.keys(this.data[table] || {}).slice(0, limit))
   }
 
-  streamValues<V>(table: string, limit?: number): ReadableTyped<V> {
+  streamValues(table: string, limit?: number): ReadableTyped<Buffer> {
     return Readable.from(Object.values(this.data[table] || {}).slice(0, limit))
   }
 
-  streamEntries<V>(table: string, limit?: number): ReadableTyped<KeyValueTuple<string, V>> {
+  streamEntries(table: string, limit?: number): ReadableTyped<KeyValueDBTuple> {
     return Readable.from(Object.entries(this.data[table] || {}).slice(0, limit))
   }
 
