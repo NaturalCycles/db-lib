@@ -5,7 +5,10 @@ import { createTestItemsBM, TEST_TABLE, TestItemBM } from './test.model'
 
 const testItems = createTestItemsBM(4)
 const testIds = testItems.map(e => e.id)
-const testEntries: KeyValueTuple<string, TestItemBM>[] = testItems.map(e => [e.id, e])
+const testEntries: KeyValueTuple<string, any>[] = testItems.map(e => [
+  e.id,
+  Buffer.from(`${e.id}value`),
+])
 
 export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
   const dao = new CommonKeyValueDao<string, TestItemBM>({
