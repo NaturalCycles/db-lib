@@ -1,17 +1,14 @@
-import { _sortBy, KeyValueTuple } from '@naturalcycles/js-lib'
+import { _sortBy } from '@naturalcycles/js-lib'
 import { CommonKeyValueDao } from '../kv/commonKeyValueDao'
-import { CommonKeyValueDB } from '../kv/commonKeyValueDB'
-import { createTestItemsBM, TEST_TABLE, TestItemBM } from './test.model'
+import { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
+import { createTestItemsBM, TEST_TABLE } from './test.model'
 
 const testItems = createTestItemsBM(4)
 const testIds = testItems.map(e => e.id)
-const testEntries: KeyValueTuple<string, any>[] = testItems.map(e => [
-  e.id,
-  Buffer.from(`${e.id}value`),
-])
+const testEntries: KeyValueDBTuple[] = testItems.map(e => [e.id, Buffer.from(`${e.id}value`)])
 
 export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
-  const dao = new CommonKeyValueDao<string, TestItemBM>({
+  const dao = new CommonKeyValueDao({
     db,
     table: TEST_TABLE,
     // todo: make this test support "deflatedJson" transformer
