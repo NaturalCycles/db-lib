@@ -80,10 +80,10 @@ export interface CommonKeyValueDBSaveBatchOptions {
  */
 export interface CommonKeyValueDBSupport {
   count?: boolean
-  increment?: boolean
+  incrementBatch?: boolean
 }
 
 export const commonKeyValueDBFullSupport: CommonKeyValueDBSupport = {
   count: true,
-  increment: true,
+  incrementBatch: true,
 }

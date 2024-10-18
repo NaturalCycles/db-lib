@@ -104,7 +104,7 @@ export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
     expect(results).toEqual([])
   })
 
-  if (support.increment) {
+  if (support.incrementBatch) {
     const id = 'nonExistingField'
     const id2 = 'nonExistingField2'
 
