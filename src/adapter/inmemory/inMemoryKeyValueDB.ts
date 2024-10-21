@@ -61,7 +61,7 @@ export class InMemoryKeyValueDB implements CommonKeyValueDB {
     this.data[table] ||= {}
 
     return entries.map(([id, by]) => {
-      const newValue = ((this.data[table]![id] as number | undefined) || 0) + by
+      const newValue = Number(this.data[table]![id] || 0) + by
       this.data[table]![id] = newValue
       return [id, newValue]
     })
