@@ -80,6 +80,17 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
     expect(await dao.getByIds(['abc', 'abcd'])).toEqual([])
   })
 
+  // TimeMachine
+  if (support.timeMachine) {
+    test('getByIds(...) 10 minutes ago should return []', async () => {
+      expect(
+        await dao.getByIds([item1.id, 'abc'], {
+          readAt: localTime.now().minus(10, 'minute').unix,
+        }),
+      ).toEqual([])
+    })
+  }
+
   // SAVE
   if (support.nullValues) {
     test('should allow to save and load null values', async () => {
