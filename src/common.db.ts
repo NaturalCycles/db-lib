@@ -8,6 +8,7 @@ import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDBCreateOptions,
   CommonDBOptions,
+  CommonDBReadOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   CommonDBTransactionOptions,
@@ -71,7 +72,7 @@ export interface CommonDB {
   getByIds: <ROW extends ObjectWithId>(
     table: string,
     ids: string[],
-    opt?: CommonDBOptions,
+    opt?: CommonDBReadOptions,
   ) => Promise<ROW[]>
 
   // QUERY
@@ -80,12 +81,12 @@ export interface CommonDB {
    */
   runQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    opt?: CommonDBReadOptions,
   ) => Promise<RunQueryResult<ROW>>
 
   runQueryCount: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
-    opt?: CommonDBOptions,
+    opt?: CommonDBReadOptions,
   ) => Promise<number>
 
   streamQuery: <ROW extends ObjectWithId>(
@@ -133,7 +134,7 @@ export interface CommonDB {
   patchByQuery: <ROW extends ObjectWithId>(
     q: DBQuery<ROW>,
     patch: Partial<ROW>,
-    opt?: CommonDBOptions,
+    opt?: CommonDBReadOptions,
   ) => Promise<number>
 
   // TRANSACTION
@@ -192,6 +193,7 @@ export interface CommonDBSupport {
   bufferValues?: boolean
   nullValues?: boolean
   transactions?: boolean
+  timeMachine?: boolean
 }
 
 export const commonDBFullSupport: CommonDBSupport = {
@@ -210,4 +212,5 @@ export const commonDBFullSupport: CommonDBSupport = {
   bufferValues: true,
   nullValues: true,
   transactions: true,
+  timeMachine: true,
 }

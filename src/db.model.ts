@@ -1,4 +1,4 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import { ObjectWithId, UnixTimestampNumber } from '@naturalcycles/js-lib'
 import { CommonDB } from './common.db'
 
 /**
@@ -52,6 +52,14 @@ export interface CommonDBOptions {
   tx?: DBTransaction
 }
 
+export interface CommonDBReadOptions extends CommonDBOptions {
+  /**
+   * If provided (and supported by the DB) - will read the data at that point in time (aka "Time machine" feature).
+   * This feature is named PITR (point-in-time-recovery) query in Datastore.
+   */
+  readAt?: UnixTimestampNumber
+}
+
 /**
  * All properties default to undefined.
  */
@@ -72,7 +80,7 @@ export interface CommonDBSaveOptions<ROW extends ObjectWithId> extends CommonDBO
   assignGeneratedIds?: boolean
 }
 
-export type CommonDBStreamOptions = CommonDBOptions
+export type CommonDBStreamOptions = CommonDBReadOptions
 
 export interface CommonDBCreateOptions extends CommonDBOptions {
   /**

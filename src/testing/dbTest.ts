@@ -1,4 +1,4 @@
-import { _deepFreeze, _filterObject, _pick, _sortBy, pMap } from '@naturalcycles/js-lib'
+import { _deepFreeze, _filterObject, _pick, _sortBy, localTime, pMap } from '@naturalcycles/js-lib'
 import { CommonDB, CommonDBType } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
 import {
@@ -76,6 +76,17 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
   test('getByIds(...) should return empty', async () => {
     expect(await db.getByIds(TEST_TABLE, ['abc', 'abcd'])).toEqual([])
   })
+
+  // TimeMachine
+  if (support.timeMachine) {
+    test('getByIds(...) 10 minutes ago should return []', async () => {
+      expect(
+        await db.getByIds(TEST_TABLE, [item1.id, 'abc'], {
+          readAt: localTime.now().minus(10, 'minute').unix,
+        }),
+      ).toEqual([])
+    })
+  }
 
   // SAVE
   if (support.nullValues) {

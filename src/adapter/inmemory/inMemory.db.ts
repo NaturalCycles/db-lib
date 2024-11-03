@@ -28,6 +28,7 @@ import {
 import {
   CommonDB,
   commonDBFullSupport,
+  CommonDBSupport,
   CommonDBTransactionOptions,
   CommonDBType,
   DBOperation,
@@ -94,8 +95,9 @@ export interface InMemoryDBCfg {
 export class InMemoryDB implements CommonDB {
   dbType = CommonDBType.document
 
-  support = {
+  support: CommonDBSupport = {
     ...commonDBFullSupport,
+    timeMachine: false,
   }
 
   constructor(cfg?: Partial<InMemoryDBCfg>) {

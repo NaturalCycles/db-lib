@@ -55,6 +55,7 @@ import {
   CommonDaoOptions,
   CommonDaoPatchByIdOptions,
   CommonDaoPatchOptions,
+  CommonDaoReadOptions,
   CommonDaoSaveBatchOptions,
   CommonDaoSaveOptions,
   CommonDaoStreamDeleteOptions,
@@ -116,7 +117,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
   // overrides are disabled now, as they obfuscate errors when ID branded type is used
   // async getById(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
   // async getById(id?: ID | null, opt?: CommonDaoOptions): Promise<BM | null>
-  async getById(id?: ID | null, opt: CommonDaoOptions = {}): Promise<BM | null> {
+  async getById(id?: ID | null, opt: CommonDaoReadOptions = {}): Promise<BM | null> {
     if (!id) return null
     const op = `getById(${id})`
     const table = opt.table || this.cfg.table
@@ -132,7 +133,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return bm || null
   }
 
-  async getByIdOrEmpty(id: ID, part: Partial<BM> = {}, opt?: CommonDaoOptions): Promise<BM> {
+  async getByIdOrEmpty(id: ID, part: Partial<BM> = {}, opt?: CommonDaoReadOptions): Promise<BM> {
     const bm = await this.getById(id, opt)
     if (bm) return bm
 
@@ -141,7 +142,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
 
   // async getByIdAsDBM(id: undefined | null, opt?: CommonDaoOptions): Promise<null>
   // async getByIdAsDBM(id?: ID | null, opt?: CommonDaoOptions): Promise<DBM | null>
-  async getByIdAsDBM(id?: ID | null, opt: CommonDaoOptions = {}): Promise<DBM | null> {
+  async getByIdAsDBM(id?: ID | null, opt: CommonDaoReadOptions = {}): Promise<DBM | null> {
     if (!id) return null
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
@@ -156,7 +157,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return dbm || null
   }
 
-  async getByIds(ids: ID[], opt: CommonDaoOptions = {}): Promise<BM[]> {
+  async getByIds(ids: ID[], opt: CommonDaoReadOptions = {}): Promise<BM[]> {
     if (!ids.length) return []
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
@@ -173,7 +174,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return bms
   }
 
-  async getByIdsAsDBM(ids: ID[], opt: CommonDaoOptions = {}): Promise<DBM[]> {
+  async getByIdsAsDBM(ids: ID[], opt: CommonDaoReadOptions = {}): Promise<DBM[]> {
     if (!ids.length) return []
     const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
@@ -189,7 +190,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return dbms
   }
 
-  async requireById(id: ID, opt: CommonDaoOptions = {}): Promise<BM> {
+  async requireById(id: ID, opt: CommonDaoReadOptions = {}): Promise<BM> {
     const r = await this.getById(id, opt)
     if (!r) {
       this.throwRequiredError(id, opt)
@@ -197,7 +198,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return r
   }
 
-  async requireByIdAsDBM(id: ID, opt: CommonDaoOptions = {}): Promise<DBM> {
+  async requireByIdAsDBM(id: ID, opt: CommonDaoReadOptions = {}): Promise<DBM> {
     const r = await this.getByIdAsDBM(id, opt)
     if (!r) {
       this.throwRequiredError(id, opt)
@@ -246,16 +247,16 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     }
   }
 
-  async getBy(by: keyof DBM, value: any, limit = 0, opt?: CommonDaoOptions): Promise<BM[]> {
+  async getBy(by: keyof DBM, value: any, limit = 0, opt?: CommonDaoReadOptions): Promise<BM[]> {
     return await this.query().filterEq(by, value).limit(limit).runQuery(opt)
   }
 
-  async getOneBy(by: keyof DBM, value: any, opt?: CommonDaoOptions): Promise<BM | null> {
+  async getOneBy(by: keyof DBM, value: any, opt?: CommonDaoReadOptions): Promise<BM | null> {
     const [bm] = await this.query().filterEq(by, value).limit(1).runQuery(opt)
     return bm || null
   }
 
-  async getAll(opt?: CommonDaoOptions): Promise<BM[]> {
+  async getAll(opt?: CommonDaoReadOptions): Promise<BM[]> {
     return await this.query().runQuery(opt)
   }
 
@@ -267,12 +268,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return new RunnableDBQuery<BM, DBM, ID>(this, table)
   }
 
-  async runQuery(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<BM[]> {
+  async runQuery(q: DBQuery<DBM>, opt?: CommonDaoReadOptions): Promise<BM[]> {
     const { rows } = await this.runQueryExtended(q, opt)
     return rows
   }
 
-  async runQuerySingleColumn<T = any>(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<T[]> {
+  async runQuerySingleColumn<T = any>(q: DBQuery<DBM>, opt?: CommonDaoReadOptions): Promise<T[]> {
     _assert(
       q._selectedFieldNames?.length === 1,
       `runQuerySingleColumn requires exactly 1 column to be selected: ${q.pretty()}`,
@@ -289,14 +290,17 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
    * Does deduplication by id.
    * Order is not guaranteed, as queries run in parallel.
    */
-  async runUnionQueries(queries: DBQuery<DBM>[], opt?: CommonDaoOptions): Promise<BM[]> {
+  async runUnionQueries(queries: DBQuery<DBM>[], opt?: CommonDaoReadOptions): Promise<BM[]> {
     const results = (
       await pMap(queries, async q => (await this.runQueryExtended(q, opt)).rows)
     ).flat()
     return _uniqBy(results, r => r.id)
   }
 
-  async runQueryExtended(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<RunQueryResult<BM>> {
+  async runQueryExtended(
+    q: DBQuery<DBM>,
+    opt: CommonDaoReadOptions = {},
+  ): Promise<RunQueryResult<BM>> {
     this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const op = `runQuery(${q.pretty()})`
@@ -317,14 +321,14 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     }
   }
 
-  async runQueryAsDBM(q: DBQuery<DBM>, opt?: CommonDaoOptions): Promise<DBM[]> {
+  async runQueryAsDBM(q: DBQuery<DBM>, opt?: CommonDaoReadOptions): Promise<DBM[]> {
     const { rows } = await this.runQueryExtendedAsDBM(q, opt)
     return rows
   }
 
   async runQueryExtendedAsDBM(
     q: DBQuery<DBM>,
-    opt: CommonDaoOptions = {},
+    opt: CommonDaoReadOptions = {},
   ): Promise<RunQueryResult<DBM>> {
     this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
@@ -343,7 +347,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     return { rows: dbms, ...queryResult }
   }
 
-  async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<number> {
+  async runQueryCount(q: DBQuery<DBM>, opt: CommonDaoReadOptions = {}): Promise<number> {
     this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const op = `runQueryCount(${q.pretty()})`
@@ -548,7 +552,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     )
   }
 
-  async queryIds(q: DBQuery<DBM>, opt: CommonDaoOptions = {}): Promise<ID[]> {
+  async queryIds(q: DBQuery<DBM>, opt: CommonDaoReadOptions = {}): Promise<ID[]> {
     this.validateQueryIndexes(q) // throws if query uses `excludeFromIndexes` property
     q.table = opt.table || q.table
     const { rows } = await this.cfg.db.runQuery(q.select(['id']), opt)
@@ -1411,7 +1415,7 @@ export class CommonDaoTransaction {
   async getById<BM extends BaseDBEntity, DBM extends BaseDBEntity, ID = BM['id']>(
     dao: CommonDao<BM, DBM, ID>,
     id?: ID | null,
-    opt?: CommonDaoOptions,
+    opt?: CommonDaoReadOptions,
   ): Promise<BM | null> {
     return await dao.getById(id, { ...opt, tx: this.tx })
   }
@@ -1419,7 +1423,7 @@ export class CommonDaoTransaction {
   async getByIds<BM extends BaseDBEntity, DBM extends BaseDBEntity, ID = BM['id']>(
     dao: CommonDao<BM, DBM, ID>,
     ids: ID[],
-    opt?: CommonDaoOptions,
+    opt?: CommonDaoReadOptions,
   ): Promise<BM[]> {
     return await dao.getByIds(ids, { ...opt, tx: this.tx })
   }

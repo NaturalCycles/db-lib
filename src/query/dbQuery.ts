@@ -8,6 +8,7 @@ import {
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
   CommonDaoOptions,
+  CommonDaoReadOptions,
   CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
@@ -251,27 +252,27 @@ export class RunnableDBQuery<
     super(table || dao.cfg.table)
   }
 
-  async runQuery(opt?: CommonDaoOptions): Promise<BM[]> {
+  async runQuery(opt?: CommonDaoReadOptions): Promise<BM[]> {
     return await this.dao.runQuery(this, opt)
   }
 
-  async runQuerySingleColumn<T = any>(opt?: CommonDaoOptions): Promise<T[]> {
+  async runQuerySingleColumn<T = any>(opt?: CommonDaoReadOptions): Promise<T[]> {
     return await this.dao.runQuerySingleColumn<T>(this, opt)
   }
 
-  async runQueryAsDBM(opt?: CommonDaoOptions): Promise<DBM[]> {
+  async runQueryAsDBM(opt?: CommonDaoReadOptions): Promise<DBM[]> {
     return await this.dao.runQueryAsDBM(this, opt)
   }
 
-  async runQueryExtended(opt?: CommonDaoOptions): Promise<RunQueryResult<BM>> {
+  async runQueryExtended(opt?: CommonDaoReadOptions): Promise<RunQueryResult<BM>> {
     return await this.dao.runQueryExtended(this, opt)
   }
 
-  async runQueryExtendedAsDBM(opt?: CommonDaoOptions): Promise<RunQueryResult<DBM>> {
+  async runQueryExtendedAsDBM(opt?: CommonDaoReadOptions): Promise<RunQueryResult<DBM>> {
     return await this.dao.runQueryExtendedAsDBM(this, opt)
   }
 
-  async runQueryCount(opt?: CommonDaoOptions): Promise<number> {
+  async runQueryCount(opt?: CommonDaoReadOptions): Promise<number> {
     return await this.dao.runQueryCount(this, opt)
   }
 
@@ -301,7 +302,7 @@ export class RunnableDBQuery<
     return this.dao.streamQueryAsDBM(this, opt)
   }
 
-  async queryIds(opt?: CommonDaoOptions): Promise<ID[]> {
+  async queryIds(opt?: CommonDaoReadOptions): Promise<ID[]> {
     return await this.dao.queryIds(this, opt)
   }
 

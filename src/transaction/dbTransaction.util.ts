@@ -107,6 +107,7 @@ export class FakeDBTransaction implements DBTransaction {
   ): Promise<ROW[]> {
     return await this.db.getByIds(table, ids, opt)
   }
+
   // async runQuery<ROW extends ObjectWithId>(
   //   q: DBQuery<ROW>,
   //   opt?: CommonDBOptions,
@@ -120,6 +121,7 @@ export class FakeDBTransaction implements DBTransaction {
   ): Promise<void> {
     await this.db.saveBatch(table, rows, opt)
   }
+
   async deleteByIds(table: string, ids: string[], opt?: CommonDBOptions): Promise<number> {
     return await this.db.deleteByIds(table, ids, opt)
   }
