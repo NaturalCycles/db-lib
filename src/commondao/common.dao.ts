@@ -23,7 +23,7 @@ import {
   pMap,
   SKIP,
   StringMap,
-  UnixTimestampMillisNumber,
+  UnixTimestampMillis,
   Unsaved,
   ZodSchema,
   ZodValidationError,
@@ -1326,7 +1326,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     }
   }
 
-  protected logResult(started: number, op: string, res: any, table: string): void {
+  protected logResult(started: UnixTimestampMillis, op: string, res: any, table: string): void {
     if (!this.cfg.logLevel) return
 
     let logRes: any
@@ -1349,19 +1349,19 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     this.cfg.logger?.log(`<< ${table}.${op}: ${logRes} in ${_since(started)}`, ...args)
   }
 
-  protected logSaveResult(started: number, op: string, table: string): void {
+  protected logSaveResult(started: UnixTimestampMillis, op: string, table: string): void {
     if (!this.cfg.logLevel) return
     this.cfg.logger?.log(`<< ${table}.${op} in ${_since(started)}`)
   }
 
-  protected logStarted(op: string, table: string, force = false): UnixTimestampMillisNumber {
+  protected logStarted(op: string, table: string, force = false): UnixTimestampMillis {
     if (this.cfg.logStarted || force) {
       this.cfg.logger?.log(`>> ${table}.${op}`)
     }
-    return Date.now()
+    return Date.now() as UnixTimestampMillis
   }
 
-  protected logSaveStarted(op: string, items: any, table: string): UnixTimestampMillisNumber {
+  protected logSaveStarted(op: string, items: any, table: string): UnixTimestampMillis {
     if (this.cfg.logStarted) {
       const args: any[] = [`>> ${table}.${op}`]
       if (Array.isArray(items)) {
@@ -1379,7 +1379,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       this.cfg.logger?.log(...args)
     }
 
-    return Date.now()
+    return Date.now() as UnixTimestampMillis
   }
 }
 

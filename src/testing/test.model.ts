@@ -1,4 +1,10 @@
-import { _range, BaseDBEntity, jsonSchema, JsonSchemaObject } from '@naturalcycles/js-lib'
+import {
+  _range,
+  BaseDBEntity,
+  jsonSchema,
+  JsonSchemaObject,
+  UnixTimestamp,
+} from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,
@@ -8,7 +14,7 @@ import {
   stringSchema,
 } from '@naturalcycles/nodejs-lib'
 
-const MOCK_TS_2018_06_21 = 1529539200
+const MOCK_TS_2018_06_21 = 1529539200 as UnixTimestamp
 
 export const TEST_TABLE = 'TEST_TABLE'
 

@@ -3,7 +3,7 @@ import {
   CommonLogger,
   ErrorMode,
   Promisable,
-  UnixTimestampNumber,
+  UnixTimestamp,
   ZodError,
   ZodSchema,
 } from '@naturalcycles/js-lib'
@@ -257,7 +257,7 @@ export interface CommonDaoReadOptions extends CommonDaoOptions {
    * If provided (and supported by the DB) - will read the data at that point in time (aka "Time machine" feature).
    * This feature is named PITR (point-in-time-recovery) query in Datastore.
    */
-  readAt?: UnixTimestampNumber
+  readAt?: UnixTimestamp
 }
 
 export interface CommonDaoSaveOptions<BM extends BaseDBEntity, DBM extends BaseDBEntity>

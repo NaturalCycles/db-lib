@@ -5,6 +5,7 @@ import {
   ErrorMode,
   localTime,
   pMap,
+  UnixTimestamp,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -68,7 +69,7 @@ export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
    *
    * @default undefined
    */
-  sinceUpdated?: number
+  sinceUpdated?: UnixTimestamp
 
   /**
    * Optionally you can provide mapper that is going to run for each table.

@@ -6,7 +6,7 @@ import {
   localTime,
   pMap,
   StringMap,
-  UnixTimestampNumber,
+  UnixTimestamp,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -61,13 +61,13 @@ export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   /**
    * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated`
    */
-  sinceUpdated?: UnixTimestampNumber
+  sinceUpdated?: UnixTimestamp
 
   /**
    * Map for each table a `sinceUpdated` timestamp, or `undefined`.
    * If set - will do "incremental backup" (not full), only for entities that updated >= `sinceUpdated` (on a per table basis)
    */
-  sinceUpdatedPerTable?: StringMap<UnixTimestampNumber>
+  sinceUpdatedPerTable?: StringMap<UnixTimestamp>
 
   /**
    * By default, dbPipelineBackup creates a Query based on sinceUpdated.

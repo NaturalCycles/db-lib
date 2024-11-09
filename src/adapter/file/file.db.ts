@@ -10,6 +10,7 @@ import {
   generateJsonSchemaFromData,
   JsonSchemaRootObject,
   ObjectWithId,
+  UnixTimestampMillis,
 } from '@naturalcycles/js-lib'
 import { dimGrey, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
 import {
@@ -240,14 +241,14 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     return rows
   }
 
-  private logStarted(op: string): number {
+  private logStarted(op: string): UnixTimestampMillis {
     if (this.cfg.logStarted) {
       this.cfg.logger?.log(`>> ${op}`)
     }
-    return Date.now()
+    return Date.now() as UnixTimestampMillis
   }
 
-  private logFinished(started: number, op: string): void {
+  private logFinished(started: UnixTimestampMillis, op: string): void {
     if (!this.cfg.logFinished) return
     this.cfg.logger?.log(`<< ${op} ${dimGrey(`in ${_since(started)}`)}`)
   }

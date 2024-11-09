@@ -8,6 +8,7 @@ import {
   JsonSchemaObject,
   localTime,
   pMap,
+  UnixTimestamp,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -80,7 +81,7 @@ export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
    *
    * @default undefined
    */
-  sinceUpdated?: number
+  sinceUpdated?: UnixTimestamp
 
   /**
    * @default false

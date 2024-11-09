@@ -1,4 +1,4 @@
-import { Integer, UnixTimestampNumber } from '@naturalcycles/js-lib'
+import { Integer, UnixTimestamp } from '@naturalcycles/js-lib'
 import { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { CommonDBCreateOptions } from '../db.model'
 
@@ -72,7 +72,7 @@ export interface CommonKeyValueDBSaveBatchOptions {
    * If set (and if it's implemented by the driver) - will set expiry TTL for each key of the batch.
    * E.g EXAT in Redis.
    */
-  expireAt?: UnixTimestampNumber
+  expireAt?: UnixTimestamp
 }
 
 /**
