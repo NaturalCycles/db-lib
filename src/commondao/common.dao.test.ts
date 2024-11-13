@@ -9,6 +9,7 @@ import {
   pExpectedError,
   pExpectedErrorString,
   pTry,
+  UnixTimestamp,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -409,7 +410,7 @@ test('does not reset updated on getByIdAsDBM', async () => {
   // console.log(r.updated)
 
   // 5 seconds later
-  const newNow = MOCK_TS_2018_06_21 + 5000
+  const newNow = (MOCK_TS_2018_06_21 + 5000) as UnixTimestamp
   mockTime(newNow)
 
   const bm = await dao.requireById(r.id)
