@@ -1,7 +1,9 @@
 import {
+  AnyObject,
   BaseDBEntity,
   CommonLogger,
   ErrorMode,
+  NumberOfMilliseconds,
   Promisable,
   UnixTimestamp,
   ZodError,
@@ -145,6 +147,17 @@ export interface CommonDaoCfg<
    * If set to false - save (write) operations will skip validation (and conversion).
    */
   validateOnSave?: boolean
+
+  /**
+   * Defaults to undefined == disabled.
+   * If set - enable the monitoring of validation time and will alert on crossing the threshold.
+   */
+  debugValidationTimeThreshhold?: NumberOfMilliseconds
+
+  /**
+   * Called when debugValidationTimeThreshhold is crossed.
+   */
+  onValidationTimeThreshold?: (info: AnyObject) => void
 
   /**
    * Defaults to false.

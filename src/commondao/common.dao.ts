@@ -1257,7 +1257,23 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       })
     } else {
       // Joi
+      const start = performance.now()
       const vr = getValidationResult(obj, schema, objectName)
+      const end = performance.now()
+      const tookMillis = end - start
+
+      if (
+        this.cfg.debugValidationTimeThreshhold &&
+        tookMillis >= this.cfg.debugValidationTimeThreshhold
+      ) {
+        this.cfg.onValidationTimeThreshold?.({
+          tookMillis,
+          error: !!vr.error,
+          table,
+          obj,
+        })
+      }
+
       error = vr.error
       convertedValue = vr.value
     }
