@@ -526,18 +526,126 @@ async function getEven(): Promise<TestItemBM[]> {
   return await dao.query().filterEq('even', true).runQuery()
 }
 
-test('runInTransaction', async () => {
-  const items = createTestItemsBM(4)
+describe('runInTransaction', () => {
+  test('should work', async () => {
+    const items = createTestItemsBM(4)
 
-  await dao.runInTransaction(async tx => {
-    await tx.save(dao, items[0]!)
-    await tx.save(dao, items[1]!)
-    await tx.save(dao, items[3]!)
-    await tx.deleteById(dao, items[1]!.id)
+    await dao.runInTransaction(async tx => {
+      await tx.save(dao, items[0]!)
+      await tx.save(dao, items[1]!)
+      await tx.save(dao, items[3]!)
+      await tx.deleteById(dao, items[1]!.id)
+    })
+
+    const items2 = await dao.query().runQuery()
+    expect(items2.map(i => i.id).sort()).toEqual(['id1', 'id4'])
   })
 
-  const items2 = await dao.query().runQuery()
-  expect(items2.map(i => i.id).sort()).toEqual(['id1', 'id4'])
+  describe('with nested transactions', () => {
+    test('should work', async () => {
+      const dao2 = new CommonDao(daoCfg)
+      const items = createTestItemsBM(4)
+
+      await dao.runInTransaction(async tx => {
+        await tx.save(dao, items[0]!)
+        await tx.save(dao, items[1]!)
+        await dao2.runInTransaction(async tx2 => {
+          await tx2.save(dao, items[3]!)
+          await tx2.deleteById(dao, items[1]!.id)
+        })
+      })
+
+      const items2 = await dao.query().runQuery()
+      expect(items2.map(i => i.id).sort()).toEqual(['id1', 'id4'])
+    })
+
+    test('should rollback when the inner transaction fails', async () => {
+      const dao2 = new CommonDao(daoCfg)
+      const items = createTestItemsBM(4)
+
+      const transaction = dao.runInTransaction(async tx => {
+        await tx.save(dao, items[0]!)
+        await tx.save(dao, items[1]!)
+        await dao2.runInTransaction(async tx2 => {
+          await tx2.save(dao, items[3]!)
+          await tx2.deleteById(dao, items[1]!.id)
+          throw new Error('I should not have done that!')
+        })
+      })
+
+      await expect(transaction).rejects.toThrow('I should not have done that!')
+      const items2 = await dao.query().runQuery()
+      expect(items2.map(i => i.id).sort()).toEqual([])
+    })
+
+    test('should rollback when the outer transaction fails', async () => {
+      const dao2 = new CommonDao(daoCfg)
+      const items = createTestItemsBM(4)
+
+      const transaction = dao.runInTransaction(async tx => {
+        await tx.save(dao, items[0]!)
+        await tx.save(dao, items[1]!)
+        await dao2.runInTransaction(async tx2 => {
+          await tx2.save(dao, items[3]!)
+          await tx2.deleteById(dao, items[1]!.id)
+        })
+        throw new Error('I should not have done that!')
+      })
+
+      await expect(transaction).rejects.toThrow('I should not have done that!')
+      const items2 = await dao.query().runQuery()
+      expect(items2.map(i => i.id).sort()).toEqual([])
+    })
+
+    test('transactions of different DBs should not interfere', async () => {
+      const db2 = new InMemoryDB()
+      const daoCfg2 = { ...daoCfg, db: db2 }
+      const dao2 = new CommonDao(daoCfg2)
+      const items = createTestItemsBM(4)
+
+      await dao.runInTransaction(async tx => {
+        await tx.save(dao, items[0]!)
+        await tx.save(dao, items[1]!)
+        try {
+          await dao2.runInTransaction(async tx2 => {
+            await tx2.save(dao, items[3]!)
+            await tx2.deleteById(dao, items[1]!.id)
+            throw new Error('I should not have done that!')
+          })
+        } catch {
+          //
+        }
+      })
+
+      const itemsInDb1 = await dao.query().runQuery()
+      expect(itemsInDb1.map(i => i.id).sort()).toEqual(['id1', 'id2'])
+      const itemsInDb2 = await dao2.query().runQuery()
+      expect(itemsInDb2.map(i => i.id).sort()).toEqual([])
+    })
+
+    test('transactions of different DBs should not interfere', async () => {
+      const db2 = new InMemoryDB()
+      const daoCfg2 = { ...daoCfg, db: db2 }
+      const dao2 = new CommonDao(daoCfg2)
+      const items = createTestItemsBM(4)
+
+      const transaction = dao.runInTransaction(async tx => {
+        await tx.save(dao, items[0]!)
+        await tx.save(dao, items[1]!)
+        await dao2.runInTransaction(async tx2 => {
+          await tx2.save(dao, items[3]!)
+          await tx2.deleteById(dao, items[1]!.id)
+        })
+        throw new Error('I should not have done that!')
+      })
+
+      await expect(transaction).rejects.toThrow('I should not have done that!')
+      const itemsInDb1 = await dao.query().runQuery()
+      expect(itemsInDb1.map(i => i.id).sort()).toEqual([])
+      const itemsInDb2 = await dao2.query().runQuery()
+      expect(itemsInDb2.map(i => i.id).sort()).toEqual(['id4'])
+    })
+  })
 })
 
 test('should not be able to query by a non-indexed property', async () => {
