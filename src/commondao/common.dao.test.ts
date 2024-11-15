@@ -561,7 +561,7 @@ describe('runInTransaction', () => {
 
     test('should rollback when the inner transaction fails', async () => {
       const dao2 = new CommonDao(daoCfg)
-      const items = createTestItemsBM(4)
+      const items = createTestItemsBM(5)
 
       const transaction = dao.runInTransaction(async tx => {
         await tx.save(dao, items[0]!)
@@ -571,6 +571,7 @@ describe('runInTransaction', () => {
           await tx2.deleteById(dao, items[1]!.id)
           throw new Error('I should not have done that!')
         })
+        await tx.save(dao, items[4]!)
       })
 
       await expect(transaction).rejects.toThrow('I should not have done that!')
@@ -601,7 +602,7 @@ describe('runInTransaction', () => {
       const db2 = new InMemoryDB()
       const daoCfg2 = { ...daoCfg, db: db2 }
       const dao2 = new CommonDao(daoCfg2)
-      const items = createTestItemsBM(4)
+      const items = createTestItemsBM(5)
 
       await dao.runInTransaction(async tx => {
         await tx.save(dao, items[0]!)
@@ -612,13 +613,12 @@ describe('runInTransaction', () => {
             await tx2.deleteById(dao, items[1]!.id)
             throw new Error('I should not have done that!')
           })
-        } catch {
-          //
-        }
+        } catch {}
+        await tx.save(dao, items[4]!)
       })
 
       const itemsInDb1 = await dao.query().runQuery()
-      expect(itemsInDb1.map(i => i.id).sort()).toEqual(['id1', 'id2'])
+      expect(itemsInDb1.map(i => i.id).sort()).toEqual(['id1', 'id2', 'id5'])
       const itemsInDb2 = await dao2.query().runQuery()
       expect(itemsInDb2.map(i => i.id).sort()).toEqual([])
     })

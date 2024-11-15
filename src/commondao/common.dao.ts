@@ -76,7 +76,7 @@ const isCI = !!process.env['CI']
  * TM = Transport model (optimized to be sent over the wire)
  */
 export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, ID = BM['id']> {
-  private static transaction = new Map<CommonDB, CommonDaoTransaction | undefined>()
+  private static transactionsByDb = new Map<CommonDB, CommonDaoTransaction | undefined>()
 
   constructor(public cfg: CommonDaoCfg<BM, DBM, ID>) {
     this.cfg = {
@@ -1313,7 +1313,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
   ): Promise<T> {
     let r: T
 
-    const tx = CommonDao.transaction.get(this.cfg.db)
+    const tx = CommonDao.transactionsByDb.get(this.cfg.db)
     if (tx) {
       try {
         r = await fn(tx)
@@ -1326,13 +1326,13 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
         const daoTx = new CommonDaoTransaction(tx, this.cfg.logger!)
 
         try {
-          CommonDao.transaction.set(this.cfg.db, daoTx)
+          CommonDao.transactionsByDb.set(this.cfg.db, daoTx)
           r = await fn(daoTx)
         } catch (err) {
           await daoTx.rollback() // graceful rollback that "never throws"
           throw err
         } finally {
-          CommonDao.transaction.delete(this.cfg.db)
+          CommonDao.transactionsByDb.delete(this.cfg.db)
         }
       }, opt)
     }
