@@ -1,5 +1,4 @@
 import {
-  AnyObject,
   BaseDBEntity,
   CommonLogger,
   ErrorMode,
@@ -149,15 +148,11 @@ export interface CommonDaoCfg<
   validateOnSave?: boolean
 
   /**
-   * Defaults to undefined == disabled.
-   * If set - enable the monitoring of validation time and will alert on crossing the threshold.
+   * The hook allows to get a callback, to instrument "validation time".
+   *
+   * @experimental
    */
-  debugValidationTimeThreshhold?: NumberOfMilliseconds
-
-  /**
-   * Called when debugValidationTimeThreshhold is crossed.
-   */
-  onValidationTimeThreshold?: (info: AnyObject) => void
+  onValidationTime?: (data: OnValidationTimeData) => void
 
   /**
    * Defaults to false.
@@ -365,3 +360,9 @@ export interface CommonDaoStreamOptions<IN>
 }
 
 export type CommonDaoCreateOptions = CommonDBCreateOptions
+
+export interface OnValidationTimeData {
+  tookMillis: NumberOfMilliseconds
+  table: string
+  obj: any
+}
