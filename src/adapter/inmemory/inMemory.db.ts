@@ -13,10 +13,10 @@ import {
   generateJsonSchemaFromData,
   JsonSchemaObject,
   JsonSchemaRootObject,
+  localTime,
   ObjectWithId,
   pMap,
   StringMap,
-  UnixTimestampMillis,
 } from '@naturalcycles/js-lib'
 import {
   _pipeline,
@@ -315,7 +315,7 @@ export class InMemoryDB implements CommonDB {
     _assert(this.cfg.persistenceEnabled, 'flushToDisk() called but persistenceEnabled=false')
     const { persistentStoragePath, persistZip } = this.cfg
 
-    const started = Date.now() as UnixTimestampMillis
+    const started = localTime.nowUnixMillis()
 
     await fs2.emptyDirAsync(persistentStoragePath)
 
@@ -344,7 +344,7 @@ export class InMemoryDB implements CommonDB {
     _assert(this.cfg.persistenceEnabled, 'restoreFromDisk() called but persistenceEnabled=false')
     const { persistentStoragePath } = this.cfg
 
-    const started = Date.now() as UnixTimestampMillis
+    const started = localTime.nowUnixMillis()
 
     await fs2.ensureDirAsync(persistentStoragePath)
 

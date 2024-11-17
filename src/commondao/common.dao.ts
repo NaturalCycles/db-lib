@@ -1377,7 +1377,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     if (this.cfg.logStarted || force) {
       this.cfg.logger?.log(`>> ${table}.${op}`)
     }
-    return Date.now() as UnixTimestampMillis
+    return localTime.nowUnixMillis()
   }
 
   protected logSaveStarted(op: string, items: any, table: string): UnixTimestampMillis {
@@ -1398,7 +1398,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       this.cfg.logger?.log(...args)
     }
 
-    return Date.now() as UnixTimestampMillis
+    return localTime.nowUnixMillis()
   }
 }
 

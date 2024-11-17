@@ -9,6 +9,7 @@ import {
   _stringMapValues,
   generateJsonSchemaFromData,
   JsonSchemaRootObject,
+  localTime,
   ObjectWithId,
   UnixTimestampMillis,
 } from '@naturalcycles/js-lib'
@@ -245,7 +246,7 @@ export class FileDB extends BaseCommonDB implements CommonDB {
     if (this.cfg.logStarted) {
       this.cfg.logger?.log(`>> ${op}`)
     }
-    return Date.now() as UnixTimestampMillis
+    return localTime.nowUnixMillis()
   }
 
   private logFinished(started: UnixTimestampMillis, op: string): void {
