@@ -663,7 +663,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     }
 
     let patched: BM
-    const loaded = await this.getById(id, opt)
+    const loaded = await this.getById(id, {
+      // Skipping validation here for performance reasons.
+      // Validation is going to happen on save anyway, just down below.
+      skipValidation: true,
+      ...opt,
+    })
 
     if (loaded) {
       patched = { ...loaded, ...patch }
@@ -723,7 +728,12 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       }
       Object.assign(bm, patch)
     } else {
-      const loaded = await this.getById(bm.id as ID, opt)
+      const loaded = await this.getById(bm.id as ID, {
+        // Skipping validation here for performance reasons.
+        // Validation is going to happen on save anyway, just down below.
+        skipValidation: true,
+        ...opt,
+      })
 
       if (loaded) {
         const loadedWithPatch: BM = {
