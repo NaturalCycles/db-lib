@@ -123,7 +123,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
 
-    let dbm = (await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id as string]))[0]
+    let dbm = (await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id as string], opt))[0]
     if (dbm && this.cfg.hooks!.afterLoad) {
       dbm = (await this.cfg.hooks!.afterLoad(dbm)) || undefined
     }
@@ -147,7 +147,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     const op = `getByIdAsDBM(${id})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    let [dbm] = await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id as string])
+    let [dbm] = await (opt.tx || this.cfg.db).getByIds<DBM>(table, [id as string], opt)
     if (dbm && this.cfg.hooks!.afterLoad) {
       dbm = (await this.cfg.hooks!.afterLoad(dbm)) || undefined
     }
@@ -162,7 +162,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     const op = `getByIds ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids as string[])
+    let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids as string[], opt)
     if (this.cfg.hooks!.afterLoad && dbms.length) {
       dbms = (await pMap(dbms, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
@@ -179,7 +179,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     const op = `getByIdsAsDBM ${ids.length} id(s) (${_truncate(ids.slice(0, 10).join(', '), 50)})`
     const table = opt.table || this.cfg.table
     const started = this.logStarted(op, table)
-    let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids as string[])
+    let dbms = await (opt.tx || this.cfg.db).getByIds<DBM>(table, ids as string[], opt)
     if (this.cfg.hooks!.afterLoad && dbms.length) {
       dbms = (await pMap(dbms, async dbm => await this.cfg.hooks!.afterLoad!(dbm))).filter(
         _isTruthy,
