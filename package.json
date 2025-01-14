@@ -9,14 +9,14 @@
     "lbt": "dev-lib lbt"
   },
   "dependencies": {
-    "@naturalcycles/js-lib": "^14.116.0",
-    "@naturalcycles/nodejs-lib": "^13.1.1"
+    "@naturalcycles/js-lib": "^14",
+    "@naturalcycles/nodejs-lib": "^13"
   },
   "devDependencies": {
-    "@naturalcycles/bench-lib": "^3.0.0",
-    "@naturalcycles/dev-lib": "^15.4.1",
-    "@types/node": "^22.1.0",
-    "jest": "^29.0.0"
+    "@naturalcycles/bench-lib": "^3",
+    "@naturalcycles/dev-lib": "^15",
+    "@types/node": "^22",
+    "jest": "^29"
   },
   "files": [
     "dist",
