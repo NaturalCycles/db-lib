@@ -190,6 +190,82 @@ test('patchById requireToExist', async () => {
   ).toMatchInlineSnapshot(`"AssertionError: TEST_TABLE.patchById row is required, but missing"`)
 })
 
+describe('patch', () => {
+  describe('with requireToExist', () => {
+    test('should patch when the data exists', async () => {
+      const testItem: TestItemBM = {
+        id: 'id1',
+        k1: 'k1',
+        created: 1529539200 as UnixTimestamp,
+        updated: 1529539200 as UnixTimestamp,
+      }
+      await dao.save(testItem)
+
+      await dao.patch(
+        testItem,
+        {
+          k1: 'k111',
+        },
+        {
+          requireToExist: true,
+        },
+      )
+
+      const updatedTestItem = await dao.requireById('id1')
+      expect(updatedTestItem).toMatchObject({ k1: 'k111' })
+    })
+
+    test('should throw when the data does not exist', async () => {
+      const testItem: TestItemBM = {
+        id: 'id1',
+        k1: 'k1',
+        created: 1529539200 as UnixTimestamp,
+        updated: 1529539200 as UnixTimestamp,
+      }
+
+      const error = await pExpectedErrorString(
+        dao.patch(
+          testItem,
+          {
+            k1: 'k111',
+          },
+          {
+            requireToExist: true,
+          },
+        ),
+      )
+
+      expect(error).toBe('AssertionError: TEST_TABLE.patch row is required, but missing')
+    })
+
+    test('should throw even when `skipDBRead` is specified', async () => {
+      jest.spyOn(dao, 'getById')
+      const testItem: TestItemBM = {
+        id: 'id1',
+        k1: 'k1',
+        created: 1529539200 as UnixTimestamp,
+        updated: 1529539200 as UnixTimestamp,
+      }
+
+      const error = await pExpectedErrorString(
+        dao.patch(
+          testItem,
+          {
+            k1: 'k111',
+          },
+          {
+            requireToExist: true,
+            skipDBRead: true,
+          },
+        ),
+      )
+
+      expect(error).toBe('AssertionError: TEST_TABLE.patch row is required, but missing')
+      expect(dao.getById).toHaveBeenCalledWith('id1', expect.any(Object))
+    })
+  })
+})
+
 test('patch', async () => {
   const item: TestItemBM = await dao.save({
     id: 'id1',

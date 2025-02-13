@@ -716,7 +716,7 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       return await this.patchInTransaction(bm, patch, opt)
     }
 
-    if (opt.skipDBRead) {
+    if (opt.skipDBRead && !opt.requireToExist) {
       const patched: BM = {
         ...bm,
         ...patch,
@@ -749,6 +749,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
           return bm
         }
       } else {
+        const table = opt.table || this.cfg.table
+        _assert(!opt.requireToExist, `${table}.patch row is required, but missing`, {
+          id: bm.id,
+          table,
+        })
         Object.assign(bm, patch)
       }
     }

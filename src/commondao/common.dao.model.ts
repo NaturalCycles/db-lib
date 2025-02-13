@@ -297,8 +297,20 @@ export interface CommonDaoPatchOptions<DBM extends BaseDBEntity>
   extends CommonDaoSaveBatchOptions<DBM> {
   /**
    * If true - patch will skip loading from DB, and will just optimistically patch passed object.
+   *
+   * The flag is not applied when requireToExist is true, as it doesn't make sense.
    */
   skipDBRead?: boolean
+  /**
+   * Defaults to false.
+   * With false, if the row doesn't exist - it will be auto-created with `dao.create`.
+   * With true, if the row doesn't exist - it will throw an error.
+   *
+   * Use true when you expect the row to exist and it would be an error if it doesn't.
+   *
+   * When true, skipDBRead will not be applied, as it doesn't make sense.
+   */
+  requireToExist?: boolean
 }
 
 /**
