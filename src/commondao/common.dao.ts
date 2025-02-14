@@ -728,28 +728,24 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
       }
       Object.assign(bm, patch)
     } else {
-      const loaded = await this.getById(bm.id as ID, {
+      const loaded = await this.requireById(bm.id as ID, {
         // Skipping validation here for performance reasons.
         // Validation is going to happen on save anyway, just down below.
         skipValidation: true,
         ...opt,
       })
 
-      if (loaded) {
-        const loadedWithPatch: BM = {
-          ...loaded,
-          ...patch,
-        }
+      const loadedWithPatch: BM = {
+        ...loaded,
+        ...patch,
+      }
 
-        // Make `bm` exactly the same as `loadedWithPatch`
-        _objectAssignExact(bm, loadedWithPatch)
+      // Make `bm` exactly the same as `loadedWithPatch`
+      _objectAssignExact(bm, loadedWithPatch)
 
-        if (_deepJsonEquals(loaded, loadedWithPatch)) {
-          // Skipping the save operation, as data is the same
-          return bm
-        }
-      } else {
-        Object.assign(bm, patch)
+      if (_deepJsonEquals(loaded, loadedWithPatch)) {
+        // Skipping the save operation, as data is the same
+        return bm
       }
     }
 
