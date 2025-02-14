@@ -301,14 +301,6 @@ export interface CommonDaoPatchOptions<DBM extends BaseDBEntity>
    * Consequently, when the row doesn't exist - it will be auto-created with `dao.create`.
    */
   skipDBRead?: boolean
-  /**
-   * Defaults to false.
-   * With false, if the row doesn't exist - it will throw an error.
-   * With true, if the row doesn't exist - it will be auto-created with `dao.create`.
-   *
-   * Use true when you expect the row to exist and it would be an error if it doesn't.
-   */
-  createIfMissing?: boolean
 }
 
 /**

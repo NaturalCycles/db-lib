@@ -230,7 +230,7 @@ describe('patch', () => {
       }),
     )
 
-    expect(error).toBe(`AssertionError: DB row required, but not found in TEST_TABLE`)
+    expect(error).toBe(`AppError: DB row required, but not found in TEST_TABLE`)
   })
 
   test('should create the data when it does not exist and `skipDBRead` is specified', async () => {
@@ -253,55 +253,6 @@ describe('patch', () => {
 
     const updatedTestItem = await dao.requireById('id1')
     expect(updatedTestItem).toMatchObject({ k1: 'k111' })
-  })
-
-  test('should create the data when it does not exist and `createIfMissing` is specified', async () => {
-    const testItem: TestItemBM = {
-      id: 'id1',
-      k1: 'k1',
-      created: 1529539200 as UnixTimestamp,
-      updated: 1529539200 as UnixTimestamp,
-    }
-
-    await dao.patch(
-      testItem,
-      {
-        k1: 'k111',
-      },
-      {
-        createIfMissing: true,
-      },
-    )
-
-    const updatedTestItem = await dao.requireById('id1')
-    expect(updatedTestItem).toMatchObject({ k1: 'k111' })
-  })
-
-  test('should throw when `skipDBRead` is true and `createIfMissing` is `false`', async () => {
-    const testItem: TestItemBM = {
-      id: 'id1',
-      k1: 'k1',
-      created: 1529539200 as UnixTimestamp,
-      updated: 1529539200 as UnixTimestamp,
-    }
-    await dao.save(testItem)
-
-    const error = await pExpectedErrorString(
-      dao.patch(
-        testItem,
-        {
-          k1: 'k111',
-        },
-        {
-          skipDBRead: true,
-          createIfMissing: false,
-        },
-      ),
-    )
-
-    expect(error).toBe(
-      'AssertionError: When `skipDBRead` is set to `true`, `createIfMissing` must not be `false`',
-    )
   })
 })
 
