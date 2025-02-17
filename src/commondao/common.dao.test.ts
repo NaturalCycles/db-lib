@@ -156,6 +156,14 @@ test('should propagate pipe errors', async () => {
 
 test('patchById', async () => {
   const id = '123456'
+  const testItem: TestItemBM = {
+    id,
+    k1: 'k1',
+    created: 1529539200 as UnixTimestamp,
+    updated: 1529539200 as UnixTimestamp,
+  }
+  await dao.save(testItem)
+
   const r = await dao.patchById(id, {
     k1: 'k111',
   })
@@ -173,7 +181,7 @@ test('patchById', async () => {
   `)
 })
 
-test('patchById requireToExist', async () => {
+test('patchById createIfMissing false', async () => {
   const id = '123456'
   expect(
     await pExpectedErrorString(
@@ -183,11 +191,69 @@ test('patchById requireToExist', async () => {
           k1: 'k111',
         },
         {
-          requireToExist: true,
+          createIfMissing: false,
         },
       ),
     ),
-  ).toMatchInlineSnapshot(`"AssertionError: TEST_TABLE.patchById row is required, but missing"`)
+  ).toMatchInlineSnapshot(`"AssertionError: DB row required, but not found in TEST_TABLE"`)
+})
+
+describe('patch', () => {
+  test('should patch when the data exists', async () => {
+    const testItem: TestItemBM = {
+      id: 'id1',
+      k1: 'k1',
+      created: 1529539200 as UnixTimestamp,
+      updated: 1529539200 as UnixTimestamp,
+    }
+    await dao.save(testItem)
+
+    await dao.patch(testItem, {
+      k1: 'k111',
+    })
+
+    const updatedTestItem = await dao.requireById('id1')
+    expect(updatedTestItem).toMatchObject({ k1: 'k111' })
+  })
+
+  test('should throw when the data does not exist', async () => {
+    const testItem: TestItemBM = {
+      id: 'id1',
+      k1: 'k1',
+      created: 1529539200 as UnixTimestamp,
+      updated: 1529539200 as UnixTimestamp,
+    }
+
+    const error = await pExpectedErrorString(
+      dao.patch(testItem, {
+        k1: 'k111',
+      }),
+    )
+
+    expect(error).toBe(`AppError: DB row required, but not found in TEST_TABLE`)
+  })
+
+  test('should create the data when it does not exist and `skipDBRead` is specified', async () => {
+    const testItem: TestItemBM = {
+      id: 'id1',
+      k1: 'k1',
+      created: 1529539200 as UnixTimestamp,
+      updated: 1529539200 as UnixTimestamp,
+    }
+
+    await dao.patch(
+      testItem,
+      {
+        k1: 'k111',
+      },
+      {
+        skipDBRead: true,
+      },
+    )
+
+    const updatedTestItem = await dao.requireById('id1')
+    expect(updatedTestItem).toMatchObject({ k1: 'k111' })
+  })
 })
 
 test('patch', async () => {

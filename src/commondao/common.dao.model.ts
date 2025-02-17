@@ -285,18 +285,20 @@ export interface CommonDaoPatchByIdOptions<DBM extends BaseDBEntity>
   extends CommonDaoSaveBatchOptions<DBM> {
   /**
    * Defaults to false.
-   * With false, if the row doesn't exist - it will be auto-created with `dao.create`.
-   * With true, if the row doesn't exist - it will throw an error.
+   * With false, if the row doesn't exist - it will throw an error.
+   * With true, if the row doesn't exist - it will be auto-created with `dao.create`.
    *
    * Use true when you expect the row to exist and it would be an error if it doesn't.
    */
-  requireToExist?: boolean
+  createIfMissing?: boolean
 }
 
 export interface CommonDaoPatchOptions<DBM extends BaseDBEntity>
   extends CommonDaoSaveBatchOptions<DBM> {
   /**
    * If true - patch will skip loading from DB, and will just optimistically patch passed object.
+   *
+   * Consequently, when the row doesn't exist - it will be auto-created with `dao.create`.
    */
   skipDBRead?: boolean
 }
