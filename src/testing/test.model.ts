@@ -24,6 +24,9 @@ export interface TestItemBM extends BaseDBEntity {
   k3?: number
   even?: boolean
   b1?: Buffer
+  nested?: {
+    foo: number
+  }
 }
 
 export interface TestItemDBM extends TestItemBM {}
@@ -39,6 +42,9 @@ export const testItemBMSchema = objectSchema<TestItemBM>({
   k3: numberSchema.optional(),
   even: booleanSchema.optional(),
   b1: binarySchema.optional(),
+  nested: objectSchema({
+    foo: numberSchema,
+  }).optional(),
 }).concat(baseDBEntitySchema as any)
 
 export const testItemTMSchema = objectSchema<TestItemTM>({
@@ -68,6 +74,7 @@ export function createTestItemDBM(num = 1): TestItemDBM {
     k2: `v${num * 2}`,
     k3: num,
     even: num % 2 === 0,
+    nested: { foo: num },
     created: MOCK_TS_2018_06_21,
     updated: MOCK_TS_2018_06_21,
   }

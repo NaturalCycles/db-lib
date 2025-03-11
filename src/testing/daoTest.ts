@@ -196,6 +196,19 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
           quirks,
         )
       })
+
+      test('query nested property', async () => {
+        let rows = await dao
+          .query()
+          .filter('nested.foo' as any, '==', 1)
+          .runQuery()
+        rows = _sortBy(rows, r => r.id)
+        expectMatch(
+          expectedItems.filter(i => i.nested?.foo === 1),
+          rows,
+          quirks,
+        )
+      })
     }
 
     if (support.dbQueryOrder) {

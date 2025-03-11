@@ -1,4 +1,4 @@
-import { _pick, ObjectWithId } from '@naturalcycles/js-lib'
+import { _get, _pick, ObjectWithId } from '@naturalcycles/js-lib'
 import { DBQuery, DBQueryFilterOperator } from '../../query/dbQuery'
 
 type FilterFn = (v: any, val: any) => boolean
@@ -22,7 +22,10 @@ export function queryInMemory<ROW extends ObjectWithId>(q: DBQuery<ROW>, rows: R
   // .filter
   // eslint-disable-next-line unicorn/no-array-reduce
   rows = q._filters.reduce((rows, filter) => {
-    return rows.filter(row => FILTER_FNS[filter.op](row[filter.name], filter.val))
+    return rows.filter(row => {
+      const value = _get(row, filter.name as string)
+      return FILTER_FNS[filter.op](value, filter.val)
+    })
   }, rows)
 
   // .select(fieldNames)
