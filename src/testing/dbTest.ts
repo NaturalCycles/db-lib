@@ -1,5 +1,4 @@
 import { _deepFreeze, _filterObject, _pick, _sortBy, localTime, pMap } from '@naturalcycles/js-lib'
-import { expect, test } from 'vitest'
 import { CommonDB, CommonDBType } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
 import {
@@ -25,7 +24,13 @@ export interface CommonDBImplementationQuirks {
   allowBooleansAsUndefined?: boolean
 }
 
-export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
+export async function runCommonDBTest(
+  db: CommonDB,
+  quirks: CommonDBImplementationQuirks = {},
+): Promise<void> {
+  // this is because vitest cannot be "required" from cjs
+  const { test, expect } = await import('vitest')
+
   const { support } = db
   const items = createTestItemsDBM(3)
   _deepFreeze(items)
@@ -380,25 +385,21 @@ export function runCommonDBTest(db: CommonDB, quirks: CommonDBImplementationQuir
       await db.deleteByQuery(queryAll())
     })
   }
-}
 
-export function expectMatch(
-  expected: any[],
-  actual: any[],
-  quirks: CommonDBImplementationQuirks,
-): void {
-  // const expectedSorted = sortObjectDeep(expected)
-  // const actualSorted = sortObjectDeep(actual)
+  function expectMatch(expected: any[], actual: any[], quirks: CommonDBImplementationQuirks): void {
+    // const expectedSorted = sortObjectDeep(expected)
+    // const actualSorted = sortObjectDeep(actual)
 
-  if (quirks.allowBooleansAsUndefined) {
-    expected = expected.map(r => {
-      return typeof r !== 'object' ? r : _filterObject(r, (_k, v) => v !== false)
-    })
-  }
+    if (quirks.allowBooleansAsUndefined) {
+      expected = expected.map(r => {
+        return typeof r !== 'object' ? r : _filterObject(r, (_k, v) => v !== false)
+      })
+    }
 
-  if (quirks.allowExtraPropertiesInResponse) {
-    expect(actual).toMatchObject(expected)
-  } else {
-    expect(actual).toEqual(expected)
+    if (quirks.allowExtraPropertiesInResponse) {
+      expect(actual).toMatchObject(expected)
+    } else {
+      expect(actual).toEqual(expected)
+    }
   }
 }

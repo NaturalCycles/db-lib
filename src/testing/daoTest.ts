@@ -1,12 +1,11 @@
 import { Readable } from 'node:stream'
-import { _deepCopy, _omit, _pick, _sortBy, localTime } from '@naturalcycles/js-lib'
+import { _deepCopy, _filterObject, _omit, _pick, _sortBy, localTime } from '@naturalcycles/js-lib'
 import { _pipeline } from '@naturalcycles/nodejs-lib'
-import { expect, test } from 'vitest'
 import { CommonDaoLogLevel, DBQuery } from '..'
 import { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
 import { TestItemBM } from '.'
-import { CommonDBImplementationQuirks, expectMatch } from './dbTest'
+import { CommonDBImplementationQuirks } from './dbTest'
 import {
   createTestItemBM,
   createTestItemsBM,
@@ -15,7 +14,13 @@ import {
   testItemBMSchema,
 } from './test.model'
 
-export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQuirks = {}): void {
+export async function runCommonDaoTest(
+  db: CommonDB,
+  quirks: CommonDBImplementationQuirks = {},
+): Promise<void> {
+  // this is because vitest cannot be "required" from cjs
+  const { test, expect } = await import('vitest')
+
   const { support } = db
   const dao = new CommonDao({
     table: TEST_TABLE,
@@ -357,6 +362,23 @@ export function runCommonDaoTest(db: CommonDB, quirks: CommonDBImplementationQui
       test('transaction cleanup', async () => {
         await dao.query().deleteByQuery()
       })
+    }
+  }
+
+  function expectMatch(expected: any[], actual: any[], quirks: CommonDBImplementationQuirks): void {
+    // const expectedSorted = sortObjectDeep(expected)
+    // const actualSorted = sortObjectDeep(actual)
+
+    if (quirks.allowBooleansAsUndefined) {
+      expected = expected.map(r => {
+        return typeof r !== 'object' ? r : _filterObject(r, (_k, v) => v !== false)
+      })
+    }
+
+    if (quirks.allowExtraPropertiesInResponse) {
+      expect(actual).toMatchObject(expected)
+    } else {
+      expect(actual).toEqual(expected)
     }
   }
 }

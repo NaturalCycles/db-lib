@@ -1,5 +1,4 @@
 import { _range, _sortBy, KeyValueTuple } from '@naturalcycles/js-lib'
-import { afterAll, beforeAll, expect, test } from 'vitest'
 import { CommonKeyValueDB } from '../kv/commonKeyValueDB'
 import { TEST_TABLE } from './test.model'
 
@@ -10,7 +9,9 @@ const testEntries: KeyValueTuple<string, Buffer>[] = testIds.map(id => [
   Buffer.from(`${id}value`),
 ])
 
-export function runCommonKeyValueDBTest(db: CommonKeyValueDB): void {
+export async function runCommonKeyValueDBTest(db: CommonKeyValueDB): Promise<void> {
+  const { afterAll, beforeAll, expect, test } = await import('vitest')
+
   beforeAll(async () => {
     // Tests in this suite are not isolated,
     // and failing tests can leave the DB in an unexpected state for other tests,

@@ -1,5 +1,4 @@
 import { _sortBy } from '@naturalcycles/js-lib'
-import { afterAll, beforeAll, expect, test } from 'vitest'
 import { CommonKeyValueDao } from '../kv/commonKeyValueDao'
 import { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
 import { createTestItemsBM, TEST_TABLE } from './test.model'
@@ -8,7 +7,9 @@ const testItems = createTestItemsBM(4)
 const testIds = testItems.map(e => e.id)
 const testEntries: KeyValueDBTuple[] = testItems.map(e => [e.id, Buffer.from(`${e.id}value`)])
 
-export function runCommonKeyValueDaoTest(db: CommonKeyValueDB): void {
+export async function runCommonKeyValueDaoTest(db: CommonKeyValueDB): Promise<void> {
+  const { afterAll, beforeAll, expect, test } = await import('vitest')
+
   const dao = new CommonKeyValueDao({
     db,
     table: TEST_TABLE,
