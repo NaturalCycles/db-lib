@@ -1,4 +1,5 @@
 import { _range, _sortBy, KeyValueTuple } from '@naturalcycles/js-lib'
+import { afterAll, beforeAll, expect, test } from 'vitest'
 import { CommonKeyValueDB } from '../kv/commonKeyValueDB'
 import { TEST_TABLE } from './test.model'
 

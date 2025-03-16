@@ -1,3 +1,4 @@
+import { describe } from 'vitest'
 import { runCommonDaoTest, runCommonDBTest } from '../../testing'
 import { FileDB } from './file.db'
 import { LocalFilePersistencePlugin } from './localFile.persistence.plugin'

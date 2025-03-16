@@ -1,4 +1,5 @@
 import { _deepFreeze, _filterObject, _pick, _sortBy, localTime, pMap } from '@naturalcycles/js-lib'
+import { expect, test } from 'vitest'
 import { CommonDB, CommonDBType } from '../common.db'
 import { DBQuery } from '../query/dbQuery'
 import {

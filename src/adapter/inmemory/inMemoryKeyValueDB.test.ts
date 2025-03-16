@@ -1,3 +1,4 @@
+import { describe } from 'vitest'
 import { runCommonKeyValueDaoTest, runCommonKeyValueDBTest } from '../../testing'
 import { InMemoryKeyValueDB } from './inMemoryKeyValueDB'
 

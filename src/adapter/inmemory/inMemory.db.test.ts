@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'vitest'
 import { createTestItemsDBM, runCommonDaoTest, runCommonDBTest, TEST_TABLE } from '../../testing'
 import { InMemoryDB } from './inMemory.db'
 
