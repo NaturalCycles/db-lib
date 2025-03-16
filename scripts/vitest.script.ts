@@ -13,7 +13,7 @@ runScript(async () => {
 
   files.forEach(filePath => {
     let s = fs2.readText(filePath)
-    s = `import { describe, expect, test, vi, beforeEach, beforeAll } from 'vitest'\n` + s
+    s = `import { describe, expect, test, vi, beforeEach, beforeAll } from 'vitest'\n\n` + s
     fs2.writeFile(filePath, s)
     console.log(`saved ${filePath}`)
   })
