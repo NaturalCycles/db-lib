@@ -1,18 +1,17 @@
 import { runCommonDaoTest } from './daoTest'
-import { CommonDBImplementationQuirks, runCommonDBTest } from './dbTest'
+import type { CommonDBImplementationQuirks } from './dbTest'
+import { runCommonDBTest } from './dbTest'
 import { runCommonKeyValueDaoTest } from './keyValueDaoTest'
 import { runCommonKeyValueDBTest } from './keyValueDBTest'
+import type { TestItemBM, TestItemDBM, TestItemTM } from './test.model'
 import {
   createTestItemBM,
   createTestItemDBM,
   createTestItemsBM,
   createTestItemsDBM,
   TEST_TABLE,
-  TestItemBM,
   testItemBMJsonSchema,
   testItemBMSchema,
-  TestItemDBM,
-  TestItemTM,
   testItemTMSchema,
 } from './test.model'
 

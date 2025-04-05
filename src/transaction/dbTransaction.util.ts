@@ -1,6 +1,6 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
+import type { ObjectWithId } from '@naturalcycles/js-lib'
 import type { CommonDB } from '../common.db'
-import { CommonDBOptions, CommonDBSaveOptions, DBTransaction } from '../db.model'
+import type { CommonDBOptions, CommonDBSaveOptions, DBTransaction } from '../db.model'
 
 /**
  * Optimizes the Transaction (list of DBOperations) to do less operations.

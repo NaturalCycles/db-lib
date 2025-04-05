@@ -1,4 +1,12 @@
 import { Readable } from 'node:stream'
+import type {
+  AnyObjectWithId,
+  CommonLogger,
+  JsonSchemaObject,
+  JsonSchemaRootObject,
+  ObjectWithId,
+  StringMap,
+} from '@naturalcycles/js-lib'
 import {
   _assert,
   _by,
@@ -8,42 +16,28 @@ import {
   _sortObjectDeep,
   _stringMapEntries,
   _stringMapValues,
-  AnyObjectWithId,
-  CommonLogger,
   generateJsonSchemaFromData,
-  JsonSchemaObject,
-  JsonSchemaRootObject,
   localTime,
-  ObjectWithId,
   pMap,
-  StringMap,
 } from '@naturalcycles/js-lib'
-import {
-  _pipeline,
-  bufferReviver,
-  dimGrey,
-  fs2,
-  ReadableTyped,
-  yellow,
-} from '@naturalcycles/nodejs-lib'
-import {
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { _pipeline, bufferReviver, dimGrey, fs2, yellow } from '@naturalcycles/nodejs-lib'
+import type {
   CommonDB,
-  commonDBFullSupport,
   CommonDBSupport,
   CommonDBTransactionOptions,
-  CommonDBType,
   DBOperation,
   DBTransactionFn,
-  queryInMemory,
 } from '../..'
-import {
+import { commonDBFullSupport, CommonDBType, queryInMemory } from '../..'
+import type {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   DBTransaction,
   RunQueryResult,
 } from '../../db.model'
-import { DBQuery } from '../../query/dbQuery'
+import type { DBQuery } from '../../query/dbQuery'
 
 export interface InMemoryDBCfg {
   /**

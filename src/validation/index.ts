@@ -7,14 +7,9 @@ import {
   objectSchema,
   stringSchema,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDBOptions, CommonDBSaveOptions } from '../db.model'
-import {
-  DBQuery,
-  DBQueryFilter,
-  DBQueryFilterOperator,
-  dbQueryFilterOperatorValues,
-  DBQueryOrder,
-} from '../query/dbQuery'
+import type { CommonDBOptions, CommonDBSaveOptions } from '../db.model'
+import type { DBQuery, DBQueryFilter, DBQueryFilterOperator, DBQueryOrder } from '../query/dbQuery'
+import { dbQueryFilterOperatorValues } from '../query/dbQuery'
 
 export const commonDBOptionsSchema = objectSchema<CommonDBOptions>({
   ['onlyCache' as any]: booleanSchema.optional(),

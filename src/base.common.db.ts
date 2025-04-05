@@ -1,19 +1,20 @@
-import {
+import type {
   JsonSchemaObject,
   JsonSchemaRootObject,
   ObjectWithId,
   StringMap,
 } from '@naturalcycles/js-lib'
-import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDB, CommonDBSupport, CommonDBType } from './common.db'
-import {
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import type { CommonDB, CommonDBSupport } from './common.db'
+import { CommonDBType } from './common.db'
+import type {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBTransactionOptions,
   DBTransactionFn,
   RunQueryResult,
 } from './db.model'
-import { DBQuery } from './query/dbQuery'
+import type { DBQuery } from './query/dbQuery'
 import { FakeDBTransaction } from './transaction/dbTransaction.util'
 
 /**

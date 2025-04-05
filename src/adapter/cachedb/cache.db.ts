@@ -1,17 +1,18 @@
 import { Readable } from 'node:stream'
-import {
-  _isTruthy,
+import type {
   JsonSchemaObject,
   JsonSchemaRootObject,
   ObjectWithId,
   StringMap,
 } from '@naturalcycles/js-lib'
-import { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { _isTruthy } from '@naturalcycles/js-lib'
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { BaseCommonDB } from '../../base.common.db'
-import { CommonDB, commonDBFullSupport, CommonDBSupport } from '../../common.db'
-import { RunQueryResult } from '../../db.model'
-import { DBQuery } from '../../query/dbQuery'
-import {
+import type { CommonDB, CommonDBSupport } from '../../common.db'
+import { commonDBFullSupport } from '../../common.db'
+import type { RunQueryResult } from '../../db.model'
+import type { DBQuery } from '../../query/dbQuery'
+import type {
   CacheDBCfg,
   CacheDBCreateOptions,
   CacheDBOptions,

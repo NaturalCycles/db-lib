@@ -1,12 +1,6 @@
-import {
-  _passthroughMapper,
-  AsyncMapper,
-  BaseDBEntity,
-  ErrorMode,
-  localTime,
-  pMap,
-  UnixTimestamp,
-} from '@naturalcycles/js-lib'
+import type { AsyncMapper, BaseDBEntity, UnixTimestamp } from '@naturalcycles/js-lib'
+import { _passthroughMapper, ErrorMode, localTime, pMap } from '@naturalcycles/js-lib'
+import type { TransformLogProgressOptions, TransformMapOptions } from '@naturalcycles/nodejs-lib'
 import {
   _pipeline,
   boldWhite,
@@ -15,15 +9,13 @@ import {
   NDJsonStats,
   transformChunk,
   transformLogProgress,
-  TransformLogProgressOptions,
   transformMap,
-  TransformMapOptions,
   transformTap,
   writableForEach,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from '../common.db'
-import { CommonDBSaveOptions } from '../db.model'
+import type { CommonDB } from '../common.db'
+import type { CommonDBSaveOptions } from '../db.model'
 import { DBQuery } from '../query/dbQuery'
 
 export interface DBPipelineCopyOptions extends TransformLogProgressOptions {

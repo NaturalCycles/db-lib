@@ -1,6 +1,6 @@
-import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
-import { CommonDB } from '../../common.db'
-import {
+import type { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
+import type { CommonDB } from '../../common.db'
+import type {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,

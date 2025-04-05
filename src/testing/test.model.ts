@@ -1,10 +1,5 @@
-import {
-  _range,
-  BaseDBEntity,
-  jsonSchema,
-  JsonSchemaObject,
-  UnixTimestamp,
-} from '@naturalcycles/js-lib'
+import type { BaseDBEntity, JsonSchemaObject, UnixTimestamp } from '@naturalcycles/js-lib'
+import { _range, jsonSchema } from '@naturalcycles/js-lib'
 import {
   baseDBEntitySchema,
   binarySchema,

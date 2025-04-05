@@ -1,6 +1,6 @@
-import { ObjectWithId } from '@naturalcycles/js-lib'
-import { DBSaveBatchOperation } from '../../db.model'
-import { FileDBPersistencePlugin } from './file.db.model'
+import type { ObjectWithId } from '@naturalcycles/js-lib'
+import type { DBSaveBatchOperation } from '../../db.model'
+import type { FileDBPersistencePlugin } from './file.db.model'
 
 export class NoopPersistencePlugin implements FileDBPersistencePlugin {
   async ping(): Promise<void> {}

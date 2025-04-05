@@ -1,6 +1,6 @@
 /*
 
-DEBUG=nc* yarn tsn ndjsonTest.script.ts
+yarn tsx scripts/ndjsonTest.script.ts
 
  */
 

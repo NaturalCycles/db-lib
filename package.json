@@ -14,9 +14,10 @@
   },
   "devDependencies": {
     "@naturalcycles/bench-lib": "^3",
-    "@naturalcycles/dev-lib": "^16",
+    "@naturalcycles/dev-lib": "^17",
     "@types/node": "^22",
     "@vitest/coverage-v8": "^3",
+    "tsx": "^4",
     "vitest": "^3"
   },
   "files": [

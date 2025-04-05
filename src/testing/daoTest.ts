@@ -2,10 +2,10 @@ import { Readable } from 'node:stream'
 import { _deepCopy, _filterObject, _omit, _pick, _sortBy, localTime } from '@naturalcycles/js-lib'
 import { _pipeline } from '@naturalcycles/nodejs-lib'
 import { CommonDaoLogLevel, DBQuery } from '..'
-import { CommonDB } from '../common.db'
+import type { CommonDB } from '../common.db'
 import { CommonDao } from '../commondao/common.dao'
-import { TestItemBM } from '.'
-import { CommonDBImplementationQuirks } from './dbTest'
+import type { TestItemBM } from '.'
+import type { CommonDBImplementationQuirks } from './dbTest'
 import {
   createTestItemBM,
   createTestItemsBM,

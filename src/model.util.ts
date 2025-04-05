@@ -1,4 +1,5 @@
-import { CreatedUpdated, CreatedUpdatedId, localTime } from '@naturalcycles/js-lib'
+import type { CreatedUpdated, CreatedUpdatedId } from '@naturalcycles/js-lib'
+import { localTime } from '@naturalcycles/js-lib'
 import { stringId } from '@naturalcycles/nodejs-lib'
 
 export function createdUpdatedFields(

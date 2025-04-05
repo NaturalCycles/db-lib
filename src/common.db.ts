@@ -1,11 +1,11 @@
-import {
+import type {
   JsonSchemaObject,
   JsonSchemaRootObject,
   ObjectWithId,
   StringMap,
 } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import {
+import type {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBReadOptions,
@@ -15,7 +15,7 @@ import {
   DBTransactionFn,
   RunQueryResult,
 } from './db.model'
-import { DBQuery } from './query/dbQuery'
+import type { DBQuery } from './query/dbQuery'
 
 export enum CommonDBType {
   'document' = 'document',

@@ -1,5 +1,5 @@
 import { CacheDB } from './cache.db'
-import {
+import type {
   CacheDBCfg,
   CacheDBCreateOptions,
   CacheDBOptions,

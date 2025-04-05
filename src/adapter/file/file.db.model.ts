@@ -1,5 +1,5 @@
-import { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
-import { DBSaveBatchOperation } from '../../db.model'
+import type { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
+import type { DBSaveBatchOperation } from '../../db.model'
 import type { DBQueryOrder } from '../../query/dbQuery'
 
 export interface FileDBPersistencePlugin {

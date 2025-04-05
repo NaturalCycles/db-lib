@@ -1,14 +1,13 @@
-import {
+import type {
   BaseDBEntity,
   CommonLogger,
   ErrorMode,
   NumberOfMilliseconds,
   Promisable,
   UnixTimestamp,
-  ZodError,
-  ZodSchema,
 } from '@naturalcycles/js-lib'
-import {
+import type { ZodError, ZodSchema } from '@naturalcycles/js-lib/dist/zod/index.js'
+import type {
   AjvSchema,
   AjvValidationError,
   JoiValidationError,
@@ -16,8 +15,8 @@ import {
   TransformLogProgressOptions,
   TransformMapOptions,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from '../common.db'
-import { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
+import type { CommonDB } from '../common.db'
+import type { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
 
 export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity, ID = BM['id']> {
   /**

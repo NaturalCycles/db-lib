@@ -1,6 +1,7 @@
-import { _isTruthy, ObjectWithId } from '@naturalcycles/js-lib'
+import type { ObjectWithId } from '@naturalcycles/js-lib'
+import { _isTruthy } from '@naturalcycles/js-lib'
 import { DBQuery } from '../query/dbQuery'
-import {
+import type {
   CommonTimeSeriesDaoCfg,
   TimeSeriesDataPoint,
   TimeSeriesQuery,

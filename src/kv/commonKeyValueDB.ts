@@ -1,6 +1,6 @@
-import { Integer, UnixTimestamp } from '@naturalcycles/js-lib'
-import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { CommonDBCreateOptions } from '../db.model'
+import type { Integer, UnixTimestamp } from '@naturalcycles/js-lib'
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import type { CommonDBCreateOptions } from '../db.model'
 
 /**
  * Common interface for Key-Value database implementations.

@@ -1,3 +1,4 @@
+import type { JsonSchemaRootObject, ObjectWithId, UnixTimestampMillis } from '@naturalcycles/js-lib'
 import {
   _assert,
   _by,
@@ -8,28 +9,21 @@ import {
   _sortObjectDeep,
   _stringMapValues,
   generateJsonSchemaFromData,
-  JsonSchemaRootObject,
   localTime,
-  ObjectWithId,
-  UnixTimestampMillis,
 } from '@naturalcycles/js-lib'
-import { dimGrey, readableCreate, ReadableTyped } from '@naturalcycles/nodejs-lib'
-import {
-  BaseCommonDB,
-  commonDBFullSupport,
-  CommonDBSupport,
-  DBSaveBatchOperation,
-  queryInMemory,
-} from '../..'
-import { CommonDB } from '../../common.db'
-import {
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import { dimGrey, readableCreate } from '@naturalcycles/nodejs-lib'
+import type { CommonDBSupport, DBSaveBatchOperation } from '../..'
+import { BaseCommonDB, commonDBFullSupport, queryInMemory } from '../..'
+import type { CommonDB } from '../../common.db'
+import type {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   RunQueryResult,
 } from '../../db.model'
-import { DBQuery } from '../../query/dbQuery'
-import { FileDBCfg } from './file.db.model'
+import type { DBQuery } from '../../query/dbQuery'
+import type { FileDBCfg } from './file.db.model'
 
 /**
  * Provides barebone implementation for "whole file" based CommonDB.

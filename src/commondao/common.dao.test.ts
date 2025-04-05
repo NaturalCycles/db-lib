@@ -1,15 +1,14 @@
 import { MOCK_TS_2018_06_21, mockTime } from '@naturalcycles/dev-lib/dist/testing'
+import type { BaseDBEntity, UnixTimestamp } from '@naturalcycles/js-lib'
 import {
   _deepFreeze,
   _omit,
   _range,
   _sortBy,
-  BaseDBEntity,
   ErrorMode,
   pExpectedError,
   pExpectedErrorString,
   pTry,
-  UnixTimestamp,
 } from '@naturalcycles/js-lib'
 import {
   AjvSchema,
@@ -20,22 +19,17 @@ import {
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
 import { DBLibError } from '../cnst'
+import type { TestItemBM, TestItemDBM } from '../testing'
 import {
   createTestItemBM,
   createTestItemsBM,
   TEST_TABLE,
-  TestItemBM,
   testItemBMJsonSchema,
   testItemBMSchema,
-  TestItemDBM,
 } from '../testing'
 import { CommonDao } from './common.dao'
-import {
-  CommonDaoCfg,
-  CommonDaoLogLevel,
-  CommonDaoOptions,
-  CommonDaoSaveBatchOptions,
-} from './common.dao.model'
+import type { CommonDaoCfg, CommonDaoOptions, CommonDaoSaveBatchOptions } from './common.dao.model'
+import { CommonDaoLogLevel } from './common.dao.model'
 
 let throwError = false
 

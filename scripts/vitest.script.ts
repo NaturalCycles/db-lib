@@ -1,6 +1,6 @@
 /*
 
-yarn tsn vitest.script.ts
+yarn tsx scripts/vitest.script.ts
 
  */
 

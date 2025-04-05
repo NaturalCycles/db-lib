@@ -1,15 +1,18 @@
+import type {
+  AsyncMapper,
+  BaseDBEntity,
+  JsonSchemaObject,
+  UnixTimestamp,
+} from '@naturalcycles/js-lib'
 import {
   _hb,
   _mapValues,
   _passthroughMapper,
-  AsyncMapper,
-  BaseDBEntity,
   ErrorMode,
-  JsonSchemaObject,
   localTime,
   pMap,
-  UnixTimestamp,
 } from '@naturalcycles/js-lib'
+import type { TransformLogProgressOptions, TransformMapOptions } from '@naturalcycles/nodejs-lib'
 import {
   _pipeline,
   boldWhite,
@@ -20,15 +23,13 @@ import {
   transformChunk,
   transformFilterSync,
   transformLogProgress,
-  TransformLogProgressOptions,
   transformMap,
-  TransformMapOptions,
   transformTap,
   writableForEach,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import { CommonDB } from '../common.db'
-import { CommonDBSaveOptions } from '../index'
+import type { CommonDB } from '../common.db'
+import type { CommonDBSaveOptions } from '../index'
 
 export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   /**

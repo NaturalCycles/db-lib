@@ -1,20 +1,15 @@
-import {
-  _objectAssign,
-  _truncate,
-  AsyncMapper,
-  BaseDBEntity,
-  ObjectWithId,
-} from '@naturalcycles/js-lib'
-import { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import {
+import type { AsyncMapper, BaseDBEntity, ObjectWithId } from '@naturalcycles/js-lib'
+import { _objectAssign, _truncate } from '@naturalcycles/js-lib'
+import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
+import type {
   CommonDaoOptions,
   CommonDaoReadOptions,
   CommonDaoStreamDeleteOptions,
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
 } from '..'
-import { CommonDao } from '../commondao/common.dao'
-import { RunQueryResult } from '../db.model'
+import type { CommonDao } from '../commondao/common.dao'
+import type { RunQueryResult } from '../db.model'
 
 /**
  * Modeled after Firestore operators (WhereFilterOp type)
