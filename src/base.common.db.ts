@@ -11,6 +11,7 @@ import type {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBTransactionOptions,
+  DBTransaction,
   DBTransactionFn,
   RunQueryResult,
 } from './db.model.js'
@@ -93,7 +94,7 @@ export class BaseCommonDB implements CommonDB {
     // there's no try/catch and rollback, as there's nothing to rollback
   }
 
-  async createTransaction(_opt?: CommonDBTransactionOptions): Promise<FakeDBTransaction> {
+  async createTransaction(_opt?: CommonDBTransactionOptions): Promise<DBTransaction> {
     return new FakeDBTransaction(this)
   }
 
