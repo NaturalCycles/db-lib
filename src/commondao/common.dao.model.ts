@@ -15,8 +15,8 @@ import type {
   TransformLogProgressOptions,
   TransformMapOptions,
 } from '@naturalcycles/nodejs-lib'
-import type { CommonDB } from '../common.db'
-import type { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model'
+import type { CommonDB } from '../common.db.js'
+import type { CommonDBCreateOptions, CommonDBOptions, CommonDBSaveOptions } from '../db.model.js'
 
 export interface CommonDaoHooks<BM extends BaseDBEntity, DBM extends BaseDBEntity, ID = BM['id']> {
   /**

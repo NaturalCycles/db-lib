@@ -1,18 +1,19 @@
 import { Readable } from 'node:stream'
 import { _deepCopy, _filterObject, _omit, _pick, _sortBy, localTime } from '@naturalcycles/js-lib'
 import { _pipeline } from '@naturalcycles/nodejs-lib'
-import { CommonDaoLogLevel, DBQuery } from '..'
-import type { CommonDB } from '../common.db'
-import { CommonDao } from '../commondao/common.dao'
-import type { TestItemBM } from '.'
-import type { CommonDBImplementationQuirks } from './commonDBTest'
+import type { CommonDB } from '../common.db.js'
+import { CommonDao } from '../commondao/common.dao.js'
+import { CommonDaoLogLevel } from '../commondao/common.dao.model.js'
+import { DBQuery } from '../query/dbQuery.js'
+import type { CommonDBImplementationQuirks } from './commonDBTest.js'
+import type { TestItemBM } from './test.model.js'
 import {
   createTestItemBM,
   createTestItemsBM,
   TEST_TABLE,
   testItemBMJsonSchema,
   testItemBMSchema,
-} from './test.model'
+} from './test.model.js'
 
 export async function runCommonDaoTest(
   db: CommonDB,

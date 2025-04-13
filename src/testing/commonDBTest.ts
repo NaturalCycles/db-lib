@@ -1,14 +1,14 @@
 import { _deepFreeze, _filterObject, _pick, _sortBy, localTime, pMap } from '@naturalcycles/js-lib'
-import type { CommonDB } from '../common.db'
-import { CommonDBType } from '../common.db'
-import { DBQuery } from '../query/dbQuery'
-import type { TestItemDBM } from './test.model'
+import type { CommonDB } from '../common.db.js'
+import { CommonDBType } from '../common.db.js'
+import { DBQuery } from '../query/dbQuery.js'
+import type { TestItemDBM } from './test.model.js'
 import {
   createTestItemDBM,
   createTestItemsDBM,
   TEST_TABLE,
   testItemBMJsonSchema,
-} from './test.model'
+} from './test.model.js'
 
 /**
  * All options default to `false`.

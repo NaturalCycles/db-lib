@@ -7,8 +7,8 @@ yarn tsx scripts/cannon.ts
 import { expressFunctionFactory, runCannon } from '@naturalcycles/bench-lib'
 import { _omit } from '@naturalcycles/js-lib'
 import { getValidationResult, runScript, stringId } from '@naturalcycles/nodejs-lib'
-import { CommonDao, InMemoryDB } from '../src'
-import { createTestItemsBM, TEST_TABLE, testItemBMSchema } from '../src/testing'
+import { CommonDao, InMemoryDB } from '../src/index.js'
+import { createTestItemsBM, TEST_TABLE, testItemBMSchema } from '../src/testing/index.js'
 
 runScript(async () => {
   await runCannon(

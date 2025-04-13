@@ -13,8 +13,8 @@ import {
   transformTap,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import type { CommonDB } from '../common.db'
-import { DBQuery } from '../index'
+import type { CommonDB } from '../common.db.js'
+import { DBQuery } from '../query/dbQuery.js'
 
 export interface DBPipelineBackupOptions extends TransformLogProgressOptions {
   /**

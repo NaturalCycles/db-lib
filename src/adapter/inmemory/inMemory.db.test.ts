@@ -1,6 +1,11 @@
 import { describe, expect, test } from 'vitest'
-import { createTestItemsDBM, runCommonDaoTest, runCommonDBTest, TEST_TABLE } from '../../testing'
-import { InMemoryDB } from './inMemory.db'
+import {
+  createTestItemsDBM,
+  runCommonDaoTest,
+  runCommonDBTest,
+  TEST_TABLE,
+} from '../../testing/index.js'
+import { InMemoryDB } from './inMemory.db.js'
 
 const db = new InMemoryDB()
 

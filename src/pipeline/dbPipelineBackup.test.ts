@@ -1,8 +1,8 @@
 import { test } from 'vitest'
-import { InMemoryDB } from '../adapter/inmemory/inMemory.db'
-import { tmpDir } from '../test/paths.cnst'
-import { createTestItemsDBM, TEST_TABLE } from '../testing'
-import { dbPipelineBackup } from './dbPipelineBackup'
+import { InMemoryDB } from '../adapter/inmemory/inMemory.db.js'
+import { tmpDir } from '../test/paths.cnst.js'
+import { createTestItemsDBM, TEST_TABLE } from '../testing/index.js'
+import { dbPipelineBackup } from './dbPipelineBackup.js'
 
 test('dbPipelineSaveToNDJson', async () => {
   const db = new InMemoryDB()

@@ -14,9 +14,9 @@ import {
   writableForEach,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import type { CommonDB } from '../common.db'
-import type { CommonDBSaveOptions } from '../db.model'
-import { DBQuery } from '../query/dbQuery'
+import type { CommonDB } from '../common.db.js'
+import type { CommonDBSaveOptions } from '../db.model.js'
+import { DBQuery } from '../query/dbQuery.js'
 
 export interface DBPipelineCopyOptions extends TransformLogProgressOptions {
   dbInput: CommonDB

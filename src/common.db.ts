@@ -15,8 +15,8 @@ import type {
   DBTransaction,
   DBTransactionFn,
   RunQueryResult,
-} from './db.model'
-import type { DBQuery } from './query/dbQuery'
+} from './db.model.js'
+import type { DBQuery } from './query/dbQuery.js'
 
 export enum CommonDBType {
   'document' = 'document',

@@ -2,14 +2,14 @@ import type { CommonLogger, KeyValueTuple } from '@naturalcycles/js-lib'
 import { AppError, pMap } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { deflateString, inflateToString } from '@naturalcycles/nodejs-lib'
-import type { CommonDaoLogLevel } from '../commondao/common.dao.model'
-import type { CommonDBCreateOptions } from '../db.model'
+import type { CommonDaoLogLevel } from '../commondao/common.dao.model.js'
+import type { CommonDBCreateOptions } from '../db.model.js'
 import type {
   CommonKeyValueDB,
   CommonKeyValueDBSaveBatchOptions,
   IncrementTuple,
   KeyValueDBTuple,
-} from './commonKeyValueDB'
+} from './commonKeyValueDB.js'
 
 export interface CommonKeyValueDaoCfg<V> {
   db: CommonKeyValueDB

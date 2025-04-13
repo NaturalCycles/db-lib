@@ -5,7 +5,7 @@ yarn tsx scripts/vitest.script.ts
  */
 
 import { fastGlob, fs2, runScript } from '@naturalcycles/nodejs-lib'
-import { projectDir } from '../src/test/paths.cnst'
+import { projectDir } from '../src/test/paths.cnst.js'
 
 runScript(async () => {
   const files = fastGlob.sync(`${projectDir}/{src,scripts}/**/*.test.ts`)

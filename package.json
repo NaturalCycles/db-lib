@@ -1,5 +1,6 @@
 {
   "name": "@naturalcycles/db-lib",
+  "type": "module",
   "scripts": {
     "prepare": "husky",
     "build": "dev-lib build",
@@ -61,7 +62,6 @@
     "firestore",
     "mysql"
   ],
-  "type": "commonjs",
   "author": "Natural Cycles Team",
   "license": "MIT"
 }

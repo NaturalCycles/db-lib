@@ -1,7 +1,7 @@
 import type { KeyValueTuple } from '@naturalcycles/js-lib'
 import { _range, _sortBy } from '@naturalcycles/js-lib'
-import type { CommonKeyValueDB } from '../kv/commonKeyValueDB'
-import { TEST_TABLE } from './test.model'
+import type { CommonKeyValueDB } from '../kv/commonKeyValueDB.js'
+import { TEST_TABLE } from './test.model.js'
 
 const testIds = _range(1, 4).map(n => `id${n}`)
 

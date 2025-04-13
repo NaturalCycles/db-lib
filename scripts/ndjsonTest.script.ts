@@ -5,9 +5,9 @@ yarn tsx scripts/ndjsonTest.script.ts
  */
 
 import { runScript } from '@naturalcycles/nodejs-lib'
-import { dbPipelineBackup, dbPipelineCopy, dbPipelineRestore, InMemoryDB } from '../src'
-import { tmpDir } from '../src/test/paths.cnst'
-import { createTestItemsDBM, TEST_TABLE } from '../src/testing'
+import { dbPipelineBackup, dbPipelineCopy, dbPipelineRestore, InMemoryDB } from '../src/index.js'
+import { tmpDir } from '../src/test/paths.cnst.js'
+import { createTestItemsDBM, TEST_TABLE } from '../src/testing/index.js'
 
 runScript(async () => {
   const fileDB1 = new InMemoryDB({

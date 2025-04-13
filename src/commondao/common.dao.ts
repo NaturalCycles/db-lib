@@ -47,10 +47,10 @@ import {
   transformNoOp,
   writableVoid,
 } from '@naturalcycles/nodejs-lib'
-import { DBLibError } from '../cnst'
-import type { CommonDBTransactionOptions, DBTransaction, RunQueryResult } from '../db.model'
-import type { DBQuery } from '../query/dbQuery'
-import { RunnableDBQuery } from '../query/dbQuery'
+import { DBLibError } from '../cnst.js'
+import type { CommonDBTransactionOptions, DBTransaction, RunQueryResult } from '../db.model.js'
+import type { DBQuery } from '../query/dbQuery.js'
+import { RunnableDBQuery } from '../query/dbQuery.js'
 import type {
   CommonDaoCfg,
   CommonDaoCreateOptions,
@@ -65,8 +65,8 @@ import type {
   CommonDaoStreamForEachOptions,
   CommonDaoStreamOptions,
   CommonDaoStreamSaveOptions,
-} from './common.dao.model'
-import { CommonDaoLogLevel } from './common.dao.model'
+} from './common.dao.model.js'
+import { CommonDaoLogLevel } from './common.dao.model.js'
 
 const isGAE = !!process.env['GAE_INSTANCE']
 const isCI = !!process.env['CI']

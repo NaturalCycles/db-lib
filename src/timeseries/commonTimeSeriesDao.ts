@@ -1,13 +1,13 @@
 import type { ObjectWithId } from '@naturalcycles/js-lib'
 import { _isTruthy } from '@naturalcycles/js-lib'
-import { DBQuery } from '../query/dbQuery'
+import { DBQuery } from '../query/dbQuery.js'
 import type {
   CommonTimeSeriesDaoCfg,
   TimeSeriesDataPoint,
   TimeSeriesQuery,
   TimeSeriesRow,
   TimeSeriesSaveBatchOp,
-} from './timeSeries.model'
+} from './timeSeries.model.js'
 
 const _TIMESERIES_RAW = '_TIMESERIES_RAW'
 

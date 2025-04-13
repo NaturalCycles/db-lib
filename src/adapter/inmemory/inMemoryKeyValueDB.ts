@@ -1,9 +1,13 @@
 import { Readable } from 'node:stream'
 import type { StringMap } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import type { CommonDBCreateOptions } from '../../db.model'
-import type { CommonKeyValueDB, IncrementTuple, KeyValueDBTuple } from '../../kv/commonKeyValueDB'
-import { commonKeyValueDBFullSupport } from '../../kv/commonKeyValueDB'
+import type { CommonDBCreateOptions } from '../../db.model.js'
+import type {
+  CommonKeyValueDB,
+  IncrementTuple,
+  KeyValueDBTuple,
+} from '../../kv/commonKeyValueDB.js'
+import { commonKeyValueDBFullSupport } from '../../kv/commonKeyValueDB.js'
 
 export interface InMemoryKeyValueDBCfg {}
 

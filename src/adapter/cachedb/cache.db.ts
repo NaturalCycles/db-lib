@@ -7,18 +7,18 @@ import type {
 } from '@naturalcycles/js-lib'
 import { _isTruthy } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import { BaseCommonDB } from '../../base.common.db'
-import type { CommonDB, CommonDBSupport } from '../../common.db'
-import { commonDBFullSupport } from '../../common.db'
-import type { RunQueryResult } from '../../db.model'
-import type { DBQuery } from '../../query/dbQuery'
+import { BaseCommonDB } from '../../base.common.db.js'
+import type { CommonDB, CommonDBSupport } from '../../common.db.js'
+import { commonDBFullSupport } from '../../common.db.js'
+import type { RunQueryResult } from '../../db.model.js'
+import type { DBQuery } from '../../query/dbQuery.js'
 import type {
   CacheDBCfg,
   CacheDBCreateOptions,
   CacheDBOptions,
   CacheDBSaveOptions,
   CacheDBStreamOptions,
-} from './cache.db.model'
+} from './cache.db.model.js'
 
 /**
  * CommonDB implementation that proxies requests to downstream CommonDB

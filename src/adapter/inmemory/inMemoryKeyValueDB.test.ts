@@ -1,6 +1,6 @@
 import { describe } from 'vitest'
-import { runCommonKeyValueDaoTest, runCommonKeyValueDBTest } from '../../testing'
-import { InMemoryKeyValueDB } from './inMemoryKeyValueDB'
+import { runCommonKeyValueDaoTest, runCommonKeyValueDBTest } from '../../testing/index.js'
+import { InMemoryKeyValueDB } from './inMemoryKeyValueDB.js'
 
 const db = new InMemoryKeyValueDB()
 

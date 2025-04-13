@@ -1,11 +1,11 @@
 import type { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
-import type { CommonDB } from '../../common.db'
+import type { CommonDB } from '../../common.db.js'
 import type {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
-} from '../../db.model'
+} from '../../db.model.js'
 
 export interface CacheDBCfg {
   name: string

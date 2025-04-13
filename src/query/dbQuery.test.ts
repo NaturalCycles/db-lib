@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { DBQuery } from './dbQuery'
+import { DBQuery } from './dbQuery.js'
 
 test('DBQuery', () => {
   const q = DBQuery.create('TestKind')

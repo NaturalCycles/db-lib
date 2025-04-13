@@ -1,7 +1,7 @@
 import { test } from 'vitest'
-import { InMemoryDB } from '..'
-import { createTestTimeSeries } from '../testing/timeSeriesTest.util'
-import { CommonTimeSeriesDao } from './commonTimeSeriesDao'
+import { InMemoryDB } from '../adapter/inmemory/inMemory.db.js'
+import { createTestTimeSeries } from '../testing/timeSeriesTest.util.js'
+import { CommonTimeSeriesDao } from './commonTimeSeriesDao.js'
 
 const db = new InMemoryDB({
   persistenceEnabled: true,

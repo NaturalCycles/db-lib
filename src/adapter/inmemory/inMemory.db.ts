@@ -22,22 +22,20 @@ import {
 } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { _pipeline, bufferReviver, dimGrey, fs2, yellow } from '@naturalcycles/nodejs-lib'
-import type {
-  CommonDB,
-  CommonDBSupport,
-  CommonDBTransactionOptions,
-  DBOperation,
-  DBTransactionFn,
-} from '../..'
-import { commonDBFullSupport, CommonDBType, queryInMemory } from '../..'
+import type { CommonDB, CommonDBSupport } from '../../common.db.js'
+import { commonDBFullSupport, CommonDBType } from '../../common.db.js'
 import type {
   CommonDBCreateOptions,
   CommonDBOptions,
   CommonDBSaveOptions,
+  CommonDBTransactionOptions,
+  DBOperation,
   DBTransaction,
+  DBTransactionFn,
   RunQueryResult,
-} from '../../db.model'
-import type { DBQuery } from '../../query/dbQuery'
+} from '../../db.model.js'
+import type { DBQuery } from '../../query/dbQuery.js'
+import { queryInMemory } from './queryInMemory.js'
 
 export interface InMemoryDBCfg {
   /**

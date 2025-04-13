@@ -1,6 +1,6 @@
 import type { CommonLogger, ObjectWithId } from '@naturalcycles/js-lib'
-import type { DBSaveBatchOperation } from '../../db.model'
-import type { DBQueryOrder } from '../../query/dbQuery'
+import type { DBSaveBatchOperation } from '../../db.model.js'
+import type { DBQueryOrder } from '../../query/dbQuery.js'
 
 export interface FileDBPersistencePlugin {
   ping: () => Promise<void>

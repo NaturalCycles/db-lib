@@ -28,8 +28,8 @@ import {
   writableForEach,
   yellow,
 } from '@naturalcycles/nodejs-lib'
-import type { CommonDB } from '../common.db'
-import type { CommonDBSaveOptions } from '../index'
+import type { CommonDB } from '../common.db.js'
+import type { CommonDBSaveOptions } from '../db.model.js'
 
 export interface DBPipelineRestoreOptions extends TransformLogProgressOptions {
   /**

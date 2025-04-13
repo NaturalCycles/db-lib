@@ -13,17 +13,19 @@ import {
 } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
 import { dimGrey, readableCreate } from '@naturalcycles/nodejs-lib'
-import type { CommonDBSupport, DBSaveBatchOperation } from '../..'
-import { BaseCommonDB, commonDBFullSupport, queryInMemory } from '../..'
-import type { CommonDB } from '../../common.db'
+import { BaseCommonDB } from '../../base.common.db.js'
+import type { CommonDB, CommonDBSupport } from '../../common.db.js'
+import { commonDBFullSupport } from '../../common.db.js'
 import type {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBStreamOptions,
+  DBSaveBatchOperation,
   RunQueryResult,
-} from '../../db.model'
-import type { DBQuery } from '../../query/dbQuery'
-import type { FileDBCfg } from './file.db.model'
+} from '../../db.model.js'
+import type { DBQuery } from '../../query/dbQuery.js'
+import { queryInMemory } from '../inmemory/queryInMemory.js'
+import type { FileDBCfg } from './file.db.model.js'
 
 /**
  * Provides barebone implementation for "whole file" based CommonDB.

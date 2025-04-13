@@ -1,7 +1,7 @@
 import { _sortBy } from '@naturalcycles/js-lib'
-import { CommonKeyValueDao } from '../kv/commonKeyValueDao'
-import type { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB'
-import { createTestItemsBM, TEST_TABLE } from './test.model'
+import { CommonKeyValueDao } from '../kv/commonKeyValueDao.js'
+import type { CommonKeyValueDB, KeyValueDBTuple } from '../kv/commonKeyValueDB.js'
+import { createTestItemsBM, TEST_TABLE } from './test.model.js'
 
 const testItems = createTestItemsBM(4)
 const testIds = testItems.map(e => e.id)

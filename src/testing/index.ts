@@ -1,9 +1,9 @@
-import { runCommonDaoTest } from './commonDaoTest'
-import type { CommonDBImplementationQuirks } from './commonDBTest'
-import { runCommonDBTest } from './commonDBTest'
-import { runCommonKeyValueDaoTest } from './keyValueDaoTest'
-import { runCommonKeyValueDBTest } from './keyValueDBTest'
-import type { TestItemBM, TestItemDBM, TestItemTM } from './test.model'
+import { runCommonDaoTest } from './commonDaoTest.js'
+import type { CommonDBImplementationQuirks } from './commonDBTest.js'
+import { runCommonDBTest } from './commonDBTest.js'
+import { runCommonKeyValueDaoTest } from './keyValueDaoTest.js'
+import { runCommonKeyValueDBTest } from './keyValueDBTest.js'
+import type { TestItemBM, TestItemDBM, TestItemTM } from './test.model.js'
 import {
   createTestItemBM,
   createTestItemDBM,
@@ -13,7 +13,7 @@ import {
   testItemBMJsonSchema,
   testItemBMSchema,
   testItemTMSchema,
-} from './test.model'
+} from './test.model.js'
 
 export type { CommonDBImplementationQuirks, TestItemBM, TestItemDBM, TestItemTM }
 

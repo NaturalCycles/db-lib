@@ -1,10 +1,10 @@
-import { CacheDB } from './cache.db'
+import { CacheDB } from './cache.db.js'
 import type {
   CacheDBCfg,
   CacheDBCreateOptions,
   CacheDBOptions,
   CacheDBStreamOptions,
-} from './cache.db.model'
+} from './cache.db.model.js'
 
 export type { CacheDBCfg, CacheDBCreateOptions, CacheDBOptions, CacheDBStreamOptions }
 

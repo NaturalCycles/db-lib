@@ -5,17 +5,17 @@ import type {
   StringMap,
 } from '@naturalcycles/js-lib'
 import type { ReadableTyped } from '@naturalcycles/nodejs-lib'
-import type { CommonDB, CommonDBSupport } from './common.db'
-import { CommonDBType } from './common.db'
+import type { CommonDB, CommonDBSupport } from './common.db.js'
+import { CommonDBType } from './common.db.js'
 import type {
   CommonDBOptions,
   CommonDBSaveOptions,
   CommonDBTransactionOptions,
   DBTransactionFn,
   RunQueryResult,
-} from './db.model'
-import type { DBQuery } from './query/dbQuery'
-import { FakeDBTransaction } from './transaction/dbTransaction.util'
+} from './db.model.js'
+import type { DBQuery } from './query/dbQuery.js'
+import { FakeDBTransaction } from './transaction/dbTransaction.util.js'
 
 /**
  * No-op implementation of CommonDB interface.
