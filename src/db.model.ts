@@ -28,6 +28,12 @@ export interface DBTransaction {
   deleteByIds: CommonDB['deleteByIds']
 
   /**
+   * Commit the transaction.
+   * May throw.
+   */
+  commit: () => Promise<void>
+
+  /**
    * Perform a graceful rollback.
    * It'll rollback the transaction and won't throw/re-throw any errors.
    */

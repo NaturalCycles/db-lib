@@ -13,7 +13,7 @@
     "@naturalcycles/nodejs-lib": "^13"
   },
   "devDependencies": {
-    "@naturalcycles/bench-lib": "^3",
+    "@naturalcycles/bench-lib": "^4",
     "@naturalcycles/dev-lib": "^17",
     "@types/node": "^22",
     "@vitest/coverage-v8": "^3",

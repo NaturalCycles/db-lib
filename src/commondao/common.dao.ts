@@ -1307,6 +1307,11 @@ export class CommonDao<BM extends BaseDBEntity, DBM extends BaseDBEntity = BM, I
     await this.cfg.db.ping()
   }
 
+  async createTransaction(opt?: CommonDBTransactionOptions): Promise<CommonDaoTransaction> {
+    const tx = await this.cfg.db.createTransaction(opt)
+    return new CommonDaoTransaction(tx, this.cfg.logger!)
+  }
+
   async runInTransaction<T = void>(
     fn: CommonDaoTransactionFn<T>,
     opt?: CommonDBTransactionOptions,
@@ -1420,7 +1425,16 @@ export class CommonDaoTransaction {
   ) {}
 
   /**
+   * Commits the underlying DBTransaction.
+   * May throw.
+   */
+  async commit(): Promise<void> {
+    await this.tx.commit()
+  }
+
+  /**
    * Perform a graceful rollback without throwing/re-throwing any error.
+   * Never throws.
    */
   async rollback(): Promise<void> {
     try {

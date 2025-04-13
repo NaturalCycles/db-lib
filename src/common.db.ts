@@ -12,6 +12,7 @@ import type {
   CommonDBSaveOptions,
   CommonDBStreamOptions,
   CommonDBTransactionOptions,
+  DBTransaction,
   DBTransactionFn,
   RunQueryResult,
 } from './db.model'
@@ -150,6 +151,13 @@ export interface CommonDB {
    * unless specified as readOnly in CommonDBTransactionOptions.
    */
   runInTransaction: (fn: DBTransactionFn, opt?: CommonDBTransactionOptions) => Promise<void>
+
+  /**
+   * Experimental API to support more manual transaction control.
+   *
+   * @experimental
+   */
+  createTransaction: (opt?: CommonDBTransactionOptions) => Promise<DBTransaction>
 
   /**
    * Increments a value of a property by a given amount.

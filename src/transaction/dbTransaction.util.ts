@@ -98,6 +98,7 @@ export class FakeDBTransaction implements DBTransaction {
   constructor(protected db: CommonDB) {}
 
   // no-op
+  async commit(): Promise<void> {}
   async rollback(): Promise<void> {}
 
   async getByIds<ROW extends ObjectWithId>(

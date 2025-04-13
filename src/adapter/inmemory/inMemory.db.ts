@@ -281,6 +281,13 @@ export class InMemoryDB implements CommonDB {
     }
   }
 
+  async createTransaction(opt: CommonDBTransactionOptions = {}): Promise<DBTransaction> {
+    return new InMemoryDBTransaction(this, {
+      readOnly: false,
+      ...opt,
+    })
+  }
+
   async incrementBatch(
     table: string,
     prop: string,

@@ -294,6 +294,18 @@ export async function runCommonDBTest(
   }
 
   if (support.transactions) {
+    /**
+     * Returns expected items in the DB after the preparation.
+     */
+    async function prepare(): Promise<TestItemDBM[]> {
+      // cleanup
+      await db.deleteByQuery(queryAll())
+
+      const itemsToSave: TestItemDBM[] = [items[0]!, { ...items[2]!, k1: 'k1_mod' }]
+      await db.saveBatch(TEST_TABLE, itemsToSave)
+      return itemsToSave
+    }
+
     test('transaction happy path', async () => {
       // cleanup
       await db.deleteByQuery(queryAll())
@@ -313,7 +325,24 @@ export async function runCommonDBTest(
       expectMatch(expected, rows, quirks)
     })
 
+    test('createTransaction happy path', async () => {
+      // cleanup
+      await db.deleteByQuery(queryAll())
+
+      const tx = await db.createTransaction()
+      await tx.saveBatch(TEST_TABLE, items)
+      await tx.saveBatch(TEST_TABLE, [{ ...items[2]!, k1: 'k1_mod' }])
+      await tx.deleteByIds(TEST_TABLE, [items[1]!.id])
+      await tx.commit()
+
+      const { rows } = await db.runQuery(queryAll())
+      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
+      expectMatch(expected, rows, quirks)
+    })
+
     test('transaction rollback', async () => {
+      const expected = await prepare()
+
       let err: any
 
       try {
@@ -329,7 +358,6 @@ export async function runCommonDBTest(
       expect(err).toBeDefined()
 
       const { rows } = await db.runQuery(queryAll())
-      const expected = [items[0], { ...items[2]!, k1: 'k1_mod' }]
       expectMatch(expected, rows, quirks)
     })
   }

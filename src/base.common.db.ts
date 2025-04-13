@@ -93,6 +93,10 @@ export class BaseCommonDB implements CommonDB {
     // there's no try/catch and rollback, as there's nothing to rollback
   }
 
+  async createTransaction(_opt?: CommonDBTransactionOptions): Promise<FakeDBTransaction> {
+    return new FakeDBTransaction(this)
+  }
+
   async incrementBatch(
     _table: string,
     _prop: string,
