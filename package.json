@@ -10,12 +10,12 @@
     "lbt": "dev-lib lbt"
   },
   "dependencies": {
-    "@naturalcycles/js-lib": "^14",
-    "@naturalcycles/nodejs-lib": "^13"
+    "@naturalcycles/js-lib": "^15",
+    "@naturalcycles/nodejs-lib": "^14"
   },
   "devDependencies": {
     "@naturalcycles/bench-lib": "^4",
-    "@naturalcycles/dev-lib": "^17",
+    "@naturalcycles/dev-lib": "^18",
     "@types/node": "^22",
     "@vitest/coverage-v8": "^3",
     "tsx": "^4",
