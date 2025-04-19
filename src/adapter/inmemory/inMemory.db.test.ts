@@ -9,9 +9,13 @@ import { InMemoryDB } from './inMemory.db.js'
 
 const db = new InMemoryDB()
 
-describe('runCommonDBTest', () => runCommonDBTest(db))
+describe('runCommonDBTest', async () => {
+  await runCommonDBTest(db)
+})
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', async () => {
+  await runCommonDaoTest(db)
+})
 
 test('persistence', async () => {
   const testItems = createTestItemsDBM(50)

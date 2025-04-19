@@ -9,6 +9,10 @@ const db = new FileDB({
   }),
 })
 
-describe('runCommonDBTest', () => runCommonDBTest(db))
+describe('runCommonDBTest', async () => {
+  await runCommonDBTest(db)
+})
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', async () => {
+  await runCommonDaoTest(db)
+})

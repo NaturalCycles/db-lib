@@ -13,6 +13,10 @@ const db = new CacheDB({
   logDownstream: true,
 })
 
-describe('runCommonDBTest', () => runCommonDBTest(db))
+describe('runCommonDBTest', async () => {
+  await runCommonDBTest(db)
+})
 
-describe('runCommonDaoTest', () => runCommonDaoTest(db))
+describe('runCommonDaoTest', async () => {
+  await runCommonDaoTest(db)
+})

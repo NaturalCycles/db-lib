@@ -17,7 +17,6 @@
     "@naturalcycles/bench-lib": "^4",
     "@naturalcycles/dev-lib": "^18",
     "@types/node": "^22",
-    "@vitest/coverage-v8": "^3",
     "tsx": "^4",
     "vitest": "^3"
   },

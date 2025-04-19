@@ -376,7 +376,7 @@ test('modifications of immutable objects', async () => {
 
   item1Saved.k1 = 'modifiedk1'
   // Ensure object cannot be modified with save
-  await expect(immutableDao.save(item1Saved)).rejects.toThrow()
+  await expect(immutableDao.save(item1Saved)).rejects.toThrow(`INSERT failed, entity exists`)
 
   // Ensure objects be saved with saveBatch
   const bms = [item2!, item3!]
@@ -384,13 +384,21 @@ test('modifications of immutable objects', async () => {
   await expect(immutableDao.saveBatch(bms)).resolves.not.toThrow()
 
   // Ensure Object can't be patched
-  await expect(immutableDao.patchById(item1Saved.id, { k2: 'patchedk2' })).rejects.toThrow()
+  await expect(immutableDao.patchById(item1Saved.id, { k2: 'patchedk2' })).rejects.toThrow(
+    `entity exists`,
+  )
 
   // Ensure object can't be deleted
-  await expect(immutableDao.deleteById(item1Saved.id)).rejects.toThrow()
-  await expect(immutableDao.deleteByIds([item1Saved.id])).rejects.toThrow()
+  await expect(immutableDao.deleteById(item1Saved.id)).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[AppError: OBJECT_IS_IMMUTABLE]`,
+  )
+  await expect(
+    immutableDao.deleteByIds([item1Saved.id]),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`[AppError: OBJECT_IS_IMMUTABLE]`)
   const q = immutableDao.query().filter('id', '==', item1Saved.id)
-  await expect(immutableDao.deleteByQuery(q)).rejects.toThrow()
+  await expect(immutableDao.deleteByQuery(q)).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[AppError: OBJECT_IS_IMMUTABLE]`,
+  )
 
   // Ensure deletion is possible with override flag
   await expect(immutableDao.deleteByQuery(q, { allowMutability: true })).resolves.not.toThrow()

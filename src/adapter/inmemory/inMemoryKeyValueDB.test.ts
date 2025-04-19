@@ -4,5 +4,10 @@ import { InMemoryKeyValueDB } from './inMemoryKeyValueDB.js'
 
 const db = new InMemoryKeyValueDB()
 
-describe('runCommonKeyValueDBTest', () => runCommonKeyValueDBTest(db))
-describe('runCommonKeyValueDaoTest', () => runCommonKeyValueDaoTest(db))
+describe('runCommonKeyValueDBTest', async () => {
+  await runCommonKeyValueDBTest(db)
+})
+
+describe('runCommonKeyValueDaoTest', async () => {
+  await runCommonKeyValueDaoTest(db)
+})
